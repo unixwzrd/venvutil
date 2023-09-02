@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+
+import torch
+import os
+import timeit
+import cProfile
+
+def main():
+    size = 2000
+    A = torch.rand(size, size)
+    B = torch.rand(size, size)
+
+    # Number of iterations
+    iterations = 10
+
+    # Matrix multiplication
+    multiplication_time = timeit.timeit(lambda: torch.mm(A, B), number=iterations)
+    print(f"Time for matrix multiplication: {multiplication_time/iterations:.4f} seconds")
+
+    # Matrix transposition
+    transposition_time = timeit.timeit(lambda: torch.t(A), number=iterations)
+    print(f"Time for matrix transposition: {transposition_time/iterations:.4f} seconds")
+
+    # Eigenvalue computation
+    eigenvalue_time = timeit.timeit(lambda: torch.linalg.eig(A), number=iterations)
+    print(f"Time for eigenvalue computation: {eigenvalue_time/iterations:.4f} seconds")
+
+    # Fourier transformation
+    fft_time = timeit.timeit(lambda: torch.fft.fft(A), number=iterations)
+    print(f"Time for Fourier transformation: {fft_time/iterations:.4f} seconds")
+
+    # Summation
+    summation_time = timeit.timeit(lambda: torch.sum(A), number=iterations)
+    print(f"Time for summation: {summation_time/iterations:.4f} seconds")
+
+if __name__ == "__main__":
+
+    print("Producing information for VENV ----> ", os.getenv("CONDA_DEFAULT_ENV"))
+
+    if os.getenv('NO_TEST') == "1":
+        print("############### Skipping performance checks.")
+    else:
+        profiler = cProfile.Profile()
+        profiler.enable()
+        main()
+        profiler.disable()
+        profiler.print_stats(sort='cumulative')
+

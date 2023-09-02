@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+
+import numpy as np
+import os
+import time
+from datetime import datetime
+from io import StringIO
+import sys
+
+def print_with_timestamp(message):
+    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} {message}")
+
+def main():
+    size = 2500
+    A = np.random.rand(size, size)
+    B = np.random.rand(size, size)
+
+    # Number of iterations
+    iterations = 100
+
+    tests = [
+        ("Matrix multiplication", lambda: np.dot(A, B)),
+        ("Matrix transposition", lambda: np.transpose(A)),
+        ("Eigenvalue computation", lambda: np.linalg.eigvals(A)),
+        ("Fourier transformation", lambda: np.fft.fft(A)),
+        ("Summation", lambda: np.sum(A))
+    ]
+
+    for name, test_func in tests:
+        print_with_timestamp(f"BEGIN TEST: {name}")
+        start = time.time()
+        for _ in range(iterations):
+            test_func()
+        end = time.time()
+        print_with_timestamp(f"Time for {name.lower()}: {(end - start):.4f} seconds")
+        print_with_timestamp("END TEST / BEGIN NEXT TEST")
+
+if __name__ == "__main__":
+    print_with_timestamp(f"Producing information for VENV ----> {os.getenv('CONDA_DEFAULT_ENV')}")
+
+    # Capture np.show_config() output and print it line by line with timestamps
+    old_stdout = sys.stdout
+    new_stdout = StringIO()
+    sys.stdout = new_stdout
+    np.show_config()
+    sys.stdout = old_stdout
+
+    for line in new_stdout.getvalue().split("\n"):
+        print_with_timestamp(line)
+
+    if os.getenv('NO_TEST') == "1":
+        print_with_timestamp("############### Skipping performance checks.")
+    else:
+        main()
+
+    print_with_timestamp("END OF ALL TESTS")

@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+
+import torch
+import os
+import time
+
+def main():
+    size = 2000
+    A = torch.rand(size, size)
+    B = torch.rand(size, size)
+
+    # Number of iterations
+    iterations = 10
+
+    # Matrix multiplication
+    start = time.time()
+    for _ in range(iterations):
+        torch.mm(A, B)
+    end = time.time()
+    print(f"Time for matrix multiplication: {(end - start):.4f} seconds")
+
+    # Matrix transposition
+    start = time.time()
+    for _ in range(iterations):
+        torch.t(A)
+    end = time.time()
+    print(f"Time for matrix transposition: {(end - start):.4f} seconds")
+
+    # Eigenvalue computation
+    start = time.time()
+    for _ in range(iterations):
+        torch.linalg.eig(A)
+    end = time.time()
+    print(f"Time for eigenvalue computation: {(end - start):.4f} seconds")
+
+    # Fourier transformation
+    start = time.time()
+    for _ in range(iterations):
+        torch.fft.fft(A)
+    end = time.time()
+    print(f"Time for Fourier transformation: {(end - start):.4f} seconds")
+
+    # Summation
+    start = time.time()
+    for _ in range(iterations):
+        torch.sum(A)
+    end = time.time()
+    print(f"Time for summation: {(end - start):.4f} seconds")
+
+if __name__ == "__main__":
+
+    print("Producing information for VENV ----> ", os.getenv("CONDA_DEFAULT_ENV"))
+
+    if os.getenv('NO_TEST') == "1":
+        print("############### Skipping performance checks.")
+    else:
+        main();
+

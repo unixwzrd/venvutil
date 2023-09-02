@@ -1,0 +1,312 @@
+#!/bin/bash
+
+# set -o xtrace
+
+THIS_SCRIPT=$0
+umask 022
+
+# If we were called by ourselves we shoudl have a _CONDA_ROOT set and need to source
+# in the Conda stuff for everything to work.  It seems that conda is defined as a
+# shell function and must be sourced in the environment in order to activate and
+# deactivate environments.
+CONDA_ROOT=${_CONDA_ROOT:-$(conda info -s | grep CONDA_ROOT | cut -d " " -f 2)}
+[ -e ${CONDA_ROOT}/bin/activate ] && . ${CONDA_ROOT}/bin/activate \
+                                  || ( echo "Conda environment not found! Check your environment for Conda." && exit 1 )
+
+# Override th edefaults in a config file in th ecurrent directory. Check again for one in
+# the build base directory.
+[ -e ./config.sh ] && . ./config.sh
+
+# Source in some useful shortcut functions for VENV management.
+echo "====================> SOURCING IN VENV MANAGEMENT FUNCTIONS"
+. ${HOME}/shinclude/venv-funcs.sh
+echo "====================> SOURCING IN VENV MANAGEMENT FUNCTIONS COMPLETE"
+
+
+# Set the build order and the packages to install/reinstall
+PACKAGE_INSTALL=(
+"numpy"
+"pytorch"
+"numpy"
+"webui"
+"rnumpy"
+"llama-cpp-python"
+"rnumpy"
+)
+
+PI_PACKAGE=0
+PI_INSTYPE
+# Set up th edefault build sequence and configuration for the VENV's.
+#
+PACKAGE_CONFIG=(
+#    CONFIG     |  DESCRIPTION                                                      | PACKAGE   |  ALT_NAME | PRE_FLAGS                                                | METHOD|  POST_FLAGS
+    "base       |  Standard Pip install                                              | numpy     | |                                                            | pip   | --force-reinstall"
+    "conda      |  Standard Conda package install                                    | numpy     | |                                                            | conda | -y"
+    "recomp     |  Standard Pip recompile - non-binary install                       | numpy     | |                                                            | pip   | --force-reinstall --no-cache --no-binary :all: --compile"
+    "accelerate |  Pip install using Accelerate Framework where possible             | numpy     | | NPY_BLAS_ORDER='accelerate' NPY_LAPACK_ORDER='accelerate'  | pip   | --force-reinstall --no-cache --no-binary :all: --compile"
+    "oblas      |  Pip Install recompile using OpenBLAS                              | numpy     | | NPY_BLAS_ORDER='openblas' NPY_LAPACK_ORDER='openblas'      | pip   | --force-reinstall --no-cache --no-binary :all: --compile"
+    "blis       |  Pip Install recompile using BLIS                                  | numpy     | | NPY_BLAS_ORDER='blis'                                      | pip   | --force-reinstall --no-cache --no-binary :all: --compile"
+    "blisblas   |  Pip Install recompile using BLIS for OpenBLAS and BLAS for LAPACK | numpy     | | NPY_BLAS_ORDER='blis' NPY_LAPACK_ORDER='openblas'          | pip   | --force-reinstall --no-cache --no-binary :all: --compile"
+    "base       |  Stangard conda install for PyTorch                                | pytorch   | |                                                            | conda | torchvision -c pytorch nstal"
+    "pip        |  Stangard pip install for Torch                                    | pytorch   | torch |                                                      | pip   | --force-reinstall"
+    "base       |  Oobabooga install                                                 | webui     | |                                                            | git   | clone https://github.com/oobabooga/text-generation-webui.git webui"
+    "base       |  Stangard pip install for Torch                                    | llama-cpp-python | | CMAKE_ARGS='--fresh -DLLAMA_METAL=ON' FORCE_CMAKE=1 | pip   | --force-reinstall --no-cache --no-binary :all: --compile llama-cpp-python"
+)
+
+PC_CONFIG=0
+PC_DESC=1
+PC_PACKAGE=2
+PC_ALT_NAME=3
+PC_PRE_FLAGS=4
+PC_METHOD=5
+PC_POST_FLAGS=6
+
+
+APP_CODE="bld"
+
+# Double the number of CPU cores for make jobs. This need set in order for iTerm to not
+# fall behind and begin generating PDF files.
+N_CPU=$(( ( $(sysctl -n hw.ncpu ) - 1)   * 2 ))
+
+# Effectively making CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework =Wl,Accelerate -DNO_ATLAS_INFO=3 -DHAVE_CBLAS"
+# ACCELERATE_CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework =Wl,Accelerate -DNO_ATLAS_INFO=3 -DHAVE_CBLAS"
+
+# Get guild directories and all set up, may be overridden in th econfig file.
+__BUILD_BASE="${BUILD_BASE:=${HOME}/projects/AI/experimental/install/testinstall}"
+[ -e ${__BUILD_BASE}/config.sh ] && . ${__BUILD_BASE}/config.sh
+
+__BUILD_DIR="${BUILD_DIR:=${__BUILD_BASE}/build}"
+__BENCHMARK_DIR=${__BUILD_DIR}/benchmark
+[ -e ${__BUILD_BASE} ] || mkdir -p ${__BUILD_BASE}
+[ -e ${__BUILD_DIR} ] || mkdir -p ${__BUILD_DIR}
+[ -e ${__BENCHMARK_DIR} ] || mkdir -p ${__BENCHMARK_DIR}
+
+echo "Setting build Directory to: ${__BUILD_DIR}"
+__LASTENV_FILE="${__BUILD_DIR}/.lastenv"
+__STEP_FILE="${__BUILD_DIR}/.stepnum"
+[ -e ${__STEP_FILE} ] || echo "0" > ${__STEP_FILE}
+
+
+
+__INTERNAL_STEPS=(
+    "__CONDA"
+    "__PYTHON_BASE"
+    "__CREATE_APP_BASE"
+#   "__CMAKE"
+#   "__BLIS"
+#   "__OPENBLAS"
+)
+
+#echo ${PACKAGE_INSTALL}
+#for pkg in ${!PACKAGE_INSTALL[@]}; do
+#    echo "Package: ${PACKAGE_INSTALL[$pkg]}"
+#done
+
+#exit
+
+__CONDA(){
+    # Conda install
+    cd ${__BUILD_DIR}
+    [ -e ./tmp ] || mkdir tmp
+    cd tmp
+    curl  https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o miniconda.sh
+    # Do a non-destructive Conda install whcih will preserve existing VENV's
+    sh miniconda.sh -b -u
+    . ${HOME}/miniconda3/bin/activate
+    conda init $(basename ${SHELL})
+    conda update -n base -c defaults conda -y
+    # Replace the shell name below with your preferred shell. The -l switch gives you a login shell
+    # and, contrary to what you may heard, you don't have to log out or exit the terminal. Simply
+    # exec the shell and it will reload your environment variables with the additional Conda ones
+    # set. This also works in Linux and most other Unix-like POSIX operating systems.
+    export _CONDA_ROOT
+    cd ${__BUILD_BASE}
+    # Since the code is re-entrant, we want to make sure we don't re-enter this function.
+    # this function will never return so it will never get back to the case statement and
+    # write the step number out. I've put that part in the script, but it will never reach that
+    # part.  If we don't this will spawn more bash shells, ythan you want to imagine. I'm considering
+    # setting ulimit to something like 500
+    echo "1" > ${__STEP_FILE}
+    echo "Re-running in new Conda environment"
+    # [ ${DEBUG} == 1 ] && exec bash -l -x -c "${THIS_SCRIPT}; exec bash -l"
+    exec bash -l -c "${THIS_SCRIPT}; exec bash -l"
+}
+
+
+
+# Python BASE
+__PYTHON_BASE(){
+    __PYVER=3
+    __PYREL=10
+    __PYBASE="python${__PYVER}.${__PYREL}"
+    benv ${__PYBASE} python==${__PYVER}.${__PYREL}.*
+}
+
+
+# CREATE THE BASE APP VENV
+__CREATE_APP_BASE(){
+    echo "CREATING THE APPLICATION BUILD BASE"
+    for newenv in ${APP_CODE}
+    do
+        cact ${__PYBASE}
+        nenv ${newenv}
+    done
+    echo ${CONDA_DEFAULT_ENV} > ${__LASTENV_FILE}
+}
+
+
+# BUILD CMAKE
+__CMAKE(){
+    URL_CMAKE="https://github.com/Kitware/CMake.git"
+    cd ${__BUILD_DIR}
+    git clone ${URL_CMAKE}
+    mkdir -p CMake/build
+    cd CMake/build
+    ../bootstrap
+    make -j ${N_CPU}
+    make install
+}
+
+
+# BUILD BLIS
+__BLIS(){
+    URL_BLIS="https://github.com/flame/blis.git"
+    cd ${__BUILD_DIR}
+    git clone ${URL_BLIS}
+    mkdir -p blis/build-blis
+    cd blis/build-blis
+    # The ARMv1.2 ThunderX2 (NEON) seems to be supported, though this is missing soem of the features
+    # in the M1 and M2 families.
+    #
+    #  M1    ARMv8.4-A 64-bit   "Firestorm+Icestorm" (NEON)
+    #  M2    ARMv8.6-A 64-bit   "Avalanche+Blizzard" (NEON)
+    #
+    # ARMv8.1 ThunderX2 (NEON) seens to work.
+    #
+    # The configuration for ARMv8.1AFX (SVE) is not supported and fails testing. I could not find out
+    # much more information on this architecture.
+    #
+    ../configure \
+        --enable-shared \
+        --enable-threading=auto \
+        --enable-system \
+        --enable-blas \
+        --enable-cblas \
+            thunderx2
+    make -j ${N_CPU}
+    make -j ${N_CPU} test
+    make install
+}
+
+
+# BUILD OpenBLAS
+__OPENBLAS(){
+    URL_OPENBLAS="https://github.com/xianyi/OpenBLAS"
+    cd ${__BUILD_DIR}
+    git clone ${URL_OPENBLAS}
+    mkdir -p OpenBLAS/build
+    cd OpenBLAS/build
+    cmake -DBUILD_SHARED_LIBS="YES" -DC_LAPACK="YES" ..
+    make -j ${N_CPU}
+    make -j ${N_CPU} test
+    make install
+}
+
+
+strip_space(){
+    echo $*
+}
+
+__PKG_BUILD(){
+    __BUILD_PACKAGE=$1; __INST_TYPE=$2
+    echo "====================> BUILDING PACKAGE AND ENVIRONMENTS FOR ${__BUILD_PACKAGE}"
+    # Get the last successfully created base VENV for the previous package
+    __PREV_VENV=$(cat ${__LASTENV_FILE})
+    # Set the current active environment.
+    cact ${__PREV_VENV}
+    # Current environment clone using the PACKAGE name passed and amke it active.
+    ccln ${__BUILD_PACKAGE}
+    # Preserve the name of teh new current environment.
+    last_build_env=${CONDA_DEFAULT_ENV}
+    # Loop through the keys and values in PACKAGE_CONFIG and if teh match the BUILD_PACKAGE,
+    # build them using the attributes in the arary.
+    for i in ${!PACKAGE_CONFIG[@]}; do
+        IFS='|' read -ra DETAILS <<< "${PACKAGE_CONFIG[$i]}"
+        # Strip leading and trailing whitespace as this causes a problem with the name check
+        __PACKAGE=$(strip_space ${DETAILS[${PC_PACKAGE}]})
+        echo "====================> PACKAGE TO BUILD: ${__PACKAGE}"
+        if [ ${__PACKAGE} == ${__BUILD_PACKAGE} ]; then
+            # Set current active VENV to the alst VENV built as it will be th estart of
+            # the branch each time.
+            cact ${last_build_env}
+            echo "====================> BUILDING PACKAGE: ${__PACKAGE} BUILD_PACKAGE: ${__BUILD_PACKAGE}"
+            # Parse the entry on the PACKAGE_CONFIG array
+            __CONFIG=${DETAILS[${PC_CONFIG}]}
+            __DESCRIPTION=${DETAILS[${PC_DESC}]}
+            __ALT_NAME=$(strip_space ${DESCRIPTION[${PC_ALT_NAME}]})
+            __PACKAGE=${__ALT_NAME:-${__PACKAGE}}
+            __PRE_FLAGS=${DETAILS[${PC_PRE_FLAGS}]}
+            __METHOD=$(strip_space ${DETAILS[${PC_METHOD}]})
+            __POST_FLAGS=${DETAILS[${PC_POST_FLAGS}]}
+            __VENV_BUILD=${__PACKAGE}-${__CONFIG}
+            # Create a clone of the current envirnment, this will also increment the sequence number.
+            ccln ${__VENV_BUILD}
+            echo "====================> VENV FOR INSTALL: ${__VENV_BUILD}"
+            echo "====================> VENV FOR INSTALL: ${CONDA_DEFAULT_ENV}"
+            echo "DESCRIPTION: ${__DESCRIPTION}"
+            # Construct the install command using the order of teh arguments based on the install method.
+            case "${__METHOD}" in
+                pip)
+                    echo "====================> PIP INSTALL SELECTED"
+                    __COMMAND="${__PRE_FLAGS} ${__METHOD} install ${__POST_FLAGS} ${__PACKAGE}"
+                    ;;
+                conda)
+                    echo "====================> CONDA INSTALL SELECTED"
+                    __COMMAND="${__PRE_FLAGS} ${__METHOD} install ${__PACKAGE} ${__POST_FLAGS}"
+                    ;;
+                func)
+                    echo "====================> FUNCTION CALL SELECTED"
+                    # __COMMAND="${__PRE_FLAGS} ${__MEtHOd} "
+                    ;;
+                git)
+                    echo "====================> GIT METHOD SELECTED"
+                    __COMMAND="${__PRE_FLAGS} ${__METHOD} ${__POST_FLAGS}"
+                    ;;
+                * )
+                    echo "====================> Skipping unknown method ===================> ${__METHOD}"
+                    __COMMAND="true"
+                    ;;
+            esac
+            # Install the package using the command string we constructed.
+            echo "====================> COMMAND: ${__COMMAND}"
+            eval "${__COMMAND}"
+        fi
+    done
+    # Write the base checkpoint VENV name to a state file so we are restartable.
+    echo  "${CONDA_DEFAULT_ENV}" > ${__LASTENV_FILE}
+    echo "====================> EXITING BUILD FOR PACKAGE: ${__BUILD_PACKAGE}"
+}
+
+
+# MAIN SCRIPT
+# Combine internal steps with package builds
+__BUILD_STEPS=("${__INTERNAL_STEPS[@]}")
+for pkg in ${!PACKAGE_INSTALL[@]}; do
+    IFS='|' read -ra DETAILS <<< "${PACKAGE_CONFIG[$i]}"
+    # Strip leading and trailing whitespace as this causes a problem with the name check
+    __PI_PACKAGE=$(strip_space ${DETAILS[${PC_PACKAGE}]})
+    echo "ADDING PACKAGE: ${pkg}   -- ${__PI_PACKAGE}"
+    __BUILD_STEPS=("${__BUILD_STEPS[@]}" "__PKG_BUILD ${__PI_PACKAGE} ${DETAILS[${PI_INSTYP}]}")
+done
+
+stepnum=$(cat ${__STEP_FILE})
+for (( step_num=${stepnum}; step_num<${#__BUILD_STEPS[@]}; step_num++)); do
+    step=${__BUILD_STEPS[$step_num]}
+    echo "====================> CALLING PACKAGE BUILDER fOR: ${step}"
+    eval $step || exit 1
+    echo $((i + step_num)) > ${__STEP_FILE}
+done
+
+echo "====================> ALL STEPS COMPLETED"
+
+exit
