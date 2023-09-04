@@ -1,0 +1,23 @@
+#!/bin/bash
+
+BENCH_BASE=${HOME}/projects/AI-PROJECTS/experimental/install/venv-build-checker
+
+export PATH=${BENCH_BASE}/bin:${PATH}
+
+CONDA_ROOT=${_CONDA_ROOT:-$(conda info -s | grep CONDA_ROOT | cut -d " " -f 2)}
+[ -e ${CONDA_ROOT}/bin/activate ] && . ${CONDA_ROOT}/bin/activate \
+                                  || ( echo "Conda environment not found! Check your environment for Conda." && exit 1 )
+
+. ${BENCH_BASE}/bin/shinclude/venv-funcs.sh
+
+
+( vm_stat 1 | filter-vm_stat -d -s ) &
+
+for venv in `lenv | grep webui.0 | cut -d " " -f 1 `
+do
+    cact $venv
+    numpybench -d 
+done
+
+sleep 10
+kill %1

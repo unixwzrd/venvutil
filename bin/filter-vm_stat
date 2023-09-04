@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import json
+import signal
+from argparse import ArgumentParser
+from datetime import datetime
+
+# Signal handler to close the file gracefully
+def signal_handler(signum, frame):
+    if datafile:
+        datafile.close()
+    sys.exit(0)
+
+# Initialize argparse
+parser = ArgumentParser(description="Filter vm_stat output.")
+parser.add_argument("-d", "--datafile", type=str, nargs='?', const=f"{os.getenv('CONDA_DEFAULT_ENV', 'default')}-timing.json", default=None, help="Specify the datafile to write the output to.")
+parser.add_argument("-s", "--silent", action="store_true", help="Suppress STDOUT.")
+args = parser.parse_args()
+
+# Register the signal handler
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+
+
+def filter_vm_stat(datafile, silent):
+    first_header = True
+    lines_skipped = 0
+    headers = []
+    json_data = []
+
+    for line in sys.stdin:
+        
+        if "Mach Virtual Memory Statistics:" in line:
+            lines_skipped = 0  # Reset the skipped lines counter
+            continue  # Skip this line
+
+        lines_skipped += 1  # Increment the skipped lines counter
+
+        if lines_skipped == 1:
+            if first_header:
+                if not silent:
+                    print(line[:-1])
+                headers = line.split()
+                first_header = False  # Mark that the first header has been printed
+            continue  # Skip this line for subsequent headers
+
+        if lines_skipped == 2:
+            continue  # Skip this line, it's the third line of any header
+
+        # Write the line to STDOUT if it's not suppressed
+        if not silent:
+            print(line[:-1])
+
+        if datafile:
+            # Combine the current date and time into a single field
+            current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            data_values = line.strip().split()[2:]  # Skip the first two fields, they are not data
+
+            # Create a JSON object for this line of data
+            data_dict = {"datetime": current_datetime}
+            for header, value in zip(headers, data_values):
+                data_dict[header] = int(value)  # Assuming all data values are integers
+
+            json.dump(data_dict, datafile)
+            datafile.write('\n')
+
+            # Write the JSON data to the datafile
+            json_data.append(data_dict)
+
+# Usage
+if __name__ == "__main__":
+    datafile = None
+    if args.datafile:
+        datafile = open(args.datafile, 'w')
+
+    filter_vm_stat(datafile, args.silent)
+
+    if datafile:
+        datafile.close()

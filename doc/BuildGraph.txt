@@ -1,0 +1,26 @@
+Base Config-+-NumPy Conda------+-PyTorch Pip---+-NumPy Conda------+-Llama-cpp-python
+            |                  |               |
+            |                  |               +------------------+-Llama-cpp-python
+            |                  |
+            |                  |
+            |                  +-PyTorch Conda-+-NumPy Conda------+-Llama-cpp-python
+            |                                  |
+            |                                  +------------------+-Llama-cpp-python
+            |
+            +-NumPy Pip--------+-PyTorch Pip---+-NumPy Pip--------+-Llama-cpp-python
+            |                  |               |
+            |                  |               +------------------+-Llama-cpp-python
+            |                  |
+            |                  |
+            |                  +-PyTorch Conda-+-NumPy Pip--------+-Llama-cpp-python
+            |                                  |
+            |                                  +------------------+-Llama-cpp-python
+            |
+            +-NumPy Accelerate-+-PyTorch Pip---+-NumPy Accelerate-+-Llama-cpp-python
+                               |               |
+                               |               +------------------+-Llama-cpp-python
+                               |
+                               |
+                               +-PyTorch Conda-+-NumPy Accelerate-+-Llama-cpp-python
+                                               |
+                                               +------------------+-Llama-cpp-python

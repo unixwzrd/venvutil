@@ -39,7 +39,7 @@ PI_INSTYPE
 # Set up th edefault build sequence and configuration for the VENV's.
 #
 PACKAGE_CONFIG=(
-#    CONFIG     |  DESCRIPTION                                                      | PACKAGE   |  ALT_NAME | PRE_FLAGS                                                | METHOD|  POST_FLAGS
+#    CONFIG     |  DESCRIPTION                                                      | PACKAGE    | ALT_NAME | PRE_FLAGS                                         | METHOD|  POST_FLAGS
     "base       |  Standard Pip install                                              | numpy     | |                                                            | pip   | --force-reinstall"
     "conda      |  Standard Conda package install                                    | numpy     | |                                                            | conda | -y"
     "recomp     |  Standard Pip recompile - non-binary install                       | numpy     | |                                                            | pip   | --force-reinstall --no-cache --no-binary :all: --compile"
