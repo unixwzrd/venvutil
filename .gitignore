@@ -189,3 +189,6 @@ doc/GPT-*.md
 .swp
 
 tmp/
+.*.sw[a-z]
+
+build

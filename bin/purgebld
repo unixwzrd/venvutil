@@ -1,0 +1,20 @@
+#!/bin/bash
+# set -o xtrace
+
+[ -L "$0" ] && THIS_SCRIPT=$(readlink -f "$0") || THIS_SCRIPT="$0"
+MY_NAME=$(basename ${THIS_SCRIPT})
+MY_BIN=$(dirname ${THIS_SCRIPT})
+MY_ARGS=$*
+MY_INCLUDE="${MY_BIN}/shinclude"
+[ -f ${MY_INCLUDE}/init_env.sh ] && . ${MY_INCLUDE}/init_env.sh \
+    || ( echo "Could not find init_env.sh in INCLUDEDIR: ${MY_INCLUDE}"; exit 1 )
+
+for app_code in ${MY_ARGS}
+do
+    echo "${MY_NAME}: Purging code: ${env}"
+    for venv in `lenv | sort | egrep "^${app_code}" | cut -d " " -f 1`
+    do
+        echo "${MY_NAME}: Purging VEBV: ${venv}"
+#        denv ${venv}
+    done
+done
