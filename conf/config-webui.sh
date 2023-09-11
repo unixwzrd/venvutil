@@ -4,10 +4,6 @@
 # other code wil be staged, configured, built and installed from.
 #
 # The default location is the current directory.
-BUILD_BASE=${PWD}
-echo "==============================================> BUILD_BASE SET TO: ${BUILD_BASE}"
-BUILD_DIR=${PWD}/build
-echo "==============================================> BUILD_DIR SET TO: ${BUILD_DIR}"
 
 # ACCELERATE_CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework =Wl,Accelerate -DNO_ATLAS_INFO=3 -DHAVE_CBLAS"
 
@@ -32,15 +28,16 @@ __URL_LLAMA_CPP_PYTHON=https://github.com/abetlen/llama-cpp-python.git
 # PAACKAGE  - The package in sequence corresponding to the PACKAGE in PACKAGE_CONFIG.
 #
 PACKAGE_INSTALL=(
-#    PACKAGE          | INSTYPE
-    "numpy            | I "
-    "pytorch          | I "
-    "webui            | O "
+#   PACKAGE           | INSTYPE
+#   "numpy            | I "
+#   "pytorch          | I "
+#   "webui            | O "
 #   "oobapkgs"        | O "
 #   "oobaxtn"         | O "
-    "numpy            | R "
-    "llama-cpp-python | I "
+#   "numpy            | R "
+#   "llama-cpp-python | I "
 )
+# Field positions for fields in the PACKAGE_INSTALL
 PI_PACKAGE=0
 PI_INSTYPE=1
 
@@ -50,7 +47,7 @@ PI_INSTYPE=1
 # TODO - Add function calling ability and adding functions to this config.sh file.
 # TODO - "Sandboxing" of libraries in their own "PREFIX" location like /usr/local
 #        but rather a unique location so runtime and static linkers will use that
-#        location for lobraries instead of th edefault.
+#        location for lobraries instead of the default.
 #
 # CONFIG      - unique build identifier
 # DESCRIPRION - Long Description of the configuration
@@ -59,7 +56,7 @@ PI_INSTYPE=1
 #               on th epackage source.
 # PRE_FLAGS   - Pre Conda/Pip flags passed
 # METHOD      - Method of install or package manager to use ( pip | conda | git | func )
-# POST_FLAGS  - Installer invication flags
+# POST_FLAGS  - Installer invocation flags
 #
 PACKAGE_CONFIG=(
 #    CONFIG     | DESCRIPTION                                                      | PACKAGE   | ALT_NAME | PRE_FLAGS                                         | METHOD|  POST_FLAGS
@@ -77,6 +74,7 @@ PACKAGE_CONFIG=(
 #   "oobapkg    | Install oobagooba's packages using a function call                | oobapkg   | |                                                           | func  | "
 #   "oobaext    | oobaboogs extensions                                              | oobaext   | |                                                           | func  | "
 )
+# Field positions for fields in the PACKAGE_CONFIG
 PC_CONFIG=0
 PC_DESC=1
 PC_PACKAGE=2
@@ -113,5 +111,5 @@ EXTENSIONS=(
 
 oobaxtns(){
     echo "INSTALLING OOBABOOGA EXTENSION PACKAGES"
-    cd ${BUILD_DIR}/webui
+    cd ${BUILD_DIR}
 }

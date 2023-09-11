@@ -20,8 +20,7 @@ parser.add_argument("-d", "--datafile", type=str, nargs='?',
                     default=f"{os.getenv('CONDA_DEFAULT_ENV', 'default')}-timing.txt",
                     help="Specify the datafile to write the output to.")
 parser.add_argument("-s", "--skip-tests", action="store_true", help="Skip time-consuming tests.")
-parser.add_argument("-c", "--count", type=int, default=1,
-                    help="Number of iterations.")
+parser.add_argument("-c", "--count", type=int, default=1, help="Number of iterations.")
 
 # Parse the arguments
 args = parser.parse_args()

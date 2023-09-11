@@ -15,6 +15,6 @@ do
     for venv in `lenv | sort | egrep "^${app_code}" | cut -d " " -f 1`
     do
         echo "${MY_NAME}: Purging VEBV: ${venv}"
-#        denv ${venv}
+       denv ${venv}
     done
 done
