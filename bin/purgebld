@@ -1,5 +1,4 @@
 #!/bin/bash
-# set -o xtrace
 
 [ -L "$0" ] && THIS_SCRIPT=$(readlink -f "$0") || THIS_SCRIPT="$0"
 MY_NAME=$(basename ${THIS_SCRIPT})
