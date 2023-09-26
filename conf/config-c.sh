@@ -117,6 +117,8 @@ PACKAGE_CONFIG=(
 
 oobapkgs(){
     echo "${MY_NAME}: Installing all application packages."
+    # CLone the current VENV and make the clone active.
+    ccln oobapkgs
     cd ${BUILD_DIR}/webui-macOS
     pip install -r requirements.txt
 }

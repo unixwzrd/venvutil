@@ -227,7 +227,7 @@ __PKG_BUILD(){
     for i in ${!PACKAGE_CONFIG[@]}; do
         IFS='|' read -ra DETAILS <<< "${PACKAGE_CONFIG[$i]}"
         # Strip leading and trailing whitespace as this causes a problem with the name check
-        __PACKAGE=$(strip_space ${DETAILS[${PC_PACKAGE}]})
+        __PACKAGE=$(__strip_space ${DETAILS[${PC_PACKAGE}]})
 
         echo "${MY_NAME}: PACKAGE TO BUILD: ${__PACKAGE}"
         echo "${MY_NAME}: PACKAGE TO MATCH: ${__PACKAGE} <=> ${__BUILD_PACKAGE}"
@@ -239,10 +239,10 @@ __PKG_BUILD(){
             # Split the entry on the PACKAGE_CONFIG array
             __CONFIG=${DETAILS[${PC_CONFIG}]}
             __DESCRIPTION=${DETAILS[${PC_DESC}]}
-            __ALT_NAME=$(strip_space ${DESCRIPTION[${PC_ALT_NAME}]})
+            __ALT_NAME=$(__strip_space ${DESCRIPTION[${PC_ALT_NAME}]})
             __PACKAGE=${__ALT_NAME:-${__PACKAGE}}
             __PRE_FLAGS=${DETAILS[${PC_PRE_FLAGS}]}
-            __METHOD=$(strip_space ${DETAILS[${PC_METHOD}]})
+            __METHOD=$(__strip_space ${DETAILS[${PC_METHOD}]})
             __POST_FLAGS=${DETAILS[${PC_POST_FLAGS}]}
             __VENV_BUILD=${__PACKAGE}-${__CONFIG}
             # Construct the install command using the order of the arguments based on the install method.
@@ -299,7 +299,7 @@ __BUILD_STEPS=("${__INTERNAL_STEPS[@]}")
 for pkg in ${!PACKAGE_INSTALL[@]}; do
     IFS='|' read -ra DETAILS <<< "${PACKAGE_INSTALL[$pkg]}"
     # Strip leading and trailing whitespace as this causes a problem with the name check
-    __PI_PACKAGE=$(strip_space ${DETAILS[${PI_PACKAGE}]})
+    __PI_PACKAGE=$(__strip_space ${DETAILS[${PI_PACKAGE}]})
     echo "${MY_NAME}: ADDING PACKAGE: ${pkg}   -- ${__PI_PACKAGE}"
     __BUILD_STEPS=("${__BUILD_STEPS[@]}" "__PKG_BUILD ${__PI_PACKAGE} ${DETAILS[${PI_INSTYP}]}")
 done
