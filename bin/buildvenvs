@@ -1,7 +1,7 @@
 #!/bin/bash
 #set -o xtrace
 
-[ -L "$0" ] && THIS_SCRIPT=$(readlink -f "$0") || THIS_SCRIPT="$0"
+[ -L "$0" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 MY_NAME="$(basename ${THIS_SCRIPT})"
 MY_BIN="$(dirname ${THIS_SCRIPT})"
 MY_DIR="$(dirname ${MY_BIN})"
@@ -92,15 +92,7 @@ __STEP_FILE="${__BUILD_DIR}/.stepnum"
 [ -e ${__STEP_FILE} ] || echo "0" > ${__STEP_FILE}
 
 
-# Internal steps done to set up th einitial Conda VENV for an application.
-__INTERNAL_STEPS=(
-    "__CONDA"
-    "__PYTHON_BASE"
-    "__CREATE_APP_BASE"
-#   "__CMAKE"
-#   "__BLIS"
-#   "__OPENBLAS"
-)
+
 
 
     # Conda install

@@ -1,6 +1,9 @@
 #!/bin/bash
 
-[ -L "$0" ] && THIS_SCRIPT=$(readlink -f "$0") || THIS_SCRIPT="$0"
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+
+echo "Running ${THIS_SCRIPT}"
+
 MY_NAME=$(basename ${THIS_SCRIPT})
 MY_BIN=$(dirname ${THIS_SCRIPT})
 MY_ARGS=$*
@@ -10,7 +13,7 @@ MY_INCLUDE="${MY_BIN}/shinclude"
 
 for app_code in ${MY_ARGS}
 do
-    echo "${MY_NAME}: Purging code: ${env}"
+    echo "${MY_NAME}: Purging code: ${app_code}"
     for venv in `lenv | sort | egrep "^${app_code}" | cut -d " " -f 1`
     do
         echo "${MY_NAME}: Purging VEBV: ${venv}"

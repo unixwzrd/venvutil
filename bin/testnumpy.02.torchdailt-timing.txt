@@ -1,0 +1,85 @@
+2023-09-27 14:55:10 Producing information for VENV ----> testnumpy.02.torchdailt
+2023-09-27 14:55:10 {
+2023-09-27 14:55:10   "Compilers": {
+2023-09-27 14:55:10     "c": {
+2023-09-27 14:55:10       "name": "clang",
+2023-09-27 14:55:10       "linker": "ld64",
+2023-09-27 14:55:10       "version": "15.0.0",
+2023-09-27 14:55:10       "commands": "cc"
+2023-09-27 14:55:10     },
+2023-09-27 14:55:10     "cython": {
+2023-09-27 14:55:10       "name": "cython",
+2023-09-27 14:55:10       "linker": "cython",
+2023-09-27 14:55:10       "version": "3.0.2",
+2023-09-27 14:55:10       "commands": "cython"
+2023-09-27 14:55:10     },
+2023-09-27 14:55:10     "c++": {
+2023-09-27 14:55:10       "name": "clang",
+2023-09-27 14:55:10       "linker": "ld64",
+2023-09-27 14:55:10       "version": "15.0.0",
+2023-09-27 14:55:10       "commands": "c++"
+2023-09-27 14:55:10     }
+2023-09-27 14:55:10   },
+2023-09-27 14:55:10   "Machine Information": {
+2023-09-27 14:55:10     "host": {
+2023-09-27 14:55:10       "cpu": "aarch64",
+2023-09-27 14:55:10       "family": "aarch64",
+2023-09-27 14:55:10       "endian": "little",
+2023-09-27 14:55:10       "system": "darwin"
+2023-09-27 14:55:10     },
+2023-09-27 14:55:10     "build": {
+2023-09-27 14:55:10       "cpu": "aarch64",
+2023-09-27 14:55:10       "family": "aarch64",
+2023-09-27 14:55:10       "endian": "little",
+2023-09-27 14:55:10       "system": "darwin"
+2023-09-27 14:55:10     }
+2023-09-27 14:55:10   },
+2023-09-27 14:55:10   "Build Dependencies": {
+2023-09-27 14:55:10     "blas": {
+2023-09-27 14:55:10       "name": "dep4323778768",
+2023-09-27 14:55:10       "found": true,
+2023-09-27 14:55:10       "version": "1.26.0",
+2023-09-27 14:55:10       "detection method": "internal"
+2023-09-27 14:55:10     },
+2023-09-27 14:55:10     "lapack": {
+2023-09-27 14:55:10       "name": "dep4343799824",
+2023-09-27 14:55:10       "found": true,
+2023-09-27 14:55:10       "version": "1.26.0",
+2023-09-27 14:55:10       "detection method": "internal"
+2023-09-27 14:55:10     }
+2023-09-27 14:55:10   },
+2023-09-27 14:55:10   "Python Information": {
+2023-09-27 14:55:10     "path": "/Users/unixwzrd/miniconda3/envs/testnumpy.02.torchdailt/bin/python",
+2023-09-27 14:55:10     "version": "3.11"
+2023-09-27 14:55:10   },
+2023-09-27 14:55:10   "SIMD Extensions": {
+2023-09-27 14:55:10     "baseline": [
+2023-09-27 14:55:10       "NEON",
+2023-09-27 14:55:10       "NEON_FP16",
+2023-09-27 14:55:10       "NEON_VFPV4",
+2023-09-27 14:55:10       "ASIMD"
+2023-09-27 14:55:10     ],
+2023-09-27 14:55:10     "found": [
+2023-09-27 14:55:10       "ASIMDHP"
+2023-09-27 14:55:10     ],
+2023-09-27 14:55:10     "not found": [
+2023-09-27 14:55:10       "ASIMDFHM"
+2023-09-27 14:55:10     ]
+2023-09-27 14:55:10   }
+2023-09-27 14:55:10 }
+2023-09-27 14:55:10 
+2023-09-27 14:55:10 BEGIN TEST: Matrix multiplication
+2023-09-27 14:55:10 Time for matrix multiplication: 0.0597 seconds
+2023-09-27 14:55:10 END TEST / BEGIN NEXT TEST
+2023-09-27 14:55:10 BEGIN TEST: Matrix transposition
+2023-09-27 14:55:10 Time for matrix transposition: 0.0000 seconds
+2023-09-27 14:55:10 END TEST / BEGIN NEXT TEST
+2023-09-27 14:55:10 BEGIN TEST: Eigenvalue computation
+2023-09-27 14:55:12 Time for eigenvalue computation: 2.4140 seconds
+2023-09-27 14:55:12 END TEST / BEGIN NEXT TEST
+2023-09-27 14:55:12 BEGIN TEST: Fourier transformation
+2023-09-27 14:55:12 Time for fourier transformation: 0.0395 seconds
+2023-09-27 14:55:12 END TEST / BEGIN NEXT TEST
+2023-09-27 14:55:12 BEGIN TEST: Summation
+2023-09-27 14:55:12 Time for summation: 0.0014 seconds
+2023-09-27 14:55:12 END TEST / BEGIN NEXT TEST
