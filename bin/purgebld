@@ -1,16 +1,21 @@
 #!/bin/bash
 
-[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Set the internal environment, this call is used befor and after every time we source in a script to
+# avoid envirnment pollution.
+set_args(){
+    [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+    MY_ARGS=${BASH_ARGV[@]}
+    MY_NAME=$(basename ${THIS_SCRIPT})
+    MY_BIN=$(dirname ${THIS_SCRIPT})
+    MY_INCLUDE="${MY_BIN}/shinclude"
+}
 
-echo "Running ${THIS_SCRIPT}"
-
-MY_NAME=$(basename ${THIS_SCRIPT})
-MY_BIN=$(dirname ${THIS_SCRIPT})
-MY_ARGS=$*
-MY_INCLUDE="${MY_BIN}/shinclude"
+set_args
 [ -f ${MY_INCLUDE}/init_env.sh ] && . ${MY_INCLUDE}/init_env.sh \
-    || ( echo "Could not find init_env.sh in INCLUDEDIR: ${MY_INCLUDE}"; exit 1 )
+    || ( echo "${MY_NAME}: Could not find init_env.sh in INCLUDE_DIR: ${MY_INCLUDE}"; exit 1 )
+set_args
 
+# Delete the environments.
 for app_code in ${MY_ARGS}
 do
     echo "${MY_NAME}: Purging code: ${app_code}"

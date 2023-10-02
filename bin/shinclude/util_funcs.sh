@@ -191,3 +191,24 @@ __next_step(){
     esac
     echo "$(__zero_pad ${sn})"
 }
+
+# Generalized function to push to a stack
+push_stack() {
+    local arr_name=$1
+    local value=$2
+    eval "${arr_name}+=(\"$value\")"
+}
+
+# Generalized function to pop from a stack
+pop_stack() {
+    local arr_name=$1
+    eval "local len=\${#${arr_name}[@]}"
+    if [ $len -eq 0 ]; then
+        echo "Stack is empty"
+        return 1
+    fi
+    local last_index=$(($len - 1))
+    eval "local popped_value=\${${arr_name}[$last_index]}"
+    eval "unset '${arr_name}[$last_index]'"
+    echo "$popped_value"
+}

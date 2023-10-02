@@ -15,14 +15,14 @@
 # Function to source utility scripts
 source_util_script(){
     local script_name="$1"
-    [ -f ${MY_INCLUDE}/${script_name}.sh ] && . ${MY_INCLUDE}/${script_name}.sh \
-        || ( echo "Could not find ${script_name}.sh in INCLUDEDIR: ${MY_INCLUDE}" && exit 1 )
+    [ -f ${MY_BIN}/${script_name}.sh ] && . ${MY_BIN}/${script_name}.sh \
+        || ( echo "${MY_NAME}: Could not find ${script_name}.sh in INCLUDE_DIR: ${MY_BIN}" && exit 1 )
 }
 
 # Determine the real path of the script
-[ -L "$0" ] && THIS_SCRIPT=$(readlink -f "$0") || THIS_SCRIPT="$0"
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Don't source this script if it's already been sourced.
-[[ "${_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] return || _SOURCED_LIST="${_SOURCED_LIST} ${THIS_SCRIPT}"
+[[ "${_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || _SOURCED_LIST="${_SOURCED_LIST} ${THIS_SCRIPT}"
 echo "Sourcing:${THIS_SCRIPT}"
 
 # Extract script name, directory, and arguments

@@ -17,6 +17,21 @@ MY_INCLUDE=$( ( [ -d "${MY_BIN}/shinclude" ] && echo "${MY_BIN}/shinclude" ) || 
 # VENV Management functions
 
 
+# Initialize the stack
+__VENV_STACK=("")
+
+# Specialized push th edefaulkt VENV onto the stack
+push_venv() {
+    push_stack "__VENV_STACK" "$CONDA_DEFAULT_ENV"
+}
+
+
+# Specialized pop the VENV off th estack and decrement.j
+pop_venv() {
+    pop_stack "__VENV_STACK"
+}
+
+
 snum(){
 #
 # snum - Force set the VENV Sequence number.
@@ -31,7 +46,6 @@ snum(){
 #     - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
 # - **Exceptions**: None
 #
-    
     local new_num=$1
     
     # Validate that a number is actually provided
@@ -79,6 +93,7 @@ vnum(){
     echo "${__VENV_NUM}"
 }
 
+
 cact(){
 #
 # cact - Change active VENV
@@ -93,30 +108,35 @@ cact(){
 #     - If unsuccessful, prints an error message to STDERR and returns with status code 1.
 # - **Exceptions**: None
 #
-    
+    local new_env="$1"
+
     # Validate input
     if [ -z "$1" ]; then
         echo "Error: No VENV name provided." >&2
         return 1
     fi
 
+    # Pop from stack if top of stack matches the new environment
+    local last_index=$((${#__VENV_STACK[@]} - 1))
+    if [[ "${__VENV_STACK[$last_index]}" == "$new_env" ]]; then
+        pop_venv
+    fi
+
     # Set variables
      __VENV_NAME=$1
-     __VENV_PREV=${CONDA_DEFAULT_ENV}
      __VENV_PREFIX=$(echo "$*" | cut -d '.' -f 1)
      __VENV_DESC=$(echo "$*" | cut -d '.' -f 3-) &&  __VENV_NUM=$(echo "$*" | cut -d '.' -f 2)
      __VENV_PARMS=$(echo "$*" | cut -d '.' -f 4-)
 
+    # Push new environment to stack
+    push_venv
+
     # Deactivate current environment
-    echo "Deactivating current environment: ${CONDA_DEFAULT_ENV}..."
-    conda deactivate || { echo "Error: Failed to deactivate current environment." >&2; return 1; }
+    dact
 
     # Activate new environment
     echo "Activating new environment: ${__VENV_NAME}..."
     conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." >&2; return 1; }
-
-    # Update previous environment variable
-    __VENV_PREV=${__VENV_NAME}
 }
 
 
@@ -135,12 +155,25 @@ dact(){
 # - **Exceptions**: 
 #     - If no environment is currently activated, conda will display an appropriate message.
 #
-    if [[ -z ${CONDA_DEFAULT_ENV} ]]; then
-        echo "No conda environment is currently activated." >&2
-    else
-        echo "Deactivating: ${CONDA_DEFAULT_ENV}"
-        conda deactivate
+    local env_to_delete="$CONDA_DEFAULT_ENV"
+
+    if [ -z "${env_to_delete}" ]; then
+        echo "No conda environment is currently activated."
+        return
     fi
+    
+    # Check if the environment actually exists
+    if ! conda info --envs | awk '{print $1}' | grep -q -w "${env_to_delete}"; then
+        echo "Warning: The environment ${env_to_delete} does not exist. It might have been renamed or deleted."
+        # Optionally pop from stack
+        if [[ "${__VENV_STACK[-1]}" == "$env_to_delete" ]]; then
+            pop_stack "__VENV_STACK"
+        fi
+        return 17
+    fi
+
+    echo "Deactivating: ${env_to_delete}"
+    conda deactivate
 }
 
 pact(){
@@ -158,11 +191,13 @@ pact(){
 # - **Exceptions**: 
 #     - If no previous environment is stored, an error message will be displayed.
 #
-    if [[ -z ${__VENV_PREV} ]]; then
-        echo "No previous conda environment is stored." >&2
+    local previous_env=$(pop_venv)
+
+    # Change to previous VENV
+    if [ $? -eq 0 ]; then
+        cact "$previous_env"
     else
-        echo "Switching to previous environment: ${__VENV_PREV}"
-        cact "${__VENV_PREV}"
+        echo "No previous environment to switch to."
     fi
 }
 
@@ -319,10 +354,9 @@ renv(){
         echo "Warning: No previous environment to revert to. Reverting to base environment." >&2
         previous_env="base"
     fi
-
+    
     dact  # Deactivate the current environment
     denv ${env_to_delete}  # Delete the environment
-
     cact ${previous_env}  # Reactivate the previous environment
 }
 
@@ -352,10 +386,9 @@ ccln(){
     __VENV_NAME="${__VENV_PREFIX}.${__VENV_NUM}.${__VENV_DESC}"
 
     # Clone the VENV
-    conda create --clone "${CONDA_DEFAULT_ENV}" -n "${__VENV_NAME}" -y
+    conda create --clone "${CONDA_DEFAULT_ENV}" -n "${__VENV_NAME}" -y || return $?
 
     # Switch to the newly created VENV
-    dact
     cact "${__VENV_NAME}"
 }
 
