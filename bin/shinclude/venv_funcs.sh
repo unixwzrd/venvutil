@@ -16,7 +16,6 @@ MY_INCLUDE=$( ( [ -d "${MY_BIN}/shinclude" ] && echo "${MY_BIN}/shinclude" ) || 
 
 # VENV Management functions
 
-
 # Initialize the stack
 __VENV_STACK=("")
 
@@ -25,12 +24,10 @@ push_venv() {
     push_stack "__VENV_STACK" "$CONDA_DEFAULT_ENV"
 }
 
-
 # Specialized pop the VENV off th estack and decrement.j
 pop_venv() {
     pop_stack "__VENV_STACK"
 }
-
 
 snum(){
 #
@@ -38,12 +35,12 @@ snum(){
 #
 # - **Purpose**: Force set the VENV Sequence number.
 # - **Usage**: 
-#     snum NN
+#  -  snum NN
 # - **Input Parameters**: 
-#     1. `NN` (integer) - The VENV Sequence number to set. Must be a numeric value between 00 and 99.
+#  1. `NN` (integer) - The VENV Sequence number to set. Must be a numeric value between 00 and 99.
 # - **Output**: 
-#     - Sets the global variable `__VENV_NUM` to the zero-padded sequence number.
-#     - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
+#   - Sets the global variable `__VENV_NUM` to the zero-padded sequence number.
+#   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
 # - **Exceptions**: None
 #
     local new_num=$1
@@ -69,22 +66,20 @@ snum(){
     __VENV_NUM=$( __zero_pad "${new_num}" )
 }
 
-
 vnum(){
 #
 # vnum - Return the current VENV sequence number.
 #
 # - **Purpose**: Return the current VENV sequence number.
 # - **Usage**: 
-#     vnum
+#   - vnum
 # - **Input Parameters**: 
-#     None
+#   - None
 # - **Output**: 
-#     - Prints the current VENV sequence number to STDOUT.
-#     - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
+#   - Prints the current VENV sequence number to STDOUT.
+#   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
 # - **Exceptions**: None
 #
-
     if [ -z "${__VENV_NUM}" ]; then
         echo "Error: No VENV sequence number has been set." >&2
         return 1
@@ -92,7 +87,6 @@ vnum(){
     
     echo "${__VENV_NUM}"
 }
-
 
 cact(){
 #
@@ -127,18 +121,14 @@ cact(){
      __VENV_PREFIX=$(echo "$*" | cut -d '.' -f 1)
      __VENV_DESC=$(echo "$*" | cut -d '.' -f 3-) &&  __VENV_NUM=$(echo "$*" | cut -d '.' -f 2)
      __VENV_PARMS=$(echo "$*" | cut -d '.' -f 4-)
-
     # Push new environment to stack
     push_venv
-
     # Deactivate current environment
     dact
-
     # Activate new environment
     echo "Activating new environment: ${__VENV_NAME}..."
     conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." >&2; return 1; }
 }
-
 
 dact(){
 #
@@ -201,7 +191,6 @@ pact(){
     fi
 }
 
-
 lenv(){
 #
 # lenv - List All Current VENVs
@@ -218,7 +207,6 @@ lenv(){
 #
     conda info -e | egrep -v '^#'
 }
-
 
 lastenv(){
 #
@@ -267,7 +255,6 @@ benv(){
     cact "${env_name}"
 }
 
-
 nenv(){
 #
 # nenv - Create a New Virtual Environment in a Series
@@ -293,10 +280,8 @@ nenv(){
 
     # Reset the sequence number to start from "00"
     __VENV_NUM=""
-
     # Set the global prefix
     __VENV_PREFIX="${prefix}"
-
     # Create a clone of the base environment
     ccln "base"
 }
@@ -341,7 +326,6 @@ renv(){
 # - **Exceptions**: 
 #     - Errors during deactivation or deletion are handled by conda.
 #
-    
     local env_to_delete=${CONDA_DEFAULT_ENV}
     local previous_env=${__VENV_PREV}
 
@@ -374,7 +358,6 @@ ccln(){
 # - **Exceptions**: 
 #     - If no description is provided, an error message will be displayed.
 #
-
     # Validate input
     if [ -z "$1" ]; then
         echo "Error: No description provided for the new VENV." >&2

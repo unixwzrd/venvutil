@@ -1,4 +1,19 @@
 #!/bin/bash
+#
+# util_funcs.sh - Utility Functions for Bash Scripts
+#
+# - **Purpose**: This script provides a collection of utility functions that can be sourced and used in other bash scripts.
+# - **Usage**: 
+#     - Source this script in other bash scripts to import the utility functions.
+#     - For example, in another script: `source util_funcs.sh`.
+# - **Input Parameters**: 
+#     None
+# - **Output**: 
+#     - Provides utility functions for use in other bash scripts. Functions include string manipulation, number padding, and stack operations.
+# - **Exceptions**: 
+#     - Some functions may return specific error codes. Refer to individual function documentation for details.
+#
+
 # Capture the fully qualified path of the sourced script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Don't source this script if it's already been sourced.
@@ -7,131 +22,6 @@ echo "Sourcing:${THIS_SCRIPT}"
 
 
 # Utility functions
-
-# Source scripts variable
-SOURCE_SCRIPTS="${BASH_SOURCE[@]}"
-
-# Define an array of internal functions to exclude from help and documentation
-INTERNAL_FUNCTIONS=("init_help_system" "help_functions" "help" "generate_markdown")
-
-# Initialize a single array to store function names and their corresponding documentation
-declare -a FUNC_ARRAY
-
-# Function to populate function names and their docs
-init_help_system() {
-    [[ -n "${FUNC_ARRAY[*]}" ]] && return
-
-    local script
-    local func
-    local doc
-
-    for script in ${BASH_SOURCE[@]}; do
-        while IFS= read -r func; do
-            if [[ ! " ${FUNC_ARRAY[*]} " =~ " ${func} " ]]; then
-                doc=$(awk "BEGIN{flag=0} /^${func}\(\)/ {flag=1} /^#/ {if (flag) print substr(\$0, 3)} /^[a-zA-Z0-9_]+\(\)/ {if (\$0 !~ /^${func}\(\)/) flag=0}" "${script}")
-                FUNC_ARRAY+=("${func}")
-                FUNC_ARRAY+=("${doc}")
-            fi
-        done < <(awk -F'[(]' '/^[a-zA-Z0-9_]+\(\)/ {print $1}' "${script}")
-    done
-
-    # Sort FUNC_ARRAY based on function names while keeping them paired with their descriptions
-    for ((i=0; i<${#FUNC_ARRAY[@]}; i+=2)); do
-        for ((j=0; j<${#FUNC_ARRAY[@]}-2; j+=2)); do
-            if [[ "${FUNC_ARRAY[j]}" > "${FUNC_ARRAY[j+2]}" ]]; then
-                # Swap function names
-                temp="${FUNC_ARRAY[j]}"
-                FUNC_ARRAY[j]="${FUNC_ARRAY[j+2]}"
-                FUNC_ARRAY[j+2]="$temp"
-                
-                # Swap corresponding docs
-                temp="${FUNC_ARRAY[j+1]}"
-                FUNC_ARRAY[j+1]="${FUNC_ARRAY[j+3]}"
-                FUNC_ARRAY[j+3]="$temp"
-            fi
-        done
-    done
-}
-
-# Call the initialization function
-init_help_system
-
-# Function to display general help
-help_functions() {
-    echo -e "\nUse 'help function_name' for detailed information on each function.\n"
-    for func in "${FUNC_NAMES[@]}"; do
-        echo "  - ${func}"
-    done
-    echo ""
-}
-
-help(){
-    do_help "$@" | (command -v glow > /dev/null 2>&1 && glow || cat )
-}
-
-# Function to generate the appropriate help information for a specific function
-do_help(){
-    local func=$1
-
-    # Generate the markdown if requested.
-    if [[ "${func}" == "generate_markdown" ]]; then
-        generate_markdown
-        return
-    fi
-    local func=$1
-
-    if [[ -z "${func}" ]]; then
-        echo -e "\nUse 'help function_name' for detailed information on each function.\n"
-        for ((i=0; i<${#FUNC_ARRAY[@]}; i+=2)); do
-            echo "  - ${FUNC_ARRAY[i]}"
-        done
-        echo ""
-        return
-    fi
-
-    for ((i=0; i<${#FUNC_ARRAY[@]}; i+=2)); do
-        if [[ "${FUNC_ARRAY[i]}" == "${func}" ]]; then
-            echo -e "${FUNC_ARRAY[i+1]}"
-            return
-        fi
-        echo ""
-    done
-
-    echo "Function not found."
-}
-
-
-
-
-# Function to generate Markdown documentation
-generate_markdown(){
-    local all_funcs=()
-    local seen_funcs=()  # To keep track of functions already documented
-
-    echo "# Function Documentation" 
-
-    # Iterate over all source scripts to read functions
-    for script in ${SOURCE_SCRIPTS}; do
-        script_funcs=($(awk -F'[(]' '/^[a-zA-Z0-9_]+\(\)/ {print $1}' "${script}"))
-        all_funcs=("${all_funcs[@]}" "${script_funcs[@]}")
-    done
-
-    # Deduplicate function names
-    all_funcs=($(printf "%s\n" "${all_funcs[@]}" | sort -u))
-
-    for func in "${all_funcs[@]}"; do
-        if [[ ! " ${seen_funcs[@]} " =~ " ${func} " ]]; then  # Skip if already documented
-            if [[ "${func}" != "init_help_system" && "${func}" != "help_functions" && "${func}" != "help" && "${func}" != "generate_markdown" ]]; then
-                echo -e "\n## Function: ${func}\n"
-                for script in ${SOURCE_SCRIPTS}; do
-                    awk "/${func}\(\)/ { flag=1; count=1; next } flag && /^#/ { sub(/^# ?/, \"\"); print \$0 } { if (flag) count += gsub(/{/, \"\") - gsub(/}/, \"\"); if (count == 0 && !/^#/) flag=0 }" "${script}"
-                done
-                seen_funcs+=("$func")  # Mark as documented
-            fi
-        fi
-    done
-}
-
 
 __strip_space(){
 #
@@ -169,12 +59,13 @@ __next_step(){
 # __next_step [0-99]
 #
 # - **Purpose**: Increment a given sequence number by 1 and pad it with a zero if needed.
+# - **Scope**: Local. Modifies no global variables.
 # - **Input Parameters**: 
 #     1. `sequenceNum` (integer) - The sequence number to increment. Must be between 00 and 99.
 # - **Output**: 
 #     - The next sequence number as a string, zero-padded if necessary.
 # - **Exceptions**: 
-#     - Returns an error code 22 if the sequence number is not between 00 and 99.
+#     - Returns an error code 22 if the sequence number is not between 00 and 99. Error 22 means "Invalid Argument".
 #
     local sn="$1"
     case "$sn" in
@@ -192,15 +83,37 @@ __next_step(){
     echo "$(__zero_pad ${sn})"
 }
 
-# Generalized function to push to a stack
 push_stack() {
+#
+# push_stack *stack_name* *value*
+#
+# - **Purpose**: Push a value onto a named stack.
+# - **Scope**: Local. However, the stack name can be a global variable, making the stack globally accessible.
+# - **Input Parameters**: 
+#     1. `stack_name` (string) - The name of the stack array.
+#     2. `value` - The value to push onto the stack.
+# - **Output**: 
+#     - Modifies the named stack by adding a new element.
+# - **Exceptions**: None.
+#
     local arr_name=$1
     local value=$2
     eval "${arr_name}+=(\"$value\")"
 }
 
-# Generalized function to pop from a stack
 pop_stack() {
+#
+# pop_stack stack_name
+#
+# - **Purpose**: Pop a value from a named stack.
+# - **Scope**: Local. However, the stack name can be a global variable, making the stack globally accessible.
+# - **Input Parameters**: 
+#     1. `stack_name` (string) - The name of the stack array.
+# - **Output**: 
+#     - Removes and returns the top element from the named stack.
+# - **Exceptions**: 
+#     - Returns an error message and error code 1 if the stack is empty.
+#
     local arr_name=$1
     eval "local len=\${#${arr_name}[@]}"
     if [ $len -eq 0 ]; then
