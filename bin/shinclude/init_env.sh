@@ -2,7 +2,8 @@
 #
 # init_env.sh - Initialize Environment and Source Utility Scripts
 #
-# - **Purpose**: This script initializes the environment and sources utility scripts for managing virtual environments.
+# - **Purpose**:
+#     - This script initializes the environment and sources utility scripts for managing virtual environments.
 # - **Usage**: 
 #     - Source this script in other bash scripts to import the necessary environment and utility functions.
 #       any scripts whcih or dependencies may be addedc to this script at the end.
@@ -12,21 +13,27 @@
 #       ````
 #
 # - **Input Parameters**: 
-#     None
+#     - None
+#
 # - **Output**: 
 #     - Sets up the environment and imports utility functions.
+#
 # - **Exceptions**: 
 #     - Exits with code 1 if it fails to find any of the required scripts.
 #
-
+INTERNAL_FUNCTIONS=(
+    ${INTERNAL_FUNCTIONS[@]}
+    "source_util_script"
+)
 
 source_util_script(){
 #
 # source_util_script - Source a utility script by its name.
 #
-# - **Purpose**: Sources a utility script given its name. The script must reside in the directory specified by the global variable MY_BIN.
+# - **Purpose**:
+#    - Sources a utility script given its name. The script must reside in the directory specified by the global variable MY_BIN.
 # - **Usage**: 
-#     source_util_script "script_name"
+#     - source_util_script "script_name"
 # - **Input Parameters**: 
 #     1. `script_name` (string) - The name of the utility script to source.
 # - **Output**: 

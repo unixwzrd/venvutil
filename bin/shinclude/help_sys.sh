@@ -1,4 +1,27 @@
 #!/bin/bash
+#
+# help_sys.sh - Help System Functions for Bash Scripts
+#
+# - **Purpose**: 
+#   - This script provides a dynamic help system for all sourced bash scripts.
+#   - It can list available functions, provide detailed information about each function, and list sourced scripts.
+#
+# - **Usage**: 
+#   - Source this script in other bash scripts to enable the dynamic help system.
+#   - For example, in another script: `source help_sys.sh`.
+#
+# - **Input Parameters**: 
+#   - None. All input is handled by the individual functions.
+#
+# - **Output**: 
+#   - Enables a help system that can be accessed by calling `help` in the terminal.
+#   - Also supports generating Markdown documentation.
+#
+# - **Exceptions**: 
+#   - Some functions may return specific error codes or print error messages to STDERR.
+#   - Refer to individual function documentation for details.
+#
+
 # Capture the fully qualified path of the sourced script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Don't source this script if it's already been sourced.
@@ -9,13 +32,41 @@ echo "Sourcing:${THIS_SCRIPT}"
 # Help System Functions
 
 # Define an array of internal functions to exclude from help and documentation
-INTERNAL_FUNCTIONS=("init_help_system" "help_functions" "help" "generate_markdown" " do_help" )
+INTERNAL_FUNCTIONS=(
+    ${INTERNAL_FUNCTIONS[@]}
+    "init_help_system"
+    "general_help"
+    "help_scripts"
+    "specific_function_help"
+    "help_functions"
+    "generate_markdown"
+    "do_help"
+    "help"
+)
+
 
 # Initialize a single array to store function names and their corresponding documentation
 declare -a FUNC_ARRAY
 
-# Function to populate function names and their docs
+
 init_help_system() {
+#
+# init_help_system - Populate and sort FUNC_ARRAY with function names and documentation from sourced scripts.
+#
+# - **Purpose**:
+#   - Initializes the help system by populating the FUNC_ARRAY with function names and their documentation.
+# - **Usage**: 
+#   - Automatically called when the script is sourced. No need to call it manually.
+# - **Scope**:
+#   - Global. Modifies the global array FUNC_ARRAY.
+# - **Input Parameters**: 
+#   - None. Internally iterates over the scripts listed in the _SOURCED_LIST array.
+# - **Output**: 
+#   - Populates FUNC_ARRAY with function names and their corresponding documentation.
+#   - Sorts FUNC_ARRAY based on function names.
+# - **Exceptions**: 
+#   - None. However, it skips functions listed in INTERNAL_FUNCTIONS and those already in FUNC_ARRAY.
+#
     [[ -n "${FUNC_ARRAY[*]}" ]] && return
 
     local script
@@ -56,52 +107,78 @@ init_help_system() {
         done
     done
 }
-# Call the initialization function
-init_help_system
 
 
-help_functions() {
+general_help(){
 #
-# help_functions
+# general_help - Display general help options for the 'help' command.
 #
-# - **Purpose**: Display a list of available functions, providing a starting point for further help.
-# - **Scope**: Global. Reads from global array FUNC_ARRAY.
-# - **Input Parameters**: None.
+# - **Purpose**:
+#   - Provide an overview of the available help commands.
+# - **Usage**: 
+#   - general_help
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   - None
 # - **Output**: 
-#   - A list of function names, excluding those meant for internal use.
-# - **Exceptions**: None.
+#   - Lists the general help commands available.
+# - **Exceptions**: 
+#   - None
 #
-    echo -e "\nUse 'help function_name' for detailed information on each function.\n"
-    for func in "${FUNC_NAMES[@]}"; do
-        echo "  - ${func}"
+    echo -e "\nAvailable commands for 'help':\n"
+    echo "  - **functions**:         List available functions and their purpose."
+    echo "  - **scripts**:           List available scripts and their purpose."
+    echo "  - **generate_markdown**: Generate Markdown documentation for all functions."
+    echo -e "\nTo get help on a specific function, use 'help function_name'.\n"
+}
+
+help_scripts() {
+#
+# help_scripts - List sourced scripts and their purpose.
+#
+# - **Purpose**:
+#   - Display a list of sourced scripts.
+# - **Usage**: 
+#   - help_scripts
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Lists the names of the sourced scripts.
+# - **Exceptions**: 
+#   - None
+#
+    echo "Debug: _SOURCED_LIST: ${_SOURCED_LIST[@]}"
+    echo -e "\nList of sourced scripts and their purpose:\n"
+    for script in ${_SOURCED_LIST[@]}; do
+        # Extract the header comments from each script as its description
+        #script_description=$(awk "/^#/ { sub(/^# ?/, \"\"); print \$0 }" "$script")
+        echo "  - $script"
+        #echo "    - $script_description"
     done
     echo ""
 }
 
-help(){
-    do_help "$@" | (command -v glow > /dev/null 2>&1 && glow || cat )
-}
-
-# Function to generate the appropriate help information for a specific function
-do_help(){
+specific_function_help(){
+#
+# specific_function_help - Provide detailed documentation for a given function.
+#
+# - **Purpose**:
+#   - Display documentation for a specific function.
+# - **Usage**: 
+#   - specific_function_help "function_name"
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   1. `function_name` (string) - The name of the function.
+# - **Output**: 
+#   - Displays the documentation for the given function.
+# - **Exceptions**: 
+#   - Displays general help if the function is unknown.
+#
     local func=$1
-
-    # Generate the markdown if requested.
-    if [[ "${func}" == "generate_markdown" ]]; then
-        generate_markdown
-        return
-    fi
-    local func=$1
-
-    #  Provide a list o functions and a helpful message on how to use the help.
-    if [[ -z "${func}" ]]; then
-        echo -e "\nUse 'help function_name' for detailed information on each function.\n"
-        for ((i=0; i<${#FUNC_ARRAY[@]}; i+=2)); do
-            echo "  - ${FUNC_ARRAY[i]}"
-        done
-        echo ""
-        return
-    fi
 
     # Provide the documentation for the function passed.
     for ((i=0; i<${#FUNC_ARRAY[@]}; i+=2)); do
@@ -109,15 +186,58 @@ do_help(){
             echo -e "${FUNC_ARRAY[i+1]}"
             return
         fi
-        echo ""
     done
-
-    # What happens if we don't find anything matching.
-    echo "Function not found."
+    echo "Unknown function: '${func}'"
+    general_help
 }
 
-# Function to generate Markdown documentation
+
+help_functions() {
+#
+# help_functions - List available functions and how to get their documentation.
+#
+# - **Purpose**:
+#   - Provide a list of available functions and guidance on getting detailed documentation.
+# - **Usage**: 
+#   - help_functions
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Lists available functions and how to get more information about them.
+# - **Exceptions**: 
+#   - None
+#
+    if [[ -z "${func}" ]]; then
+        echo -e "\nUse 'help function_name' for detailed information on each function.\n"
+        for ((i=0; i<${#FUNC_ARRAY[@]}; i+=2)); do
+            # Get the second line of the function description.
+            second_line=$(echo -e "${FUNC_ARRAY[i+1]}" | sed -n '2p')
+            echo "  - ${second_line}"
+        done
+        echo ""
+        return
+    fi
+}
+
 generate_markdown(){
+#
+# generate_markdown - Generate Markdown documentation for all available functions.
+#
+# - **Purpose**:
+#   - Generate comprehensive Markdown documentation for all functions.
+# - **Usage**: 
+#   - generate_markdown
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Markdown-formatted documentation for all functions.
+# - **Exceptions**: 
+#   - None
+#
     local all_funcs=()
     local seen_funcs=()  # To keep track of functions already documented
 
@@ -143,4 +263,65 @@ generate_markdown(){
             fi
         fi
     done
+}
+
+do_help(){
+#
+# do_help - Dispatch help information based on the given subcommand.
+#
+# - **Purpose**:
+#   - Serve as the main dispatcher for generating help information.
+# - **Usage**: 
+#   - do_help "subcommand"
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   1. `subcommand` (string) - The specific help topic or function name.
+# - **Output**: 
+#   - Appropriate help information based on the subcommand.
+# - **Exceptions**: 
+#   - None
+#
+    local subcommand=$1
+
+    case "$subcommand" in
+        "generate_markdown")
+            generate_markdown | tee helpdoc.md
+            ;;
+        "functions")
+            help_functions
+            ;;
+        "scripts")
+            help_scripts
+            ;;
+        "")
+            general_help
+            ;;
+        *)
+            specific_function_help "$subcommand"
+            ;;
+    esac
+}
+
+help(){
+#
+# help - Main entry point for the help system.
+#
+# - **Purpose**:
+#   - Facilitate the help system by initializing and delegating to other help functions.
+# - **Usage**: 
+#   - help [subcommand]
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   1. `subcommand` (optional string) - The specific help topic or function name.
+# - **Output**: 
+#   - Help information based on the optional subcommand, or general help if none provided.
+# - **Exceptions**: 
+#   - None
+#
+    if [[ -z "${FUNC_ARRAY[*]}" ]]; then
+        init_help_system
+    fi
+    do_help "$@" | (command -v glow > /dev/null 2>&1 && glow || cat )
 }

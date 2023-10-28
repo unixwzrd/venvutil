@@ -20,18 +20,24 @@
 [[ "${_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || _SOURCED_LIST="${_SOURCED_LIST} ${THIS_SCRIPT}"
 echo "Sourcing:${THIS_SCRIPT}"
 
+INTERNAL_FUNCTIONS=(
+    ${INTERNAL_FUNCTIONS[@]}
+)
 
 # Utility functions
 
 __strip_space(){
 #
-# __strip_space *string*
+# __strip_space - Remove leading and trailing whitespaces from the input string.
 #
-# - **Purpose**: Remove leading and trailing whitespaces from the input string.
+# - **Purpose**:
+#   - Remove leading and trailing whitespaces from the input string.
+# - **Usage**: 
+#   - __strip_space "string"
 # - **Input Parameters**: 
-#     1. `str` (string) - The string from which to remove leading and trailing whitespaces.
+#   1. `str` (string) - The string from which to remove leading and trailing whitespaces.
 # - **Output**: 
-#     - A new string with whitespaces removed from both ends.
+#   - A new string with whitespaces removed from both ends.
 # - **Exceptions**: None
 #
     local argstring="$*"
@@ -40,14 +46,17 @@ __strip_space(){
 
 __zero_pad(){
 #
-# __zero_pad nn
+# __zero_pad - Pad a given number with a leading zero if it's a single-digit number.
 #
-# - **Purpose**: Pad a given number with a leading zero if it's a single-digit number.
+# - **Purpose**:
+#   - Pad a given number with a leading zero if it's a single-digit number.
+# - **Usage**: 
+#   - __zero_pad "nn"
 # - **Input Parameters**: 
-#     1. `num` (integer) - The number to pad. Can be single or double-digit.
+#   1. `num` (integer) - The number to pad. Can be single or double-digit.
 # - **Output**: 
-#     - The padded number as a string.
-#     - If no number is specified, it will default to 00.
+#   - The padded number as a string.
+#   - If no number is specified, it will default to 00.
 # - **Exceptions**: None
 #
     local num="$1"
@@ -56,16 +65,19 @@ __zero_pad(){
 
 __next_step(){
 #
-# __next_step [0-99]
+# __next_step - Increment a given sequence number by 1 and pad it with a zero if needed.
 #
-# - **Purpose**: Increment a given sequence number by 1 and pad it with a zero if needed.
+# - **Purpose**:
+#   - Increment a given sequence number by 1 and pad it with a zero if needed.
+# - **Usage**: 
+#   - __next_step "[0-99]"
 # - **Scope**: Local. Modifies no global variables.
 # - **Input Parameters**: 
-#     1. `sequenceNum` (integer) - The sequence number to increment. Must be between 00 and 99.
+#   1. `sequenceNum` (integer) - The sequence number to increment. Must be between 00 and 99.
 # - **Output**: 
-#     - The next sequence number as a string, zero-padded if necessary.
+#   - The next sequence number as a string, zero-padded if necessary.
 # - **Exceptions**: 
-#     - Returns an error code 22 if the sequence number is not between 00 and 99. Error 22 means "Invalid Argument".
+#   - Returns an error code 22 if the sequence number is not between 00 and 99. Error 22 means "Invalid Argument".
 #
     local sn="$1"
     case "$sn" in
@@ -85,15 +97,19 @@ __next_step(){
 
 push_stack() {
 #
-# push_stack *stack_name* *value*
+# push_stack - Push a value onto a named stack.
 #
-# - **Purpose**: Push a value onto a named stack.
-# - **Scope**: Local. However, the stack name can be a global variable, making the stack globally accessible.
+# - **Purpose**:
+#   - Push a value onto a named stack.
+# - **Usage**: 
+#   - push_stack "stack_name" "value"
+# - **Scope**:
+#   - Local. However, the stack name can be a global variable, making the stack globally accessible.
 # - **Input Parameters**: 
-#     1. `stack_name` (string) - The name of the stack array.
-#     2. `value` - The value to push onto the stack.
+#   1. `stack_name` (string) - The name of the stack array.
+#   2. `value` - The value to push onto the stack.
 # - **Output**: 
-#     - Modifies the named stack by adding a new element.
+#   - Modifies the named stack by adding a new element.
 # - **Exceptions**: None.
 #
     local arr_name=$1
@@ -103,16 +119,20 @@ push_stack() {
 
 pop_stack() {
 #
-# pop_stack stack_name
+# pop_stack - Pop a value from a named stack.
 #
-# - **Purpose**: Pop a value from a named stack.
-# - **Scope**: Local. However, the stack name can be a global variable, making the stack globally accessible.
+# - **Purpose**:
+#   - Pop a value from a named stack.
+# - **Usage**: 
+#   - pop_stack "stack_name"
+# - **Scope**:
+#   - Local. However, the stack name can be a global variable, making the stack globally accessible.
 # - **Input Parameters**: 
-#     1. `stack_name` (string) - The name of the stack array.
+#   1. `stack_name` (string) - The name of the stack array.
 # - **Output**: 
-#     - Removes and returns the top element from the named stack.
+#   - Removes and returns the top element from the named stack.
 # - **Exceptions**: 
-#     - Returns an error message and error code 1 if the stack is empty.
+#   - Returns an error message and error code 1 if the stack is empty.
 #
     local arr_name=$1
     eval "local len=\${#${arr_name}[@]}"

@@ -1,4 +1,25 @@
 #!/bin/bash
+#
+# venv_funcs.sh - Virtual Environment Management Functions for Bash Scripts
+#
+# - **Purpose**: 
+#   - This script provides a collection of functions to manage conda virtual environments.
+#   - Functions include creating, deleting, switching, and cloning environments, among others.
+#
+# - **Usage**: 
+#   - Source this script in other bash scripts to import the virtual environment management functions.
+#   - For example, in another script: `source venv_funcs.sh`.
+#
+# - **Input Parameters**: 
+#   - None. All input is handled by the individual functions.
+#
+# - **Output**: 
+#   - The script provides various virtual environment management functions for use in other bash scripts.
+#
+# - **Exceptions**: 
+#   - Some functions may return specific error codes or print error messages to STDERR.
+#   - Refer to individual function documentation for details.
+#
 
 # Don't source this script if it's already been sourced.
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
@@ -13,9 +34,14 @@ MY_INCLUDE=$( ( [ -d "${MY_BIN}/shinclude" ] && echo "${MY_BIN}/shinclude" ) || 
 [ -f ${MY_INCLUDE}/util_funcs.sh ] && . ${MY_INCLUDE}/util_funcs.sh \
     || ( echo "Could not find venv_funcs.sh in INCLUDEDIR: ${MY_INCLUDE}" && exit 1 )
 
+INTERNAL_FUNCTIONS=(
+    ${INTERNAL_FUNCTIONS[@]}
+    "push_venv"
+    "pop_venv"
+)
+
 
 # VENV Management functions
-
 # Initialize the stack
 __VENV_STACK=("")
 
@@ -33,11 +59,12 @@ snum(){
 #
 # snum - Force set the VENV Sequence number.
 #
-# - **Purpose**: Force set the VENV Sequence number.
+# - **Purpose**:
+#   - Force set the VENV Sequence number.
 # - **Usage**: 
-#  -  snum NN
+#   - snum NN
 # - **Input Parameters**: 
-#  1. `NN` (integer) - The VENV Sequence number to set. Must be a numeric value between 00 and 99.
+#   1. `NN` (integer) - The VENV Sequence number to set. Must be a numeric value between 00 and 99.
 # - **Output**: 
 #   - Sets the global variable `__VENV_NUM` to the zero-padded sequence number.
 #   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
@@ -70,7 +97,8 @@ vnum(){
 #
 # vnum - Return the current VENV sequence number.
 #
-# - **Purpose**: Return the current VENV sequence number.
+# - **Purose**:
+#   - Return the current VENV sequence number.
 # - **Usage**: 
 #   - vnum
 # - **Input Parameters**: 
@@ -92,14 +120,15 @@ cact(){
 #
 # cact - Change active VENV
 #
-# - **Purpose**: Change the active virtual environment.
+# - **Purose**:
+#    - Change the active virtual environment.
 # - **Usage**: 
-#     cact VENV_NAME
+#    -  cact VENV_NAME
 # - **Input Parameters**: 
-#     1. `VENV_NAME` (string) - The name of the virtual environment to activate.
+#    1. `VENV_NAME` (string) - The name of the virtual environment to activate.
 # - **Output**: 
-#     - Messages indicating the deactivation and activation process.
-#     - If unsuccessful, prints an error message to STDERR and returns with status code 1.
+#    - Messages indicating the deactivation and activation process.
+#    - If unsuccessful, prints an error message to STDERR and returns with status code 1.
 # - **Exceptions**: None
 #
     local new_env="$1"
@@ -134,16 +163,17 @@ dact(){
 #
 # dact - Deactivate the current VENV
 #
-# - **Purpose**: Deactivate the currently active conda virtual environment.
+# - **Purose**:
+#   - Deactivate the currently active conda virtual environment.
 # - **Usage**: 
-#     dact
+#   - dact
 # - **Input Parameters**: 
-#     None
+#   - None
 # - **Output**: 
-#     - Deactivates the current virtual environment.
-#     - Prints a message indicating the deactivated environment.
+#   - Deactivates the current virtual environment.
+#   - Prints a message indicating the deactivated environment.
 # - **Exceptions**: 
-#     - If no environment is currently activated, conda will display an appropriate message.
+#   - If no environment is currently activated, conda will display an appropriate message.
 #
     local env_to_delete="$CONDA_DEFAULT_ENV"
 
@@ -170,16 +200,17 @@ pact(){
 #
 # pact - Switch to the Previous Active VENV
 #
-# - **Purpose**: Deactivate the current virtual environment and activate the previously active one.
+# - **Purose**:
+#   - Deactivate the current virtual environment and activate the previously active one.
 # - **Usage**: 
-#     pact
+#   - pact
 # - **Input Parameters**: 
-#     None
+#   - None
 # - **Output**: 
-#     - Deactivates the current environment and activates the previous one.
-#     - Prints messages to indicate the switch.
+#   - Deactivates the current environment and activates the previous one.
+#   - Prints messages to indicate the switch.
 # - **Exceptions**: 
-#     - If no previous environment is stored, an error message will be displayed.
+#   - If no previous environment is stored, an error message will be displayed.
 #
     local previous_env=$(pop_venv)
 
@@ -195,7 +226,8 @@ lenv(){
 #
 # lenv - List All Current VENVs
 #
-# - **Purpose**: List all the currently available conda virtual environments.
+# - **Purose**:
+#  - List all the currently available conda virtual environments.
 # - **Usage**: 
 #     lenv
 # - **Input Parameters**: 
@@ -212,15 +244,16 @@ lastenv(){
 #
 # lastenv - Retrieve the Last Environment with a Given Prefix
 #
-# - **Purpose**: Return the last conda virtual environment that starts with a given prefix.
+# - **Purose**:
+#   - Return the last conda virtual environment that starts with a given prefix.
 # - **Usage**: 
-#     lastenv PREFIX
+#   - lastenv PREFIX
 # - **Input Parameters**: 
-#     1. `PREFIX` (string) - The prefix for the environment names you want to match.
+#    1. `PREFIX` (string) - The prefix for the environment names you want to match.
 # - **Output**: 
-#     - The last conda environment that starts with the given prefix.
+#   - The last conda environment that starts with the given prefix.
 # - **Exceptions**: 
-#     - If no environments match the prefix, the output will be empty.
+#   - If no environments match the prefix, the output will be empty.
 #
     local prefix="$1"
     local last_env=$(lenv | egrep "^${prefix}." | tail -1 | cut -d " " -f 1)
@@ -231,16 +264,17 @@ benv(){
 #
 # benv - Create a New Base Virtual Environment
 #
-# - **Purpose**: Create a new base conda virtual environment and activate it.
+# - **Purose**:
+#   - Create a new base conda virtual environment and activate it.
 # - **Usage**: 
-#     benv ENV_NAME [EXTRA_OPTIONS]
+#   - benv ENV_NAME [EXTRA_OPTIONS]
 # - **Input Parameters**: 
-#     1. `ENV_NAME` (string) - The name of the new environment to create.
-#     2. `EXTRA_OPTIONS` (string, optional) - Additional options to pass to `conda create`.
+#   1. `ENV_NAME` (string) - The name of the new environment to create.
+#   2. `EXTRA_OPTIONS` (string, optional) - Additional options to pass to `conda create`.
 # - **Output**: 
-#     - Creates and activates the new environment.
+#   - Creates and activates the new environment.
 # - **Exceptions**: 
-#     - Errors during environment creation are handled by conda.
+#   - Errors during environment creation are handled by conda.
 #
     local env_name="$1"; shift
     local extra_options="$*"
@@ -259,16 +293,17 @@ nenv(){
 #
 # nenv - Create a New Virtual Environment in a Series
 #
-# - **Purpose**: Create a new conda virtual environment in a series identified by a prefix. Resets and starts the sequence number from "00".
+# - **Purose**:
+#   - Create a new conda virtual environment in a series identified by a prefix. Resets and starts the sequence number from "00".
 # - **Usage**: 
-#     nenv PREFIX [EXTRA_OPTIONS]
+#   - nenv PREFIX [EXTRA_OPTIONS]
 # - **Input Parameters**: 
-#     1. `PREFIX` (string) - The prefix to identify the series of environments.
-#     2. `EXTRA_OPTIONS` (string, optional) - Additional options to pass to the environment creation.
+#   1. `PREFIX` (string) - The prefix to identify the series of environments.
+#   2. `EXTRA_OPTIONS` (string, optional) - Additional options to pass to the environment creation.
 # - **Output**: 
-#     - Creates and activates the new environment with sequence number "00".
+#   - Creates and activates the new environment with sequence number "00".
 # - **Exceptions**: 
-#     - Errors during environment creation are handled by conda.
+#   - Errors during environment creation are handled by conda.
 #
     local prefix="$1"; shift
     local extra_options="$*"
@@ -290,16 +325,17 @@ denv(){
 #
 # denv - Delete a Specified Virtual Environment
 #
-# - **Purpose**: Delete a specified conda virtual environment.
+# - **Purose**:
+#   - Delete a specified conda virtual environment.
 # - **Usage**: 
-#     denv ENV_NAME
+#   - denv ENV_NAME
 # - **Input Parameters**: 
-#     1. `ENV_NAME` (string) - The name of the environment to be deleted.
+#   1. `ENV_NAME` (string) - The name of the environment to be deleted.
 # - **Output**: 
-#     - Removes the specified environment.
+#   - Removes the specified environment.
 # - **Exceptions**: 
-#     - If no environment name is provided, an error message is displayed.
-#     - Errors during deletion are handled by conda.
+#   - If no environment name is provided, an error message is displayed.
+#   - Errors during deletion are handled by conda.
 #
     local env_to_delete="$1"
 
@@ -316,15 +352,16 @@ renv(){
 #
 # renv - Revert to Previous Virtual Environment
 #
-# - **Purpose**: Deactivate the current active environment, delete it, and then re-activate the previously active environment.
+# - **Purose**:
+#   - Deactivate the current active environment, delete it, and then re-activate the previously active environment.
 # - **Usage**: 
-#     renv
+#   - renv
 # - **Input Parameters**: 
-#     None
+#   - None
 # - **Output**: 
-#     - Removes the current environment and reverts to the previous one.
+#   - Removes the current environment and reverts to the previous one.
 # - **Exceptions**: 
-#     - Errors during deactivation or deletion are handled by conda.
+#   - Errors during deactivation or deletion are handled by conda.
 #
     local env_to_delete=${CONDA_DEFAULT_ENV}
     local previous_env=${__VENV_PREV}
@@ -348,15 +385,16 @@ ccln(){
 #
 # ccln - Clone the current VENV and increment the sequence number.
 #
-# - **Purpose**: Clone the current virtual environment and increment its sequence number.
+# - **Purose**:
+#   - Clone the current virtual environment and increment its sequence number.
 # - **Usage**: 
-#     ccln DESCRIPTION
+#   - ccln DESCRIPTION
 # - **Input Parameters**: 
-#     1. `DESCRIPTION` (string) - A description for the new virtual environment.
+#   1. `DESCRIPTION` (string) - A description for the new virtual environment.
 # - **Output**: 
-#     - Creates and activates a clone of the current environment with an incremented sequence number.
+#   - Creates and activates a clone of the current environment with an incremented sequence number.
 # - **Exceptions**: 
-#     - If no description is provided, an error message will be displayed.
+#   - If no description is provided, an error message will be displayed.
 #
     # Validate input
     if [ -z "$1" ]; then
