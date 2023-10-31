@@ -26,7 +26,7 @@
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Don't source this script if it's already been sourced.
 [[ "${_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || _SOURCED_LIST="${_SOURCED_LIST} ${THIS_SCRIPT}"
-echo "Sourcing:${THIS_SCRIPT}"
+echo "Sourcing: ${THIS_SCRIPT}"
 
 
 # Help System Functions
@@ -155,8 +155,7 @@ help_scripts() {
     for script in ${_SOURCED_LIST[@]}; do
         # Extract the header comments from each script as its description
         #script_description=$(awk "/^#/ { sub(/^# ?/, \"\"); print \$0 }" "$script")
-        echo "  - $script"
-        #echo "    - $script_description"
+        echo "  - ${script}"
     done
     echo ""
 }
@@ -214,7 +213,7 @@ help_functions() {
         for ((i=0; i<${#FUNC_ARRAY[@]}; i+=2)); do
             # Get the second line of the function description.
             second_line=$(echo -e "${FUNC_ARRAY[i+1]}" | sed -n '2p')
-            echo "  - ${second_line}"
+            echo -e "  - ${second_line}\n"
         done
         echo ""
         return

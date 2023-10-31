@@ -50,7 +50,7 @@ source_util_script(){
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Don't source this script if it's already been sourced.
 [[ "${_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || _SOURCED_LIST="${_SOURCED_LIST} ${THIS_SCRIPT}"
-echo "Sourcing:${THIS_SCRIPT}"
+echo "Sourcing: ${THIS_SCRIPT}"
 
 # Extract script name, directory, and arguments
 MY_NAME=$(basename ${THIS_SCRIPT})

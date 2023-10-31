@@ -20,11 +20,15 @@
 #   - Some functions may return specific error codes or print error messages to STDERR.
 #   - Refer to individual function documentation for details.
 #
+# - **Internal Variables**
+#   - __VENV_NUM    The sequence of th evenv in a "__VENV_PREFIX" series.
+#   - __VENV_PREFIX The prefix of the VENV
+#   - __VENV_DESC   A very short description of the VENV.
 
 # Don't source this script if it's already been sourced.
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 [[ "${_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || _SOURCED_LIST="${_SOURCED_LIST} ${THIS_SCRIPT}"
-echo "Sourcing:${THIS_SCRIPT}"
+echo "Sourcing: ${THIS_SCRIPT}"
 
 MY_NAME=$(basename ${THIS_SCRIPT} )
 MY_BIN=$(dirname ${THIS_SCRIPT})
@@ -38,6 +42,7 @@ INTERNAL_FUNCTIONS=(
     ${INTERNAL_FUNCTIONS[@]}
     "push_venv"
     "pop_venv"
+    "_set_venv_vars"
 )
 
 
@@ -53,6 +58,12 @@ push_venv() {
 # Specialized pop the VENV off th estack and decrement.j
 pop_venv() {
     pop_stack "__VENV_STACK"
+}
+
+# Sets internal VENV variables
+_set_venv_vars(){
+     __VENV_PREFIX=$(echo "$*" | cut -d '.' -f 1)
+     __VENV_DESC=$(echo "$*" | cut -d '.' -f 3-) &&  __VENV_NUM=$(echo "$*" | cut -d '.' -f 2)
 }
 
 snum(){
@@ -93,6 +104,30 @@ snum(){
     __VENV_NUM=$( __zero_pad "${new_num}" )
 }
 
+vpfx(){
+#
+# vpfx - Return the current VENV prefix.
+#
+# - **Purose**:
+#   - Return the current VENV prefix.
+# - **Usage**: 
+#   - vpfx
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Prints the current VENV prefix to STDOUT.
+#   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
+# - **Exceptions**:
+#    1  No value set.
+#
+    if [ -z "${__VENV_PREFIX}" ]; then
+        echo "Error: No VENV prefix has been set." >&2
+        return 1
+    fi
+    
+    echo "${__VENV_PREFIX}"
+}
+
 vnum(){
 #
 # vnum - Return the current VENV sequence number.
@@ -106,7 +141,8 @@ vnum(){
 # - **Output**: 
 #   - Prints the current VENV sequence number to STDOUT.
 #   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
-# - **Exceptions**: None
+# - **Exceptions**:
+#    1  No value set.
 #
     if [ -z "${__VENV_NUM}" ]; then
         echo "Error: No VENV sequence number has been set." >&2
@@ -114,6 +150,30 @@ vnum(){
     fi
     
     echo "${__VENV_NUM}"
+}
+
+vdsc(){
+#
+# vdsc - Return the current VENV description.
+#
+# - **Purose**:
+#   - Return the current VENV description.
+# - **Usage**: 
+#   - vdsc
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Prints the current VENV description to STDOUT.
+#   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
+# - **Exceptions**:
+#    1  No value set.
+#
+    if [ -z "${__VENV_DESC}" ]; then
+        echo "Error: No VENV sequence number has been set." >&2
+        return 1
+    fi
+    
+    echo "${__VENV_DESC}"
 }
 
 cact(){
@@ -147,8 +207,7 @@ cact(){
 
     # Set variables
      __VENV_NAME=$1
-     __VENV_PREFIX=$(echo "$*" | cut -d '.' -f 1)
-     __VENV_DESC=$(echo "$*" | cut -d '.' -f 3-) &&  __VENV_NUM=$(echo "$*" | cut -d '.' -f 2)
+     _set_venv_vars ${__VENV_NAME}
      __VENV_PARMS=$(echo "$*" | cut -d '.' -f 4-)
     # Push new environment to stack
     push_venv
@@ -323,7 +382,7 @@ nenv(){
 
 denv(){
 #
-# denv - Delete a Specified Virtual Environment
+# # denv - Delete a Specified Virtual Environment
 #
 # - **Purose**:
 #   - Delete a specified conda virtual environment.
@@ -385,25 +444,25 @@ ccln(){
 #
 # ccln - Clone the current VENV and increment the sequence number.
 #
-# - **Purose**:
+# - **Purpose**:
 #   - Clone the current virtual environment and increment its sequence number.
 # - **Usage**: 
-#   - ccln DESCRIPTION
+#   - ccln [DESCRIPTION]
 # - **Input Parameters**: 
-#   1. `DESCRIPTION` (string) - A description for the new virtual environment.
+#   1. `DESCRIPTION` (optional string) - A description for the new virtual environment.
 # - **Output**: 
 #   - Creates and activates a clone of the current environment with an incremented sequence number.
 # - **Exceptions**: 
-#   - If no description is provided, an error message will be displayed.
+#   - None. If no description is provided, the description of the current VENV is used.
 #
-    # Validate input
+    # If no description is provided, use the description of the current VENV
     if [ -z "$1" ]; then
-        echo "Error: No description provided for the new VENV." >&2
-        return 1
+        __VENV_DESC=$( vdsc )
+    else
+        __VENV_DESC=$1
     fi
 
-    __VENV_DESC=$1
-    __VENV_NUM=$( __next_step "${__VENV_NUM}" )
+    __VENV_NUM=$( __next_step "$(vnum)" )
     __VENV_NAME="${__VENV_PREFIX}.${__VENV_NUM}.${__VENV_DESC}"
 
     # Clone the VENV
@@ -412,4 +471,3 @@ ccln(){
     # Switch to the newly created VENV
     cact "${__VENV_NAME}"
 }
-
