@@ -1,5 +1,35 @@
 # Function Documentation
 
+- [Function Documentation](#function-documentation)
+  - [Function: \_\_next\_step](#function-__next_step)
+  - [Function: \_\_strip\_space](#function-__strip_space)
+  - [Function: \_\_zero\_pad](#function-__zero_pad)
+  - [Function: \_set\_venv\_vars](#function-_set_venv_vars)
+  - [Function: benv](#function-benv)
+  - [Function: cact](#function-cact)
+  - [Function: ccln](#function-ccln)
+  - [Function: dact](#function-dact)
+  - [Function: denv](#function-denv)
+  - [Function: do\_help](#function-do_help)
+  - [Function: general\_help](#function-general_help)
+  - [Function: help\_scripts](#function-help_scripts)
+  - [Function: lastenv](#function-lastenv)
+  - [Function: lenv](#function-lenv)
+  - [Function: nenv](#function-nenv)
+  - [Function: pact](#function-pact)
+  - [Function: pop\_stack](#function-pop_stack)
+  - [Function: pop\_venv](#function-pop_venv)
+  - [Function: push\_stack](#function-push_stack)
+  - [Function: push\_venv](#function-push_venv)
+  - [Function: renv](#function-renv)
+  - [Function: snum](#function-snum)
+  - [Function: source\_util\_script](#function-source_util_script)
+  - [Function: specific\_function\_help](#function-specific_function_help)
+  - [Function: vdsc](#function-vdsc)
+  - [Function: vnum](#function-vnum)
+  - [Function: vpfx](#function-vpfx)
+
+
 ## Function: __next_step
 
 
@@ -127,7 +157,7 @@ dact - Deactivate the current VENV
 ## Function: denv
 
 
-# denv - Delete a Specified Virtual Environment
+ denv - Delete a Specified Virtual Environment
 
 - **Purose**:
   - Delete a specified conda virtual environment.

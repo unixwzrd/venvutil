@@ -382,7 +382,7 @@ nenv(){
 
 denv(){
 #
-# # denv - Delete a Specified Virtual Environment
+# denv - Delete a Specified Virtual Environment
 #
 # - **Purose**:
 #   - Delete a specified conda virtual environment.
