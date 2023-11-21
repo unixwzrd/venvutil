@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# venv_funcs.sh - Virtual Environment Management Functions for Bash Scripts
+# ## venv_funcs.sh - Virtual Environment Management Functions for Bash Scripts
 #
 # - **Purpose**: 
 #   - This script provides a collection of functions to manage conda virtual environments.
@@ -21,52 +21,57 @@
 #   - Refer to individual function documentation for details.
 #
 # - **Internal Variables**
-#   - __VENV_NUM    The sequence of th evenv in a "__VENV_PREFIX" series.
+#   - __VENV_NUM    The sequence of the venv in a "__VENV_PREFIX" series.
 #   - __VENV_PREFIX The prefix of the VENV
 #   - __VENV_DESC   A very short description of the VENV.
+#
 
-# Don't source this script if it's already been sourced.
+# Capture the fully qualified path of the sourced script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
-[[ "${_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || _SOURCED_LIST="${_SOURCED_LIST} ${THIS_SCRIPT}"
+# Don't source this script if it's already been sourced.
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
 echo "Sourcing: ${THIS_SCRIPT}"
 
-MY_NAME=$(basename ${THIS_SCRIPT} )
-MY_BIN=$(dirname ${THIS_SCRIPT})
-MY_ARGS=$*
-MY_INCLUDE=$( ( [ -d "${MY_BIN}/shinclude" ] && echo "${MY_BIN}/shinclude" ) || echo "${HOME}/shinclude" )
+# Extract script name, directory, and arguments
+MY_NAME=$(basename ${THIS_SCRIPT})
+__VENV_BIN=$(dirname $(dirname ${THIS_SCRIPT}))
+__VENV_BASE=$(dirname ${__VENV_BIN})
+__VENV_ARGS=$*
+__VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
-[ -f ${MY_INCLUDE}/util_funcs.sh ] && . ${MY_INCLUDE}/util_funcs.sh \
-    || ( echo "Could not find venv_funcs.sh in INCLUDEDIR: ${MY_INCLUDE}" && exit 1 )
+[ -f ${__VENV_INCLUDE}/util_funcs.sh ] && . ${__VENV_INCLUDE}/util_funcs.sh \
+    || ( echo "Could not find util_funcs.sh in INCLUDEDIR: ${__VENV_INCLUDE}" && exit 1 )
 
-INTERNAL_FUNCTIONS=(
-    ${INTERNAL_FUNCTIONS[@]}
+__VENV_INTERNAL_FUNCTIONS=(
+    ${__VENV_INTERNAL_FUNCTIONS[@]}
     "push_venv"
     "pop_venv"
-    "_set_venv_vars"
+    "__set_venv_vars"
 )
 
+# Use an environment variable for markdown processor, defaulting to 'glow'
+MD_PROCESSOR=${MD_PROCESSOR:-glow}
 
-# VENV Management functions
 # Initialize the stack
 __VENV_STACK=("")
 
-# Specialized push th edefaulkt VENV onto the stack
+# Specialized push the default VENV onto the stack
 push_venv() {
-    push_stack "__VENV_STACK" "$CONDA_DEFAULT_ENV"
+    push_stack __VENV_STACK "${CONDA_DEFAULT_ENV}"
 }
 
-# Specialized pop the VENV off th estack and decrement.j
+# Specialized pop the VENV off the stack and decrement.j
 pop_venv() {
-    pop_stack "__VENV_STACK"
+    pop_stack __VENV_STACK
 }
 
 # Sets internal VENV variables
-_set_venv_vars(){
+__set_venv_vars() {
      __VENV_PREFIX=$(echo "$*" | cut -d '.' -f 1)
      __VENV_DESC=$(echo "$*" | cut -d '.' -f 3-) &&  __VENV_NUM=$(echo "$*" | cut -d '.' -f 2)
 }
 
-snum(){
+snum() {
 #
 # snum - Force set the VENV Sequence number.
 #
@@ -104,11 +109,11 @@ snum(){
     __VENV_NUM=$( __zero_pad "${new_num}" )
 }
 
-vpfx(){
+vpfx() {
 #
 # vpfx - Return the current VENV prefix.
 #
-# - **Purose**:
+# - **Purpose**:
 #   - Return the current VENV prefix.
 # - **Usage**: 
 #   - vpfx
@@ -128,11 +133,11 @@ vpfx(){
     echo "${__VENV_PREFIX}"
 }
 
-vnum(){
+vnum() {
 #
 # vnum - Return the current VENV sequence number.
 #
-# - **Purose**:
+# - **Purpose**:
 #   - Return the current VENV sequence number.
 # - **Usage**: 
 #   - vnum
@@ -152,11 +157,11 @@ vnum(){
     echo "${__VENV_NUM}"
 }
 
-vdsc(){
+vdsc() {
 #
 # vdsc - Return the current VENV description.
 #
-# - **Purose**:
+# - **Purpose**:
 #   - Return the current VENV description.
 # - **Usage**: 
 #   - vdsc
@@ -176,11 +181,11 @@ vdsc(){
     echo "${__VENV_DESC}"
 }
 
-cact(){
+cact() {
 #
 # cact - Change active VENV
 #
-# - **Purose**:
+# - **Purpose**:
 #    - Change the active virtual environment.
 # - **Usage**: 
 #    -  cact VENV_NAME
@@ -207,7 +212,7 @@ cact(){
 
     # Set variables
      __VENV_NAME=$1
-     _set_venv_vars ${__VENV_NAME}
+     __set_venv_vars ${__VENV_NAME}
      __VENV_PARMS=$(echo "$*" | cut -d '.' -f 4-)
     # Push new environment to stack
     push_venv
@@ -222,7 +227,7 @@ dact(){
 #
 # dact - Deactivate the current VENV
 #
-# - **Purose**:
+# - **Purpose**:
 #   - Deactivate the currently active conda virtual environment.
 # - **Usage**: 
 #   - dact
@@ -259,7 +264,7 @@ pact(){
 #
 # pact - Switch to the Previous Active VENV
 #
-# - **Purose**:
+# - **Purpose**:
 #   - Deactivate the current virtual environment and activate the previously active one.
 # - **Usage**: 
 #   - pact
@@ -285,7 +290,7 @@ lenv(){
 #
 # lenv - List All Current VENVs
 #
-# - **Purose**:
+# - **Purpose**:
 #  - List all the currently available conda virtual environments.
 # - **Usage**: 
 #     lenv
@@ -303,7 +308,7 @@ lastenv(){
 #
 # lastenv - Retrieve the Last Environment with a Given Prefix
 #
-# - **Purose**:
+# - **Purpose**:
 #   - Return the last conda virtual environment that starts with a given prefix.
 # - **Usage**: 
 #   - lastenv PREFIX
@@ -323,7 +328,7 @@ benv(){
 #
 # benv - Create a New Base Virtual Environment
 #
-# - **Purose**:
+# - **Purpose**:
 #   - Create a new base conda virtual environment and activate it.
 # - **Usage**: 
 #   - benv ENV_NAME [EXTRA_OPTIONS]
@@ -352,7 +357,7 @@ nenv(){
 #
 # nenv - Create a New Virtual Environment in a Series
 #
-# - **Purose**:
+# - **Purpose**:
 #   - Create a new conda virtual environment in a series identified by a prefix. Resets and starts the sequence number from "00".
 # - **Usage**: 
 #   - nenv PREFIX [EXTRA_OPTIONS]
@@ -382,9 +387,9 @@ nenv(){
 
 denv(){
 #
-# denv - Delete a Specified Virtual Environment
+#  denv - Delete a Specified Virtual Environment
 #
-# - **Purose**:
+# - **Purpose**:
 #   - Delete a specified conda virtual environment.
 # - **Usage**: 
 #   - denv ENV_NAME
@@ -411,7 +416,7 @@ renv(){
 #
 # renv - Revert to Previous Virtual Environment
 #
-# - **Purose**:
+# - **Purpose**:
 #   - Deactivate the current active environment, delete it, and then re-activate the previously active environment.
 # - **Usage**: 
 #   - renv

@@ -18,7 +18,7 @@ A template for [Script Documentation Style](/doc/Script_Doc_Templ.md) is found h
     # Determine the real path of the script
     [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
     # Don't source this script if it's already been sourced.
-    [[ "${_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || _SOURCED_LIST="${_SOURCED_LIST} ${THIS_SCRIPT}"
+    [[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
     echo "Sourcing:${THIS_SCRIPT}"
 
     # Extract script name, directory, and arguments
@@ -28,7 +28,7 @@ A template for [Script Documentation Style](/doc/Script_Doc_Templ.md) is found h
     MY_INCLUDE="${MY_BIN}/shinclude"
 
     # Define an array of internal functions to exclude from help and documentation
-    INTERNAL_FUNCTIONS=("init_help_system" "functions to esclude from help documentation" )
+    __VENV_INTERNAL_FUNCTIONS=("init_help_system" "functions to esclude from help documentation" )
     ```
 
 ### Function-Level Documentation
@@ -51,7 +51,7 @@ A template for [Function Documentation Style](/doc/Function_Doc_Templ.md) is fou
   Example: `local_variable_name`
   
 - **Global Variables**: Use UPPERCASE with underscores to separate words.  
-  Example: `GLOBAL_VARIABLE_NAME`
+  Example: `__PREFIX_GLOBAL_VARIABLE_NAME`
   
 - **System Prefix Variables**: Use a prefix followed by the variable name, separated by an underscore.  
   Example: `__PREFIX_VARIABLE_NAME`

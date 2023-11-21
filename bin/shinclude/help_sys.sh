@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# help_sys.sh - Help System Functions for Bash Scripts
+# # help_sys.sh - Help System Functions for Bash Scripts
 #
 # - **Purpose**: 
 #   - This script provides a dynamic help system for all sourced bash scripts.
@@ -21,91 +21,276 @@
 #   - Some functions may return specific error codes or print error messages to STDERR.
 #   - Refer to individual function documentation for details.
 #
+# - **Environment**:
+#
+#   - **MD_PROCESSOR**: Set to the markdown processor of your choice, if `mdless`
+#       is in your path this will use that.
 
 # Capture the fully qualified path of the sourced script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Don't source this script if it's already been sourced.
-[[ "${_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || _SOURCED_LIST="${_SOURCED_LIST} ${THIS_SCRIPT}"
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
 echo "Sourcing: ${THIS_SCRIPT}"
 
 
 # Help System Functions
 
+# Use an environment variable for markdown processor, defaulting to 'mdless'
+MD_PROCESSOR=${MD_PROCESSOR:-"mdless"}
+
 # Define an array of internal functions to exclude from help and documentation
-INTERNAL_FUNCTIONS=(
-    ${INTERNAL_FUNCTIONS[@]}
+__VENV_INTERNAL_FUNCTIONS=(
+    ${__VENV_INTERNAL_FUNCTIONS[@]}
     "init_help_system"
     "general_help"
     "help_scripts"
+    "specific_script_help"
     "specific_function_help"
     "help_functions"
-    "generate_markdown"
     "do_help"
     "help"
 )
 
 
 # Initialize a single array to store function names and their corresponding documentation
-declare -a FUNC_ARRAY
+declare -a __VENV_FUNCTIONS
+declare -a __VENV_SCRIPTS
 
 
-init_help_system() {
+init_help_system(){
 #
-# init_help_system - Populate and sort FUNC_ARRAY with function names and documentation from sourced scripts.
-#
+# init_help_system - Populate and sort __VENV_FUNCTIONS with function names and documentation from sourced scripts.
 # - **Purpose**:
-#   - Initializes the help system by populating the FUNC_ARRAY with function names and their documentation.
+#   - Initializes the help system by populating the __VENV_FUNCTIONS with function names and their documentation.
 # - **Usage**: 
 #   - Automatically called when the script is sourced. No need to call it manually.
 # - **Scope**:
-#   - Global. Modifies the global array FUNC_ARRAY.
+#   - Global. Modifies the global array __VENV_FUNCTIONS.
 # - **Input Parameters**: 
-#   - None. Internally iterates over the scripts listed in the _SOURCED_LIST array.
+#   - None. Internally iterates over the scripts listed in the __VENV_SOURCED_LIST array.
 # - **Output**: 
-#   - Populates FUNC_ARRAY with function names and their corresponding documentation.
-#   - Sorts FUNC_ARRAY based on function names.
+#   - Populates __VENV_FUNCTIONS with function names and their corresponding documentation.
+#   - Sorts __VENV_FUNCTIONS based on function names.
 # - **Exceptions**: 
-#   - None. However, it skips functions listed in INTERNAL_FUNCTIONS and those already in FUNC_ARRAY.
+#   - None. However, it skips functions listed in __VENV_INTERNAL_FUNCTIONS and those already in __VENV_FUNCTIONS.
 #
-    [[ -n "${FUNC_ARRAY[*]}" ]] && return
+    [ -n "${__VENV_FUNCTIONS[*]}" ] && return
 
-    local script
-    local func
-    local doc
+    local script func line dir_name
+    local shdoc_dir="${__VENV_BASE}/docs/shdoc"
+    local conf_file="${__VENV_BASE}/conf/help_sys.conf"
+    # Read directories from the configuration file
+    local search_dirs=($(grep -v '^#' "$conf_file" | sed '/^$/d'))
 
-        for script in ${_SOURCED_LIST[@]}; do
-        while IFS= read -r func; do
-            # Skip if the function is in INTERNAL_FUNCTIONS
-            if [[ " ${INTERNAL_FUNCTIONS[@]} " =~ " ${func} " ]]; then
-                continue
-            fi
-            # Skip if the function is already in FUNC_ARRAY
-            if [[ ! " ${FUNC_ARRAY[*]} " =~ " ${func} " ]]; then
-                doc=$(awk "BEGIN{flag=0} /^${func}\(\)/ {flag=1} /^#/ {if (flag) print substr(\$0, 3)} /^[a-zA-Z0-9_]+\(\)/ {if (\$0 !~ /^${func}\(\)/) flag=0}" "${script}")
-                FUNC_ARRAY+=("${func}")
-                FUNC_ARRAY+=("${doc}")
-            fi
-        done < <(awk -F'[(]' '/^[a-zA-Z0-9_]+\(\)/ {print $1}' "${script}")
-    done
+    # Iterate over directories to find shell scripts
+    for dir_name in "${search_dirs[@]}"; do
+        local script_dir="${__VENV_BASE}/${dir_name}"
+        local doc_dir="${shdoc_dir}/${dir_name}"
 
-    # Sort FUNC_ARRAY based on function names while keeping them paired with their descriptions.
-    # This will behave as a two dimensional array, but using offsets into teh array for teh added
-    # sedonc dimension.
-    for ((i=0; i<${#FUNC_ARRAY[@]}; i+=2)); do
-        for ((j=0; j<${#FUNC_ARRAY[@]}-2; j+=2)); do
-            if [[ "${FUNC_ARRAY[j]}" > "${FUNC_ARRAY[j+2]}" ]]; then
-                # Swap function names
-                temp="${FUNC_ARRAY[j]}"
-                FUNC_ARRAY[j]="${FUNC_ARRAY[j+2]}"
-                FUNC_ARRAY[j+2]="$temp"
-                
-                # Swap corresponding docs
-                temp="${FUNC_ARRAY[j+1]}"
-                FUNC_ARRAY[j+1]="${FUNC_ARRAY[j+3]}"
-                FUNC_ARRAY[j+3]="$temp"
-            fi
+        local script_files=($(file "${script_dir}"/* | grep "shell script" | cut -d":" -f1))
+        for script in ${script_files[@]}; do
+            # Set the markdown path to the script markdown documentation
+            local script_name=$(basename "${script}")  # Extract just the script name
+            local markdown_file="${doc_dir}/scripts/${script_name}.md"
+            # Store script name andpath to markdown in __VENV_SCRIPTS
+            __VENV_SCRIPTS+=("${script_name}")
+            __VENV_SCRIPTS+=("${markdown_file}")
+            
+            # Now extract function names for __VENV_FUNCTIONS
+            while IFS= read -r line; do
+                if [[ "$line" =~ ^[a-zA-Z0-9_]+\(\) ]]; then
+                    # Reading function name
+                    func="${line%%(*}"
+                    # Correct the function markdown path
+                    local func_markdown_path="${doc_dir}/functions/${func}.md"
+                    # Store function name and path to its documentation
+                    __VENV_FUNCTIONS+=("$func")
+                    __VENV_FUNCTIONS+=("$func_markdown_path")
+                fi
+            done < "${script}"
         done
+    done 
+
+    # Sort __VENV_FUNCTIONS and __VENV_SCRIPTS
+    sort_2d_array __VENV_FUNCTIONS
+    sort_2d_array __VENV_SCRIPTS
+}
+
+write_index_header() {
+    local readme_path="$1"
+    echo "# Project Documentation" > "${readme_path}"
+    echo "## Brief introduction of the project." >> "${readme_path}"
+    # Add other header content here
+}
+
+write_index_footer() {
+    local readme_path="$1"
+    local date_mark=$(date "+Generated: %Y %m %d at %H:%M:%S")
+
+    echo "" >> "${readme_path}"
+    echo "Footer content" >> "${readme_path}"
+    echo "${date_mark}" >> "${readme_path}"
+    # Add other footer content here
+}
+
+create_readme() {
+    local name="$1"
+    local description="$2"
+    local markdown_path="$3"
+    local readme_path="$4"
+
+    description="${description#*- }"   # Extract everything after '- '
+    description="${description%%\\n*}"  # Stop at the first newline
+
+    # Create a relative path for the markdown link
+    local markdown_rel_path="${markdown_path/#${__VENV_BASE}docs\//}"
+
+    echo "- [${name}](${markdown_rel_path}): ${description}" >> "${readme_path}"
+}
+
+generate_markdown(){
+#
+# ## generate_markdown - Generate Markdown documentation for all available functions.
+# 
+# - **Purpose**:
+#   - Generate comprehensive Markdown documentation for all functions.
+# - **Usage**: 
+#   - vhelp generate_markdown
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Markdown-formatted documentation for all functions.
+# - **Exceptions**: 
+#   - None
+#
+    local conf_file="$__VENV_BASE/conf/help_sys.conf"
+    local shdoc_dir="${__VENV_BASE}/docs/shdoc"
+    [ -d "${shdoc_dir}" ] || mkdir -p ${shdoc_dir}
+
+    local timestamp_file="${shdoc_dir}/AUTO_GENERATED_DO_NOT_MODIFY_OR_PLACE_FILES_HERE"
+    local progress_file="${shdoc_dir}/.in-progress"
+    local readme_index="${shdoc_dir}/README.md"
+
+    touch "${progress_file}"
+    
+    # Temporary arrays to hold th edocumentation foe each function and script.
+    local scripts_doc=()  # Array to collect scripts' names and documentation
+    local functions_doc=()  # Array to collect functions' names and documentation
+
+    # State variables
+    local in_script=false
+    local in_functiom=false
+
+    # Read the directories to document from the conf file
+    local search_dirs=($(grep -v '^#' "$conf_file" | sed '/^$/d'))
+
+    # Iterate over directories to find shell scripts and their documentation
+    for dir_name in "${search_dirs[@]}"; do
+        local script_dir="${__VENV_BASE}/${dir_name}"
+        local doc_dir="${shdoc_dir}/${dir_name}"
+        [ -d "${doc_dir}/functions" ] || mkdir -p ${doc_dir}/functions
+        [ -d "${doc_dir}/scripts" ] || mkdir -p ${doc_dir}/scripts
+
+        local script_files=($(file "${script_dir}"/* | grep "shell script" | cut -d":" -f1))
+        for script in "${script_files[@]}"; do
+            local script_name=$(basename "${script}")
+            local current_function=""  # Keep track of the current function
+
+            # Extract the documentation from the script and functions
+            while IFS= read -r line || [[ -n "${line}" ]]; do
+
+                # Skip over a blank line in the documentation
+                if [[ "${line}" =~ ^#[[:space:]]*$ ]]; then
+                    continue
+                fi
+
+                # CHeck for beginning of the script.
+                if [[ "${line}" =~ ^#! ]]; then
+                    in_script=true
+                    in_function=false
+                    script_doc+=("${script_name}")
+                    script_doc+=("")  # Placeholder for the documentation to be appended next
+                    continue
+                fi
+
+                # Handle Script documentation
+                if [[ "${in_script}" == true && "${line}" == \#* ]]; then
+                    script_doc[$(( ${#script_doc[@]} - 1 ))]+="${line/#\# /}\n"
+                    continue
+                else
+                    in_script=false
+                fi
+
+                # Check for beginning of a function
+                if [[ "$line" =~ ^[a-zA-Z_][a-zA-Z0-9_]*\(\) ]]; then
+                    # Found a function definition
+                    in_function=true
+                    current_func_name="${line%%(*}"
+                    function_doc+=("${current_func_name}")
+                    function_doc+=("")  # Placeholder for the documentation to be appended next
+                    continue
+                fi
+
+                # Handle Function documentation
+                if [[ "$in_function" == true && "${line}" == \#* ]]; then
+                    function_doc[$(( ${#function_doc[@]} - 1 ))]+="${line/#\# /}\n"
+                    continue
+                fi
+                
+                # We reached the end of the function, reset
+                if [[ "${in_function}" == true && "${line}" == '}' ]]; then
+                    in_function=false
+                    continue
+                fi
+
+            done < "$script"
+        done
+        # Add the collected documentatuon from the directory we just traversed to the overall documentation.
+        scripts_doc+=("${script_doc[@]}")
+        functions_doc+=("${function_doc[@]}")
     done
+    # Sort the arrays to align with __VENV_FUNCTIONS and __VENV_SCRIPTS
+    sort_2d_array scripts_doc
+    sort_2d_array functions_doc
+
+    # Write the documentation to markdown files
+    write_index_header ${readme_index}
+    for ((i=0; i<${#scripts_doc[@]}; i+=2)); do
+        if [[ "${scripts_doc[i]}" == "${__VENV_SCRIPTS[i]}" ]]; then
+            echo "Writing out docs for ${scripts_doc[i]}"
+            echo -e "${scripts_doc[i+1]}" > "${__VENV_SCRIPTS[i+1]}"
+            create_readme "${scripts_doc[i]}" "${scripts_doc[i+1]}" "${__VENV_SCRIPTS[i+1]}" "${readme_index}"
+        else
+            echo "Oh Crap! something went wrong, you need to reinitialize your shell."
+            echo "Bailing out on further generation, the expected script list does not agree"
+            echo "with the help system initialization."
+            return
+        fi
+    done
+    for ((i=0; i<${#functions_doc[@]}; i+=2)); do
+        if [[ "${functions_doc[i]}" == "${__VENV_FUNCTIONS[i]}" ]]; then
+            echo "Writing out docs for ${functions_doc[i]}"
+            echo -e "${functions_doc[i+1]}" > "${__VENV_FUNCTIONS[i+1]}"
+            create_readme "${functions_doc[i]}" "${functions_doc[i+1]}" "${__VENV_FUNCTIONS[i+1]}" "${readme_index}"
+        else
+            echo "Oh Crap! something went wrong, you need to reinitialize your shell."
+            echo "Bailing out on further generation, the expected function list does not agree"
+            echo "with the help system initialization."
+            return
+        fi
+    done
+    write_index_footer ${readme_index}
+
+    unset script_doc
+    unset function_doc
+
+    # After documentation generation is complete
+    mv "${progress_file}" "${timestamp_file}"
+    # Now find and delete old markdown files
+    # This should be either older or newer if it doesn't work, change it.
+    find "${shdoc_dir}" -type f -name '*.md' ! -newer "${timestamp_file}" -exec rm {} \;
 }
 
 
@@ -126,14 +311,15 @@ general_help(){
 # - **Exceptions**: 
 #   - None
 #
-    echo -e "\nAvailable commands for 'help':\n"
+    echo -e "\nAvailable commands for 'vhelp':\n"
     echo "  - **functions**:         List available functions and their purpose."
     echo "  - **scripts**:           List available scripts and their purpose."
     echo "  - **generate_markdown**: Generate Markdown documentation for all functions."
-    echo -e "\nTo get help on a specific function, use 'help function_name'.\n"
+    echo -e "\nTo get help on a specific function, use 'vhelp function_name'.\n"
 }
 
-help_scripts() {
+
+help_scripts(){
 #
 # help_scripts - List sourced scripts and their purpose.
 #
@@ -150,15 +336,54 @@ help_scripts() {
 # - **Exceptions**: 
 #   - None
 #
-    echo "Debug: _SOURCED_LIST: ${_SOURCED_LIST[@]}"
+    local longest=0
+    local name description
+
     echo -e "\nList of sourced scripts and their purpose:\n"
-    for script in ${_SOURCED_LIST[@]}; do
-        # Extract the header comments from each script as its description
-        #script_description=$(awk "/^#/ { sub(/^# ?/, \"\"); print \$0 }" "$script")
-        echo "  - ${script}"
+
+    # Find the longest script name
+    for ((i=0; i<${#__VENV_SCRIPTS[@]}; i+=2)); do
+        if [[ ${#__VENV_SCRIPTS[i]} -gt ${longest} ]]; then
+            longest=${#__VENV_SCRIPTS[i]}
+        fi
     done
-    echo ""
+
+    for ((i=0; i<${#__VENV_SCRIPTS[@]}; i+=2)); do
+        name="${__VENV_SCRIPTS[i]}"
+        markdown_file="${__VENV_SCRIPTS[i+1]}"
+
+        if [[ -f "$markdown_file" ]]; then
+            # Fetch the first line or a specific section from the markdown file
+            local description=$(head -n 1 "$markdown_file")
+            description="${description#*- }"  # Extracts the part after '- '
+            printf "  * %-$((${longest}+1))s %s\n" "${name}:" "${description}"
+       else
+            printf "  - %s - No description available\n" "$name"
+        fi
+    done
+    echo -e "\nUse 'vhelp \`script_name\` for detailed information on each script"
 }
+
+
+specific_script_help() {
+
+    local script=$1
+
+    for ((i=0; i<${#__VENV_SCRIPTS[@]}; i+=2)); do
+        if [[ "${__VENV_SCRIPTS[i]}" == "${script}" ]]; then
+            local markdown_file="${__VENV_SCRIPTS[i+1]}"
+            if [[ -f "${markdown_file}" ]]; then
+                "${MD_PROCESSOR:-cat}" "${markdown_file}"
+            else
+                echo "No documentation available for '${script}'."
+            fi
+            return
+        fi
+    done
+    echo "Unknown script: '${script}'"
+    general_help
+}
+
 
 specific_function_help(){
 #
@@ -179,10 +404,19 @@ specific_function_help(){
 #
     local func=$1
 
-    # Provide the documentation for the function passed.
-    for ((i=0; i<${#FUNC_ARRAY[@]}; i+=2)); do
-        if [[ "${FUNC_ARRAY[i]}" == "${func}" ]]; then
-            echo -e "${FUNC_ARRAY[i+1]}"
+    if [[ " ${__VENV_INTERNAL_FUNCTIONS[@]} " =~ " ${func} " ]]; then
+        echo "The function '${func}' is for internal use. Please refer to the system documentation."
+        return
+    fi
+
+    for ((i=0; i<${#__VENV_FUNCTIONS[@]}; i+=2)); do
+        if [[ "${__VENV_FUNCTIONS[i]}" == "${func}" ]]; then
+            local markdown_file="${__VENV_FUNCTIONS[i+1]}"
+            if [[ -f "${markdown_file}" ]]; then
+                "${MD_PROCESSOR:-cat}" "${markdown_file}"
+            else
+                echo "No documentation available for '${func}'."
+            fi
             return
         fi
     done
@@ -208,108 +442,44 @@ help_functions() {
 # - **Exceptions**: 
 #   - None
 #
-    if [[ -z "${func}" ]]; then
-        echo -e "\nUse 'help function_name' for detailed information on each function.\n"
-        for ((i=0; i<${#FUNC_ARRAY[@]}; i+=2)); do
-            # Get the second line of the function description.
-            second_line=$(echo -e "${FUNC_ARRAY[i+1]}" | sed -n '2p')
-            echo -e "  - ${second_line}\n"
-        done
-        echo ""
-        return
-    fi
-}
+    local longest=0
+    local name description
 
-generate_markdown(){
-#
-# generate_markdown - Generate Markdown documentation for all available functions.
-#
-# - **Purpose**:
-#   - Generate comprehensive Markdown documentation for all functions.
-# - **Usage**: 
-#   - generate_markdown
-# - **Scope**:
-#   - Global
-# - **Input Parameters**: 
-#   - None
-# - **Output**: 
-#   - Markdown-formatted documentation for all functions.
-# - **Exceptions**: 
-#   - None
-#
-    local all_funcs=()
-    local seen_funcs=()  # To keep track of functions already documented
-
-    echo "# Function Documentation" 
-
-    # Iterate over all source scripts to read functions
-    for script in ${_SOURCED_LIST}; do
-        script_funcs=($(awk -F'[(]' '/^[a-zA-Z0-9_]+\(\)/ {print $1}' "${script}"))
-        all_funcs=("${all_funcs[@]}" "${script_funcs[@]}")
-    done
-
-    # Deduplicate function names
-    all_funcs=($(printf "%s\n" "${all_funcs[@]}" | sort -u))
-
-    for func in "${all_funcs[@]}"; do
-        if [[ ! " ${seen_funcs[@]} " =~ " ${func} " ]]; then  # Skip if already documented
-            if [[ "${func}" != "init_help_system" && "${func}" != "help_functions" && "${func}" != "help" && "${func}" != "generate_markdown" ]]; then
-                echo -e "\n## Function: ${func}\n"
-                for script in ${_SOURCED_LIST}; do
-                    awk "/${func}\(\)/ { flag=1; count=1; next } flag && /^#/ { sub(/^# ?/, \"\"); print \$0 } { if (flag) count += gsub(/{/, \"\") - gsub(/}/, \"\"); if (count == 0 && !/^#/) flag=0 }" "${script}"
-                done
-                seen_funcs+=("$func")  # Mark as documented
-            fi
+    # Find the longest function name
+    for ((i=0; i<${#__VENV_FUNCTIONS[@]}; i+=2)); do
+        if [[ ${#__VENV_FUNCTIONS[i]} -gt ${longest} ]]; then
+            longest=${#__VENV_FUNCTIONS[i]}
         fi
     done
+
+    echo -e "\nAvailable functions and their brief descriptions:\n"
+
+    for ((i=0; i<${#__VENV_FUNCTIONS[@]}; i+=2)); do
+        local name="${__VENV_FUNCTIONS[i]}"
+        local markdown_file="${__VENV_FUNCTIONS[i+1]}"
+
+        if [[ -f "${markdown_file}" ]]; then
+            # Fetch the first line or a specific section from the markdown file
+            local description=$(head -n 1 "${markdown_file}")
+            description="${description#*- }"  # Extracts the part after '- '
+            printf "  * %-$((${longest}+1))s %s\n" "${name}:" "${description}"
+        else
+            printf "  * %s: No description available\n" "${name}"
+        fi
+    done
+
+    echo -e "\nUse 'vhelp \`function_name\` for detailed information on each function."
 }
 
-do_help(){
-#
-# do_help - Dispatch help information based on the given subcommand.
-#
-# - **Purpose**:
-#   - Serve as the main dispatcher for generating help information.
-# - **Usage**: 
-#   - do_help "subcommand"
-# - **Scope**:
-#   - Global
-# - **Input Parameters**: 
-#   1. `subcommand` (string) - The specific help topic or function name.
-# - **Output**: 
-#   - Appropriate help information based on the subcommand.
-# - **Exceptions**: 
-#   - None
-#
-    local subcommand=$1
 
-    case "$subcommand" in
-        "generate_markdown")
-            generate_markdown | tee helpdoc.md
-            ;;
-        "functions")
-            help_functions
-            ;;
-        "scripts")
-            help_scripts
-            ;;
-        "")
-            general_help
-            ;;
-        *)
-            specific_function_help "$subcommand"
-            ;;
-    esac
-}
-
-help(){
+vhelp(){
 #
-# help - Main entry point for the help system.
+# vhelp - Main entry point for the help system.
 #
 # - **Purpose**:
 #   - Facilitate the help system by initializing and delegating to other help functions.
 # - **Usage**: 
-#   - help [subcommand]
+#   - vhelp [subcommand]
 # - **Scope**:
 #   - Global
 # - **Input Parameters**: 
@@ -319,8 +489,47 @@ help(){
 # - **Exceptions**: 
 #   - None
 #
-    if [[ -z "${FUNC_ARRAY[*]}" ]]; then
+    local subcommand=$1
+    local is_script=0
+    local md_command
+
+    # Initialize help, if it hasn't been already
+    if [[ -z "${__VENV_FUNCTIONS[*]}" ]]; then
         init_help_system
     fi
-    do_help "$@" | (command -v glow > /dev/null 2>&1 && glow || cat )
+
+    # Use the markdown processor if available, otherwise default to 'cat'
+    command -v ${MD_PROCESSOR} > /dev/null 2>&1 &&  md_command="${MD_PROCESSOR}" \
+        || md_command="cat"
+
+    # Check if the subcommand is a known script name (without the .sh extension)
+    for script in ${__VENV_SOURCED_LIST[@]}; do
+        if [[ "${script##*/}" == "${subcommand}" ]]; then
+            is_script=1
+            break
+        fi
+    done
+
+    case "${subcommand}" in
+        "generate_markdown")
+            generate_markdown 
+            echo "markdown geneartion complete."
+            ;;
+        "functions")
+            help_functions | ${md_command}
+            ;;
+        "scripts")
+            help_scripts | ${md_command}
+            ;;
+        "")
+            general_help | ${md_command}
+            ;;
+        *)
+            if (( is_script )); then
+                specific_script_help "${subcommand}" | ${md_command}
+            else
+                specific_function_help "${subcommand}" | ${md_command}
+            fi
+            ;;
+    esac
 }

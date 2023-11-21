@@ -1,64 +1,77 @@
 #!/bin/bash
 #
-# util_funcs.sh - Utility Functions for Bash Scripts
-#
-# - **Purpose**: This script provides a collection of utility functions that can be sourced and used in other bash scripts.
+# # `util_funcs.sh` - Utility Functions for Bash Scripts
+# 
+# ## Description
+# - **Purpose**:
+#   - `util_funcs.sh` offers a collection of utility functions to assist in various common tasks within bash scripting. These functions provide streamlined solutions for string manipulation, number padding, and stack operations, enhancing the efficiency and readability of bash scripts that incorporate them.
 # - **Usage**: 
-#     - Source this script in other bash scripts to import the utility functions.
-#     - For example, in another script: `source util_funcs.sh`.
+#   - Source this script within other bash scripts to make the utility functions available for use:
+#     ```bash
+#     source /path/to/util_funcs.sh
+#     ```
 # - **Input Parameters**: 
-#     None
+#   - None. This script does not require input parameters as it is intended to be sourced by other scripts.
 # - **Output**: 
-#     - Provides utility functions for use in other bash scripts. Functions include string manipulation, number padding, and stack operations.
+#   - Provides utility functions that can be called from other bash scripts.
 # - **Exceptions**: 
-#     - Some functions may return specific error codes. Refer to individual function documentation for details.
-#
+#   - Some functions within the script may return specific error codes depending on their internal logic. Refer to the individual function documentation for detailed exception handling.
+# 
+# ## Dependencies
+# - None explicitly stated. The script is designed to be self-contained, relying only on standard bash features.
+# 
 
 # Capture the fully qualified path of the sourced script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Don't source this script if it's already been sourced.
-[[ "${_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || _SOURCED_LIST="${_SOURCED_LIST} ${THIS_SCRIPT}"
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
 echo "Sourcing: ${THIS_SCRIPT}"
 
-INTERNAL_FUNCTIONS=(
-    ${INTERNAL_FUNCTIONS[@]}
+__VENV_INTERNAL_FUNCTIONS=(
+    ${__VENV_INTERNAL_FUNCTIONS[@]}
 )
 
 # Utility functions
 
 __strip_space(){
 #
-# __strip_space - Remove leading and trailing whitespaces from the input string.
-#
+# # `__strip_space` - Remove Leading and Trailing Whitespaces
+# 
+# ## Description
 # - **Purpose**:
-#   - Remove leading and trailing whitespaces from the input string.
+#   - Removes leading and trailing whitespaces from the input string.
 # - **Usage**: 
-#   - __strip_space "string"
+#   - `__strip_space "string"`
 # - **Input Parameters**: 
-#   1. `str` (string) - The string from which to remove leading and trailing whitespaces.
+#   - `str`: The string from which to remove leading and trailing whitespaces.
 # - **Output**: 
 #   - A new string with whitespaces removed from both ends.
-# - **Exceptions**: None
-#
+# - **Exceptions**: None.
+# 
     local argstring="$*"
     echo ${argstring}
 }
 
 __zero_pad(){
-#
-# __zero_pad - Pad a given number with a leading zero if it's a single-digit number.
-#
+# 
+# # `__zero_pad` - Pad a Single-Digit Number with a Leading Zero
+# 
+# ## Description
 # - **Purpose**:
-#   - Pad a given number with a leading zero if it's a single-digit number.
+#   - The `__zero_pad` function pads a given number with a leading zero if it's a single-digit number, ensuring consistent formatting for numerical values.
 # - **Usage**: 
-#   - __zero_pad "nn"
+#   - Call the function with a number to add a leading zero if it is a single digit. For example:
+#     ```bash
+#     padded_number=$(__zero_pad "5")
+#     # Returns "05"
+#     ```
 # - **Input Parameters**: 
-#   1. `num` (integer) - The number to pad. Can be single or double-digit.
+#   - `nn`: A number that needs padding.
 # - **Output**: 
-#   - The padded number as a string.
-#   - If no number is specified, it will default to 00.
-# - **Exceptions**: None
-#
+#   - A string representation of the number, padded with a leading zero if it was a single digit.
+# - **Exceptions**: 
+#   - None. The function handles single-digit numbers and does not modify numbers with two or more digits.
+# 
     local num="$1"
     printf "%02d" "${num}"
 }
@@ -68,46 +81,108 @@ __next_step(){
 # __next_step - Increment a given sequence number by 1 and pad it with a zero if needed.
 #
 # - **Purpose**:
+#
 #   - Increment a given sequence number by 1 and pad it with a zero if needed.
+#
 # - **Usage**: 
+#
 #   - __next_step "[0-99]"
+#
 # - **Scope**: Local. Modifies no global variables.
+#
 # - **Input Parameters**: 
+#
 #   1. `sequenceNum` (integer) - The sequence number to increment. Must be between 00 and 99.
+#
 # - **Output**: 
+#
 #   - The next sequence number as a string, zero-padded if necessary.
+#
 # - **Exceptions**: 
+#
 #   - Returns an error code 22 if the sequence number is not between 00 and 99. Error 22 means "Invalid Argument".
 #
     local sn="$1"
     case "$sn" in
-       ""|[[:space:]]* )
-          sn=0
-          ;;
+        ""|[[:space:]]* )
+            sn=0
+            ;;
        [0-9]|[0-9][0-9] )
-          ((sn++))
-          ;;
+            sn=$((10#${sn}))
+            ((sn++))
+            ;;
        *)
-          echo "Exception, sequence must be a value between 00 and 99." >&2
-          return 22 # EINVAL: Invalid Argument
-          ;;
+            echo "Exception, sequence must be a value between 00 and 99." >&2
+            return 22 # EINVAL: Invalid Argument
+            ;;
     esac
     echo "$(__zero_pad ${sn})"
 }
 
+sort_2d_array() {
+# 
+# # `sort_2d_array` - Sort a Two-Dimensional Array
+# 
+# ## Description
+# - **Purpose**:
+#   - Sorts a two-dimensional array in Bash. It's particularly useful for organizing data that is stored in a format of paired elements.
+# - **Usage**: 
+#   - This function can be used to sort arrays where each element consists of a pair of values (e.g., key-value pairs). It's beneficial in scenarios where data needs to be sorted based on one of the dimensions.
+# - **Input Parameters**: 
+#   - `array_name`: The name of the array variable that needs to be sorted.
+# - **Output**: 
+#   - The original array sorted based on the specified criteria.
+# - **Exceptions**: 
+#   - Handles exceptions or errors that may arise during the sorting process (to be detailed based on function's implementation).
+# 
+    local -a array_name=$1
+    local i j temp1 temp2 len
+
+    # Assign named array to local array
+    eval "local_array=(\"\${$array_name[@]}\")"
+    len=${#local_array[@]}
+
+    for ((i=2; i<len; i+=2)); do
+        temp1=${local_array[i]}
+        temp2=${local_array[i+1]}
+
+        # Find the correct position for temp1, temp2 by comparing with all preceding pairs
+        j=i
+        while [[ j -ge 2 ]]; do
+            if [[ ${local_array[j-2]} > $temp1 ]]; then
+                # Shift the pair at j-2 forward to make room for temp1, temp2
+                local_array[j]=${local_array[j-2]}
+                local_array[j+1]=${local_array[j-1]}
+                j=$((j-2))
+            else
+                # Correct position found, break the loop
+                break
+            fi
+        done
+
+        # Place temp1, temp2 in their correct position
+        local_array[j]=$temp1
+        local_array[j+1]=$temp2
+    done
+
+    # Assign sorted local array back to original named array
+    eval "${array_name}=(\"\${local_array[@]}\")"
+
+}
+
+
 push_stack() {
 #
-# push_stack - Push a value onto a named stack.
-#
+# # `push_stack` - Push a Value onto a Named Stack
+# 
+# #### Description
 # - **Purpose**:
-#   - Push a value onto a named stack.
+#   - Pushes a value onto a named stack.
 # - **Usage**: 
-#   - push_stack "stack_name" "value"
-# - **Scope**:
-#   - Local. However, the stack name can be a global variable, making the stack globally accessible.
+#   - `push_stack "stack_name" "value"`
 # - **Input Parameters**: 
-#   1. `stack_name` (string) - The name of the stack array.
-#   2. `value` - The value to push onto the stack.
+#   - `stack_name`: The name of the stack array.
+#   - `value`: The value to push onto the stack.
 # - **Output**: 
 #   - Modifies the named stack by adding a new element.
 # - **Exceptions**: None.
@@ -119,21 +194,20 @@ push_stack() {
 
 pop_stack() {
 #
-# pop_stack - Pop a value from a named stack.
-#
+# # `pop_stack` - Pop a Value from a Named Stack
+# 
+# ## Description
 # - **Purpose**:
-#   - Pop a value from a named stack.
+#   - Pops a value from a named stack.
 # - **Usage**: 
-#   - pop_stack "stack_name"
-# - **Scope**:
-#   - Local. However, the stack name can be a global variable, making the stack globally accessible.
+#   - `pop_stack "stack_name"`
 # - **Input Parameters**: 
-#   1. `stack_name` (string) - The name of the stack array.
+#   - `stack_name`: The name of the stack array.
 # - **Output**: 
 #   - Removes and returns the top element from the named stack.
 # - **Exceptions**: 
 #   - Returns an error message and error code 1 if the stack is empty.
-#
+# 
     local arr_name=$1
     eval "local len=\${#${arr_name}[@]}"
     if [ $len -eq 0 ]; then

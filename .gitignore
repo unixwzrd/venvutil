@@ -171,3 +171,6 @@ docker/open_llama/*.bin
 build
 project-notes/
 *.swp
+docs/shdoc/
+bin/shinclude/help_sys.sh
+vardump*.txt
