@@ -106,7 +106,7 @@ snum() {
         return 1
     fi
     
-    __VENV_NUM=$( __zero_pad "${new_num}" )
+    __VENV_NUM=$( zero_pad "${new_num}" )
 }
 
 vpfx() {
@@ -467,7 +467,7 @@ ccln(){
         __VENV_DESC=$1
     fi
 
-    __VENV_NUM=$( __next_step "$(vnum)" )
+    __VENV_NUM=$( next_step "$(vnum)" )
     __VENV_NAME="${__VENV_PREFIX}.${__VENV_NUM}.${__VENV_DESC}"
 
     # Clone the VENV

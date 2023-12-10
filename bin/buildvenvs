@@ -1,16 +1,17 @@
 #!/bin/bash
+# shellcheck disable=2317,2164
 #set -o xtrace
 
 [ -L "$0" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
-MY_NAME="$(basename ${THIS_SCRIPT})"
-MY_BIN="$(dirname ${THIS_SCRIPT})"
-MY_DIR="$(dirname ${MY_BIN})"
+MY_NAME=$(basename "${THIS_SCRIPT}")
+MY_BIN=$(dirname "${THIS_SCRIPT}")
+MY_DIR=$(dirname "${MY_BIN}")
 MY_ARGS=$*
 MY_INCLUDE="${MY_BIN}/shinclude"
 MY_CONF_DIR="${MY_DIR}/conf"
 MY_CONFIG=$1
 # Source in some useful shortcut functions for VENV management.
-[ -f ${MY_INCLUDE}/init_env.sh ] && . ${MY_INCLUDE}/init_env.sh \
+[ -f "${MY_INCLUDE}/init_env.sh" ] && . "${MY_INCLUDE}/init_env.sh" \
     || ( echo "${MY_NAME}: Could not find init_env.sh in INCLUDEDIR: ${MY_INCLUDE}"; exit 1 )
 
 umask 022
@@ -20,10 +21,10 @@ umask 022
 # shell function and must be sourced in the environment in order to activate and
 # deactivate environments.
 CONDA_ROOT=${_CONDA_ROOT:-$(conda info -s | grep CONDA_ROOT | cut -d " " -f 2)}
-[ -e ${CONDA_ROOT}/bin/activate ] && . ${CONDA_ROOT}/bin/activate '' \
+[ -e "${CONDA_ROOT}/bin/activate" ] && . "${CONDA_ROOT}/bin/activate" '' \
     || ( echo "${MY_NAME}: Conda environment not found! Check your environment for Conda.";  exit 1 )
 
-# Set the App code prefix for th eVENV names.
+# Set the App code prefix for the VENV names.
 APP_CODE="bld"
 
 # Set the build order and the packages to install/reinstall
@@ -73,25 +74,30 @@ N_CPU=$(( ( $(sysctl -n hw.ncpu ) - 1)   * 2 ))
 
 # Get build directories and all set up, may be overridden in th econfig file.
 __BUILD_BASE="${BUILD_BASE:=${PWD}}"
-[ -e ${__BUILD_BASE}/config.sh ] && . ${__BUILD_BASE}/config.sh
+[ -e "${__BUILD_BASE}/config.sh" ] && . "${__BUILD_BASE}/config.sh"
 
 echo "${MY_NAME}: Argiuments passed '${MY_ARGS}'"
 echo "${MY_NAME}: Sourcing in user config-  '${MY_CONF_DIR}/config-${MY_CONFIG}.sh'"
-[ -e ${MY_CONF_DIR}/config-${MY_CONFIG}.sh ] && . ${MY_CONF_DIR}/config-${MY_CONFIG}.sh \
-    || echo "${MYNAME}: File not found - '${MY_CONF_DIR}/config-${MY_CONFIG}.sh'"
+[ -e "${MY_CONF_DIR}/config-${MY_CONFIG}.sh" ] && . "${MY_CONF_DIR}/config-${MY_CONFIG}.sh" \
+    || echo "${MY_NAME}: File not found - '${MY_CONF_DIR}/config-${MY_CONFIG}.sh'"
 
 __BUILD_DIR="${BUILD_DIR:=${__BUILD_BASE}/build}"
-__BENCHMARK_DIR=${__BUILD_DIR}/benchmark
-[ -e ${__BUILD_BASE} ] || mkdir -p ${__BUILD_BASE}
-[ -e ${__BUILD_DIR} ] || mkdir -p ${__BUILD_DIR}
-# [ -e ${__BENCHMARK_DIR} ] || mkdir -p ${__BENCHMARK_DIR}
+__BENCHMARK_DIR="${__BUILD_DIR}/benchmark"
+[ -e "${__BUILD_BASE}" ] || mkdir -p "${__BUILD_BASE}"
+[ -e "${__BUILD_DIR}" ] || mkdir -p "${__BUILD_DIR}"
+# [ -e "${__BENCHMARK_DIR}" ] || mkdir -p "${__BENCHMARK_DIR}"
 
 echo "${MY_NAME}: Setting build Directory to: ${__BUILD_DIR}"
 __LASTENV_FILE="${__BUILD_DIR}/.lastvenv"
 __STEP_FILE="${__BUILD_DIR}/.stepnum"
-[ -e ${__STEP_FILE} ] || echo "0" > ${__STEP_FILE}
+[ -e "${__STEP_FILE}" ] || echo "0" > "${__STEP_FILE}"
 
-
+# Internal steps done to set up th einitial Conda VENV for an application.
+__INTERNAL_STEPS=(
+    "__CONDA"
+    "__PYTHON_BASE"
+    "__CREATE_APP_BASE"
+)
 
 
 
@@ -103,21 +109,21 @@ __CONDA(){
     curl  https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o miniconda.sh
     # Do a non-destructive Conda install whcih will preserve existing VENV's
     sh miniconda.sh -b -u
-    . ${HOME}/miniconda3/bin/activate
-    conda init $(basename ${SHELL})
+    . "${HOME}/miniconda3/bin/activate"
+    conda init $(basename "${SHELL}")
     conda update -n base -c defaults conda -y
     # Replace the shell name below with your preferred shell. The -l switch gives you a login shell
     # and, contrary to what you may heard, you don't have to log out or exit the terminal. Simply
     # exec the shell and it will reload your environment variables with the additional Conda ones
     # set. This also works in Linux and most other Unix-like POSIX operating systems.
     export _CONDA_ROOT
-    cd ${__BUILD_BASE}
+    cd "${__BUILD_BASE}"
     # Since the code is re-entrant, we want to make sure we don't re-enter this function.
     # this function will never return so it will never get back to the case statement and
     # write the step number out. I've put that part in the script, but it will never reach that
     # part.  If we don't this will spawn more bash shells, ythan you want to imagine. I'm considering
     # setting ulimit to something like 500
-    echo "1" > ${__STEP_FILE}
+    echo "1" > "${__STEP_FILE}"
     echo "${MY_NAME}: Re-running in new Conda environment"
     # [ ${DEBUG} == 1 ] && exec bash -l -x -c "${THIS_SCRIPT}; exec bash -l"
     exec bash -l -c "${THIS_SCRIPT} ${MY_ARGS}; exec bash -l"
@@ -129,7 +135,7 @@ __PYTHON_BASE(){
     __PYVER=3
     __PYREL=10
     __PYBASE="python${__PYVER}.${__PYREL}"
-    benv ${__PYBASE} python==${__PYVER}.${__PYREL}.*
+    benv "${__PYBASE} python==${__PYVER}.${__PYREL}.*"
 }
 
 
@@ -138,22 +144,22 @@ __CREATE_APP_BASE(){
     echo "${MY_NAME}: Creating the application build BASE"
     for newenv in ${APP_CODE}
     do
-        cact ${__PYBASE}
-        nenv ${newenv}
+        cact "${__PYBASE}"
+        nenv "${newenv}"
     done
-    echo ${CONDA_DEFAULT_ENV} > ${__LASTENV_FILE}
+    echo "${CONDA_DEFAULT_ENV}" > "${__LASTENV_FILE}"
 }
 
 
 # Build CMake
 __CMAKE(){
     URL_CMAKE="https://github.com/Kitware/CMake.git"
-    cd ${__BUILD_DIR}
-    git clone ${URL_CMAKE}
-    mkdir -p CMake/build
+    cd "${__BUILD_DIR}"
+    git clone "${URL_CMAKE}"
+    mkdir -p CMake/build || ( echo "Could not cd to CMake."; exit)
     cd CMake/build
     ../bootstrap
-    make -j ${N_CPU}
+    make -j "${N_CPU}"
     make install
 }
 
@@ -161,8 +167,8 @@ __CMAKE(){
 # Build BLIS
 __BLIS(){
     URL_BLIS="https://github.com/flame/blis.git"
-    cd ${__BUILD_DIR}
-    git clone ${URL_BLIS}
+    cd "${__BUILD_DIR}" || ( echo "Could not cd to ${__BUILD_DIR}."; exit)
+    git clone "${URL_BLIS}"
     mkdir -p blis/build-blis
     cd blis/build-blis
     # The ARMv1.2 ThunderX2 (NEON) seems to be supported, though this is missing soem of the features
@@ -183,22 +189,22 @@ __BLIS(){
         --enable-blas \
         --enable-cblas \
             thunderx2
-    make -j ${N_CPU}
-    make -j ${N_CPU} test
+    make -j "${N_CPU}"
+    make -j "${N_CPU}" test
     make  install
 }
 
 
 # BUILD OpenBLAS
-__OPENBLAS(){
+__OPENBLAS() {
     URL_OPENBLAS="https://github.com/xianyi/OpenBLAS"
-    cd ${__BUILD_DIR}
-    git clone ${URL_OPENBLAS}
+    cd "${__BUILD_DIR}" || ( echo "Could not cd to ${__BUILD_DIR}."; exit)
+    git clone "${URL_OPENBLAS}"
     mkdir -p OpenBLAS/build
     cd OpenBLAS/build
     cmake -DBUILD_SHARED_LIBS="YES" -DC_LAPACK="YES" ..
-    make -j ${N_CPU}
-    make -j ${N_CPU} test
+    make -j "${N_CPU}"
+    make -j "${N_CPU}" test
     make install
 }
 
@@ -207,11 +213,11 @@ __PKG_BUILD(){
     __BUILD_PACKAGE=$1; __INST_TYPE=$2
     echo "${MY_NAME}: BUILDING PACKAGE AND ENVIRONMENTS FOR ${__BUILD_PACKAGE}"
     # Get the last successfully created base VENV for the previous package
-    __PREV_VENV=$(cat ${__LASTENV_FILE})
+    __PREV_VENV=$(cat "${__LASTENV_FILE}")
     # Set the current active environment.
-    cact ${__PREV_VENV}
+    cact "${__PREV_VENV}"
     # Current environment clone using the PACKAGE name passed and amke it active.
-    ccln ${__BUILD_PACKAGE}
+    ccln "${__BUILD_PACKAGE}"
     # Preserve the name of teh new current environment.
     last_build_env=${CONDA_DEFAULT_ENV}
     # Loop through the keys and values in PACKAGE_CONFIG and if teh match the BUILD_PACKAGE,
@@ -219,22 +225,22 @@ __PKG_BUILD(){
     for i in ${!PACKAGE_CONFIG[@]}; do
         IFS='|' read -ra DETAILS <<< "${PACKAGE_CONFIG[$i]}"
         # Strip leading and trailing whitespace as this causes a problem with the name check
-        __PACKAGE=$(__strip_space ${DETAILS[${PC_PACKAGE}]})
+        __PACKAGE=$(strip_space "${DETAILS[${PC_PACKAGE}]}")
 
         echo "${MY_NAME}: PACKAGE TO BUILD: ${__PACKAGE}"
         echo "${MY_NAME}: PACKAGE TO MATCH: ${__PACKAGE} <=> ${__BUILD_PACKAGE}"
         if [ "${__PACKAGE}" == "${__BUILD_PACKAGE}" ]; then
             # Set current active VENV to the alst VENV built as it will be th estart of
             # the branch each time.
-            cact ${last_build_env}
+            cact "${last_build_env}"
             echo "${MY_NAME}: BUILDING PACKAGE: ${__PACKAGE} BUILD_PACKAGE: ${__BUILD_PACKAGE}"
             # Split the entry on the PACKAGE_CONFIG array
             __CONFIG=${DETAILS[${PC_CONFIG}]}
             __DESCRIPTION=${DETAILS[${PC_DESC}]}
-            __ALT_NAME=$(__strip_space ${DESCRIPTION[${PC_ALT_NAME}]})
+            __ALT_NAME=$(strip_space "${__DESCRIPTION[${PC_ALT_NAME}]}")
             __PACKAGE=${__ALT_NAME:-${__PACKAGE}}
             __PRE_FLAGS=${DETAILS[${PC_PRE_FLAGS}]}
-            __METHOD=$(__strip_space ${DETAILS[${PC_METHOD}]})
+            __METHOD=$(strip_space "${DETAILS[${PC_METHOD}]}")
             __POST_FLAGS=${DETAILS[${PC_POST_FLAGS}]}
             __VENV_BUILD=${__PACKAGE}-${__CONFIG}
             # Construct the install command using the order of the arguments based on the install method.
@@ -242,18 +248,18 @@ __PKG_BUILD(){
                 pip )
                     echo "${MY_NAME}: PIP INSTALL SELECTED"
                     # Create a clone of the current envirnment, this will also increment the sequence number.
-                    ccln ${__VENV_BUILD}
+                    ccln "${__VENV_BUILD}"
                     __COMMAND="${__PRE_FLAGS} ${__METHOD} install ${__POST_FLAGS} ${__PACKAGE}"
                     ;;
                 conda )
                     echo "${MY_NAME}: CONDA INSTALL SELECTED"
                     # Create a clone of the current envirnment, this will also increment the sequence number.
-                    ccln ${__VENV_BUILD}
+                    ccln "${__VENV_BUILD}"
                     __COMMAND="${__PRE_FLAGS} ${__METHOD} install ${__PACKAGE} ${__POST_FLAGS}"
                     ;;
                 func )
                     echo "${MY_NAME}: FUNCTION CALL SELECTED"
-                    __COMMAND="${__PRE_FLAGS} ${__PACKAGE} ${__POST_FLAGE}"
+                    __COMMAND="${__PRE_FLAGS} ${__PACKAGE} ${__POST_FLAGS}"
                     ;;
                 git )
                     echo "${MY_NAME}: Git Method selecteD"
@@ -276,12 +282,12 @@ __PKG_BUILD(){
         fi
     done
     # Write the base checkpoint VENV name to a state file so we are restartable.
-    echo  "${CONDA_DEFAULT_ENV}" > ${__LASTENV_FILE}
+    echo  "${CONDA_DEFAULT_ENV}" > "${__LASTENV_FILE}"
     echo "${MY_NAME}: EXITING BUILD FOR PACKAGE: ${__BUILD_PACKAGE}"
 }
 
 __CLEANUP(){
-    rm ${__STEP_FILE} ${__LASTENV_FILE}
+    rm "${__STEP_FILE}" "${__LASTENV_FILE}"
 }
 
 
@@ -291,22 +297,22 @@ __BUILD_STEPS=("${__INTERNAL_STEPS[@]}")
 for pkg in ${!PACKAGE_INSTALL[@]}; do
     IFS='|' read -ra DETAILS <<< "${PACKAGE_INSTALL[$pkg]}"
     # Strip leading and trailing whitespace as this causes a problem with the name check
-    __PI_PACKAGE=$(__strip_space ${DETAILS[${PI_PACKAGE}]})
+    __PI_PACKAGE=$(strip_space ${DETAILS[${PI_PACKAGE}]})
     echo "${MY_NAME}: ADDING PACKAGE: ${pkg}   -- ${__PI_PACKAGE}"
     __BUILD_STEPS=("${__BUILD_STEPS[@]}" "__PKG_BUILD ${__PI_PACKAGE} ${DETAILS[${PI_INSTYP}]}")
 done
 
 # Iterate through all the steps in the configuration and the internal config to
 # build the complete VENV and if specified, build install and configure the application.
-stepnum=$(cat ${__STEP_FILE})
+stepnum=$(cat "${__STEP_FILE}")
 for (( step_num=${stepnum}; step_num<${#__BUILD_STEPS[@]}; step_num++)); do
     step=${__BUILD_STEPS[$step_num]}
     echo "${MY_NAME}: ENTERING BUILD STEP FOR - ${step}"
     echo "${MY_NAME}: Calling package installer for: ${step}"
     # Ensure we are always in the build directory befotre doing any step - SAFETY
-    cd ${__BUILD_DIR}
-    eval $step || exit 1
-    echo $((i + step_num)) > ${__STEP_FILE}
+    cd "${__BUILD_DIR}"
+    eval "${step}" || exit 1
+    echo $((i + step_num)) > "${__STEP_FILE}"
 done
 
 echo "${MY_NAME}: Cleaning up after build."

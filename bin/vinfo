@@ -1,0 +1,129 @@
+#!/usr/bin/env python
+"""
+TODO In progress.
+
+This script extracts and displays the hierarchy of Conda virtual environments.
+
+It reads the environments.txt file to identify all environments, parses the history
+file of each environment to gather creation commands and dates, and then displays
+the information in a formatted output.
+
+The script is intended to be run from the command line and does not take any arguments.
+"""
+import os
+import re
+# Try importing rich, set a flag based on availability
+try:
+    from rich import print
+    from rich.tree import Tree
+    RICH_AVAILABLE = True
+except ImportError:
+    RICH_AVAILABLE = False
+
+
+conda_path = os.path.expanduser("~/.conda")
+environments_file = os.path.join(conda_path, "environments.txt")
+
+def get_venv_info(venv_path):
+    """
+    Extracts environment information from the history file.
+
+    Args:
+        venv_path (str): The path to the virtual environment directory.
+
+    Returns:
+        dict: A dictionary containing the conda command used to create the virtual environment,
+              the date it was created, and the version of Python installed.
+    """
+    history_file = os.path.join(venv_path, "conda-meta", "history")
+    conda_command = ""
+    created_date = ""
+    python_version = ""
+    if os.path.exists(history_file):
+        with open(history_file, "r", encoding="utf-8") as venv_file:
+            for line in venv_file:
+                if line.startswith("# cmd:"):
+                    conda_command = line.split("# cmd:", 1)[1].strip()
+                elif line.startswith("==> ") and "<==" in line:
+                    created_date = line.split("==> ")[1].split(" <==")[0].strip()
+                elif 'defaults/osx-arm64::python==' in line or 'defaults/noarch::python==' in line:
+                    python_version = re.search(r'python==([\d\.]+)', line).group(1)
+    return {
+        "conda_command": conda_command,
+        "created_date": created_date,
+        "python_version": python_version,
+    } if conda_command else None
+
+
+def extract_parent_env(conda_command):
+    """
+    Extracts the parent environment name from the conda command.
+
+    Args:
+        conda_command (str): The conda command used to create the virtual environment.
+
+    Returns:
+        str: The name of the parent environment or 'Unknown' if not found.
+    """
+    # Look for either -n or --name followed by the environment name
+    match = re.search(r'(-n|--name)\s+(\S+)', conda_command)
+    if match:
+        # Return the environment name
+        return match.group(2)
+    return "Unknown"
+
+def build_hierarchy(conda_envs):
+    venv_info_dict = {}
+
+    if os.path.exists(environments_file):
+        with open(conda_envs, "r", encoding="utf-8") as file:
+            for env_path in file:
+                env_path = env_path.strip()
+                venv_info_dict = get_venv_info(env_path)
+                if venv_info_dict:
+                    parent_env = extract_parent_env(venv_info_dict['conda_command'])
+                    env_name = os.path.basename(env_path)  # Assumes env_path ends with the env name
+                    if parent_env not in venv_info_dict:
+                        venv_info_dict[parent_env] = []
+                    venv_info_dict[parent_env].append(env_name)
+    return venv_info_dict
+
+
+
+def display_hierarchy(hierarchy):
+    """
+    Prints the hierarchy information of a virtual environment.
+
+    Args:
+        venv_info_dict (dict): A dictionary containing information about a virtual environment.
+
+    Returns:
+        None
+    """
+    if RICH_AVAILABLE:
+        tree = Tree("Conda Environments")
+        for parent_env, children in hierarchy.items():
+            parent_node = tree.add(f"[bold]{parent_env}[/]")
+            for child in children:
+                parent_node.add(f"{child['conda_command']} (Created: {child['created_date']}, Python: {child['python_version']})")
+        print(tree)
+    else:
+        print("Rich library is not installed. Please install it for a better display.")
+        # Fallback display method without rich
+        for parent_env, children in hierarchy.items():
+            print(f"Parent Environment: {parent_env}")
+            for child in children:
+                print(f"  - Child Environment: {child['conda_command']} (Created: {child['created_date']}, Python: {child['python_version']})")
+
+#     parent_venv = extract_parent_env(venv_info_dict['conda_command'])
+#     print(f"Environment: {venv_info_dict['conda_command']}")
+#     print(f"Created Date: {venv_info_dict['created_date']}")
+#     print(f"Parent Environment: {parent_venv}")
+#     print("-" * 50)
+
+
+if os.path.exists(environments_file):
+    env_hierarchy = build_hierarchy(environments_file)
+    display_hierarchy(env_hierarchy)
+else:
+    print(f"The {environments_file} does not exist.")

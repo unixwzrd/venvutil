@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# # `init_env.sh` - Initialize Environment and Source Utility Scripts
+# `init_env.sh` - Initialize Environment and Source Utility Scripts
 # 
 # ## Description
-# - **Purpose**:
+# - **Purpose**: 
 #   - `init_env.sh` is designed to initialize the environment for bash scripting, particularly in the context of managing virtual environments. It sets up the necessary environment and sources utility scripts required for the proper functioning of other scripts in the system. It is responsible for orchestrating the environment setup in the correct order and can also be used to source additional environment or setup scripts as required, such as `.env.local` files.
 # - **Usage**: 
 #   - This script is intended to be sourced in other bash scripts to import the necessary environment and utility functions. It also contains a function that can be called to perform environment setup tasks in user scripts. To use it, include the following line in your bash scripts:
@@ -29,7 +29,7 @@
 #   ```bash
 #   # In your bash script
 #   source /path/to/init_env.sh
-#   ```
+# ```
 # 
 
 # Determine the real path of the script
@@ -39,9 +39,8 @@
 echo "Sourcing: ${THIS_SCRIPT}"
 
 # Extract script name, directory, and arguments
-MY_NAME=$(basename ${THIS_SCRIPT})
-__VENV_BIN=$(dirname $(dirname ${THIS_SCRIPT}))
-__VENV_BASE=$(dirname ${__VENV_BIN})
+__VENV_BIN=$(dirname $(dirname "${THIS_SCRIPT}"))
+__VENV_BASE=$(dirname "${__VENV_BIN}")
 __VENV_ARGS=$*
 __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
@@ -50,11 +49,11 @@ __VENV_INTERNAL_FUNCTIONS=(
     "source_util_script"
 )
 
-source_util_script(){
-# #  `source_util_script` - brings resources and functions into the environment.
+source_util_script() {
+# # Function: source_util_script
 # 
 # ## Description
-# - **Purpose**:
+# - **Purpose**: 
 #   - The `source_util_script` function is designed to source a utility script from a specified directory. It's a helper function used within the `init_env.sh` script to modularly load additional scripts as needed.
 # - **Usage**: 
 #   - This function is called with a single argument: the name of the script to be sourced (without the `.sh` extension). It checks for the presence of the script in the directory specified by `__VENV_INCLUDE` and sources it if found. If the script is not found, it prints an error message and returns with an exit code of 1.
@@ -73,7 +72,7 @@ source_util_script(){
 #   # This attempts to source 'my_util.sh' from the directory specified in __VENV_INCLUDE
 #   ```
 # 
-    local script_name="$1"
+    local script_name="$1"  
     [ -f "${__VENV_INCLUDE}/${script_name}.sh" ] && . "${__VENV_INCLUDE}/${script_name}.sh" \
         || { echo "${__VENV_INCLUDE}: Error sourcing script ${script_name}.sh in INCLUDE_DIR: ${__VENV_INCLUDE}"; return 1; }
 }
@@ -94,4 +93,5 @@ unset __conda_setup
 # Source utility functions
 source_util_script "util_funcs"
 source_util_script "help_sys"
+source_util_script "wrapper_funcs"
 source_util_script "venv_funcs"

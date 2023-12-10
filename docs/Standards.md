@@ -14,6 +14,7 @@ A template for [Script Documentation Style](/doc/Script_Doc_Templ.md) is found h
 - **Output**: What the script will output or modify.
 - **Exceptions**: Any errors the script can throw or reasons it might fail.
 - **Initialization**: All scripts, even included ones in the project should include the following lines at the beginning for proper operation.
+
     ```bash
     # Determine the real path of the script
     [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"

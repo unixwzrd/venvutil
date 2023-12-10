@@ -264,7 +264,7 @@ generate_markdown(){
             create_readme "${scripts_doc[i]}" "${scripts_doc[i+1]}" "${__VENV_SCRIPTS[i+1]}" "${readme_index}"
         else
             echo "Oh Crap! something went wrong, you need to reinitialize your shell."
-            echo "Bailing out on further generation, the expected script list does not agree"
+            echo "Bailing out on further generation, the expected SCRIPT list does not agree"
             echo "with the help system initialization."
             return
         fi
@@ -276,7 +276,7 @@ generate_markdown(){
             create_readme "${functions_doc[i]}" "${functions_doc[i+1]}" "${__VENV_FUNCTIONS[i+1]}" "${readme_index}"
         else
             echo "Oh Crap! something went wrong, you need to reinitialize your shell."
-            echo "Bailing out on further generation, the expected function list does not agree"
+            echo "Bailing out on further generation, the expected FUNCTION list does not agree"
             echo "with the help system initialization."
             return
         fi
@@ -373,7 +373,7 @@ specific_script_help() {
         if [[ "${__VENV_SCRIPTS[i]}" == "${script}" ]]; then
             local markdown_file="${__VENV_SCRIPTS[i+1]}"
             if [[ -f "${markdown_file}" ]]; then
-                "${MD_PROCESSOR:-cat}" "${markdown_file}"
+                ${MD_PROCESSOR:-cat} ${markdown_file}
             else
                 echo "No documentation available for '${script}'."
             fi
@@ -413,7 +413,7 @@ specific_function_help(){
         if [[ "${__VENV_FUNCTIONS[i]}" == "${func}" ]]; then
             local markdown_file="${__VENV_FUNCTIONS[i+1]}"
             if [[ -f "${markdown_file}" ]]; then
-                "${MD_PROCESSOR:-cat}" "${markdown_file}"
+                ${MD_PROCESSOR:-cat} ${markdown_file}
             else
                 echo "No documentation available for '${func}'."
             fi

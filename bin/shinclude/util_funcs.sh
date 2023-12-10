@@ -33,15 +33,15 @@ __VENV_INTERNAL_FUNCTIONS=(
 
 # Utility functions
 
-__strip_space(){
+strip_space(){
 #
-# # `__strip_space` - Remove Leading and Trailing Whitespaces
+# # `strip_space` - Remove Leading and Trailing Whitespaces
 # 
 # ## Description
 # - **Purpose**:
-#   - Removes leading and trailing whitespaces from the input string.
+#   - Removes leading and trailing spaces from the input string. 
 # - **Usage**: 
-#   - `__strip_space "string"`
+#   - `strip_space "string"`
 # - **Input Parameters**: 
 #   - `str`: The string from which to remove leading and trailing whitespaces.
 # - **Output**: 
@@ -52,17 +52,17 @@ __strip_space(){
     echo ${argstring}
 }
 
-__zero_pad(){
+zero_pad(){
 # 
-# # `__zero_pad` - Pad a Single-Digit Number with a Leading Zero
+# # `zero_pad` - Pad a Single-Digit Number with a Leading Zero
 # 
 # ## Description
 # - **Purpose**:
-#   - The `__zero_pad` function pads a given number with a leading zero if it's a single-digit number, ensuring consistent formatting for numerical values.
+#   - The `zero_pad` function pads a given number with a leading zero if it's a single-digit number, ensuring consistent formatting for numerical values.
 # - **Usage**: 
 #   - Call the function with a number to add a leading zero if it is a single digit. For example:
 #     ```bash
-#     padded_number=$(__zero_pad "5")
+#     padded_number=$(zero_pad "5")
 #     # Returns "05"
 #     ```
 # - **Input Parameters**: 
@@ -76,9 +76,9 @@ __zero_pad(){
     printf "%02d" "${num}"
 }
 
-__next_step(){
+next_step(){
 #
-# __next_step - Increment a given sequence number by 1 and pad it with a zero if needed.
+# next_step - Increment a given sequence number by 1 and pad it with a zero if needed.
 #
 # - **Purpose**:
 #
@@ -86,7 +86,7 @@ __next_step(){
 #
 # - **Usage**: 
 #
-#   - __next_step "[0-99]"
+#   - next_step "[0-99]"
 #
 # - **Scope**: Local. Modifies no global variables.
 #
@@ -116,7 +116,7 @@ __next_step(){
             return 22 # EINVAL: Invalid Argument
             ;;
     esac
-    echo "$(__zero_pad ${sn})"
+    echo "$(zero_pad ${sn})"
 }
 
 sort_2d_array() {
@@ -177,7 +177,7 @@ push_stack() {
 # 
 # #### Description
 # - **Purpose**:
-#   - Pushes a value onto a named stack.
+#   - Pushes a value onto a named stack (added to the end of the stack). 
 # - **Usage**: 
 #   - `push_stack "stack_name" "value"`
 # - **Input Parameters**: 
@@ -210,7 +210,7 @@ pop_stack() {
 # 
     local arr_name=$1
     eval "local len=\${#${arr_name}[@]}"
-    if [ $len -eq 0 ]; then
+    if [ ${len} -eq 0 ]; then
         echo "Stack is empty"
         return 1
     fi

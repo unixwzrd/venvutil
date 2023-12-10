@@ -1,22 +1,27 @@
 #!/usr/bin/env python
 
 import torch
+from torch.cuda.amp import autocast
 
-# List of data types to test
-dtypes = [torch.float32, torch.float16, torch.bfloat16, torch.int64, torch.int32, torch.int16, torch.int8]
+dtypes = [torch.float32, torch.float16, torch.bfloat16]
 
 for dtype in dtypes:
-    print(f"*************************************************************I")
-    print(f"               Testing dtype: {dtype}")
-    print(f"*************************************************************I")
-    # Create some tensors of the specified data type
-    a = torch.randn(10000, 10000, dtype=dtype)
-    b = torch.randn(10000, 10000, dtype=dtype)
+    print("*************************************************************")
+    print(f"Testing dtype: {dtype}")
+    print("*************************************************************")
 
-    with torch.autocast('mps'):
-        c = a + b
-        d = (a * b).mean()
+    with autocast('cpu'):
+        a = torch.randn(10000, 10000, dtype=dtype)
+        b = torch.randn(10000, 10000, dtype=dtype)
 
-    print(c)
-    print(d)
+    if torch.backends.mps.is_available():
+        a_mps = a.to('mps')
+        b_mps = b.to('mps')
+        c_mps = a_mps + b_mps
+        d_mps = (a_mps * b_mps).mean()
+
+        print(c_mps)
+        print(d_mps)
+    else:
+        print("MPS not available")
 
