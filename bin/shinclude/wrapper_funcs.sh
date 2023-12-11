@@ -58,7 +58,7 @@ do_wrapper() {
     if [[ " ${actions_to_log[*]} " == *" $action "* ]]; then
         # Logging the command invocation
         # TODO decide on a place to hold the log file.
-        echo "# $(date '+%Y-%m-%d %H:%M:%S'): $cmd $*" >> /dev/null
+        echo "# $(date '+%Y-%m-%d %H:%M:%S'): $cmd $*" | tee >> /dev/null
     fi
 
     # Execute the command
