@@ -281,6 +281,7 @@ pact(){
     # Change to previous VENV
     if [ $? -eq 0 ]; then
         cact "$previous_env"
+        pop_venv > /dev/null  # Pop the current(previous) VENV off the stack.
     else
         echo "No previous environment to switch to."
     fi

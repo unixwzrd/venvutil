@@ -458,6 +458,12 @@ help_functions() {
         local name="${__VENV_FUNCTIONS[i]}"
         local markdown_file="${__VENV_FUNCTIONS[i+1]}"
 
+        # TODO This si a slight problkem need to change to list commands/function explicitly
+        # listed in am array of functions to list when getting help.
+        if [[ " ${__VENV_INTERNAL_FUNCTIONS[@]} " =~ " ${name} " ]]; then
+            continue
+        fi
+
         if [[ -f "${markdown_file}" ]]; then
             # Fetch the first line or a specific section from the markdown file
             local description=$(head -n 1 "${markdown_file}")
