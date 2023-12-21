@@ -67,6 +67,9 @@ do_wrapper() {
     # Prepare a pattern for exclusion actions
     local exclude_pattern=$(IFS="|"; echo "${actions_to_exclude[*]}")
 
+    # Make the command be how th euser invoked it rather than with the wrappers.
+    local user_cmd=$(echo "$cmd $*" | sed 's/__venv_//g')
+
     # Check if the command ${cmd} is a file or a function/alias, if it has a command file,
     # we want to run it with the "command" builtin.
     if command ${cmd} &> /dev/null;  then
@@ -76,8 +79,8 @@ do_wrapper() {
     if [[ " ${actions_to_log[*]} " =~ "${action}" ]] && ! [[ "$*" =~ ${exclude_pattern} ]]; then
         if ${cmd} "$@"; then
             # Logging the command invocation if it completed successfully
-            echo "# $(date '+%Y-%m-%d %H:%M:%S'): ${cmd} $*" >> "${hist_log}"
-            echo "# $(${cmd} --version)" >> "${hist_log}"
+            echo "# $(date '+%Y-%m-%d %H:%M:%S'): ${user_cmd} $*" >> "${hist_log}"
+            echo "# $(${user_cmd} --version)" >> "${hist_log}"
         fi
     else
         # Execute the command without logging

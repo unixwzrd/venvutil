@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+
+import subprocess
+import datetime
+
+start_date = datetime.date(2023, 10, 10)
+end_date = datetime.date(2023, 11, 8)  # Modify as needed
+delta = datetime.timedelta(days=1)
+
+current_date = start_date
+while current_date <= end_date:
+    date_str = current_date.strftime('%Y%m%d')
+    wheel_url = f"https://download.pytorch.org/whl/nightly/cpu/torch-2.2.0.dev{date_str}-cp310-none-macosx_11_0_arm64.whl"
+    
+    # Install the wheel
+    print(f"Installing {wheel_url}")
+    subprocess.run(f"pip install --force-reinstall --pre --no-deps {wheel_url}", shell=True)
+    
+    subprocess.run("torchamp", shell=True)
+
+    current_date += delta
+
