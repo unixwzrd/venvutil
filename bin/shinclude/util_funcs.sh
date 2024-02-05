@@ -136,23 +136,23 @@ sort_2d_array() {
 #   - Handles exceptions or errors that may arise during the sorting process (to be detailed based on function's implementation).
 # 
     local -a array_name=$1
-    local i j temp1 temp2 len
+    local i j temp1 temp2 len temp_arary
 
     # Assign named array to local array
-    eval "local_array=(\"\${$array_name[@]}\")"
-    len=${#local_array[@]}
+    eval "temp_arary=(\"\${$array_name[@]}\")"
+    len=${#temp_arary[@]}
 
     for ((i=2; i<len; i+=2)); do
-        temp1=${local_array[i]}
-        temp2=${local_array[i+1]}
+        temp1=${temp_arary[i]}
+        temp2=${temp_arary[i+1]}
 
         # Find the correct position for temp1, temp2 by comparing with all preceding pairs
         j=i
         while [[ j -ge 2 ]]; do
-            if [[ ${local_array[j-2]} > $temp1 ]]; then
+            if [[ ${temp_arary[j-2]} > $temp1 ]]; then
                 # Shift the pair at j-2 forward to make room for temp1, temp2
-                local_array[j]=${local_array[j-2]}
-                local_array[j+1]=${local_array[j-1]}
+                temp_arary[j]=${temp_arary[j-2]}
+                temp_arary[j+1]=${temp_arary[j-1]}
                 j=$((j-2))
             else
                 # Correct position found, break the loop
@@ -161,12 +161,12 @@ sort_2d_array() {
         done
 
         # Place temp1, temp2 in their correct position
-        local_array[j]=$temp1
-        local_array[j+1]=$temp2
+        temp_arary[j]=$temp1
+        temp_arary[j+1]=$temp2
     done
 
     # Assign sorted local array back to original named array
-    eval "${array_name}=(\"\${local_array[@]}\")"
+    eval "${array_name}=(\"\${temp_arary[@]}\")"
 
 }
 

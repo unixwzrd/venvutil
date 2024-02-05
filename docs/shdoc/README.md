@@ -1,0 +1,62 @@
+# Project Documentation
+## Brief introduction of the project.
+- [buildvenvs](docs/shdoc/bin/scripts/buildvenvs.md): shellcheck disable=2317,2164
+- [help_sys.sh](docs/shdoc/bin/shinclude/scripts/help_sys.sh.md): Help System Functions for Bash Scripts
+- [init_env.sh](docs/shdoc/bin/shinclude/scripts/init_env.sh.md): Initialize Environment and Source Utility Scripts
+- [purgebld](docs/shdoc/bin/scripts/purgebld.md): 
+- [runbench](docs/shdoc/bin/scripts/runbench.md): 
+- [util_funcs.sh](docs/shdoc/bin/shinclude/scripts/util_funcs.sh.md): Utility Functions for Bash Scripts
+- [venv_funcs.sh](docs/shdoc/bin/shinclude/scripts/venv_funcs.sh.md): Virtual Environment Management Functions for Bash Scripts
+- [wrapper_funcs.sh](docs/shdoc/bin/shinclude/scripts/wrapper_funcs.sh.md): 
+- [__BLIS](docs/shdoc/bin/functions/__BLIS.md): 
+- [__CLEANUP](docs/shdoc/bin/functions/__CLEANUP.md): 
+- [__CMAKE](docs/shdoc/bin/functions/__CMAKE.md): 
+- [__CONDA](docs/shdoc/bin/functions/__CONDA.md): 
+- [__CREATE_APP_BASE](docs/shdoc/bin/functions/__CREATE_APP_BASE.md): 
+- [__OPENBLAS](docs/shdoc/bin/functions/__OPENBLAS.md): 
+- [__PKG_BUILD](docs/shdoc/bin/functions/__PKG_BUILD.md): 
+- [__PYTHON_BASE](docs/shdoc/bin/functions/__PYTHON_BASE.md): 
+- [__set_venv_vars](docs/shdoc/bin/shinclude/functions/__set_venv_vars.md): 
+- [__venv_conda_check](docs/shdoc/bin/shinclude/functions/__venv_conda_check.md): 
+- [benv](docs/shdoc/bin/shinclude/functions/benv.md): Create a New Base Virtual Environment
+- [cact](docs/shdoc/bin/shinclude/functions/cact.md): Change active VENV
+- [ccln](docs/shdoc/bin/shinclude/functions/ccln.md): Clone the current VENV and increment the sequence number.
+- [conda](docs/shdoc/bin/shinclude/functions/conda.md): 
+- [create_readme](docs/shdoc/bin/shinclude/functions/create_readme.md): 
+- [dact](docs/shdoc/bin/shinclude/functions/dact.md): Deactivate the current VENV
+- [denv](docs/shdoc/bin/shinclude/functions/denv.md): Delete a Specified Virtual Environment
+- [do_wrapper](docs/shdoc/bin/shinclude/functions/do_wrapper.md): 
+- [general_help](docs/shdoc/bin/shinclude/functions/general_help.md): Display general help options for the 'help' command.
+- [generate_markdown](docs/shdoc/bin/shinclude/functions/generate_markdown.md): Generate Markdown documentation for all available functions.
+- [get_function_hash](docs/shdoc/bin/shinclude/functions/get_function_hash.md): 
+- [help_functions](docs/shdoc/bin/shinclude/functions/help_functions.md): 
+- [help_scripts](docs/shdoc/bin/shinclude/functions/help_scripts.md): List sourced scripts and their purpose.
+- [init_help_system](docs/shdoc/bin/shinclude/functions/init_help_system.md): Populate and sort __VENV_FUNCTIONS with function names and documentation from sourced scripts.
+- [lastenv](docs/shdoc/bin/shinclude/functions/lastenv.md): Retrieve the Last Environment with a Given Prefix
+- [lenv](docs/shdoc/bin/shinclude/functions/lenv.md): List All Current VENVs
+- [nenv](docs/shdoc/bin/shinclude/functions/nenv.md): Create a New Virtual Environment in a Series
+- [next_step](docs/shdoc/bin/shinclude/functions/next_step.md): Increment a given sequence number by 1 and pad it with a zero if needed.
+- [pact](docs/shdoc/bin/shinclude/functions/pact.md): Switch to the Previous Active VENV
+- [pip](docs/shdoc/bin/shinclude/functions/pip.md): 
+- [pop_stack](docs/shdoc/bin/shinclude/functions/pop_stack.md): Pop a Value from a Named Stack
+- [pop_venv](docs/shdoc/bin/shinclude/functions/pop_venv.md): 
+- [push_stack](docs/shdoc/bin/shinclude/functions/push_stack.md): Push a Value onto a Named Stack
+- [push_venv](docs/shdoc/bin/shinclude/functions/push_venv.md): 
+- [renv](docs/shdoc/bin/shinclude/functions/renv.md): Revert to Previous Virtual Environment
+- [set_args](docs/shdoc/bin/functions/set_args.md): 
+- [snum](docs/shdoc/bin/shinclude/functions/snum.md): Force set the VENV Sequence number.
+- [sort_2d_array](docs/shdoc/bin/shinclude/functions/sort_2d_array.md): Sort a Two-Dimensional Array
+- [source_util_script](docs/shdoc/bin/shinclude/functions/source_util_script.md): **Purpose**: 
+- [specific_function_help](docs/shdoc/bin/shinclude/functions/specific_function_help.md): Provide detailed documentation for a given function.
+- [specific_script_help](docs/shdoc/bin/shinclude/functions/specific_script_help.md): 
+- [strip_space](docs/shdoc/bin/shinclude/functions/strip_space.md): Remove Leading and Trailing Whitespaces
+- [vdsc](docs/shdoc/bin/shinclude/functions/vdsc.md): Return the current VENV description.
+- [vhelp](docs/shdoc/bin/shinclude/functions/vhelp.md): Main entry point for the help system.
+- [vnum](docs/shdoc/bin/shinclude/functions/vnum.md): Return the current VENV sequence number.
+- [vpfx](docs/shdoc/bin/shinclude/functions/vpfx.md): Return the current VENV prefix.
+- [write_index_footer](docs/shdoc/bin/shinclude/functions/write_index_footer.md): 
+- [write_index_header](docs/shdoc/bin/shinclude/functions/write_index_header.md): 
+- [zero_pad](docs/shdoc/bin/shinclude/functions/zero_pad.md): Pad a Single-Digit Number with a Leading Zero
+
+Footer content
+Generated: 2024 01 30 at 20:26:20

@@ -1,4 +1,5 @@
 #!/bin/bash
+ set -x
 
 # Set the internal environment, this call is used befor and after every time we source in a script to
 # avoid envirnment pollution.
@@ -19,7 +20,7 @@ set_args
 for app_code in ${MY_ARGS}
 do
     echo "${MY_NAME}: Purging code: ${app_code}"
-    for venv in `lenv | sort | egrep "^${app_code}" | cut -d " " -f 1`
+    for venv in $(lenv | sort | grep -E "^${app_code}" | cut -d " " -f 1)
     do
         echo "${MY_NAME}: Purging VEBV: ${venv}"
        denv ${venv}

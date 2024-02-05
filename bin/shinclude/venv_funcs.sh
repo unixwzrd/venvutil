@@ -25,6 +25,43 @@
 #   - __VENV_PREFIX The prefix of the VENV
 #   - __VENV_DESC   A very short description of the VENV.
 #
+# - **Functions**:
+#   - `push_venv()`: Specialized push the default VENV onto the stack.
+#   - `pop_venv()`: Specialized pop the VENV off the stack and decrement.
+#   - `__set_venv_vars()`: Sets internal VENV variables.
+#   - `snum()`: Force set the VENV Sequence number.
+#   - `vpfx()`: Return the current VENV prefix.
+#   - `vnum()`: Return the current VENV sequence number.
+#   - `vdsc()`: Return the current VENV description.
+#   - `cact()`: Change active VENV.
+#   - `dact()`: Deactivate the current VENV.
+#   - `pact()`: Switch to the Previous Active VENV.
+#   - `lenv()`: List All Current VENVs.
+#   - `lastenv()`: Retrieve the Last Environment with a Given Prefix.
+#   - `benv()`: Create a New Base Virtual Environment.
+#   - `nenv()`: Create a New Virtual Environment in a Series.
+#
+# - **Usage Example**:
+#   ```shellscript
+#   source venv_funcs.sh
+#   benv myenv
+#   cact myenv
+#   ```
+#
+# - **Dependencies**:
+#   - This script depends on the `conda` command-line tool for managing virtual environments.
+#   - The `util_funcs.sh` script is also required and should be located in the same directory as this script.
+#
+# - **Notes**:
+#   - This script assumes that the `conda` command is available in the system's PATH.
+#   - It is recommended to source this script in other scripts rather than executing it directly.
+#   - Make sure to set the appropriate permissions on this script to allow execution.
+#
+# - **Author**: [Your Name]
+# - **Last Modified**: [Date]
+#
+# - **Version**: [Version Number]
+#
 
 # Capture the fully qualified path of the sourced script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
@@ -48,9 +85,6 @@ __VENV_INTERNAL_FUNCTIONS=(
     "pop_venv"
     "__set_venv_vars"
 )
-
-# Use an environment variable for markdown processor, defaulting to 'glow'
-MD_PROCESSOR=${MD_PROCESSOR:-glow}
 
 # Initialize the stack
 __VENV_STACK=("")
@@ -197,7 +231,10 @@ cact() {
 # - **Exceptions**: None
 #
     local new_env="$1"
-
+    #echo "***************************** STACK *****************************"
+    #vstk
+    #echo "***************************** STACK *****************************"
+    #set -x
     # Validate input
     if [ -z "$1" ]; then
         echo "Error: No VENV name provided." >&2
@@ -217,10 +254,14 @@ cact() {
     # Push new environment to stack
     push_venv
     # Deactivate current environment
-    dact
+    # dact
     # Activate new environment
     echo "Activating new environment: ${__VENV_NAME}..."
     conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." >&2; return 1; }
+    #set +x
+    #echo "***************************** STACK *****************************"
+    #vstk
+    #echo "***************************** STACK *****************************"
 }
 
 dact(){
@@ -239,25 +280,33 @@ dact(){
 # - **Exceptions**: 
 #   - If no environment is currently activated, conda will display an appropriate message.
 #
-    local env_to_delete="$CONDA_DEFAULT_ENV"
-
-    if [ -z "${env_to_delete}" ]; then
+    #echo "***************************** STACK *****************************"
+    #vstk
+    #echo "***************************** STACK *****************************"
+    #set -x
+    local env_to_deactivate="$CONDA_DEFAULT_ENV"
+    if [ -z "${env_to_deactivate}" ]; then
         echo "No conda environment is currently activated."
         return
     fi
     
     # Check if the environment actually exists
-    if ! conda info --envs | awk '{print $1}' | grep -q -w "${env_to_delete}"; then
-        echo "Warning: The environment ${env_to_delete} does not exist. It might have been renamed or deleted."
+    if ! conda info --envs | awk '{print $1}' | grep -q -w "${env_to_deactivate}"; then
+        echo "Warning: The environment ${env_to_deactivate} does not exist. It might have been renamed or deleted."
         # Optionally pop from stack
-        if [[ "${__VENV_STACK[-1]}" == "$env_to_delete" ]]; then
-            pop_stack "__VENV_STACK"
+        if [[ "${__VENV_STACK[-1]}" == "${env_to_deactivate}" ]]; then
+            pop_venv
         fi
         return 17
     fi
 
-    echo "Deactivating: ${env_to_delete}"
+    echo "Deactivating: ${env_to_deactivate}"
     conda deactivate
+    pop_venv
+    #set +x
+    #echo "***************************** STACK *****************************"
+    #vstk
+    #echo "***************************** STACK *****************************"
 }
 
 pact(){
@@ -476,4 +525,37 @@ ccln(){
 
     # Switch to the newly created VENV
     cact "${__VENV_NAME}"
+}
+
+venvdiff()
+{
+    # Check that two arguments are provided
+    if [ "$#" -ne 2 ]; then
+        echo "Usage: venvdiff env1 env2"
+        return 1
+    fi
+
+    local env1=$1
+    local env2=$2
+
+    # Activate the first environment and get the list of packages
+    cact $env1 > /dev/null
+    local env1_packages=$(pip list | tail -n +3 )
+    dact > /dev/null
+
+    echo $env1_packages > env1.txt
+
+    # Activate the second environment and get the list of packages
+    cact $env2 > /dev/null
+    local env2_packages=$(pip list  | tail -n +3 )
+    dact > /dev/null
+
+    echo $env2_packages > env2.txt
+    
+    echo ""
+
+    # Compare the packages
+#    diff <(echo "$env1_packages") <(echo "$env2_packages")
+    diff -y <(echo "$env1_packages") <(echo "$env2_packages")
+
 }

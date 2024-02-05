@@ -23,7 +23,7 @@
 #
 # - **Environment**:
 #
-#   - **MD_PROCESSOR**: Set to the markdown processor of your choice, if `mdless`
+#   - **MD_PROCESSOR**: Set to the markdown processor of your choice, if `glow`
 #       is in your path this will use that.
 
 # Capture the fully qualified path of the sourced script
@@ -35,8 +35,8 @@ echo "Sourcing: ${THIS_SCRIPT}"
 
 # Help System Functions
 
-# Use an environment variable for markdown processor, defaulting to 'mdless'
-MD_PROCESSOR=${MD_PROCESSOR:-"mdless"}
+# Use an environment variable for markdown processor, defaulting to 'glow'
+export MD_PROCESSOR=${MD_PROCESSOR:-"glow"}
 
 # Define an array of internal functions to exclude from help and documentation
 __VENV_INTERNAL_FUNCTIONS=(
@@ -72,7 +72,7 @@ init_help_system(){
 #   - Populates __VENV_FUNCTIONS with function names and their corresponding documentation.
 #   - Sorts __VENV_FUNCTIONS based on function names.
 # - **Exceptions**: 
-#   - None. However, it skips functions listed in __VENV_INTERNAL_FUNCTIONS and those already in __VENV_FUNCTIONS.
+#   - None
 #
     [ -n "${__VENV_FUNCTIONS[*]}" ] && return
 
@@ -176,16 +176,17 @@ generate_markdown(){
     touch "${progress_file}"
     
     # Temporary arrays to hold th edocumentation foe each function and script.
-    local scripts_doc=()  # Array to collect scripts' names and documentation
-    local functions_doc=()  # Array to collect functions' names and documentation
+    local script_doc=()  # Array to collect scripts' names and documentation
+    local function_doc=()  # Array to collect functions' names and documentation
 
     # State variables
     local in_script=false
-    local in_functiom=false
+    local in_function=false
 
     # Read the directories to document from the conf file
     local search_dirs=($(grep -v '^#' "$conf_file" | sed '/^$/d'))
 
+    write_index_header ${readme_index}
     # Iterate over directories to find shell scripts and their documentation
     for dir_name in "${search_dirs[@]}"; do
         local script_dir="${__VENV_BASE}/${dir_name}"
@@ -196,7 +197,7 @@ generate_markdown(){
         local script_files=($(file "${script_dir}"/* | grep "shell script" | cut -d":" -f1))
         for script in "${script_files[@]}"; do
             local script_name=$(basename "${script}")
-            local current_function=""  # Keep track of the current function
+            local current_func_name=""  # Keep track of the current function
 
             # Extract the documentation from the script and functions
             while IFS= read -r line || [[ -n "${line}" ]]; do
@@ -247,44 +248,41 @@ generate_markdown(){
 
             done < "$script"
         done
-        # Add the collected documentatuon from the directory we just traversed to the overall documentation.
-        scripts_doc+=("${script_doc[@]}")
-        functions_doc+=("${function_doc[@]}")
     done
+
     # Sort the arrays to align with __VENV_FUNCTIONS and __VENV_SCRIPTS
-    sort_2d_array scripts_doc
-    sort_2d_array functions_doc
+    sort_2d_array script_doc
+    sort_2d_array function_doc
 
     # Write the documentation to markdown files
-    write_index_header ${readme_index}
-    for ((i=0; i<${#scripts_doc[@]}; i+=2)); do
-        if [[ "${scripts_doc[i]}" == "${__VENV_SCRIPTS[i]}" ]]; then
-            echo "Writing out docs for ${scripts_doc[i]}"
-            echo -e "${scripts_doc[i+1]}" > "${__VENV_SCRIPTS[i+1]}"
-            create_readme "${scripts_doc[i]}" "${scripts_doc[i+1]}" "${__VENV_SCRIPTS[i+1]}" "${readme_index}"
+    for ((i=0; i<${#script_doc[@]}; i+=2)); do
+        if [[ "${script_doc[i]}" == "${__VENV_SCRIPTS[i]}" ]]; then
+            echo "Writing out docs for ${script_doc[i]}"
+            echo -e "${script_doc[i+1]}" > "${__VENV_SCRIPTS[i+1]}"
+            create_readme "${script_doc[i]}" "${script_doc[i+1]}" "${__VENV_SCRIPTS[i+1]}" "${readme_index}"
         else
-            echo "Oh Crap! something went wrong, you need to reinitialize your shell."
+            echo "Oh Crap! something went wrong generating for SCRIPTS, you need to reinitialize your shell."
+            echo "Mismnatch: '${script_doc[i]}'  '${__VENV_SCRIPTS[i]}'"
             echo "Bailing out on further generation, the expected SCRIPT list does not agree"
             echo "with the help system initialization."
             return
         fi
     done
-    for ((i=0; i<${#functions_doc[@]}; i+=2)); do
-        if [[ "${functions_doc[i]}" == "${__VENV_FUNCTIONS[i]}" ]]; then
-            echo "Writing out docs for ${functions_doc[i]}"
-            echo -e "${functions_doc[i+1]}" > "${__VENV_FUNCTIONS[i+1]}"
-            create_readme "${functions_doc[i]}" "${functions_doc[i+1]}" "${__VENV_FUNCTIONS[i+1]}" "${readme_index}"
+    for ((i=0; i<${#function_doc[@]}; i+=2)); do
+        if [[ "${function_doc[i]}" == "${__VENV_FUNCTIONS[i]}" ]]; then
+            echo "Writing out docs for ${function_doc[i]}"
+            echo -e "${function_doc[i+1]}" > "${__VENV_FUNCTIONS[i+1]}"
+            create_readme "${function_doc[i]}" "${function_doc[i+1]}" "${__VENV_FUNCTIONS[i+1]}" "${readme_index}"
         else
-            echo "Oh Crap! something went wrong, you need to reinitialize your shell."
+            echo "Oh Crap! something went wrong generating for FUNCTIONS, you need to reinitialize your shell."
+            echo "Mismnatch: '${function_doc[i]}'  '${__VENV_FUNCTIONS[i]}'"
             echo "Bailing out on further generation, the expected FUNCTION list does not agree"
             echo "with the help system initialization."
             return
         fi
     done
-    write_index_footer ${readme_index}
 
-    unset script_doc
-    unset function_doc
+    write_index_footer ${readme_index}
 
     # After documentation generation is complete
     mv "${progress_file}" "${timestamp_file}"
@@ -409,6 +407,8 @@ specific_function_help(){
         return
     fi
 
+    echo ""
+
     for ((i=0; i<${#__VENV_FUNCTIONS[@]}; i+=2)); do
         if [[ "${__VENV_FUNCTIONS[i]}" == "${func}" ]]; then
             local markdown_file="${__VENV_FUNCTIONS[i+1]}"
@@ -426,22 +426,22 @@ specific_function_help(){
 
 
 help_functions() {
-#
-# help_functions - List available functions and how to get their documentation.
-#
-# - **Purpose**:
-#   - Provide a list of available functions and guidance on getting detailed documentation.
-# - **Usage**: 
-#   - help_functions
-# - **Scope**:
-#   - Global
-# - **Input Parameters**: 
-#   - None
-# - **Output**: 
-#   - Lists available functions and how to get more information about them.
-# - **Exceptions**: 
-#   - None
-#
+    #
+    # help_functions - List available functions and how to get their documentation.
+    #
+    # - **Purpose**:
+    #   - Provide a list of available functions and guidance on getting detailed documentation.
+    # - **Usage**:
+    #   - help_functions
+    # - **Scope**:
+    #   - Global
+    # - **Input Parameters**:
+    #   - None
+    # - **Output**:
+    #   - Lists available functions and how to get more information about them.
+    # - **Exceptions**:
+    #   - None. However, it skips functions listed in __VENV_INTERNAL_FUNCTIONS and those already in __VENV_FUNCTIONS.
+    #
     local longest=0
     local name description
 
@@ -458,8 +458,9 @@ help_functions() {
         local name="${__VENV_FUNCTIONS[i]}"
         local markdown_file="${__VENV_FUNCTIONS[i+1]}"
 
-        # TODO This si a slight problkem need to change to list commands/function explicitly
+        # TODO This i a slight problkem need to change to list commands/function explicitly
         # listed in am array of functions to list when getting help.
+        # shellcheck disable=SC2076,SC2199
         if [[ " ${__VENV_INTERNAL_FUNCTIONS[@]} " =~ " ${name} " ]]; then
             continue
         fi
@@ -468,9 +469,12 @@ help_functions() {
             # Fetch the first line or a specific section from the markdown file
             local description=$(head -n 1 "${markdown_file}")
             description="${description#*- }"  # Extracts the part after '- '
-            printf "  * %-$((${longest}+1))s %s\n" "${name}:" "${description}"
+
+            # Adjust the spacing for name and description
+            printf "  * %-${longest}s %s\n" "${name}:" "${description}"
         else
-            printf "  * %s: No description available\n" "${name}"
+            # Handle case where there is no description available
+            printf "  * %-${longest}s No description available\n" "${name}"
         fi
     done
 
@@ -519,7 +523,7 @@ vhelp(){
     case "${subcommand}" in
         "generate_markdown")
             generate_markdown 
-            echo "markdown geneartion complete."
+            echo "Markdown geneartion complete."
             ;;
         "functions")
             help_functions | ${md_command}

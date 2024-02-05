@@ -1,6 +1,6 @@
 #!/bin/bash
+#
 # shellcheck disable=2317,2164
-#set -o xtrace
 
 [ -L "$0" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 MY_NAME=$(basename "${THIS_SCRIPT}")
@@ -15,6 +15,17 @@ MY_CONFIG=$1
     || ( echo "${MY_NAME}: Could not find init_env.sh in INCLUDEDIR: ${MY_INCLUDE}"; exit 1 )
 
 umask 022
+
+__VENV_INTERNAL_FUNCTIONS=(
+    ${__VENV_INTERNAL_FUNCTIONS[@]}
+    "__BLIS"
+    "__CLEANUP"
+    "__CMAKE"
+    "__CONDA"
+    "__CREATE_APP_BASE"
+    "__OPENBLAS"
+    "__PKG_BUILD"
+)
 
 # If we were called by ourselves we shoudl have a _CONDA_ROOT set and need to source
 # in the Conda stuff for everything to work.  It seems that conda is defined as a
