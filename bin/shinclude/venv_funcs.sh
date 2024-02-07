@@ -87,16 +87,20 @@ __VENV_INTERNAL_FUNCTIONS=(
 )
 
 # Initialize the stack
-__VENV_STACK=("")
+__VENV_STACK=()
 
 # Specialized push the default VENV onto the stack
 push_venv() {
     push_stack __VENV_STACK "${CONDA_DEFAULT_ENV}"
+    echo "Pushed:"
+    echo "Pushed: ${__VENV_STACK[@]}"
 }
 
 # Specialized pop the VENV off the stack and decrement.j
 pop_venv() {
     pop_stack __VENV_STACK
+    echo "Popped:"
+    echo "Popped: ${__VENV_STACK[@]}"
 }
 
 # Sets internal VENV variables
@@ -242,8 +246,8 @@ cact() {
     fi
 
     # Pop from stack if top of stack matches the new environment
-    local last_index=$((${#__VENV_STACK[@]} - 1))
-    if [[ "${__VENV_STACK[$last_index]}" == "$new_env" ]]; then
+    # local last_index=$((${#__VENV_STACK[@]} - 1))
+    if [[ "${__VENV_STACK[${#__VENV_STACK[@]}]}" == "$new_env" ]]; then
         pop_venv
     fi
 
@@ -284,25 +288,24 @@ dact(){
     #vstk
     #echo "***************************** STACK *****************************"
     #set -x
-    local env_to_deactivate="$CONDA_DEFAULT_ENV"
-    if [ -z "${env_to_deactivate}" ]; then
+    if [ -z "${CONDA_DEFAULT_ENV}" ]; then
         echo "No conda environment is currently activated."
         return
     fi
     
     # Check if the environment actually exists
-    if ! conda info --envs | awk '{print $1}' | grep -q -w "${env_to_deactivate}"; then
-        echo "Warning: The environment ${env_to_deactivate} does not exist. It might have been renamed or deleted."
+    if ! conda info --envs | awk '{print $1}' | grep -q -w "${CONDA_DEFAULT_ENV}"; then
+        echo "Warning: The environment ${CONDA_DEFAULT_ENV} does not exist. It might have been renamed or deleted."
         # Optionally pop from stack
-        if [[ "${__VENV_STACK[-1]}" == "${env_to_deactivate}" ]]; then
+        if [[ "${__VENV_STACK[-1]}" == "${CONDA_DEFAULT_ENV}" ]]; then
             pop_venv
         fi
         return 17
     fi
 
-    echo "Deactivating: ${env_to_deactivate}"
+    echo "Deactivating: ${CONDA_DEFAULT_ENV}"
     conda deactivate
-    pop_venv
+    local nextvenv="$(pop_venv)"
     #set +x
     #echo "***************************** STACK *****************************"
     #vstk
@@ -540,14 +543,14 @@ venvdiff()
 
     # Activate the first environment and get the list of packages
     cact $env1 > /dev/null
-    local env1_packages=$(pip list | tail -n +3 )
+    local env1_packages=$(pip list | tail -n +1 )
     dact > /dev/null
 
     echo $env1_packages > env1.txt
 
     # Activate the second environment and get the list of packages
     cact $env2 > /dev/null
-    local env2_packages=$(pip list  | tail -n +3 )
+    local env2_packages=$(pip list  | tail -n +1 )
     dact > /dev/null
 
     echo $env2_packages > env2.txt
@@ -555,7 +558,6 @@ venvdiff()
     echo ""
 
     # Compare the packages
-#    diff <(echo "$env1_packages") <(echo "$env2_packages")
-    diff -y <(echo "$env1_packages") <(echo "$env2_packages")
+    diff -y --left-column <(echo "$env1_packages") <(echo "$env2_packages")
 
 }

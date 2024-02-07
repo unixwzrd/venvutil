@@ -209,13 +209,13 @@ pop_stack() {
 #   - Returns an error message and error code 1 if the stack is empty.
 # 
     local arr_name=$1
-    eval "local len=\${#${arr_name}[@]}"
-    if [ ${len} -eq 0 ]; then
+    eval "local -a arr=(\"\${${arr_name}[@]}\")"
+    if [ ${#arr[@]} -eq 0 ]; then
         echo "Stack is empty"
         return 1
     fi
-    local last_index=$(($len - 1))
-    eval "local popped_value=\${${arr_name}[$last_index]}"
-    eval "unset '${arr_name}[$last_index]'"
+    local popped_value=${arr[${#arr[@]}]}
+    unset 'arr[${#arr[@]}-1]'
+    eval $arr_name'=("${arr[@]}")'
     echo "$popped_value"
 }
