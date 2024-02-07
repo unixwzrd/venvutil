@@ -37,6 +37,10 @@ vhelp
 
 vhelp functions
 vhelp scripts
+
+# To lost your VENVs, simply:
+
+lenv
 ```
 
 ## buildvenvs

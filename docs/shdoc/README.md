@@ -21,7 +21,7 @@
 - [benv](docs/shdoc/bin/shinclude/functions/benv.md): Create a New Base Virtual Environment
 - [cact](docs/shdoc/bin/shinclude/functions/cact.md): Change active VENV
 - [ccln](docs/shdoc/bin/shinclude/functions/ccln.md): Clone the current VENV and increment the sequence number.
-- [conda](docs/shdoc/bin/shinclude/functions/conda.md): 
+- [conda](docs/shdoc/bin/shinclude/functions/conda.md): A wrapper for conda to log additional information about your virtual environments.
 - [create_readme](docs/shdoc/bin/shinclude/functions/create_readme.md): 
 - [dact](docs/shdoc/bin/shinclude/functions/dact.md): Deactivate the current VENV
 - [denv](docs/shdoc/bin/shinclude/functions/denv.md): Delete a Specified Virtual Environment
@@ -37,7 +37,7 @@
 - [nenv](docs/shdoc/bin/shinclude/functions/nenv.md): Create a New Virtual Environment in a Series
 - [next_step](docs/shdoc/bin/shinclude/functions/next_step.md): Increment a given sequence number by 1 and pad it with a zero if needed.
 - [pact](docs/shdoc/bin/shinclude/functions/pact.md): Switch to the Previous Active VENV
-- [pip](docs/shdoc/bin/shinclude/functions/pip.md): 
+- [pip](docs/shdoc/bin/shinclude/functions/pip.md):  A wrapper for pip to log additional information about your virtual environments.
 - [pop_stack](docs/shdoc/bin/shinclude/functions/pop_stack.md): Pop a Value from a Named Stack
 - [pop_venv](docs/shdoc/bin/shinclude/functions/pop_venv.md): 
 - [push_stack](docs/shdoc/bin/shinclude/functions/push_stack.md): Push a Value onto a Named Stack
