@@ -2,13 +2,17 @@
 
 ## Tools to help maintain Python VENV's and more
 
+I've been working on a number of things, and am attempting to put together a venvdiff function and enhance the pip and conda tracking I have put in the VenvUtil I have built into the set of virtual environment tools I am building here.  IN the bin directory, you will find some Python scripts for checking your GPU and plan to have more on the way.  This will also become my location for LLM, Data Analytics, Artificial Intelligence and clearing house for performance information. There are a number of things I am working on right now, and will be updating the oobabooga-macOS repository soon with the latest oobabooga. I am looking for alternatives to oobabooga and things look promising.  Also, to get best performance out of oobabooga, I am looking into the code and will have updates on the package builds for supporting GGUF models running on macOS soon.
+
 This is an incomplete project to allow for consistent builds of Python VENV's which will allow building/installing Python modules using either Conda or Pip. There are configuration files located in the conf directory, you can edit for building consistent VENV builds and rebuilds.
 
-I am working on documentation, but you can have a look at what's in the [doc directory](doc). More to come.
+I am working on documentation, but you can have a look at what's in the [doc directory](docs). More to come.
+
+**Some of th elinks may be broken as I'm working on the documenattion**
 
 * [VENV Utility functions used](doc/Functions.md)
   
-To use this clone the repository locally, then do this:
+## To use this, clone the repository locally, then do this:
 
 1. Put the {repository_dir}/bin in your path
 2. Include the line:
@@ -19,11 +23,13 @@ To use this clone the repository locally, then do this:
 Be sure to replace {repository_path} with the location you cloned the repository in.
 
 To list the functions available and get help on them, after sourcing the init_env.sh script into your environment, use the help function, you may need to generate the script and function documentation using the generate_markdown sub-command for vhelp.
+
 ```bash
 vhelp generate_markdown
 ```
 
 After doing that you will be able to get help on the functions which may be used in scripts or on the command line.
+
 ```bash
 vhelp
 
@@ -63,4 +69,8 @@ The first thing likely to emerge is a configuration for building and installing 
 
 Also I will be moving any Apple Silicon M1/M2 GPU performance information to this repo and it will become my location for performance related issues with macOS and Apple Silicon.
 
-Watch this spot, more to come.
+For these scripts you will need optimized versions of NumPy and PyTorch, Updates for the builds soon. I'm also putting some things together with Apple's New MLX Framework which looks to have very good performance and am currently looking for possible methods of fine-tuning and training on Apple Silicon M series Macs.
+
+If you find any of my work here helpful, please reach out. I would like to have a dialog with anyone else interested.
+
+Watch this spot, more to come, and you can always buy me a coffee.
