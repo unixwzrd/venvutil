@@ -558,6 +558,6 @@ venvdiff()
     echo ""
 
     # Compare the packages
-    diff -y --left-column <(echo "$env1_packages") <(echo "$env2_packages")
+    diff -y <(echo "$env1_packages") <(echo "$env2_packages")
 
 }

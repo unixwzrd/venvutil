@@ -48,10 +48,9 @@ do_wrapper() {
 
     # Check if the command ${cmd} is a file or a function/alias, if it has a command file,
     # we want to run it with the "command" builtin.
-    if command ${cmd} > /dev/null 2>&1; then
+    if command -v ${cmd} > /dev/null 2>&1; then
         cmd="command ${cmd}"
     fi
-
     # Check if the action is potentially destructive and should be logged.
     if [[ " ${actions_to_log[*]} " =~ "${action}" ]] && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
         set -x
