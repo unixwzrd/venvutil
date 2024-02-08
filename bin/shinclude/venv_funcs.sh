@@ -354,7 +354,7 @@ lenv(){
 # - **Exceptions**: 
 #     - If no environments are available, the output from `conda info -e` will indicate this.
 #
-    conda info -e | egrep -v '^#'
+    conda info -e | grep -E -v '^#'
 }
 
 lastenv(){

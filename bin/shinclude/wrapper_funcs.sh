@@ -40,12 +40,6 @@ do_wrapper() {
 #
     local cmd="$1"; shift
     local action="$1"
-    local cmd_date=$(date '+%Y-%m-%d %H:%M:%S')
-    local hist_log="${VENVUTIL_CONFIG}/${CONDA_DEFAULT_ENV}.log"
-    local venvutil_log="${VENVUTIL_CONFIG}/venvutil.log"
-    local file_date=$(date "+%Y%m%d%H%M%S")
-    local freeze_dir="${VENVUTIL_CONFIG}/freeze"
-    local freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${file_date}.txt"
     local actions_to_log=("install" "uninstall" "remove" "rename" "update" "upgrade" "create" "clean" "config" "clone")
     local actions_to_exclude=("--help" "-h" "--dry-run")
 
@@ -58,11 +52,18 @@ do_wrapper() {
         cmd="command ${cmd}"
     fi
 
-    # Check if the action should be logged
+    # Check if the action is potentially destructive and should be logged.
     if [[ " ${actions_to_log[*]} " =~ "${action}" ]] && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
+        set -x
+        local file_date=$(date "+%Y%m%d%H%M%S")
+        local cmd_date=$(date '+%Y-%m-%d %H:%M:%S')
+        local freeze_dir="${VENVUTIL_CONFIG}/freeze"
+        local freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${file_date}.txt"
+        # Freeze the state of the environment before a potentially destructive command is executed.
         command pip freeze >> "${freeze_state}"
         if ${cmd} "$@"; then
-            # Logging the command invocation if it completed successfully
+            local hist_log="${VENVUTIL_CONFIG}/${CONDA_DEFAULT_ENV}.log"
+            # Logging the command invocation if it completed successfully.
             echo "# ${cmd_date}: ${user_cmd}" >> "${hist_log}"
             echo "# ${cmd_date}: $(${cmd} --version)" >> "${hist_log}"
             # The above code works for update, install, uninstall. upgrade but does not behave correctly
@@ -71,10 +72,12 @@ do_wrapper() {
             # require another function for logging. For now we will keep a running log of all commands in a
             # venvutil.log file in the config directory until we can enumerate all the possible actions and
             # log them correctly.
+            local venvutil_log="${VENVUTIL_CONFIG}/venvutil.log"
             echo "# ${cmd_date} - ${CONDA_DEFAULT_ENV}: ${user_cmd}" >> "${venvutil_log}"
         fi
+        set +x
     else
-        # Execute the command without logging
+        # Execute the command without logging.
         ${cmd} "$@"
     fi
 }
@@ -84,13 +87,7 @@ pip() {
     do_wrapper "pip" "$@"
 }
 
-# Function for Conda wrapper.
-conda() {
-    echo "Conda wrapper"
-    do_wrapper "__venv_conda" "$@"
-}
-
-# Initial hash of the Conda function. Must always set new hash after defining.
+# Initial hash of the Conda function. Must always  new hash after defining.
 __venv_conda_hash=$(get_function_hash conda)
 
 # Function to check if conda definition changed and re-hook if necessary
@@ -109,6 +106,9 @@ __venv_conda_check() {
         __venv_conda_hash=$(get_function_hash conda)
     fi
 }
+
+# Run through the conda check function to ensure the conda function is wrapped
+__venv_conda_check
 
 # Modify the PROMPT_COMMAND to continuously check for function `conda` changes
 __venv_prompt_command="${PROMPT_COMMAND}"

@@ -1,5 +1,4 @@
 #!/bin/bash
- set -x
 
 # Set the internal environment, this call is used befor and after every time we source in a script to
 # avoid envirnment pollution.
@@ -23,6 +22,6 @@ do
     for venv in $(lenv | sort | grep -E "^${app_code}" | cut -d " " -f 1)
     do
         echo "${MY_NAME}: Purging VEBV: ${venv}"
-       denv ${venv}
+        denv "${venv}"
     done
 done
