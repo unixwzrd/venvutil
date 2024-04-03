@@ -145,6 +145,7 @@ create_readme() {
     # Create a relative path for the markdown link
     local markdown_rel_path="${markdown_path/#${__VENV_BASE}docs\//}"
 
+    echo "- [${name}](${markdown_rel_path}): ${description} >> ${readme_path}"
     echo "- [${name}](${markdown_rel_path}): ${description}" >> "${readme_path}"
 }
 
@@ -165,11 +166,11 @@ generate_markdown(){
 # - **Exceptions**: 
 #   - None
 #
-    local conf_file="$__VENV_BASE/conf/help_sys.conf"
-    local shdoc_dir="${__VENV_BASE}/docs/shdoc"
+    local conf_file="${__VENV_BASE}/conf/help_sys.conf"
+    local shdoc_dir="docs/shdoc"
     [ -d "${shdoc_dir}" ] || mkdir -p ${shdoc_dir}
 
-    local timestamp_file="${shdoc_dir}/AUTO_GENERATED_DO_NOT_MODIFY_OR_PLACE_FILES_HERE"
+    local timestamp_file="${__VENV_BASE}/${shdoc_dir}/AUTO_GENERATED_DO_NOT_MODIFY_OR_PLACE_FILES_HERE"
     local progress_file="${shdoc_dir}/.in-progress"
     local readme_index="${shdoc_dir}/README.md"
 
@@ -191,7 +192,8 @@ generate_markdown(){
     for dir_name in "${search_dirs[@]}"; do
         local script_dir="${__VENV_BASE}/${dir_name}"
         local doc_dir="${shdoc_dir}/${dir_name}"
-        [ -d "${doc_dir}/functions" ] || mkdir -p ${doc_dir}/functions
+        # local doc_dir="${shdoc_dir}/${dir_name}"
+        [ -d "${doc_dir}/functions" ] || mkdir -p ${__VENV_BASE}${doc_dir}/functions
         [ -d "${doc_dir}/scripts" ] || mkdir -p ${doc_dir}/scripts
 
         local script_files=($(file "${script_dir}"/* | grep "shell script" | cut -d":" -f1))

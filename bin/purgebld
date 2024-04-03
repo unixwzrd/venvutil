@@ -25,3 +25,6 @@ do
         denv "${venv}"
     done
 done
+
+cact llcpp.03.llamatorchnpy
+dact

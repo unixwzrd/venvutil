@@ -53,7 +53,7 @@ do_wrapper() {
     fi
     # Check if the action is potentially destructive and should be logged.
     if [[ " ${actions_to_log[*]} " =~ "${action}" ]] && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
-        set -x
+        #set -x
         local file_date=$(date "+%Y%m%d%H%M%S")
         local cmd_date=$(date '+%Y-%m-%d %H:%M:%S')
         local freeze_dir="${VENVUTIL_CONFIG}/freeze"
@@ -74,7 +74,7 @@ do_wrapper() {
             local venvutil_log="${VENVUTIL_CONFIG}/venvutil.log"
             echo "# ${cmd_date} - ${CONDA_DEFAULT_ENV}: ${user_cmd}" >> "${venvutil_log}"
         fi
-        set +x
+        #set +x
     else
         # Execute the command without logging.
         ${cmd} "$@"

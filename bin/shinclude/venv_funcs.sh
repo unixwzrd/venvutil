@@ -235,14 +235,17 @@ cact() {
 # - **Exceptions**: None
 #
     local new_env="$1"
-    #echo "***************************** STACK *****************************"
-    #vstk
-    #echo "***************************** STACK *****************************"
+    stack_op __VENV_STACK debug 1>&2
     #set -x
     # Validate input
     if [ -z "$1" ]; then
-        echo "Error: No VENV name provided." >&2
+        echo "Error: No VENV name provided." 1>&2
         return 1
+    fi
+
+    if [[ ${CONDA_DEFAULT_ENV} == "$new_env" ]]; then
+        echo "Environment ${new_env} is already active." 1>&2
+        return 0
     fi
 
     # Pop from stack if top of stack matches the new environment
@@ -261,11 +264,9 @@ cact() {
     # dact
     # Activate new environment
     echo "Activating new environment: ${__VENV_NAME}..."
-    conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." >&2; return 1; }
+    conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." 1>&2; return 1; }
     #set +x
-    #echo "***************************** STACK *****************************"
-    #vstk
-    #echo "***************************** STACK *****************************"
+    stack_op __VENV_STACK debug 1>&2
 }
 
 dact(){
@@ -284,18 +285,16 @@ dact(){
 # - **Exceptions**: 
 #   - If no environment is currently activated, conda will display an appropriate message.
 #
-    #echo "***************************** STACK *****************************"
-    #vstk
-    #echo "***************************** STACK *****************************"
+    stack_op __VENV_STACK debug 1>&2
     #set -x
     if [ -z "${CONDA_DEFAULT_ENV}" ]; then
-        echo "No conda environment is currently activated."
+        echo "No conda environment is currently activated." 1>&2
         return
     fi
     
     # Check if the environment actually exists
     if ! conda info --envs | awk '{print $1}' | grep -q -w "${CONDA_DEFAULT_ENV}"; then
-        echo "Warning: The environment ${CONDA_DEFAULT_ENV} does not exist. It might have been renamed or deleted."
+        echo "Warning: The environment ${CONDA_DEFAULT_ENV} does not exist. It might have been renamed or deleted." 1>&2
         # Optionally pop from stack
         if [[ "${__VENV_STACK[-1]}" == "${CONDA_DEFAULT_ENV}" ]]; then
             pop_venv
@@ -303,14 +302,13 @@ dact(){
         return 17
     fi
 
-    echo "Deactivating: ${CONDA_DEFAULT_ENV}"
+    echo "Deactivating: ${CONDA_DEFAULT_ENV}" 1>&2
     conda deactivate
     local nextvenv="$(pop_venv)"
     #set +x
-    #echo "***************************** STACK *****************************"
-    #vstk
-    #echo "***************************** STACK *****************************"
+    stack_op __VENV_STACK debug 1>&2
 }
+
 
 pact(){
 #
@@ -373,7 +371,7 @@ lastenv(){
 #   - If no environments match the prefix, the output will be empty.
 #
     local prefix="$1"
-    local last_env=$(lenv | egrep "^${prefix}." | tail -1 | cut -d " " -f 1)
+    local last_env=$(lenv | grep -E "^${prefix}." | tail -1 | cut -d " " -f 1)
     echo "${last_env}"
 }
 
