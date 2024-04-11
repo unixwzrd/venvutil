@@ -1,5 +1,7 @@
 # venvutil - Still under development
 
+*'STILL A WORK IN PROGRESS'*
+
 ## Tools to help maintain Python VENV's and more
 
 I've been working on a number of things, and am attempting to put together a venvdiff function and enhance the pip and conda tracking I have put in the VenvUtil I have built into the set of virtual environment tools I am building here.  IN the bin directory, you will find some Python scripts for checking your GPU and plan to have more on the way.  This will also become my location for LLM, Data Analytics, Artificial Intelligence and clearing house for performance information. There are a number of things I am working on right now, and will be updating the oobabooga-macOS repository soon with the latest oobabooga. I am looking for alternatives to oobabooga and things look promising.  Also, to get best performance out of oobabooga, I am looking into the code and will have updates on the package builds for supporting GGUF models running on macOS soon.

@@ -296,7 +296,7 @@ function errno() {
     if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
         echo "Usage: errno [errno_code|errno_number]"
         echo "Example: errno EACCES"
-        exit 0
+        return 0
     fi
 
     local errno_code
@@ -308,7 +308,7 @@ function errno() {
         errno_file="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h"
     else
         echo "Error: Could not lookup error code '${errno_code}' system errno.h not found." >&2
-        exit 2
+        return 2
     fi
 
     local line errno_num errno_text
