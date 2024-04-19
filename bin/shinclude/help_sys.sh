@@ -173,7 +173,7 @@ generate_markdown(){
 
     local timestamp_file="${__VENV_BASE}/${shdoc_dir}/AUTO_GENERATED_DO_NOT_MODIFY_OR_PLACE_FILES_HERE"
     local progress_file="${shdoc_dir}/.in-progress"
-    local readme_index="${shdoc_dir}/README.md"
+    local readme_index="${__VENV_BASE}/docs/README.md"
 
     touch "${progress_file}"
     
