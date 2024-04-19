@@ -98,9 +98,10 @@ init_help_system(){
             
             # Now extract function names for __VENV_FUNCTIONS
             while IFS= read -r line; do
-                if [[ "$line" =~ ^[a-zA-Z0-9_]+\(\) ]]; then
+                if [[ "$line" =~ ^(function[[:space:]]+)?[a-zA-Z_][a-zA-Z0-9_]*\(\)[[:space:]]*\{ ]]; then
                     # Reading function name
                     func="${line%%(*}"
+                    func="${func/#function /}"  # Remove 'function ' prefix if exists
                     # Correct the function markdown path
                     local func_markdown_path="${doc_dir}/functions/${func}.md"
                     # Store function name and path to its documentation
@@ -143,7 +144,7 @@ create_readme() {
     description="${description%%\\n*}"  # Stop at the first newline
 
     # Create a relative path for the markdown link
-    local markdown_rel_path="${markdown_path/#${__VENV_BASE}docs\//}"
+    local markdown_rel_path="${markdown_path/#${__VENV_BASE}/}"
 
     echo "- [${name}](${markdown_rel_path}): ${description} >> ${readme_path}"
     echo "- [${name}](${markdown_rel_path}): ${description}" >> "${readme_path}"
@@ -227,10 +228,10 @@ generate_markdown(){
                 fi
 
                 # Check for beginning of a function
-                if [[ "$line" =~ ^[a-zA-Z_][a-zA-Z0-9_]*\(\) ]]; then
-                    # Found a function definition
+                if [[ "$line" =~ ^(function[[:space:]]+)?[a-zA-Z_][a-zA-Z0-9_]*\(\)[[:space:]]*\{ ]]; then  # Found a function definition
                     in_function=true
                     current_func_name="${line%%(*}"
+                    current_func_name="${current_func_name/#function /}"  # Remove 'function ' prefix if exists
                     function_doc+=("${current_func_name}")
                     function_doc+=("")  # Placeholder for the documentation to be appended next
                     continue
@@ -260,6 +261,7 @@ generate_markdown(){
     for ((i=0; i<${#script_doc[@]}; i+=2)); do
         if [[ "${script_doc[i]}" == "${__VENV_SCRIPTS[i]}" ]]; then
             echo "Writing out docs for ${script_doc[i]}"
+            echo -e "__VENV_BASE: ${__VENV_BASE}"
             echo -e "${script_doc[i+1]}" > "${__VENV_SCRIPTS[i+1]}"
             create_readme "${script_doc[i]}" "${script_doc[i+1]}" "${__VENV_SCRIPTS[i+1]}" "${readme_index}"
         else

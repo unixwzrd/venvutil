@@ -277,6 +277,8 @@ stringclean() {
     echo "${str//[^a-zA-Z0-9]/}"
 }
 
+function errno() {
+#
 # Function: errno
 #
 # Description: This function takes an errno code or errno number and prints the corresponding error message to STDOUT. Sets the exit code to the errno value and returns, unless there is an internal error.
@@ -291,7 +293,7 @@ stringclean() {
 #   2: Could not find system errno.h
 #  22: Invalid errno name
 #
-function errno() {
+
     # Usage: errno [errno_code|errno_number]
     if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
         echo "Usage: errno [errno_code|errno_number]"
@@ -314,9 +316,10 @@ function errno() {
     local line errno_num errno_text
 
     if [[ "$errno_code" =~ ^[0-9]+$ ]]; then
-        line=$(grep "#define [A-Z_]*[ \t]*$errno_code" "$errno_file")
+        line=$(grep -wE "#define [A-Z_]*[ \t]*\b$errno_code\b" "$errno_file")
+        errno_code=$(echo "$line" | awk '{print $2}')
     else
-        line=$(grep "#define $errno_code" "$errno_file")
+        line=$(grep -wE "#define $errno_code[ \t]*" "$errno_file")
     fi
 
     errno_num=$(echo "$line" | awk '{print $3}')
