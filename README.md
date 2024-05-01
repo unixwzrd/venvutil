@@ -58,7 +58,7 @@ After doing that you will be able to get help on the functions which may be used
     vhelp functions
     vhelp scripts
 
-    # To lost your VENVs, simply:
+    # To list your VENVs, simply:
 
     lenv
     ```
