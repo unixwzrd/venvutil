@@ -66,4 +66,4 @@
 - [zero_pad](/docs/shdoc/bin/shinclude/functions/zero_pad.md): Pad a Single-Digit Number with a Leading Zero
 
 Footer content
-Generated: 2024 04 19 at 02:34:38
+Generated: 2024 04 25 at 09:39:25

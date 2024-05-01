@@ -1,7 +1,15 @@
-# venvutil - Still under development
+# venvutil - Manage Conda and Pip VENV's with some simple functions and scripts.
+(*Still under development*)
 
-*'STILL A WORK IN PROGRESS'*
+## Building all necessary items for oobabooga for macOS on Apple Silicon Series Processors
 
+The purpose of this originally was to build all the required modules and source code required for oobabooga necessary for best performance possible on macOS on Apple Silicon M-series processors. This is done with a single configuration file. All still under development, but currently in testing.  If you are brave, go right ahead and have a look at the config files in the config directory.
+
+To download, build and install all requirements for running oobabooga on macOS with Apple Silicon, do the following:
+
+**(working on this right now - and all is in testing now)**
+
+**Some of the links may be broken as I'm working on the documentation**
 ## Tools to help maintain Python VENV's and more
 
 I've been working on a number of things, and am attempting to put together a venvdiff function and enhance the pip and conda tracking I have put in the VenvUtil I have built into the set of virtual environment tools I am building here.  IN the bin directory, you will find some Python scripts for checking your GPU and plan to have more on the way.  This will also become my location for LLM, Data Analytics, Artificial Intelligence and clearing house for performance information. There are a number of things I am working on right now, and will be updating the oobabooga-macOS repository soon with the latest oobabooga. I am looking for alternatives to oobabooga and things look promising.  Also, to get best performance out of oobabooga, I am looking into the code and will have updates on the package builds for supporting GGUF models running on macOS soon.
@@ -10,40 +18,50 @@ This is an incomplete project to allow for consistent builds of Python VENV's wh
 
 I am working on documentation, but you can have a look at what's in the [doc directory](docs). More to come.
 
-**Some of th elinks may be broken as I'm working on the documenattion**
-
 * [VENV Utility functions used](doc/Functions.md)
   
 ## To use this, clone the repository locally, then do this:
 
-1. Put the {repository_dir}/bin in your path
-2. Include the line:
+1. Include the line in your appropriate .bash_profile or .profile file:
+
     ```bash
     source {repository_path}/bin/shinclude/init_env.sh
     ```
 
-Be sure to replace {repository_path} with the location you cloned the repository in.
+    **Be sure to replace `{repository_path}` with the location you cloned the repository in.**
+
+1. Then simply do this:
+
+    ```bash
+    exec ${SHELL} -
+    ```
+
+This will overlay your shell with a new login shell which, if you did steps above.
+
+Alternately, if you do not want the functions and you simply want to install oobabooga and its dependencies on your machine, you may do the following:
+
+**TBD**
 
 To list the functions available and get help on them, after sourcing the init_env.sh script into your environment, use the help function, you may need to generate the script and function documentation using the generate_markdown sub-command for vhelp.
 
-```bash
-vhelp generate_markdown
-```
+    ```bash
+    vhelp generate_markdown
+    ```
 
 After doing that you will be able to get help on the functions which may be used in scripts or on the command line.
 
-```bash
-vhelp
+    ```bash
+    vhelp
 
-# or
+    # or
 
-vhelp functions
-vhelp scripts
+    vhelp functions
+    vhelp scripts
 
-# To lost your VENVs, simply:
+    # To lost your VENVs, simply:
 
-lenv
-```
+    lenv
+    ```
 
 ## buildvenvs
 This is a script which will read out of configuration file in the conf directory the main goal of this is building consistent and repeatable guild and application environments.  It is still  being worked on and I hope to have it ready in a bit, along with a config file for getting the right libraries and packages in the right order, specifically for macOS. I realize there may be other products or systems which do this or similar, but I wanted a flexible tool which would allow me to manage my Python VENV's easily.
