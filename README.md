@@ -7,7 +7,7 @@ The purpose of this originally was to build all the required modules and source 
 
 To download, build and install all requirements for running oobabooga on macOS with Apple Silicon, do the following:
 
-**(working on this right now - and all is in testing now)**
+(working on this right now)
 
 **Some of the links may be broken as I'm working on the documentation**
 ## Tools to help maintain Python VENV's and more
@@ -18,7 +18,7 @@ This is an incomplete project to allow for consistent builds of Python VENV's wh
 
 I am working on documentation, but you can have a look at what's in the [doc directory](docs). More to come.
 
-* [VENV Utility functions used](doc/Functions.md)
+* [VENV Utility functions used](docs/Functions.md)
   
 ## To use this, clone the repository locally, then do this:
 
@@ -40,7 +40,7 @@ This will overlay your shell with a new login shell which, if you did steps abov
 
 Alternately, if you do not want the functions and you simply want to install oobabooga and its dependencies on your machine, you may do the following:
 
-**TBD**
+TBD
 
 To list the functions available and get help on them, after sourcing the init_env.sh script into your environment, use the help function, you may need to generate the script and function documentation using the generate_markdown sub-command for vhelp.
 
