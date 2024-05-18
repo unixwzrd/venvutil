@@ -71,12 +71,12 @@ echo "Sourcing: ${THIS_SCRIPT}"
 
 # Extract script name, directory, and arguments
 MY_NAME=$(basename ${THIS_SCRIPT})
-__VENV_BIN=$(dirname $(dirname ${THIS_SCRIPT}))
-__VENV_BASE=$(dirname ${__VENV_BIN})
+__VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
+__VENV_BASE=$(dirname "${__VENV_BIN}")
 __VENV_ARGS=$*
 __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
-[ -f ${__VENV_INCLUDE}/util_funcs.sh ] && . ${__VENV_INCLUDE}/util_funcs.sh \
+[ -f "${__VENV_INCLUDE}/util_funcs.sh" ] && . "${__VENV_INCLUDE}/util_funcs.sh" \
     || ( echo "Could not find util_funcs.sh in INCLUDEDIR: ${__VENV_INCLUDE}" && exit 1 )
 
 __VENV_INTERNAL_FUNCTIONS=(
@@ -92,15 +92,16 @@ __VENV_STACK=()
 # Specialized push the default VENV onto the stack
 push_venv() {
     push_stack __VENV_STACK "${CONDA_DEFAULT_ENV}"
-    echo "Pushed:"
-    echo "Pushed: ${__VENV_STACK[@]}"
+    echo "PUSHED: __VENV_STACK" >&2
+    echo "Pushed: ${__VENV_STACK}" >&2
 }
 
 # Specialized pop the VENV off the stack and decrement.j
 pop_venv() {
-    pop_stack __VENV_STACK
-    echo "Popped:"
-    echo "Popped: ${__VENV_STACK[@]}"
+    echo "POPPED: __VENV_STACK" >&2
+    local stack_value=$(pop_stack __VENV_STACK)
+    echo "Popped: ${__VENV_STACK[@]}" >&2
+    echo "${stack_value}"
 }
 
 # Sets internal VENV variables
@@ -235,8 +236,8 @@ cact() {
 # - **Exceptions**: None
 #
     local new_env="$1"
+    # set -x
     stack_op __VENV_STACK debug 1>&2
-    #set -x
     # Validate input
     if [ -z "$1" ]; then
         echo "Error: No VENV name provided." 1>&2
@@ -249,7 +250,6 @@ cact() {
     fi
 
     # Pop from stack if top of stack matches the new environment
-    # local last_index=$((${#__VENV_STACK[@]} - 1))
     if [[ "${__VENV_STACK[${#__VENV_STACK[@]}]}" == "$new_env" ]]; then
         pop_venv
     fi
@@ -265,8 +265,8 @@ cact() {
     # Activate new environment
     echo "Activating new environment: ${__VENV_NAME}..."
     conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." 1>&2; return 1; }
-    #set +x
     stack_op __VENV_STACK debug 1>&2
+    # set +x
 }
 
 dact(){
@@ -285,8 +285,9 @@ dact(){
 # - **Exceptions**: 
 #   - If no environment is currently activated, conda will display an appropriate message.
 #
+    local stack_value
+
     stack_op __VENV_STACK debug 1>&2
-    #set -x
     if [ -z "${CONDA_DEFAULT_ENV}" ]; then
         echo "No conda environment is currently activated." 1>&2
         return
@@ -304,9 +305,11 @@ dact(){
 
     echo "Deactivating: ${CONDA_DEFAULT_ENV}" 1>&2
     conda deactivate
-    local nextvenv="$(pop_venv)"
-    #set +x
+    set -x
+    stack_value="$(pop_venv)"
     stack_op __VENV_STACK debug 1>&2
+    set +x
+    # echo ${stack_value}
 }
 
 
@@ -383,6 +386,15 @@ benv(){
 #   - Create a new base conda virtual environment and activate it.
 # - **Usage**: 
 #   - benv ENV_NAME [EXTRA_OPTIONS]
+#   
+#   ```code
+#   benv myenv  python==3.10
+#   ```
+#
+#   Will create a new environment named `myenv` with Python 3.10
+#
+#   After that, it will become the active virtual environment. This environment may be used for creating a series of new environments. with `nenv`.
+#
 # - **Input Parameters**: 
 #   1. `ENV_NAME` (string) - The name of the new environment to create.
 #   2. `EXTRA_OPTIONS` (string, optional) - Additional options to pass to `conda create`.
@@ -409,7 +421,7 @@ nenv(){
 # nenv - Create a New Virtual Environment in a Series
 #
 # - **Purpose**:
-#   - Create a new conda virtual environment in a series identified by a prefix. Resets and starts the sequence number from "00".
+#   - Create a new conda virtual environment in a series identified by a prefix as a clone of the current venv. Resets and starts the sequence number from "00".
 # - **Usage**: 
 #   - nenv PREFIX [EXTRA_OPTIONS]
 # - **Input Parameters**: 

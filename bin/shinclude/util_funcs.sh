@@ -187,9 +187,11 @@ push_stack() {
 #   - Modifies the named stack by adding a new element.
 # - **Exceptions**: None.
 #
-    local arr_name=$1
-    local value=$2
-    eval "${arr_name}+=(\"$value\")"
+    local stack_name=$1
+    local stack_value=$2
+
+    eval "${stack_name}+=(\"$stack_value\")"
+    echo "PUSH ${stack_name}: ${stack_value}" >&2
 }
 
 pop_stack() {
@@ -209,58 +211,66 @@ pop_stack() {
 #   - Returns an error message and error code 1 if the stack is empty.
 # 
     local stack_name=$1
-    local popped_value=""
-    local i=0
+    local popped_value
 
     # Dynamically get the length of the stack
     eval "local stack_length=\${#$stack_name[@]}"
 
     # Check if the stack is empty
     if [[ "${stack_length}" -eq 0 ]]; then
-        echo "Stack is empty"
+        echo "Stack is empty" >&2
         return 1
     fi
 
-    # Use a for loop to rebuild the stack without the last element
-    for ((i = 0; i < "${stack_length}" - 1; i++)); do
-        eval "stack_temp[i]=\${${stack_name}[i]}"
-    done
+    # Pop the last value and store to return top stack value
+    eval "popped_value=\${${stack_name}[-1]}"
 
-    # Pop the last value
-    eval "popped_value=\${${stack_name}[${stack_length} - 1]}"
+    # Calculate the index of the last element
+    local last_index=$((stack_length - 1))
 
-    # Reassign the modified array back to the original stack name
-    eval "$stack_name=(\"\${stack_temp[@]}\")"
+     # Remove the last element from the stack
+    if [[ "${last_index}" -eq 0 ]]; then
+        eval "unset ${stack_name} && declare -a ${stack_name}"
+    else
+        eval "${stack_name}=(\${${stack_name}[@]:0:${last_index}})"
+    fi
 
-    echo "$popped_value"
+    echo "POP ${stack_name}: ${popped_value}" >&2
+
+    echo "${popped_value}"
 }
 
 stack_op() {
 #
 # Function: stack_op
 # Description: Performs stack operations such as push, pop, and debug on a given stack.
-# Parameters:
+# - **Parameters**:
 #   - stack_name: The name of the stack.
 #   - action: The action to perform on the stack (push, pop, debug).
 #   - value: The value to push onto the stack (required for push action).
-# Returns: None
+# - **Returns**: 
+#   - For the pop action, returns the popped value.
+# - **Exceptions**:
+#   - Returns an error message if an invalid action is provided.
+#
     local stack_name=$1
     local action=$2
-    local value=$3
+    local stack_value=$3
     case $action in
         "push")
-            push_stack "$stack_name" "$value"
+            push_stack "$stack_name" "$stack_value"
             ;;
         "pop")
-            pop_stack "$stack_name"
+            stack_value=$(pop_stack "$stack_name")
+            echo "%{stack_value}"      # Return the popped value
             ;;
         "debug")
-            echo "***************************** STACK: ${stack_name} *****************************"
-            eval "echo \${${stack_name}[@]}"
-            echo "***************************** STACK *****************************"
+            echo "***************************** STACK: ${stack_name} *****************************" >&2
+            eval "echo \"\${${stack_name}[@]}\"" >&2 
+            echo "***************************** STACK *****************************" >&2
             ;;
         *)
-            echo "Invalid action: $action"
+            echo "Invalid action: $action" >&2
             return 1
             ;;
     esac
@@ -275,100 +285,4 @@ stringclean() {
 # Returns: The sanitized string.
     local str="$1"
     echo "${str//[^a-zA-Z0-9]/}"
-}
-
-function errno() {
-#
-# Function: errno
-#
-# Description: This function takes an errno code or errno number and prints the corresponding error message to STDOUT. Sets the exit code to the errno value and returns, unless there is an internal error.
-#
-# Usage: errno [errno_code|errno_number]
-#
-# Example: errno EACCES
-#
-# Returns: "error_code: error_text"
-#
-# Errors: 2, 22
-#   2: Could not find system errno.h
-#  22: Invalid errno name
-#
-
-    # Usage: errno [errno_code|errno_number]
-    if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
-        echo "Usage: errno [errno_code|errno_number]"
-        echo "Example: errno EACCES"
-        return 0
-    fi
-
-    local errno_code
-    errno_code="$(to_upper "$1")"
-    local errno_file
-    if [ -f "/usr/include/sys/errno.h" ]; then
-        errno_file="/usr/include/sys/errno.h"
-    elif [ -f "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h" ]; then
-        errno_file="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h"
-    else
-        echo "Error: Could not lookup error code '${errno_code}' system errno.h not found." >&2
-        return 2
-    fi
-
-    local line errno_num errno_text
-
-    if [[ "$errno_code" =~ ^[0-9]+$ ]]; then
-        line=$(grep -wE "#define [A-Z_]*[ \t]*\b$errno_code\b" "$errno_file")
-        errno_code=$(echo "$line" | awk '{print $2}')
-    else
-        line=$(grep -wE "#define $errno_code[ \t]*" "$errno_file")
-    fi
-
-    errno_num=$(echo "$line" | awk '{print $3}')
-    errno_text=$(echo "$line" | sed -e 's/#define[ \t]*[A-Z0-9_]*[ \t]*[0-9]*[ \t]*\/\* \(.*\) \*\//\1/')
-
-    if [ -z "$errno_num" ]; then
-        echo "Error: Invalid errno code $errno_code" >&2
-        return 22
-    else
-        echo "($errno_code: $errno_num): $errno_text"
-        return "$errno_num"
-    fi
-}
-
-# Function: to_upper
-#
-# Description: This function converts a string to uppercase
-#
-# Usage: to_upper <string>
-#
-# Example: to_upper "hello"
-#
-# Returns: "HELLO"
-#
-# Errors: None
-#
-function to_upper() {
-    local str="$1"
-    echo "${str^^}"
-}
-
-# Function: warn_errno
-#
-# Description: This function prints a warning using the errno function to STDERR and returns the error number
-#
-# Usage: warn <errno_code>
-#
-function errno_warn() {
-    echo "WARNING: $(errno "$@")" >&2
-    return $?
-}
-
-# Function: exit_errno
-#
-# Description: This function prints an error to STDERROR using the errno function and exits with the error number
-#
-# Usage: warn <errno_code>
-#
-function errno_exit() {
-    echo "ERROR: $(errno "$@")" >&2
-    exit $?
 }

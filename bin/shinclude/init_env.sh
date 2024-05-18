@@ -92,6 +92,7 @@ unset __conda_setup
 
 # Source utility functions
 source_util_script "util_funcs"
+source_util_script "errno"
 source_util_script "help_sys"
 source_util_script "wrapper_funcs"
 source_util_script "venv_funcs"
