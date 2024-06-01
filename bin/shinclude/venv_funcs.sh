@@ -86,6 +86,8 @@ __VENV_INTERNAL_FUNCTIONS=(
     "__set_venv_vars"
 )
 
+__rc__=0
+
 # Initialize the stack
 __VENV_STACK=()
 
@@ -130,19 +132,21 @@ snum() {
     # Validate that a number is actually provided
     if [ -z "${new_num}" ]; then
         echo "Error: No sequence number provided." >&2
-        return 1
+        __rc__=1
     fi
     
     # Validate that the provided number is numeric
     if ! [[ "${new_num}" =~ ^[0-9]+$ ]]; then
         echo "Error: Sequence number must be numeric." >&2
-        return 1
+        __rc__=1
+        return ${__rc__}
     fi
     
     # Validate that the provided number is within a valid range (00-99)
     if [ "${new_num}" -lt 0 ] || [ "${new_num}" -gt 99 ]; then
         echo "Error: Sequence number must be between 00 and 99." >&2
-        return 1
+        __rc__=1
+        return ${__rc__}
     fi
     
     __VENV_NUM=$( zero_pad "${new_num}" )
@@ -166,7 +170,8 @@ vpfx() {
 #
     if [ -z "${__VENV_PREFIX}" ]; then
         echo "Error: No VENV prefix has been set." >&2
-        return 1
+        __rc__=1
+        return ${__rc__}
     fi
     
     echo "${__VENV_PREFIX}"
@@ -190,7 +195,8 @@ vnum() {
 #
     if [ -z "${__VENV_NUM}" ]; then
         echo "Error: No VENV sequence number has been set." >&2
-        return 1
+        __rc__=1
+        return ${__rc__}
     fi
     
     echo "${__VENV_NUM}"
@@ -214,7 +220,8 @@ vdsc() {
 #
     if [ -z "${__VENV_DESC}" ]; then
         echo "Error: No VENV sequence number has been set." >&2
-        return 1
+        __rc__=1
+        return ${__rc__}
     fi
     
     echo "${__VENV_DESC}"
@@ -241,7 +248,8 @@ cact() {
     # Validate input
     if [ -z "$1" ]; then
         echo "Error: No VENV name provided." 1>&2
-        return 1
+        __rc__=1
+        return ${__rc__}
     fi
 
     if [[ ${CONDA_DEFAULT_ENV} == "$new_env" ]]; then
@@ -290,7 +298,8 @@ dact(){
     stack_op __VENV_STACK debug 1>&2
     if [ -z "${CONDA_DEFAULT_ENV}" ]; then
         echo "No conda environment is currently activated." 1>&2
-        return
+        __rc__=1
+        return ${__rc__}
     fi
     
     # Check if the environment actually exists
@@ -409,7 +418,8 @@ benv(){
     echo "Creating base virtual environment ${env_name} ${extra_options}"
     conda create -n "${env_name}" ${extra_options} -y || {
         echo "Error: Failed to create environment ${env_name}" >&2
-        return 1
+        __rc__=1
+        return ${__rc__}
     }
 
     echo "Base environment created - activating ${env_name}"
@@ -437,7 +447,8 @@ nenv(){
 
     [ -z "${prefix}" ] && {
         echo "Error: Prefix is required." >&2
-        return 1
+        __rc__=1
+        return ${__rc__}
     }
 
     # Reset the sequence number to start from "00"
@@ -468,7 +479,8 @@ denv(){
 
     if [ -z "${env_to_delete}" ]; then
         echo "Error: Environment name is required for deletion." >&2
-        return 1
+        __rc__=1
+        return ${__rc__}
     fi
 
     echo "Removing environment -> ${env_to_delete}"
@@ -495,7 +507,8 @@ renv(){
 
     if [ -z "${env_to_delete}" ]; then
         echo "Error: No active environment to remove." >&2
-        return 1
+        __rc__=1
+        return ${__rc__}
     fi
 
     if [ -z "${previous_env}" ]; then
@@ -545,7 +558,8 @@ venvdiff()
     # Check that two arguments are provided
     if [ "$#" -ne 2 ]; then
         echo "Usage: venvdiff env1 env2"
-        return 1
+        __rc__=1
+        return ${__rc__}
     fi
 
     local env1=$1

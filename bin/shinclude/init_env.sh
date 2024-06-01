@@ -49,6 +49,8 @@ __VENV_INTERNAL_FUNCTIONS=(
     "source_util_script"
 )
 
+__rc__=0
+
 source_util_script() {
 # # Function: source_util_script
 # 

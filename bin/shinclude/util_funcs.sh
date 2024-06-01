@@ -113,7 +113,8 @@ next_step(){
             ;;
        *)
             echo "Exception, sequence must be a value between 00 and 99." >&2
-            return 22 # EINVAL: Invalid Argument
+            __rc__=22   # EINVAL: Invalid Argument
+            return ${__rc__}
             ;;
     esac
     echo "$(zero_pad ${sn})"
@@ -175,7 +176,7 @@ push_stack() {
 #
 # # `push_stack` - Push a Value onto a Named Stack
 # 
-# #### Description
+# ## Description
 # - **Purpose**:
 #   - Pushes a value onto a named stack (added to the end of the stack). 
 # - **Usage**: 
@@ -219,7 +220,8 @@ pop_stack() {
     # Check if the stack is empty
     if [[ "${stack_length}" -eq 0 ]]; then
         echo "Stack is empty" >&2
-        return 1
+        __rc__=1
+        return ${__rc__}
     fi
 
     # Pop the last value and store to return top stack value
@@ -238,6 +240,8 @@ pop_stack() {
     echo "POP ${stack_name}: ${popped_value}" >&2
 
     echo "${popped_value}"
+    __rc__=0
+    retuirn ${__rc__}
 }
 
 stack_op() {
@@ -270,19 +274,39 @@ stack_op() {
             echo "***************************** STACK *****************************" >&2
             ;;
         *)
-            echo "Invalid action: $action" >&2
-            return 1
+            errno_warn 78
+            return $?
             ;;
     esac
 }
 
 stringclean() {
-#
 # Function: stringclean
+#
 # Description: Sanitizes a string by removing all characters except alphabets and numbers.
+#
 # Parameters:
 #   - str: The string to sanitize.
+#
 # Returns: The sanitized string.
+#
     local str="$1"
     echo "${str//[^a-zA-Z0-9]/}"
+}
+
+# Function: to_upper
+#
+# Description: This function converts a string to uppercase
+#
+# Usage: to_upper <string>
+#
+# Example: to_upper "hello"
+#
+# Returns: "HELLO"
+#
+# Errors: None
+#
+function to_upper() {
+    local str="$1"
+    echo "${str^^}"
 }

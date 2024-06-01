@@ -83,11 +83,11 @@ do_wrapper() {
 
 # Specific wrapper function for pip
 pip() {
+    set > setlist.sh
+    local command_line=$_
+    echo "Complete Pip Command Line: ${command_line}" >&2
     do_wrapper "pip" "$@"
 }
-
-# Initial hash of the Conda function. Must always  new hash after defining.
-__venv_conda_hash=$(get_function_hash conda)
 
 # Function to check if conda definition changed and re-hook if necessary
 __venv_conda_check() {
@@ -105,6 +105,9 @@ __venv_conda_check() {
         __venv_conda_hash=$(get_function_hash conda)
     fi
 }
+
+# Initial hash of the Conda function. Must always  new hash after defining.
+__venv_conda_hash=$(get_function_hash conda)
 
 # Run through the conda check function to ensure the conda function is wrapped
 __venv_conda_check
