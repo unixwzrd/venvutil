@@ -140,7 +140,7 @@ sort_2d_array() {
     local i j temp1 temp2 len temp_arary
 
     # Assign named array to local array
-    eval "temp_arary=(\"\${$array_name[@]}\")"
+    eval "temp_arary=(\"\${{$array_name}[@]}\")"
     len=${#temp_arary[@]}
 
     for ((i=2; i<len; i+=2)); do
@@ -172,6 +172,7 @@ sort_2d_array() {
 }
 
 
+__sv__='' # last value popped off the stack.
 push_stack() {
 #
 # # `push_stack` - Push a Value onto a Named Stack
@@ -192,7 +193,7 @@ push_stack() {
     local stack_value=$2
 
     eval "${stack_name}+=(\"$stack_value\")"
-    echo "PUSH ${stack_name}: ${stack_value}" >&2
+    # echo "PUSH ${stack_name}: ${stack_value}" >&2
 }
 
 pop_stack() {
@@ -215,7 +216,7 @@ pop_stack() {
     local popped_value
 
     # Dynamically get the length of the stack
-    eval "local stack_length=\${#$stack_name[@]}"
+    eval "local stack_length=\${#${stack_name}[@]}"
 
     # Check if the stack is empty
     if [[ "${stack_length}" -eq 0 ]]; then

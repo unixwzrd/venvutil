@@ -94,16 +94,11 @@ __VENV_STACK=()
 # Specialized push the default VENV onto the stack
 push_venv() {
     push_stack __VENV_STACK "${CONDA_DEFAULT_ENV}"
-    echo "PUSHED: __VENV_STACK" >&2
-    echo "Pushed: ${__VENV_STACK}" >&2
 }
 
 # Specialized pop the VENV off the stack and decrement.j
 pop_venv() {
-    echo "POPPED: __VENV_STACK" >&2
     local stack_value=$(pop_stack __VENV_STACK)
-    echo "Popped: ${__VENV_STACK[@]}" >&2
-    echo "${stack_value}"
 }
 
 # Sets internal VENV variables
@@ -243,8 +238,7 @@ cact() {
 # - **Exceptions**: None
 #
     local new_env="$1"
-    # set -x
-    stack_op __VENV_STACK debug 1>&2
+    # stack_op __VENV_STACK debug 1>&2
     # Validate input
     if [ -z "$1" ]; then
         echo "Error: No VENV name provided." 1>&2
@@ -273,8 +267,7 @@ cact() {
     # Activate new environment
     echo "Activating new environment: ${__VENV_NAME}..."
     conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." 1>&2; return 1; }
-    stack_op __VENV_STACK debug 1>&2
-    # set +x
+    # stack_op __VENV_STACK debug 1>&2
 }
 
 dact(){
@@ -295,7 +288,7 @@ dact(){
 #
     local stack_value
 
-    stack_op __VENV_STACK debug 1>&2
+    # stack_op __VENV_STACK debug 1>&2
     if [ -z "${CONDA_DEFAULT_ENV}" ]; then
         echo "No conda environment is currently activated." 1>&2
         __rc__=1
@@ -314,11 +307,9 @@ dact(){
 
     echo "Deactivating: ${CONDA_DEFAULT_ENV}" 1>&2
     conda deactivate
-    set -x
     stack_value="$(pop_venv)"
-    stack_op __VENV_STACK debug 1>&2
-    set +x
-    # echo ${stack_value}
+    # stack_op __VENV_STACK debug 1>&2
+    echo ${stack_value}
 }
 
 
