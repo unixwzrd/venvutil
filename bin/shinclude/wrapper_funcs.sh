@@ -83,8 +83,8 @@ do_wrapper() {
 
 # Specific wrapper function for pip
 pip() {
-#    set > setlist.sh
     local command_line=$_
+#    set > setlist.sh
     echo "Complete Pip Command Line: ${command_line}" >&2
     do_wrapper "pip" "$@"
 }
