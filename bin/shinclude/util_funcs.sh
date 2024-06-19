@@ -240,11 +240,9 @@ pop_stack() {
         eval "${stack_name}=(\${${stack_name}[@]:0:${last_index}})"
     fi
 
-    echo "POP ${stack_name}: ${popped_value}" >&2
-
     __sv__="${popped_value}"
     __rc__=0
-    retuirn ${__rc__}
+    return ${__rc__}
 }
 
 stack_op() {
@@ -260,8 +258,8 @@ stack_op() {
 # - **Exceptions**:
 #   - Returns an error message if an invalid action is provided.
 #
-    local stack_name=$1
-    local action=$2
+    local action=$1
+    local stack_name=$2
     local stack_value=$3
     case $action in
         "push")

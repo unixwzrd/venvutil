@@ -101,7 +101,6 @@ pop_venv() {
     local stack_value
     pop_stack __VENV_STACK
     stack_value=${__sv__}
-    echo "${stack_value}"
     return ${__rc__}
 }
 
@@ -243,7 +242,6 @@ cact() {
 # - **Exceptions**: None
 #
     local new_env="$1"
-    # stack_op __VENV_STACK debug 1>&2
     # Validate input
     if [ -z "$1" ]; then
         echo "Error: No VENV name provided." 1>&2
@@ -272,7 +270,6 @@ cact() {
     # Activate new environment
     echo "Activating new environment: ${__VENV_NAME}..."
     conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." 1>&2; return 1; }
-    # stack_op __VENV_STACK debug 1>&2
 }
 
 dact(){
@@ -293,7 +290,6 @@ dact(){
 #
     local stack_value
 
-    # stack_op __VENV_STACK debug 1>&2
     if [ -z "${CONDA_DEFAULT_ENV}" ]; then
         echo "No conda environment is currently activated." 1>&2
         __rc__=1
@@ -314,8 +310,6 @@ dact(){
     conda deactivate
     pop_venv
     stack_value="${__sv__}"
-    # stack_op __VENV_STACK debug 1>&2
-    echo ${stack_value}
     return ${__rc__}
 }
 
@@ -342,7 +336,7 @@ pact(){
     # Change to previous VENV
     if [ $? -eq 0 ]; then
         cact "$previous_env"
-        pop_venv > /dev/null  # Pop the current(previous) VENV off the stack.
+        pop_venv > /dev/null  # pop the current(previous) VENV off the stack.
     else
         echo "No previous environment to switch to."
     fi
