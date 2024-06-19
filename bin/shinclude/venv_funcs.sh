@@ -98,8 +98,13 @@ push_venv() {
 
 # Specialized pop the VENV off the stack and decrement.j
 pop_venv() {
-    local stack_value=$(pop_stack __VENV_STACK)
+    local stack_value
+    pop_stack __VENV_STACK
+    stack_value=${__sv__}
+    echo "${stack_value}"
+    return ${__rc__}
 }
+
 
 # Sets internal VENV variables
 __set_venv_vars() {
@@ -307,9 +312,11 @@ dact(){
 
     echo "Deactivating: ${CONDA_DEFAULT_ENV}" 1>&2
     conda deactivate
-    stack_value="$(pop_venv)"
+    pop_venv
+    stack_value="${__sv__}"
     # stack_op __VENV_STACK debug 1>&2
     echo ${stack_value}
+    return ${__rc__}
 }
 
 
@@ -329,7 +336,8 @@ pact(){
 # - **Exceptions**: 
 #   - If no previous environment is stored, an error message will be displayed.
 #
-    local previous_env=$(pop_venv)
+    pop_venv
+    local previous_env=${__sv__}
 
     # Change to previous VENV
     if [ $? -eq 0 ]; then

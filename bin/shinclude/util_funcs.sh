@@ -172,7 +172,9 @@ sort_2d_array() {
 }
 
 
-__sv__='' # last value popped off the stack.
+# last value popped off the stack. This is how to get the value on the stack sfetr popping it if it's a string since we cannot set it using $(pop_statck STACKNAME).
+__sv__=''
+
 push_stack() {
 #
 # # `push_stack` - Push a Value onto a Named Stack
@@ -240,7 +242,7 @@ pop_stack() {
 
     echo "POP ${stack_name}: ${popped_value}" >&2
 
-    echo "${popped_value}"
+    __sv__="${popped_value}"
     __rc__=0
     retuirn ${__rc__}
 }
