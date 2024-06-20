@@ -1,6 +1,9 @@
 # venvutil - Manage Conda and Pip VENV's with some simple functions and scripts.
 (*Still under development*)
 
+## Update: Functions all seem to be working correctly
+
+All functions seem to be working properly, though there is a lot of cleanup and documentation which needs updating, but they are all pretty handy.  I have the annoyances worked out of the wrapper functions for conda and pip, they work properly run, the intended commands, and the logging, while in place, is not quiet operational.  There are a few issues I'd like to work out such as when cloning an VENV, deleting a VENV and where the changes get logged.
 ## Building all necessary items for oobabooga for macOS on Apple Silicon Series Processors
 
 The purpose of this originally was to build all the required modules and source code required for oobabooga necessary for best performance possible on macOS on Apple Silicon M-series processors. This is done with a single configuration file. All still under development, but currently in testing.  If you are brave, go right ahead and have a look at the config files in the config directory.
@@ -10,6 +13,7 @@ To download, build and install all requirements for running oobabooga on macOS w
 (working on this right now)
 
 **Some of the links may be broken as I'm working on the documentation**
+
 ## Tools to help maintain Python VENV's and more
 
 I've been working on a number of things, and am attempting to put together a venvdiff function and enhance the pip and conda tracking I have put in the VenvUtil I have built into the set of virtual environment tools I am building here.  IN the bin directory, you will find some Python scripts for checking your GPU and plan to have more on the way.  This will also become my location for LLM, Data Analytics, Artificial Intelligence and clearing house for performance information. There are a number of things I am working on right now, and will be updating the oobabooga-macOS repository soon with the latest oobabooga. I am looking for alternatives to oobabooga and things look promising.  Also, to get best performance out of oobabooga, I am looking into the code and will have updates on the package builds for supporting GGUF models running on macOS soon.
