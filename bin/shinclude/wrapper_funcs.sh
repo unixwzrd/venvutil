@@ -42,15 +42,20 @@ do_wrapper() {
     local action="$1"
     local actions_to_log=("install" "uninstall" "remove" "rename" "update" "upgrade" "create" "clean" "config" "clone")
     local actions_to_exclude=("--help" "-h" "--dry-run")
+    local env_vars=$(env | grep -E "^[A-Z_]+=|^[a-z_]+=" | tr "\n" " " | sed -E 's/(SHELL=.*)//')
+    local cmd_args="$@"
 
     # Make the command be how the user invoked it rather than with the wrappers.
-    local user_cmd=$(echo "$cmd $*" | sed 's/__venv_//g')
+    local user_cmd=$(echo "${cmd} ${cmd_args}" | sed 's/__venv_//g')
 
-    # Check if the command ${cmd} is a file or a function/alias, if it has a command file,
-    # we want to run it with the "command" builtin.
-    if command -v ${cmd} > /dev/null 2>&1; then
+    # Check if the command ${cmd} is a file or a function/alias. If it's not a function,
+    # we want to run it with the "command" builtin to bypass shell functions or aliases.
+    if type -P ${cmd} &>/dev/null; then
         cmd="command ${cmd}"
     fi
+
+    local cmd_line="${env_vars} ${cmd} ${cmd_args}"
+    local user_line="${env_vars} ${user_cmd} ${cmd_args}"
     # Check if the action is potentially destructive and should be logged.
     if [[ " ${actions_to_log[*]} " =~ "${action}" ]] && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
         #set -x
@@ -60,11 +65,11 @@ do_wrapper() {
         local freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${file_date}.txt"
         # Freeze the state of the environment before a potentially destructive command is executed.
         command pip freeze >> "${freeze_state}"
-        if ${cmd} "$@"; then
+        if ${cmd} ${cmd_args}; then
             local hist_log="${VENVUTIL_CONFIG}/${CONDA_DEFAULT_ENV}.log"
             # Logging the command invocation if it completed successfully.
-            echo "# ${cmd_date}: ${user_cmd}" >> "${hist_log}"
-            echo "# ${cmd_date}: $(${cmd} --version)" >> "${hist_log}"
+            echo "# ${cmd_date}: ${user_line}" >> "${hist_log}"
+            echo "# ${cmd_date}: $(${user_cmd} --version)" >> "${hist_log}"
             # The above code works for update, install, uninstall. upgrade but does not behave correctly
             # for other commands. The behaviors of these other commands is somewhat opaque. We will likely
             # need to parse yhe command line to determine what action to take in each case. This will possibly
@@ -77,16 +82,14 @@ do_wrapper() {
         #set +x
     else
         # Execute the command without logging.
-        ${cmd} "$@"
+        ${cmd} ${cmd_args}
     fi
 }
 
+
 # Specific wrapper function for pip
 pip() {
-    local command_line=$_
-#    set > setlist.sh
-    echo "Complete Pip Command Line: ${command_line}" >&2
-    do_wrapper "pip" "$@"
+    do_wrapper pip "$@"
 }
 
 # Function to check if conda definition changed and re-hook if necessary
@@ -106,11 +109,11 @@ __venv_conda_check() {
     fi
 }
 
-# Initial hash of the Conda function. Must always  new hash after defining.
-__venv_conda_hash=$(get_function_hash conda)
-
 # Run through the conda check function to ensure the conda function is wrapped
 __venv_conda_check
+
+# Initial hash of the Conda function. Must always  new hash after defining.
+__venv_conda_hash=$(get_function_hash conda)
 
 # Modify the PROMPT_COMMAND to continuously check for function `conda` changes
 __venv_prompt_command="${PROMPT_COMMAND}"
