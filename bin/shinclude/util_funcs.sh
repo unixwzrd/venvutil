@@ -140,7 +140,7 @@ sort_2d_array() {
     local i j temp1 temp2 len temp_arary
 
     # Assign named array to local array
-    eval "temp_arary=(\"\${{$array_name}[@]}\")"
+    eval "temp_arary=(\"\${$array_name[@]}\")"
     len=${#temp_arary[@]}
 
     for ((i=2; i<len; i+=2)); do
