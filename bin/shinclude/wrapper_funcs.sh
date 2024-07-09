@@ -65,7 +65,7 @@ do_wrapper() {
         local freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${file_date}.txt"
         # Freeze the state of the environment before a potentially destructive command is executed.
         command pip freeze >> "${freeze_state}"
-        if ${cmd} ${cmd_args}; then
+        if ${env_args} ${cmd} ${cmd_args}; then
             local hist_log="${VENVUTIL_CONFIG}/${CONDA_DEFAULT_ENV}.log"
             # Logging the command invocation if it completed successfully.
             echo "# ${cmd_date}: ${user_line}" >> "${hist_log}"
