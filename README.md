@@ -3,6 +3,8 @@
 
 ## Update: Functions all seem to be working correctly
 
+2025-07-09 - Fixed recursion bug in pip wrapper.
+
 All functions seem to be working properly, though there is a lot of cleanup and documentation which needs updating, but they are all pretty handy.  I have the annoyances worked out of the wrapper functions for conda and pip, they work properly run, the intended commands, and the logging, while in place, is not quiet operational.  There are a few issues I'd like to work out such as when cloning an VENV, deleting a VENV and where the changes get logged.
 ## Building all necessary items for oobabooga for macOS on Apple Silicon Series Processors
 
