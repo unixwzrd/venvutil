@@ -54,7 +54,7 @@ do_wrapper() {
         cmd="command ${cmd}"
     fi
 
-    local cmd_line="${env_vars} ${cmd} ${cmd_args}"
+    # local cmd_line="${env_vars} ${cmd} ${cmd_args}"
     local user_line="${env_vars} ${user_cmd} ${cmd_args}"
     # Check if the action is potentially destructive and should be logged.
     if [[ " ${actions_to_log[*]} " =~ "${action}" ]] && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
@@ -69,7 +69,7 @@ do_wrapper() {
             local hist_log="${VENVUTIL_CONFIG}/${CONDA_DEFAULT_ENV}.log"
             # Logging the command invocation if it completed successfully.
             echo "# ${cmd_date}: ${user_line}" >> "${hist_log}"
-            echo "# ${cmd_date}: $(${user_cmd} --version)" >> "${hist_log}"
+            echo "# ${cmd_date}: $(${cmd} --version)" >> "${hist_log}"
             # The above code works for update, install, uninstall. upgrade but does not behave correctly
             # for other commands. The behaviors of these other commands is somewhat opaque. We will likely
             # need to parse yhe command line to determine what action to take in each case. This will possibly
