@@ -42,7 +42,8 @@ do_wrapper() {
     local action="$1"
     local actions_to_log=("install" "uninstall" "remove" "rename" "update" "upgrade" "create" "clean" "config" "clone")
     local actions_to_exclude=("--help" "-h" "--dry-run")
-    local env_vars=$(env | grep -E "^[A-Z_]+=|^[a-z_]+=" | tr "\n" " " | sed -E 's/(SHELL=.*)//')
+    local env_vars
+    env_vars=$(env | grep -E "^[A-Z_]+=|^[a-z_]+=" | tr "\n" " " | sed -E 's/(SHELL=.*)//' | sed -E 's/([A-Za-z_]+)=/\1="/g' | sed -E 's/$/"/g' | tr ' ' '\n' | paste -sd ' ' -)
     local cmd_args="$@"
 
     # Make the command be how the user invoked it rather than with the wrappers.
@@ -65,7 +66,7 @@ do_wrapper() {
         local freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${file_date}.txt"
         # Freeze the state of the environment before a potentially destructive command is executed.
         command pip freeze >> "${freeze_state}"
-        if ${env_args} ${cmd} ${cmd_args}; then
+        if eval "${env_vars} ${cmd} ${cmd_args}"; then
             local hist_log="${VENVUTIL_CONFIG}/${CONDA_DEFAULT_ENV}.log"
             # Logging the command invocation if it completed successfully.
             echo "# ${cmd_date}: ${user_line}" >> "${hist_log}"
