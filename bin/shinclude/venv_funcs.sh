@@ -86,6 +86,17 @@ __VENV_INTERNAL_FUNCTIONS=(
     "__set_venv_vars"
 )
 
+# This is so we can pass a return code up through sub-shells since set values are lost in subshells.
+# May or may not be a good ide, but we might want to pass get the return value of our funudtion calls,
+# and not that o fthe last command that ren in the function call which may me 0 for an echo comamnd
+# when it's the last command in th efunction and we want the return code of the function.
+# This is something we would like where the echo sattement will return a value lik ethe last item
+# poped off the stack. So instead of a sub-shell, whcih will also not return a value, we can use
+# this to set the return code and exit the function passing thie to return or exit.  echo would be
+# the last command in the function and we would get the return code of the function.
+#
+#__rc__ is internal aand is in a our function shell includes.
+# It woudl be nice to come up with a fairly "automatuc" way to do this.
 __rc__=0
 
 # Initialize the stack
