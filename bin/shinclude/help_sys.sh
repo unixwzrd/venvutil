@@ -57,7 +57,7 @@ declare -a __VENV_FUNCTIONS
 declare -a __VENV_SCRIPTS
 
 
-init_help_system(){
+init_help_system() {
 #
 # init_help_system - Populate and sort __VENV_FUNCTIONS with function names and documentation from sourced scripts.
 # - **Purpose**:
@@ -150,7 +150,7 @@ create_readme() {
     echo "- [${name}](${markdown_rel_path}): ${description}" >> "${readme_path}"
 }
 
-generate_markdown(){
+generate_markdown() {
 #
 # ## generate_markdown - Generate Markdown documentation for all available functions.
 # 
@@ -260,7 +260,7 @@ generate_markdown(){
     # Write the documentation to markdown files
     for ((i=0; i<${#script_doc[@]}; i+=2)); do
         if [[ "${script_doc[i]}" == "${__VENV_SCRIPTS[i]}" ]]; then
-            echo "Writing out docs for ${script_doc[i]}"
+            echo "Writing out script docs for ${script_doc[i]}"
             echo -e "__VENV_BASE: ${__VENV_BASE}"
             echo -e "${script_doc[i+1]}" > "${__VENV_SCRIPTS[i+1]}"
             create_readme "${script_doc[i]}" "${script_doc[i+1]}" "${__VENV_SCRIPTS[i+1]}" "${readme_index}"
@@ -274,7 +274,7 @@ generate_markdown(){
     done
     for ((i=0; i<${#function_doc[@]}; i+=2)); do
         if [[ "${function_doc[i]}" == "${__VENV_FUNCTIONS[i]}" ]]; then
-            echo "Writing out docs for ${function_doc[i]}"
+            echo "Writing out function docs for ${function_doc[i]}"
             echo -e "${function_doc[i+1]}" > "${__VENV_FUNCTIONS[i+1]}"
             create_readme "${function_doc[i]}" "${function_doc[i+1]}" "${__VENV_FUNCTIONS[i+1]}" "${readme_index}"
         else
@@ -296,7 +296,7 @@ generate_markdown(){
 }
 
 
-general_help(){
+general_help() {
 #
 # general_help - Display general help options for the 'help' command.
 #
@@ -321,7 +321,7 @@ general_help(){
 }
 
 
-help_scripts(){
+help_scripts() {
 #
 # help_scripts - List sourced scripts and their purpose.
 #
@@ -387,7 +387,7 @@ specific_script_help() {
 }
 
 
-specific_function_help(){
+specific_function_help() {
 #
 # specific_function_help - Provide detailed documentation for a given function.
 #
@@ -486,7 +486,7 @@ help_functions() {
 }
 
 
-vhelp(){
+vhelp() {
 #
 # vhelp - Main entry point for the help system.
 #

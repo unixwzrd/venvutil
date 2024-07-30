@@ -117,7 +117,7 @@ PACKAGE_CONFIG=(
 #PC_POST_FLAGS=6
 
 
-oobapkgs(){
+oobapkgs() {
     echo "${MY_NAME}: Installing all application packages."
     cd ${BUILD_DIR}/webui-macOS
     # CLone the current VENV and make the clone active.
@@ -144,7 +144,7 @@ EXTENSIONS=(
 #   "whisper_stt"
 )
 
-oobaxtns(){
+oobaxtns() {
     echo "${MY_NAME}: Installing oobabooga extension packages"
     cd ${BUILD_DIR}/webui-macOS
     pip install -r requirements.txt

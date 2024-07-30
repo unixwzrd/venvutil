@@ -33,7 +33,7 @@ __VENV_INTERNAL_FUNCTIONS=(
 
 # Utility functions
 
-strip_space(){
+strip_space() {
 #
 # # `strip_space` - Remove Leading and Trailing Whitespaces
 # 
@@ -52,7 +52,7 @@ strip_space(){
     echo ${argstring}
 }
 
-zero_pad(){
+zero_pad() {
 # 
 # # `zero_pad` - Pad a Single-Digit Number with a Leading Zero
 # 
@@ -76,7 +76,7 @@ zero_pad(){
     printf "%02d" "${num}"
 }
 
-next_step(){
+next_step() {
 #
 # next_step - Increment a given sequence number by 1 and pad it with a zero if needed.
 #
@@ -247,8 +247,8 @@ pop_stack() {
 
 stack_op() {
 #
-# Function: stack_op
-# Description: Performs stack operations such as push, pop, and debug on a given stack.
+# # Function: stack_op
+# ## Description: Performs stack operations such as push, pop, and debug on a given stack.
 # - **Parameters**:
 #   - stack_name: The name of the stack.
 #   - action: The action to perform on the stack (push, pop, debug).
@@ -282,25 +282,27 @@ stack_op() {
 }
 
 stringclean() {
-# Function: stringclean
+# # Function: stringclean
 #
-# Description: Sanitizes a string by removing all characters except alphabets and numbers.
+# ## Description: Sanitizes a string by removing all characters except alphabets and numbers.
 #
-# Parameters:
+# - **Parameters**:
 #   - str: The string to sanitize.
 #
-# Returns: The sanitized string.
+# - **Returns**:
+#   The sanitized string.
 #
     local str="$1"
     echo "${str//[^a-zA-Z0-9]/}"
 }
 
 function to_upper() {
-# Function: to_upper
+# # Function: to_upper
 #
-# Description: This function converts a string to uppercase
+# ## Description: This function converts a string to uppercase
 #
-# Usage: to_upper <string>
+# - **Usage**:
+#    - `to_upper`` <string>
 #
 # Example: to_upper "hello"
 #

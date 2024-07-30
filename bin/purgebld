@@ -2,7 +2,7 @@
 
 # Set the internal environment, this call is used befor and after every time we source in a script to
 # avoid envirnment pollution.
-set_args(){
+set_args() {
     [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
     MY_ARGS=${BASH_ARGV[@]}
     MY_NAME=$(basename ${THIS_SCRIPT})

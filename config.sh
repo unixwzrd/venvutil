@@ -86,7 +86,7 @@ PC_METHOD=5
 PC_POST_FLAGS=6
 
 
-oobapkg(){
+oobapkg() {
     echo 
     cd ${BUILD_DIR}/webui
     pip install -r requirements.txt
@@ -111,7 +111,7 @@ EXTENSIONS=(
 #   "whisper_stt"
 )
 
-oobaxtns(){
+oobaxtns() {
     echo "INSTALLING OOBABOOGA EXTENSION PACKAGES"
     cd ${BUILD_DIR}/webui
 }

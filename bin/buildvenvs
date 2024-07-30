@@ -113,7 +113,7 @@ __INTERNAL_STEPS=(
 
 
     # Conda install
-__CONDA(){
+__CONDA() {
     cd ${__BUILD_DIR}
     [ -e ./tmp ] || mkdir tmp
     cd tmp
@@ -142,7 +142,7 @@ __CONDA(){
 
 
 # Python BASE
-__PYTHON_BASE(){
+__PYTHON_BASE() {
     __PYVER=3
     __PYREL=10
     __PYBASE="python${__PYVER}.${__PYREL}"
@@ -151,7 +151,7 @@ __PYTHON_BASE(){
 
 
 # Create the BASE APP VENV
-__CREATE_APP_BASE(){
+__CREATE_APP_BASE() {
     echo "${MY_NAME}: Creating the application build BASE"
     for newenv in ${APP_CODE}
     do
@@ -163,7 +163,7 @@ __CREATE_APP_BASE(){
 
 
 # Build CMake
-__CMAKE(){
+__CMAKE() {
     URL_CMAKE="https://github.com/Kitware/CMake.git"
     cd "${__BUILD_DIR}"
     git clone "${URL_CMAKE}"
@@ -176,7 +176,7 @@ __CMAKE(){
 
 
 # Build BLIS
-__BLIS(){
+__BLIS() {
     URL_BLIS="https://github.com/flame/blis.git"
     cd "${__BUILD_DIR}" || ( echo "Could not cd to ${__BUILD_DIR}."; exit)
     git clone "${URL_BLIS}"
@@ -220,7 +220,7 @@ __OPENBLAS() {
 }
 
 
-__PKG_BUILD(){
+__PKG_BUILD() {
     __BUILD_PACKAGE=$1; __INST_TYPE=$2
     echo "${MY_NAME}: BUILDING PACKAGE AND ENVIRONMENTS FOR ${__BUILD_PACKAGE}"
     # Get the last successfully created base VENV for the previous package
@@ -297,7 +297,7 @@ __PKG_BUILD(){
     echo "${MY_NAME}: EXITING BUILD FOR PACKAGE: ${__BUILD_PACKAGE}"
 }
 
-__CLEANUP(){
+__CLEANUP() {
     rm "${__STEP_FILE}" "${__LASTENV_FILE}"
 }
 

@@ -283,7 +283,7 @@ cact() {
     conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." 1>&2; return 1; }
 }
 
-dact(){
+dact() {
 #
 # dact - Deactivate the current VENV
 #
@@ -325,7 +325,7 @@ dact(){
 }
 
 
-pact(){
+pact() {
 #
 # pact - Switch to the Previous Active VENV
 #
@@ -353,7 +353,7 @@ pact(){
     fi
 }
 
-lenv(){
+lenv() {
 #
 # lenv - List All Current VENVs
 #
@@ -371,7 +371,7 @@ lenv(){
     conda info -e | grep -E -v '^#'
 }
 
-lastenv(){
+lastenv() {
 #
 # lastenv - Retrieve the Last Environment with a Given Prefix
 #
@@ -391,7 +391,7 @@ lastenv(){
     echo "${last_env}"
 }
 
-benv(){
+benv() {
 #
 # benv - Create a New Base Virtual Environment
 #
@@ -430,7 +430,7 @@ benv(){
     cact "${env_name}"
 }
 
-nenv(){
+nenv() {
 #
 # nenv - Create a New Virtual Environment in a Series
 #
@@ -463,7 +463,7 @@ nenv(){
     ccln "base"
 }
 
-denv(){
+denv() {
 #
 #  denv - Delete a Specified Virtual Environment
 #
@@ -491,7 +491,7 @@ denv(){
     conda remove --all -n ${env_to_delete} -y
 }
 
-renv(){
+renv() {
 #
 # renv - Revert to Previous Virtual Environment
 #
@@ -525,7 +525,7 @@ renv(){
     cact ${previous_env}  # Reactivate the previous environment
 }
 
-ccln(){
+ccln() {
 #
 # ccln - Clone the current VENV and increment the sequence number.
 #
@@ -557,8 +557,21 @@ ccln(){
     cact "${__VENV_NAME}"
 }
 
-venvdiff()
-{
+venvdiff() {
+# venvdiff - Compare the packages in two virtual environments (EXPERIMENTAl)
+$
+# - **Purpose**:
+#   - Compare the packages installed in two conda virtual environments.
+# - **Usage**:
+#   - venvdiff ENV1 ENV2
+# - **Input Parameters**:
+#   1. `ENV1` (string) - The name of the first environment to compare.
+#   2. `ENV2` (string) - The name of the second environment to compare.
+# - **Output**:
+#   - A side-by-side comparison of the packages installed in the two environments.
+# - **Exceptions**:
+#   - If the number of arguments is not equal to 2, an error message is displayed.
+
     # Check that two arguments are provided
     if [ "$#" -ne 2 ]; then
         echo "Usage: venvdiff env1 env2"

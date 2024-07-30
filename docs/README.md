@@ -26,9 +26,9 @@
 - [dact](/docs/shdoc/bin/shinclude/functions/dact.md): Deactivate the current VENV
 - [denv](/docs/shdoc/bin/shinclude/functions/denv.md): Delete a Specified Virtual Environment
 - [do_wrapper](/docs/shdoc/bin/shinclude/functions/do_wrapper.md): General wrapper function for logging specific command actions
-- [errno](/docs/shdoc/bin/shinclude/functions/errno.md): 
-- [errno_exit](/docs/shdoc/bin/shinclude/functions/errno_exit.md): 
-- [errno_warn](/docs/shdoc/bin/shinclude/functions/errno_warn.md): 
+- [errno](/docs/shdoc/bin/shinclude/functions/errno.md): Function: errno
+- [errno_exit](/docs/shdoc/bin/shinclude/functions/errno_exit.md): Function: errno_exit
+- [errno_warn](/docs/shdoc/bin/shinclude/functions/errno_warn.md): Function: errno_warn
 - [general_help](/docs/shdoc/bin/shinclude/functions/general_help.md): Display general help options for the 'help' command.
 - [generate_markdown](/docs/shdoc/bin/shinclude/functions/generate_markdown.md): Generate Markdown documentation for all available functions.
 - [get_function_hash](/docs/shdoc/bin/shinclude/functions/get_function_hash.md): 
@@ -55,8 +55,8 @@
 - [stack_op](/docs/shdoc/bin/shinclude/functions/stack_op.md): **Parameters**:
 - [stringclean](/docs/shdoc/bin/shinclude/functions/stringclean.md): str: The string to sanitize.
 - [strip_space](/docs/shdoc/bin/shinclude/functions/strip_space.md): Remove Leading and Trailing Whitespaces
-- [to_upper](/docs/shdoc/bin/shinclude/functions/to_upper.md): 
-- [to_upper](/docs/shdoc/bin/shinclude/functions/to_upper.md): 
+- [to_upper](/docs/shdoc/bin/shinclude/functions/to_upper.md): Function: to_upper
+- [to_upper](/docs/shdoc/bin/shinclude/functions/to_upper.md): Function: to_upper
 - [vdsc](/docs/shdoc/bin/shinclude/functions/vdsc.md): Return the current VENV description.
 - [vhelp](/docs/shdoc/bin/shinclude/functions/vhelp.md): Main entry point for the help system.
 - [vnum](/docs/shdoc/bin/shinclude/functions/vnum.md): Return the current VENV sequence number.
@@ -66,4 +66,4 @@
 - [zero_pad](/docs/shdoc/bin/shinclude/functions/zero_pad.md): Pad a Single-Digit Number with a Leading Zero
 
 Footer content
-Generated: 2024 07 18 at 05:45:22
+Generated: 2024 07 29 at 20:43:48

@@ -2,7 +2,7 @@
 
 
 # Conda install
-__CONDA(){
+__CONDA() {
     cd ${__BUILD_DIR}
     [ -e ./tmp ] || mkdir tmp
     cd tmp
