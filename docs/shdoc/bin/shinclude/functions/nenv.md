@@ -1,6 +1,6 @@
 nenv - Create a New Virtual Environment in a Series
 - **Purpose**:
-  - Create a new conda virtual environment in a series identified by a prefix. Resets and starts the sequence number from "00".
+  - Create a new conda virtual environment in a series identified by a prefix as a clone of the current venv. Resets and starts the sequence number from "00".
 - **Usage**: 
   - nenv PREFIX [EXTRA_OPTIONS]
 - **Input Parameters**: 

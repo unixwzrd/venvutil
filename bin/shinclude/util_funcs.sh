@@ -295,6 +295,7 @@ stringclean() {
     echo "${str//[^a-zA-Z0-9]/}"
 }
 
+function to_upper() {
 # Function: to_upper
 #
 # Description: This function converts a string to uppercase
@@ -307,7 +308,6 @@ stringclean() {
 #
 # Errors: None
 #
-function to_upper() {
     local str="$1"
     echo "${str^^}"
 }

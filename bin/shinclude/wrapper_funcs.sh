@@ -78,7 +78,7 @@ do_wrapper() {
             # venvutil.log file in the config directory until we can enumerate all the possible actions and
             # log them correctly.
             local venvutil_log="${VENVUTIL_CONFIG}/venvutil.log"
-            echo "# ${cmd_date} - ${CONDA_DEFAULT_ENV}: ${user_cmd}" >> "${venvutil_log}"
+            echo "# ${cmd_date} - ${CONDA_DEFAULT_ENV}: ${user_line}" >> "${venvutil_log}"
         fi
         #set +x
     else

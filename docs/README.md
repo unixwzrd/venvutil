@@ -1,9 +1,9 @@
 # Project Documentation
 ## Brief introduction of the project.
 - [buildvenvs](/docs/shdoc/bin/scripts/buildvenvs.md): shellcheck disable=2317,2164
+- [errno.sh](/docs/shdoc/bin/shinclude/scripts/errno.sh.md): 
 - [help_sys.sh](/docs/shdoc/bin/shinclude/scripts/help_sys.sh.md): Help System Functions for Bash Scripts
 - [init_env.sh](/docs/shdoc/bin/shinclude/scripts/init_env.sh.md): Initialize Environment and Source Utility Scripts
-- [init_env.zsh](/docs/shdoc/bin/shinclude/scripts/init_env.zsh.md): Initialize Environment and Source Utility Scripts
 - [purgebld](/docs/shdoc/bin/scripts/purgebld.md): 
 - [runbench](/docs/shdoc/bin/scripts/runbench.md): 
 - [util_funcs.sh](/docs/shdoc/bin/shinclude/scripts/util_funcs.sh.md): Utility Functions for Bash Scripts
@@ -26,7 +26,7 @@
 - [dact](/docs/shdoc/bin/shinclude/functions/dact.md): Deactivate the current VENV
 - [denv](/docs/shdoc/bin/shinclude/functions/denv.md): Delete a Specified Virtual Environment
 - [do_wrapper](/docs/shdoc/bin/shinclude/functions/do_wrapper.md): General wrapper function for logging specific command actions
-- [errno](/docs/shdoc/bin/shinclude/functions/errno.md): Function: errno
+- [errno](/docs/shdoc/bin/shinclude/functions/errno.md): 
 - [errno_exit](/docs/shdoc/bin/shinclude/functions/errno_exit.md): 
 - [errno_warn](/docs/shdoc/bin/shinclude/functions/errno_warn.md): 
 - [general_help](/docs/shdoc/bin/shinclude/functions/general_help.md): Display general help options for the 'help' command.
@@ -50,12 +50,12 @@
 - [snum](/docs/shdoc/bin/shinclude/functions/snum.md): Force set the VENV Sequence number.
 - [sort_2d_array](/docs/shdoc/bin/shinclude/functions/sort_2d_array.md): Sort a Two-Dimensional Array
 - [source_util_script](/docs/shdoc/bin/shinclude/functions/source_util_script.md): **Purpose**: 
-- [source_util_script](/docs/shdoc/bin/shinclude/functions/source_util_script.md): **Purpose**: 
 - [specific_function_help](/docs/shdoc/bin/shinclude/functions/specific_function_help.md): Provide detailed documentation for a given function.
 - [specific_script_help](/docs/shdoc/bin/shinclude/functions/specific_script_help.md): 
-- [stack_op](/docs/shdoc/bin/shinclude/functions/stack_op.md): stack_name: The name of the stack.
+- [stack_op](/docs/shdoc/bin/shinclude/functions/stack_op.md): **Parameters**:
 - [stringclean](/docs/shdoc/bin/shinclude/functions/stringclean.md): str: The string to sanitize.
 - [strip_space](/docs/shdoc/bin/shinclude/functions/strip_space.md): Remove Leading and Trailing Whitespaces
+- [to_upper](/docs/shdoc/bin/shinclude/functions/to_upper.md): 
 - [to_upper](/docs/shdoc/bin/shinclude/functions/to_upper.md): 
 - [vdsc](/docs/shdoc/bin/shinclude/functions/vdsc.md): Return the current VENV description.
 - [vhelp](/docs/shdoc/bin/shinclude/functions/vhelp.md): Main entry point for the help system.
@@ -66,4 +66,4 @@
 - [zero_pad](/docs/shdoc/bin/shinclude/functions/zero_pad.md): Pad a Single-Digit Number with a Leading Zero
 
 Footer content
-Generated: 2024 04 25 at 09:39:25
+Generated: 2024 07 18 at 05:45:22

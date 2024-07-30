@@ -21,6 +21,7 @@ if declare -f errno &> /dev/null; then
     return ${__rc__}
 fi
 
+function errno() {
 # Function: errno
 #
 # Provides POSIX errno codes and values for use in scripts or lookup of error codes on th ecommand line.
@@ -37,8 +38,6 @@ fi
 #   2: Could not find system errno.h
 #  22: Invalid errno name
 #
-function errno() {
-    # Usage: errno [errno_code|errno_number]
     if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
         echo "Usage: errno [errno_code|errno_number]"
         echo "Example: errno EACCES"
@@ -82,6 +81,7 @@ function errno() {
     fi
 }
 
+ errfind() {
 # Function: errfind
 #
 # Find the error code for a given streing.
@@ -98,7 +98,6 @@ function errno() {
 #
 # Errors: None
 #
- errfind() {
     local errno_file
     if [ -f "/usr/include/sys/errno.h" ]; then
         errno_file="/usr/include/sys/errno.h"
@@ -132,6 +131,7 @@ function errno() {
     return ${__rc__}
 }
 
+function to_upper() {
 # Function: to_upper
 #
 # Description: This function converts a string to uppercase
@@ -144,30 +144,29 @@ function errno() {
 #
 # Errors: None
 #
-function to_upper() {
     local str="$1"
     echo "${str^^}"
 }
 
+function errno_warn() {
 # Function: errno_warn
 #
 # Description: This function prints a warning using the errno function to STDERR and returns the error number
 #
 # Usage: errno_warn <errno_code>
 #
-function errno_warn() {
     __rc__=$1
     echo "WARNING: $(errno "${__rc__}")" >&2
     return ${__rc__}
 }
 
+function errno_exit() {
 # Function: errno_exit
 #
 # Description: This function prints an error to STDERROR using the errno function and exits with the error number
 #
 # Usage: errno_exit <errno_code>
 #
-function errno_exit() {
     __rc__=$1
     echo "ERROR: $(errno "${__rc__}")" >&2
     exit ${__rc__}
