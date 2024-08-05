@@ -20,8 +20,7 @@ get_function_hash() {
 
 # Define the location of the venvutil config directory
 export VENVUTIL_CONFIG="${VENVUTIL_CONFIG:-${HOME}/.venvutil}"
-# go ahead and create the directory recursively for the frozen VENV's for recovery.
-# The config directory is it's parent, so it will get created at the same time
+# Create the directory recursively for the frozen VENV's for recovery.
 [[ -d ${VENVUTIL_CONFIG}/freeze ]] || mkdir -p "${VENVUTIL_CONFIG}/freeze"
 
 do_wrapper() {
@@ -57,30 +56,23 @@ do_wrapper() {
 
     # local cmd_line="${env_vars} ${cmd} ${cmd_args}"
     local user_line="${env_vars} ${user_cmd} ${cmd_args}"
+
     # Check if the action is potentially destructive and should be logged.
     if [[ " ${actions_to_log[*]} " =~ "${action}" ]] && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
-        #set -x
         local file_date=$(date "+%Y%m%d%H%M%S")
         local cmd_date=$(date '+%Y-%m-%d %H:%M:%S')
         local freeze_dir="${VENVUTIL_CONFIG}/freeze"
         local freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${file_date}.txt"
         # Freeze the state of the environment before a potentially destructive command is executed.
-        command pip freeze >> "${freeze_state}"
+        command pip freeze > "${freeze_state}"
         if eval "${env_vars} ${cmd} ${cmd_args}"; then
             local hist_log="${VENVUTIL_CONFIG}/${CONDA_DEFAULT_ENV}.log"
             # Logging the command invocation if it completed successfully.
             echo "# ${cmd_date}: ${user_line}" >> "${hist_log}"
             echo "# ${cmd_date}: $(${cmd} --version)" >> "${hist_log}"
-            # The above code works for update, install, uninstall. upgrade but does not behave correctly
-            # for other commands. The behaviors of these other commands is somewhat opaque. We will likely
-            # need to parse yhe command line to determine what action to take in each case. This will possibly
-            # require another function for logging. For now we will keep a running log of all commands in a
-            # venvutil.log file in the config directory until we can enumerate all the possible actions and
-            # log them correctly.
             local venvutil_log="${VENVUTIL_CONFIG}/venvutil.log"
             echo "# ${cmd_date} - ${CONDA_DEFAULT_ENV}: ${user_line}" >> "${venvutil_log}"
         fi
-        #set +x
     else
         # Execute the command without logging.
         ${cmd} ${cmd_args}

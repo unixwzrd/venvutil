@@ -79,7 +79,7 @@ source_util_script() {
         || { echo "${__VENV_INCLUDE}: Error sourcing script ${script_name}.sh in INCLUDE_DIR: ${__VENV_INCLUDE}"; return 1; }
 }
 
-# Initialize Conda environment to ensure the availability of Python packages and functions in these scripts.
+# Initialize Conda environment
 __conda_setup="$('${HOME}/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"

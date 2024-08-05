@@ -48,7 +48,7 @@
 #   cact myenv
 #   ```
 #
-# - **Dependencies**:
+# - **Dependencies**: 
 #   - This script depends on the `conda` command-line tool for managing virtual environments.
 #   - The `util_funcs.sh` script is also required and should be located in the same directory as this script.
 #
@@ -118,8 +118,8 @@ pop_venv() {
 
 # Sets internal VENV variables
 __set_venv_vars() {
-     __VENV_PREFIX=$(echo "$*" | cut -d '.' -f 1)
-     __VENV_DESC=$(echo "$*" | cut -d '.' -f 3-) &&  __VENV_NUM=$(echo "$*" | cut -d '.' -f 2)
+    __VENV_PREFIX=$(echo "$*" | cut -d '.' -f 1)
+    __VENV_DESC=$(echo "$*" | cut -d '.' -f 3-) &&  __VENV_NUM=$(echo "$*" | cut -d '.' -f 2)
 }
 
 snum() {
@@ -271,9 +271,9 @@ cact() {
     fi
 
     # Set variables
-     __VENV_NAME=$1
-     __set_venv_vars ${__VENV_NAME}
-     __VENV_PARMS=$(echo "$*" | cut -d '.' -f 4-)
+    __VENV_NAME=$1
+    __set_venv_vars ${__VENV_NAME}
+    __VENV_PARMS=$(echo "$*" | cut -d '.' -f 4-)
     # Push new environment to stack
     push_venv
     # Deactivate current environment
@@ -347,7 +347,7 @@ pact() {
     # Change to previous VENV
     if [ $? -eq 0 ]; then
         cact "$previous_env"
-        pop_venv > /dev/null  # pop the current(previous) VENV off the stack.
+        pop_venv > /dev/null
     else
         echo "No previous environment to switch to."
     fi
@@ -519,7 +519,7 @@ renv() {
         echo "Warning: No previous environment to revert to. Reverting to base environment." >&2
         previous_env="base"
     fi
-    
+
     dact  # Deactivate the current environment
     denv ${env_to_delete}  # Delete the environment
     cact ${previous_env}  # Reactivate the previous environment
@@ -559,7 +559,7 @@ ccln() {
 
 venvdiff() {
 # venvdiff - Compare the packages in two virtual environments (EXPERIMENTAl)
-$
+#
 # - **Purpose**:
 #   - Compare the packages installed in two conda virtual environments.
 # - **Usage**:
@@ -584,21 +584,13 @@ $
 
     # Activate the first environment and get the list of packages
     cact $env1 > /dev/null
-    local env1_packages=$(pip list | tail -n +1 )
+    local env1_packages=$(pip list | tail -n +1)
     dact > /dev/null
 
-    echo $env1_packages > env1.txt
-
-    # Activate the second environment and get the list of packages
     cact $env2 > /dev/null
-    local env2_packages=$(pip list  | tail -n +1 )
+    local env2_packages=$(pip list | tail -n +1)
     dact > /dev/null
 
-    echo $env2_packages > env2.txt
-    
-    echo ""
-
-    # Compare the packages
+    echo "Comparing packages in $env1 and $env2:"
     diff -y <(echo "$env1_packages") <(echo "$env2_packages")
-
 }

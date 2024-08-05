@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # # `util_funcs.sh` - Utility Functions for Bash Scripts
-# 
+#
 # ## Description
 # - **Purpose**:
 #   - `util_funcs.sh` offers a collection of utility functions to assist in various common tasks within bash scripting. These functions provide streamlined solutions for string manipulation, number padding, and stack operations, enhancing the efficiency and readability of bash scripts that incorporate them.
@@ -16,7 +16,7 @@
 #   - Provides utility functions that can be called from other bash scripts.
 # - **Exceptions**: 
 #   - Some functions within the script may return specific error codes depending on their internal logic. Refer to the individual function documentation for detailed exception handling.
-# 
+#
 # ## Dependencies
 # - None explicitly stated. The script is designed to be self-contained, relying only on standard bash features.
 # 
@@ -296,7 +296,7 @@ stringclean() {
     echo "${str//[^a-zA-Z0-9]/}"
 }
 
-function to_upper() {
+to_upper() {
 # # Function: to_upper
 #
 # ## Description: This function converts a string to uppercase
@@ -312,4 +312,20 @@ function to_upper() {
 #
     local str="$1"
     echo "${str^^}"
+}
+
+ptree() {
+    local pid=$1
+    local indent=${2:-""}
+    
+    # Display the current process
+    ps -o pid,ppid,cmd --no-headers --pid $pid
+
+    # Get child processes
+    local children=$(pgrep -P $pid)
+    
+    # Recurse for each child process
+    for child in $children; do
+        ptree $child "$indent  "
+    done
 }
