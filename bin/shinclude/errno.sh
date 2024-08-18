@@ -13,6 +13,11 @@ __VENV_BASE=$(dirname "${__VENV_BIN}")
 __VENV_ARGS=$*
 __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
+__VENV_INTERNAL_FUNCTIONS=(
+   ${__VENV_INTERNAL_FUNCTIONS[@]}
+   "to_upper"
+)
+
 __rc__=0
 
 # Check if the function errno is already defined and if it has return 0

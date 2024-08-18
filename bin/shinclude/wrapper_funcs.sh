@@ -11,6 +11,8 @@ __VENV_INTERNAL_FUNCTIONS=(
     "${__VENV_INTERNAL_FUNCTIONS[@]}"
     "pip"
     "conda"
+    "get_function_hash"
+    "__venv_conda_check"
 )
 
 # Function to get the hash of a function's definition
