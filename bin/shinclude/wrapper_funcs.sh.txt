@@ -1,3 +1,6 @@
+Script: wrapper_funcs.sh:
+
+```bash
 #!/bin/bash
 
 # Determine the real path of the script
@@ -123,3 +126,4 @@ __venv_conda_hash=$(get_function_hash conda)
 # Modify the PROMPT_COMMAND to continuously check for function `conda` changes
 __venv_prompt_command="${PROMPT_COMMAND}"
 PROMPT_COMMAND="__venv_conda_check; ${PROMPT_COMMAND}"
+```

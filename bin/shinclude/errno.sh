@@ -1,48 +1,69 @@
 #!/usr/bin/env bash
 
-# Capture the fully qualified path of the sourced script
+# # Script: errno.sh
+# `errno.sh` - Provides POSIX errno codes and utilities for Bash scripts
+# ## Description
+# - **Purpose**:
+#   - Offers functions to retrieve and manage POSIX error codes within Bash scripts.
+# - **Usage**:
+#   - Source this script in your Bash scripts to utilize error code utilities.
+#     ```bash
+#     source /path/to/errno.sh
+#     ```
+# - **Input Parameters**:
+#   - None.
+# - **Output**:
+#   - Functions that output error codes and messages.
+# - **Exceptions**:
+#   - Returns specific error codes if system `errno.h` is not found or invalid errno codes are provided.
+# - **Initialization**:
+#   - Ensures the script is sourced only once and initializes necessary variables.
+#
+# ## Dependencies
+# - `util_funcs.sh` (for utility functions like `to_upper`)
+
+# Determine the real path of the script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Don't source this script if it's already been sourced.
 [[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
 echo "Sourcing: ${THIS_SCRIPT}"
 
 # Extract script name, directory, and arguments
-MY_NAME=$(basename ${THIS_SCRIPT})
+MY_NAME=$(basename "${THIS_SCRIPT}")
 __VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
 __VENV_BASE=$(dirname "${__VENV_BIN}")
 __VENV_ARGS=$*
 __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
+# Ensure util_funcs.sh is sourced for utility functions
+source_util_script "util_funcs"
+
 __VENV_INTERNAL_FUNCTIONS=(
    ${__VENV_INTERNAL_FUNCTIONS[@]}
-   "to_upper"
+   "errno"
+   "errfind"
+   "errno_warn"
+   "errno_exit"
 )
 
 __rc__=0
 
-# Check if the function errno is already defined and if it has return 0
-if declare -f errno &> /dev/null; then
-    __rc__=0
-    return ${__rc__}
-fi
-
-function errno() {
-# Function: errno
+# # Function: errno
+#  `errno` - Provides POSIX errno codes and values for use in scripts or lookup of error codes on the command line.
+# ## Description
+# - **Purpose**: 
+#   - This function takes an errno code or errno number and prints the corresponding error message to STDOUT. Sets the exit code to the errno value and returns, unless there is an internal error.
+# - **Usage**: 
+#   - `errno [errno_code|errno_number]`
+# - **Input Parameters**: 
+#   - `errno_code|errno_number`: The errno code (e.g., EACCES) or number.
+# - **Output**: 
+#   - Outputs the error code and message in the format `(errno_code: errno_num): errno_text`.
+# - **Exceptions**: 
+#   - 2: Could not find system errno.h
+#   - 22: Invalid errno name
 #
-# Provides POSIX errno codes and values for use in scripts or lookup of error codes on th ecommand line.
-#
-# Description: This function takes an errno code or errno number and prints the corresponding error message to STDOUT. Sets the exit code to the errno value and returns, unless there is an internal error.
-#
-# Usage: errno [errno_code|errno_number]
-#
-# Example: errno EACCES
-#
-# Returns: "error_code: error_text"
-#
-# Errors: 2, 22
-#   2: Could not find system errno.h
-#  22: Invalid errno name
-#
+errno() {
     if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
         echo "Usage: errno [errno_code|errno_number]"
         echo "Example: errno EACCES"
@@ -86,23 +107,21 @@ function errno() {
     fi
 }
 
- errfind() {
-# Function: errfind
+# # Function: errfind
+#  `errfind` - Find the error code for a given string.
+# ## Description
+# - **Purpose**: 
+#   - Searches the POSIX errno.h file for a given string and returns any matching error codes and messages.
+# - **Usage**: 
+#   - `errfind <string>`
+# - **Input Parameters**: 
+#   - `string`: The string to search for within errno definitions.
+# - **Output**: 
+#   - Outputs matching error codes and their messages or a message indicating no matches found.
+# - **Exceptions**: 
+#   - None.
 #
-# Find the error code for a given streing.
-#
-# Description: Searches the POSIX errno.h file for a given string abd returns any matching error codes and messages.
-#
-# Usage: errfind <string>
-#
-# Example: errfind invalid 
-#
-# Returns: "error_code: error_text"
-#         or
-#         "No error codes found for <string>"
-#
-# Errors: None
-#
+errfind() {
     local errno_file
     if [ -f "/usr/include/sys/errno.h" ]; then
         errno_file="/usr/include/sys/errno.h"
@@ -136,42 +155,41 @@ function errno() {
     return ${__rc__}
 }
 
-function to_upper() {
-# Function: to_upper
+# # Function: errno_warn
+#  `errno_warn` - Prints a warning using the errno function to STDERR and returns the error number.
+# ## Description
+# - **Purpose**: 
+#   - Prints a warning message to STDERR using the `errno` function and sets the return code.
+# - **Usage**: 
+#   - `errno_warn <errno_code>`
+# - **Input Parameters**: 
+#   - `errno_code`: The errno code to generate a warning for.
+# - **Output**: 
+#   - Outputs a warning message to STDERR.
+# - **Exceptions**: 
+#   - Returns the error number associated with the provided errno code.
 #
-# Description: This function converts a string to uppercase
-#
-# Usage: to_upper <string>
-#
-# Example: to_upper "hello"
-#
-# Returns: "HELLO"
-#
-# Errors: None
-#
-    local str="$1"
-    echo "${str^^}"
-}
-
-function errno_warn() {
-# Function: errno_warn
-#
-# Description: This function prints a warning using the errno function to STDERR and returns the error number
-#
-# Usage: errno_warn <errno_code>
-#
+errno_warn() {
     __rc__=$1
     echo "WARNING: $(errno "${__rc__}")" >&2
     return ${__rc__}
 }
 
-function errno_exit() {
-# Function: errno_exit
+# # Function: errno_exit
+#  `errno_exit` - Prints an error to STDERR using the errno function and exits with the error number.
+# ## Description
+# - **Purpose**: 
+#   - Prints an error message to STDERR using the `errno` function and exits the script with the corresponding error number.
+# - **Usage**: 
+#   - `errno_exit <errno_code>`
+# - **Input Parameters**: 
+#   - `errno_code`: The errno code to generate an error for.
+# - **Output**: 
+#   - Outputs an error message to STDERR and exits the script.
+# - **Exceptions**: 
+#   - Exits the script with the provided error number.
 #
-# Description: This function prints an error to STDERROR using the errno function and exits with the error number
-#
-# Usage: errno_exit <errno_code>
-#
+errno_exit() {
     __rc__=$1
     echo "ERROR: $(errno "${__rc__}")" >&2
     exit ${__rc__}

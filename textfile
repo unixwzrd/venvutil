@@ -1,0 +1,2945 @@
+(base) [unixwzrd@xanax: venv-build-checker]$ exec bash -x -l
++ '[' -x /usr/libexec/path_helper ']'
+++ /usr/libexec/path_helper -s
++ eval 'PATH="/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/MacGPG2/bin:/Library/TeX/texbin:/Applications/Wireshark.app/Contents/MacOS:/Applications/Little' 'Snitch.app/Contents/Components:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io/bin:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@global/bin:/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4/bin:/Users/unixwzrd/.cargo/bin:/Users/unixwzrd/miniconda3/bin:/Users/unixwzrd/miniconda3/condabin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/Users/unixwzrd/.rvm/bin";' export 'PATH;'
+++ PATH='/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/MacGPG2/bin:/Library/TeX/texbin:/Applications/Wireshark.app/Contents/MacOS:/Applications/Little Snitch.app/Contents/Components:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io/bin:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@global/bin:/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4/bin:/Users/unixwzrd/.cargo/bin:/Users/unixwzrd/miniconda3/bin:/Users/unixwzrd/miniconda3/condabin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/Users/unixwzrd/.rvm/bin'
+++ export PATH
++ '[' /usr/local/bin/bash '!=' no ']'
++ '[' -r /etc/bashrc ']'
++ . /etc/bashrc
+++ '[' -z '\s-\v\$ ' ']'
+++ PS1='\h:\W \u\$ '
+++ shopt -s checkwinsize
+++ '[' -r /etc/bashrc_iTerm.app ']'
++ echo 'Executing bash .bash_profile - all setup done in .bashrc.'
+Executing bash .bash_profile - all setup done in .bashrc.
++ '[' -e /Users/unixwzrd/.bashrc ']'
++ . /Users/unixwzrd/.bashrc
+++ echo 'Executing bash .bashrc'
+Executing bash .bashrc
+++ user=mps
++++ id -u
+++ '[' 1002 == 1002 ']'
+++ user=unixwzrd
+++ [[ -e /Users/unixwzrd ]]
+++ export HOME=/Users/unixwzrd
+++ HOME=/Users/unixwzrd
+++ '[' -f /etc/bashrc ']'
+++ source /etc/bashrc
++++ '[' -z '\h:\W \u\$ ' ']'
++++ PS1='\h:\W \u\$ '
++++ shopt -s checkwinsize
++++ '[' -r /etc/bashrc_iTerm.app ']'
+++ '[' -f /Users/unixwzrd/.tokens/tokens.txt ']'
+++ . /Users/unixwzrd/.tokens/tokens.txt
++++ HUGGINGFACE_TOKEN=your-huggingface-token
++++ OPENAI_TOKEN=your-openai-token
++++ ELEVENLABS_TOKEN=your-elevenlabs-token
++++ DATABASE_PASSWORD=your-database-password
++++ SSH_PASSWORD=your-ssh-password
+++ '[' xterm-color == dumb ']'
+++ set -o vi
+++ profile_dir=/Users/unixwzrd/.profile.d
++++ uname -n
+++ host=xanax.local
++++ uname -s
+++ osname=Darwin
+++ '[' -f /Users/unixwzrd/.profile.d/xanax.local-profile.sh ']'
+++ HOST_BASH_PROFILE=/Users/unixwzrd/.profile.d/xanax.local-profile.sh
+++ export HOST_BASH_PROFILE
+++ [[ -f /Users/unixwzrd/.profile.d/xanax.local-profile.sh ]]
+++ . /Users/unixwzrd/.profile.d/xanax.local-profile.sh
++++ alias basename=/usr/bin/basename
++++ INCLUDE_SH=/Users/unixwzrd/.profile.d
++++ . /Users/unixwzrd/.profile.d/common/path.sh
++++ unalias basename
++++ oldpath='/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/MacGPG2/bin:/Library/TeX/texbin:/Applications/Wireshark.app/Contents/MacOS:/Applications/Little Snitch.app/Contents/Components:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io/bin:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@global/bin:/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4/bin:/Users/unixwzrd/.cargo/bin:/Users/unixwzrd/miniconda3/bin:/Users/unixwzrd/miniconda3/condabin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/Users/unixwzrd/.rvm/bin'
++++ _set_path /usr/bin
++++ local bindir=/usr/bin
+++++ dirname /usr/bin
++++ local basedir=/usr
++++ local libdir=/usr/lib
++++ '[' -d /usr/bin ']'
++++ PATH=/usr/bin
++++ '[' -d /usr/lib ']'
++++ DYLD_LIBRARY_PATH=/usr/lib
++++ '[' -d /usr/lib ']'
++++ LD_LIBRARY_PATH=/usr/lib
++++ export PATH MANPATH DYLD_LIBRARY_PATH LD_LIBRARY_PATH
++++ _insert_path /sbin
++++ local bindir=/sbin
+++++ dirname /sbin
++++ local basedir=/
++++ local libdir=//lib
++++ '[' -d /sbin ']'
++++ PATH=/sbin:/usr/bin
++++ '[' -d //lib ']'
++++ '[' -d //lib ']'
++++ export PATH MANPATH DYLD_LIBRARY_PATH LD_LIBRARY_PATH
++++ _insert_path /bin
++++ local bindir=/bin
+++++ dirname /bin
++++ local basedir=/
++++ local libdir=//lib
++++ '[' -d /bin ']'
++++ PATH=/bin:/sbin:/usr/bin
++++ '[' -d //lib ']'
++++ '[' -d //lib ']'
++++ export PATH MANPATH DYLD_LIBRARY_PATH LD_LIBRARY_PATH
++++ _append_path /usr/sbin
++++ local bindir=/usr/sbin
+++++ dirname /usr/sbin
++++ local basedir=/usr
++++ local libdir=/usr/lib
++++ '[' -d /usr/sbin ']'
++++ PATH=/bin:/sbin:/usr/bin:/usr/sbin
++++ '[' -d /usr/lib ']'
++++ DYLD_LIBRARY_PATH=/usr/lib:/usr/lib
++++ '[' -d /usr/lib ']'
++++ LD_LIBRARY_PATH=/usr/lib:/usr/lib:/usr/lib
++++ export PATH MANPATH DYLD_LIBRARY_PATH LD_LIBRARY_PATH
++++ _insert_path /usr/local/bin
++++ local bindir=/usr/local/bin
+++++ dirname /usr/local/bin
++++ local basedir=/usr/local
++++ local libdir=/usr/local/lib
++++ '[' -d /usr/local/bin ']'
++++ PATH=/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin
++++ '[' -d /usr/local/lib ']'
++++ DYLD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/usr/lib
++++ '[' -d /usr/local/lib ']'
++++ LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/usr/lib:/usr/lib
++++ export PATH MANPATH DYLD_LIBRARY_PATH LD_LIBRARY_PATH
++++ _append_path /usr/local/sbin
++++ local bindir=/usr/local/sbin
+++++ dirname /usr/local/sbin
++++ local basedir=/usr/local
++++ local libdir=/usr/local/lib
++++ '[' -d /usr/local/sbin ']'
++++ PATH=/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin
++++ '[' -d /usr/local/lib ']'
++++ DYLD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/usr/lib:/usr/local/lib
++++ '[' -d /usr/local/lib ']'
++++ LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/usr/lib:/usr/local/lib:/usr/local/lib
++++ export PATH MANPATH DYLD_LIBRARY_PATH LD_LIBRARY_PATH
++++ _append_path /Users/unixwzrd/bin
++++ local bindir=/Users/unixwzrd/bin
+++++ dirname /Users/unixwzrd/bin
++++ local basedir=/Users/unixwzrd
++++ local libdir=/Users/unixwzrd/lib
++++ '[' -d /Users/unixwzrd/bin ']'
++++ PATH=/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin
++++ '[' -d /Users/unixwzrd/lib ']'
++++ DYLD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/usr/lib:/usr/local/lib:/Users/unixwzrd/lib
++++ '[' -d /Users/unixwzrd/lib ']'
++++ LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/usr/lib:/usr/local/lib:/Users/unixwzrd/lib:/Users/unixwzrd/lib
++++ export PATH MANPATH DYLD_LIBRARY_PATH LD_LIBRARY_PATH
++++ _append_path /Users/unixwzrd/local/bin
++++ local bindir=/Users/unixwzrd/local/bin
+++++ dirname /Users/unixwzrd/local/bin
++++ local basedir=/Users/unixwzrd/local
++++ local libdir=/Users/unixwzrd/local/lib
++++ '[' -d /Users/unixwzrd/local/bin ']'
++++ PATH=/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin
++++ '[' -d /Users/unixwzrd/local/lib ']'
++++ DYLD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/usr/lib:/usr/local/lib:/Users/unixwzrd/lib:/Users/unixwzrd/local/lib
++++ '[' -d /Users/unixwzrd/local/lib ']'
++++ LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/usr/lib:/usr/local/lib:/Users/unixwzrd/lib:/Users/unixwzrd/local/lib:/Users/unixwzrd/local/lib
++++ export PATH MANPATH DYLD_LIBRARY_PATH LD_LIBRARY_PATH
++++ _append_path /Users/unixwzrd/.gem/ruby/3.3.0/bin
++++ local bindir=/Users/unixwzrd/.gem/ruby/3.3.0/bin
+++++ dirname /Users/unixwzrd/.gem/ruby/3.3.0/bin
++++ local basedir=/Users/unixwzrd/.gem/ruby/3.3.0
++++ local libdir=/Users/unixwzrd/.gem/ruby/3.3.0/lib
++++ '[' -d /Users/unixwzrd/.gem/ruby/3.3.0/bin ']'
++++ echo 'Directory not found: /Users/unixwzrd/.gem/ruby/3.3.0/bin'
+Directory not found: /Users/unixwzrd/.gem/ruby/3.3.0/bin
++++ _append_path /usr/local/texlive/2024/bin/universal-darwin
++++ local bindir=/usr/local/texlive/2024/bin/universal-darwin
+++++ dirname /usr/local/texlive/2024/bin/universal-darwin
++++ local basedir=/usr/local/texlive/2024/bin
++++ local libdir=/usr/local/texlive/2024/bin/lib
++++ '[' -d /usr/local/texlive/2024/bin/universal-darwin ']'
++++ PATH=/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin
++++ '[' -d /usr/local/texlive/2024/bin/lib ']'
++++ '[' -d /usr/local/texlive/2024/bin/lib ']'
++++ export PATH MANPATH DYLD_LIBRARY_PATH LD_LIBRARY_PATH
++++ unset MANPATH
++++ '[' -d /usr/X11R6/bin ']'
++++ _append_path /usr/X11R6/bin
++++ local bindir=/usr/X11R6/bin
+++++ dirname /usr/X11R6/bin
++++ local basedir=/usr/X11R6
++++ local libdir=/usr/X11R6/lib
++++ '[' -d /usr/X11R6/bin ']'
++++ PATH=/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin
++++ '[' -d /usr/X11R6/lib ']'
++++ DYLD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/usr/lib:/usr/local/lib:/Users/unixwzrd/lib:/Users/unixwzrd/local/lib:/usr/X11R6/lib
++++ '[' -d /usr/X11R6/lib ']'
++++ LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/usr/lib:/usr/local/lib:/Users/unixwzrd/lib:/Users/unixwzrd/local/lib:/usr/X11R6/lib:/usr/X11R6/lib
++++ export PATH MANPATH DYLD_LIBRARY_PATH LD_LIBRARY_PATH
++++ FONTPATH=/usr/X11R6/lib/X11/fonts
++++ export FONTPATH
+++++ echo '/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/opt/X11/bin:/Library/Apple/usr/bin:/usr/local/MacGPG2/bin:/Library/TeX/texbin:/Applications/Wireshark.app/Contents/MacOS:/Applications/Little Snitch.app/Contents/Components:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io/bin:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@global/bin:/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4/bin:/Users/unixwzrd/.cargo/bin:/Users/unixwzrd/miniconda3/bin:/Users/unixwzrd/miniconda3/condabin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/Users/unixwzrd/.rvm/bin'
+++++ awk -F: '{print $1}'
+dyld[34393]: symbol '_CGLSetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34393]: symbol '_CGLGetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34393]: symbol '_gll_noop' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
++++ for dirname in $(echo "${oldpath}" | awk -F":" '{print $1}')
++++ _append_path /usr/local/bin
++++ local bindir=/usr/local/bin
+++++ dirname /usr/local/bin
+dyld[34396]: symbol '_CGLSetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34396]: symbol '_CGLGetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34396]: symbol '_gll_noop' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
++++ local basedir=/usr/local
++++ local libdir=/usr/local/lib
++++ '[' -d /usr/local/bin ']'
++++ PATH=/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/usr/local/bin
++++ '[' -d /usr/local/lib ']'
++++ DYLD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/usr/lib:/usr/local/lib:/Users/unixwzrd/lib:/Users/unixwzrd/local/lib:/usr/X11R6/lib:/usr/local/lib
++++ '[' -d /usr/local/lib ']'
++++ LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:/usr/lib:/usr/local/lib:/Users/unixwzrd/lib:/Users/unixwzrd/local/lib:/usr/X11R6/lib:/usr/local/lib:/usr/local/lib
++++ export PATH MANPATH DYLD_LIBRARY_PATH LD_LIBRARY_PATH
++++ LANG=en_US.UTF-8
++++ export LANG LC_COLLATE LC_CTYPE LC_MESSAGES LC_MONETARY LC_NUMERIC LC_TIME
++++ for script in "${INCLUDE_SH}"/apps/*.sh
++++ . /Users/unixwzrd/.profile.d/apps/aliases.sh
+++++ alias j=jobs
+++++ alias 'h=history 30'
+++++ alias 'lpsrc=mpage -s3 -l -P'
+++++ alias 'r=fc -e -'
+++++ alias s=sudo
+++++ alias 'setd=export DEBUG_PROF=1; echo "DEBUG MODE ON"'
+++++ alias 'setp=unset DEBUG_PROF'
+++++ alias 'vlist=echo "VLIST STACK => ${__VENV_STACK[@]}"'
+++++ alias 'resource=unset __VENV_SOURCED_LIST; source /Users/unixwzrd/.bash_profile'
+++++ '[' -e /usr/bin/srm ']'
+++++ alias 'keepalive=nohup sh -c "while true; do touch /Volumes/ExtraSpace00/LLM_Repository/afile; sleep 900; done; " > /dev/null 2>&1 &'
+++++ alias 'aidan=python -c "from datetime import datetime; diff = datetime.now() - datetime(2019, 6, 4); print(f'\'' Now is the time: {diff.days // 365} years, {(diff.days % 365) // 30} months, {(diff.days % 365) % 30} days, {diff.seconds // 3600} hours, {(diff.seconds // 60) % 60} minutes - stolen from Aidan.'\'')"'
+++++ alias 'rhel1=ssh 10.0.0.96 -l unixwzrd'
+++++ alias 'rhel2=ssh 10.0.0.169 -l unixwzrd'
+++++ alias 'sitefiles=find . -type f | grep -v tmp |grep -v .git | grep -v .jekyll | grep -v _site | grep -v prior | grep -v .DS_Store | grep -v vscode | grep -v sitedoc.txt | sed '\''s/^\.\///'\'' | sort | tail -n +3 > sitedoc.txt'
+++++ alias 'mkdocs=for file in $(cat sitedoc.txt ); do if [[ -f "${file}" ]]; then echo -e  "\n\n\n==========================> ${file}" >> sitedoc.txt; head -10 ${file} >> sitedoc.txt; fi; done'
+++++ alias 'prenv=[ -f ./.env/project.env ] && source ./.env/project.env || echo "No project.env found"'
+++++ alias 'unenv=[ -f ./.env/unset.env ] && source ./.env/unset.env || echo "No unset.env found"'
++++ for script in "${INCLUDE_SH}"/apps/*.sh
++++ . /Users/unixwzrd/.profile.d/apps/colorls.sh
+++++ LS_COLORS='rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.7z=01;31:*.ace=01;31:*.alz=01;31:*.apk=01;31:*.arc=01;31:*.arj=01;31:*.bz=01;31:*.bz2=01;31:*.cab=01;31:*.cpio=01;31:*.crate=01;31:*.deb=01;31:*.drpm=01;31:*.dwm=01;31:*.dz=01;31:*.ear=01;31:*.egg=01;31:*.esd=01;31:*.gz=01;31:*.jar=01;31:*.lha=01;31:*.lrz=01;31:*.lz=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.lzo=01;31:*.pyz=01;31:*.rar=01;31:*.rpm=01;31:*.rz=01;31:*.sar=01;31:*.swm=01;31:*.t7z=01;31:*.tar=01;31:*.taz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tgz=01;31:*.tlz=01;31:*.txz=01;31:*.tz=01;31:*.tzo=01;31:*.tzst=01;31:*.udeb=01;31:*.war=01;31:*.whl=01;31:*.wim=01;31:*.xz=01;31:*.z=01;31:*.zip=01;31:*.zoo=01;31:*.zst=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:'
+++++ export LS_COLORS
++++++ uname -s
+dyld[34397]: symbol '_CGLSetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34397]: symbol '_CGLGetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34397]: symbol '_gll_noop' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+++++ osname=Darwin
+++++ case ${osname} in
+++++ '[' -x /usr/local/bin/ls ']'
+++++ lsdir=/usr/local/bin
+++++ switch=--color
+++++ '[' -n /usr/local/bin ']'
+++++ alias 'll=/usr/local/bin/ls -l --color'
+++++ alias 'll=/usr/local/bin/ls -a --color'
+++++ alias 'ls=/usr/local/bin/ls --color'
+++++ alias 'l.=/usr/local/bin/ls --color .[a-zA-Z_]*'
+++++ alias lnf=/usr/local/bin/ls
++++ for script in "${INCLUDE_SH}"/apps/*.sh
++++ . /Users/unixwzrd/.profile.d/apps/common.sh
++++ for script in "${INCLUDE_SH}"/apps/*.sh
++++ . /Users/unixwzrd/.profile.d/apps/cvs.sh
+++++ CVSROOT=:ext:mps@cvs.discomsys.com:/opt/CVS/CVSROOT.00
+++++ export CVSROOT
+++++ CVS_RSH=/usr/local/bin/ssh
+++++ export CVS_RSH
+++++ CVS_SERVER=/usr/local/bin/cvs
+++++ export CVS_SERVER
++++ for script in "${INCLUDE_SH}"/apps/*.sh
++++ . /Users/unixwzrd/.profile.d/apps/editor.sh
+++++ EDITOR=/usr/bin/vi
+++++ '[' -x /usr/local/bin/vim ']'
+++++ '[' -x /usr/bin/vim ']'
+++++ alias vi=vim
+++++ EDITOR=/usr/bin/vim
+++++ export EDITOR
++++ for script in "${INCLUDE_SH}"/apps/*.sh
++++ . /Users/unixwzrd/.profile.d/apps/eiffel.sh
+++++ export ISE_EIFFEL=/usr/local/Eiffel_19.05
+++++ ISE_EIFFEL=/usr/local/Eiffel_19.05
++++++ uname -m
+dyld[34398]: symbol '_CGLSetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34398]: symbol '_CGLGetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34398]: symbol '_gll_noop' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+++++ ISE_PLATFORM=macosx-arm64
+++++ export ISE_PLATFORM
++++ for script in "${INCLUDE_SH}"/apps/*.sh
++++ . /Users/unixwzrd/.profile.d/apps/misc.sh
++++++ tty
+dyld[34399]: symbol '_CGLSetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34399]: symbol '_CGLGetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34399]: symbol '_gll_noop' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+++++ '[' -c /dev/ttys059 ']'
+++++ stty erase $'\b'
+dyld[34400]: symbol '_CGLSetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34400]: symbol '_CGLGetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34400]: symbol '_gll_noop' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+++++ '[' -x /usr/local/bin/less ']'
++++++ uname -n
++++++ awk -F. '{print $1}'
+dyld[34402]: symbol '_CGLSetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34402]: symbol '_CGLGetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34402]: symbol '_gll_noop' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34403]: symbol '_CGLSetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34403]: symbol '_CGLGetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34403]: symbol '_gll_noop' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+++++ host_name=xanax
+++++ USERNAME=mps
+++++ export USERNAME
+++++ TERM=xterm-color
+++++ export TERM
+++++ '[' truecolor = gnome-terminal ']'
+++++ '[' xterm-color = Eterm ']'
+++++ case $TERM in
+++++ PROMPT_COMMAND='echo -ne "\033]0;${USER}@${host_name}: ${PWD}\007"'
+++++ PS1='[\u@\h \W]\$ '
+++++ export TERM
+++++ DBTOOL_HOME=/Users/unixwzrd/Projects/dbtool
+++++ export DBTOOL_HOME
++++ for script in "${INCLUDE_SH}"/apps/*.sh
++++ . /Users/unixwzrd/.profile.d/apps/oracle.sh
+++++ '[' -f /usr/local/bin/oraenv ']'
++++ for script in "${INCLUDE_SH}"/apps/*.sh
++++ . /Users/unixwzrd/.profile.d/apps/python.sh
+++++ '[' -d /Users/unixwzrd/pylib ']'
++++ for script in "${INCLUDE_SH}"/apps/*.sh
++++ . /Users/unixwzrd/.profile.d/apps/set_prompt.sh
+++++ host_name=
+++++ '[' -z '' ']'
++++++ uname -n
++++++ awk -F. '{print $1}'
+dyld[34405]: symbol '_CGLSetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34405]: symbol '_CGLGetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34405]: symbol '_gll_noop' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34406]: symbol '_CGLSetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34406]: symbol '_CGLGetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34406]: symbol '_gll_noop' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+++++ host_name=xanax
+++++ USERNAME=mps
+++++ export USERNAME
++++++ tty
+dyld[34407]: symbol '_CGLSetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34407]: symbol '_CGLGetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34407]: symbol '_gll_noop' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+++++ '[' -c /dev/ttys059 ']'
+++++ stty erase $'\b'
+dyld[34408]: symbol '_CGLSetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34408]: symbol '_CGLGetCurrentContext' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+dyld[34408]: symbol '_gll_noop' missing from root that overrides /System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib. Use of that symbol in /System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL is being set to 0xBAD4007.
+++++ '[' -x /usr/local/bin/less ']'
+++++ TERM=xterm-color
+++++ export TERM
+++++ '[' truecolor = gnome-terminal ']'
+++++ '[' xterm-color = Eterm ']'
+++++ case $TERM in
+++++ PCOM='echo -ne "\033]0;${USER}@${host_name}: ${PWD}\007"'
+++++ '[' -z 'echo -ne "\033]0;${USER}@${host_name}: ${PWD}\007"' ']'
+++++ PROMPT_COMMAND='echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
+++++ PS1='[unixwzrd@xanax: \W]\$ '
+++++ export TERM
++++ DYLD_LIBRARY_PATH=/lib
++++ export DYLD_LIBRARY_PATH
++++ '[' -x /usr/bin/ls ']'
++++ alias locate=/usr/bin/locate
++++ alias s=sudo
+++ umask 022
+++ '[' -e /Users/unixwzrd/shinclude/init_env.sh ']'
+++ . /Users/unixwzrd/shinclude/init_env.sh
++++ '[' -L /Users/unixwzrd/shinclude/init_env.sh ']'
+++++ readlink -f /Users/unixwzrd/shinclude/init_env.sh
++++ THIS_SCRIPT=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh
++++ [[ '' =~ /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env\.sh ]]
++++ __VENV_SOURCED_LIST=' /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh'
++++ echo 'Sourcing: /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh'
+Sourcing: /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh
++++++ dirname /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh
+++++ dirname /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude
++++ __VENV_BIN=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin
+++++ dirname /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin
++++ __VENV_BASE=/Users/mps/projects/AI-PROJECTS/venv-build-checker
++++ __VENV_ARGS=
++++ __VENV_INCLUDE=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude
++++ __VENV_INTERNAL_FUNCTIONS=(${__VENV_INTERNAL_FUNCTIONS[@]} "source_util_script")
++++ __rc__=0
+++++ '${HOME}/miniconda3/bin/conda' shell.bash hook
++++ __conda_setup=
++++ '[' 127 -eq 0 ']'
++++ '[' -f /Users/unixwzrd/miniconda3/etc/profile.d/conda.sh ']'
++++ . /Users/unixwzrd/miniconda3/etc/profile.d/conda.sh
+++++ export CONDA_EXE=/Users/unixwzrd/miniconda3/bin/conda
+++++ CONDA_EXE=/Users/unixwzrd/miniconda3/bin/conda
+++++ export _CE_M=
+++++ _CE_M=
+++++ export _CE_CONDA=
+++++ _CE_CONDA=
+++++ export CONDA_PYTHON_EXE=/Users/unixwzrd/miniconda3/bin/python
+++++ CONDA_PYTHON_EXE=/Users/unixwzrd/miniconda3/bin/python
+++++ '[' -z x ']'
++++ unset __conda_setup
++++ source_util_script util_funcs
++++ local script_name=util_funcs
++++ '[' -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh ']'
++++ . /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh
+++++ '[' -L /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh ']'
+++++ THIS_SCRIPT=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh
+++++ [[  /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh =~ /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs\.sh ]]
+++++ __VENV_SOURCED_LIST=' /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh'
+++++ echo 'Sourcing: /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh'
+Sourcing: /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh
+++++ __VENV_INTERNAL_FUNCTIONS=(${__VENV_INTERNAL_FUNCTIONS[@]})
+++++ __sv__=
++++ source_util_script errno
++++ local script_name=errno
++++ '[' -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh ']'
++++ . /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh
+++++ '[' -L /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh ']'
+++++ THIS_SCRIPT=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh
+++++ [[  /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh =~ /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno\.sh ]]
+++++ __VENV_SOURCED_LIST=' /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh'
+++++ echo 'Sourcing: /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh'
+Sourcing: /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh
++++++ basename /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh
+++++ MY_NAME=errno.sh
+++++++ dirname /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh
++++++ dirname /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude
+++++ __VENV_BIN=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin
++++++ dirname /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin
+++++ __VENV_BASE=/Users/mps/projects/AI-PROJECTS/venv-build-checker
+++++ __VENV_ARGS=errno
+++++ __VENV_INCLUDE=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude
+++++ __VENV_INTERNAL_FUNCTIONS=(${__VENV_INTERNAL_FUNCTIONS[@]} "to_upper")
+++++ __rc__=0
+++++ declare -f errno
++++ source_util_script help_sys
++++ local script_name=help_sys
++++ '[' -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys.sh ']'
++++ . /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys.sh
+++++ '[' -L /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys.sh ']'
+++++ THIS_SCRIPT=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys.sh
+++++ [[  /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh =~ /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys\.sh ]]
+++++ __VENV_SOURCED_LIST=' /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys.sh'
+++++ echo 'Sourcing: /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys.sh'
+Sourcing: /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys.sh
+++++ export MD_PROCESSOR=glow
+++++ MD_PROCESSOR=glow
+++++ __VENV_INTERNAL_FUNCTIONS=(${__VENV_INTERNAL_FUNCTIONS[@]} "init_help_system" "general_help" "help_scripts" "specific_script_help" "specific_function_help" "help_functions" "do_help" "help")
+++++ declare -a __VENV_FUNCTIONS
+++++ declare -a __VENV_SCRIPTS
++++ source_util_script wrapper_funcs
++++ local script_name=wrapper_funcs
++++ '[' -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/wrapper_funcs.sh ']'
++++ . /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/wrapper_funcs.sh
++++++ readlink -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/wrapper_funcs.sh
+++++ THIS_SCRIPT=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/wrapper_funcs.sh
+++++ [[  /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys.sh =~ /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/wrapper_funcs\.sh ]]
+++++ __VENV_SOURCED_LIST=' /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/wrapper_funcs.sh'
+++++ echo 'Sourcing: /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/wrapper_funcs.sh'
+Sourcing: /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/wrapper_funcs.sh
+++++ __VENV_INTERNAL_FUNCTIONS=("${__VENV_INTERNAL_FUNCTIONS[@]}" "pip" "conda" "get_function_hash" "__venv_conda_check")
+++++ export VENVUTIL_CONFIG=/Users/unixwzrd/.venvutil
+++++ VENVUTIL_CONFIG=/Users/unixwzrd/.venvutil
+++++ [[ -d /Users/unixwzrd/.venvutil/freeze ]]
+++++ __venv_conda_check
++++++ get_function_hash conda
++++++ declare -f conda
++++++ md5
++++++ cut '-d ' -f1
+++++ current_hash=83c0c0558c8a905d2a9ee9362dfd1707
+++++ [[ 83c0c0558c8a905d2a9ee9362dfd1707 != '' ]]
++++++ declare -f conda
++++++ sed 1d
+++++ eval '__venv_conda() {
+    \local cmd="${1-__missing__}";
+    case "$cmd" in
+        activate | deactivate)
+            __conda_activate "$@"
+        ;;
+        install | update | upgrade | remove | uninstall)
+            __conda_exe "$@" || \return;
+            __conda_reactivate
+        ;;
+        *)
+            __conda_exe "$@"
+        ;;
+    esac
+}'
++++++ get_function_hash conda
++++++ declare -f conda
++++++ md5
++++++ cut '-d ' -f1
+++++ __venv_conda_hash=9a6ac6f2fdea06e0c33f967b67aed082
++++++ get_function_hash conda
++++++ declare -f conda
++++++ md5
++++++ cut '-d ' -f1
+++++ __venv_conda_hash=9a6ac6f2fdea06e0c33f967b67aed082
+++++ __venv_prompt_command='echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
+++++ PROMPT_COMMAND='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ source_util_script venv_funcs
++++ local script_name=venv_funcs
++++ '[' -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/venv_funcs.sh ']'
++++ . /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/venv_funcs.sh
+++++ '[' -L /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/venv_funcs.sh ']'
+++++ THIS_SCRIPT=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/venv_funcs.sh
+++++ [[  /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/wrapper_funcs.sh =~ /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/venv_funcs\.sh ]]
+++++ __VENV_SOURCED_LIST=' /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/wrapper_funcs.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/venv_funcs.sh'
+++++ echo 'Sourcing: /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/venv_funcs.sh'
+Sourcing: /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/venv_funcs.sh
++++++ basename /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/venv_funcs.sh
+++++ MY_NAME=venv_funcs.sh
+++++++ dirname /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/venv_funcs.sh
++++++ dirname /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude
+++++ __VENV_BIN=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin
++++++ dirname /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin
+++++ __VENV_BASE=/Users/mps/projects/AI-PROJECTS/venv-build-checker
+++++ __VENV_ARGS=venv_funcs
+++++ __VENV_INCLUDE=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude
+++++ '[' -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh ']'
+++++ . /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh
++++++ '[' -L /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh ']'
++++++ THIS_SCRIPT=/Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh
++++++ [[  /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/init_env.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/errno.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/help_sys.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/wrapper_funcs.sh /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/venv_funcs.sh =~ /Users/mps/projects/AI-PROJECTS/venv-build-checker/bin/shinclude/util_funcs\.sh ]]
++++++ return
+++++ __VENV_INTERNAL_FUNCTIONS=(${__VENV_INTERNAL_FUNCTIONS[@]} "push_venv" "pop_venv" "__set_venv_vars")
+++++ __rc__=0
+++++ __VENV_STACK=()
++++ /Users/unixwzrd/miniconda3/bin/conda shell.bash hook
+++ __conda_setup='export CONDA_EXE='\''/Users/unixwzrd/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/Users/unixwzrd/miniconda3/bin/python'\''
+
+# Copyright (C) 2012 Anaconda, Inc
+# SPDX-License-Identifier: BSD-3-Clause
+__conda_exe() (
+    "$CONDA_EXE" $_CE_M $_CE_CONDA "$@"
+)
+
+__conda_hashr() {
+    if [ -n "${ZSH_VERSION:+x}" ]; then
+        \rehash
+    elif [ -n "${POSH_VERSION:+x}" ]; then
+        :  # pass
+    else
+        \hash -r
+    fi
+}
+
+__conda_activate() {
+    if [ -n "${CONDA_PS1_BACKUP:+x}" ]; then
+        # Handle transition from shell activated with conda <= 4.3 to a subsequent activation
+        # after conda updated to >= 4.4. See issue #6173.
+        PS1="$CONDA_PS1_BACKUP"
+        \unset CONDA_PS1_BACKUP
+    fi
+    \local ask_conda
+    ask_conda="$(PS1="${PS1:-}" __conda_exe shell.posix "$@")" || \return
+    \eval "$ask_conda"
+    __conda_hashr
+}
+
+__conda_reactivate() {
+    \local ask_conda
+    ask_conda="$(PS1="${PS1:-}" __conda_exe shell.posix reactivate)" || \return
+    \eval "$ask_conda"
+    __conda_hashr
+}
+
+conda() {
+    \local cmd="${1-__missing__}"
+    case "$cmd" in
+        activate|deactivate)
+            __conda_activate "$@"
+            ;;
+        install|update|upgrade|remove|uninstall)
+            __conda_exe "$@" || \return
+            __conda_reactivate
+            ;;
+        *)
+            __conda_exe "$@"
+            ;;
+    esac
+}
+
+if [ -z "${CONDA_SHLVL+x}" ]; then
+    \export CONDA_SHLVL=0
+    # In dev-mode CONDA_EXE is python.exe and on Windows
+    # it is in a different relative location to condabin.
+    if [ -n "${_CE_CONDA:+x}" ] && [ -n "${WINDIR+x}" ]; then
+        PATH="$(\dirname "$CONDA_EXE")/condabin${PATH:+":${PATH}"}"
+    else
+        PATH="$(\dirname "$(\dirname "$CONDA_EXE")")/condabin${PATH:+":${PATH}"}"
+    fi
+    \export PATH
+
+    # We'\''re not allowing PS1 to be unbound. It must at least be set.
+    # However, we'\''re not exporting it, which can cause problems when starting a second shell
+    # via a first shell (i.e. starting zsh from bash).
+    if [ -z "${PS1+x}" ]; then
+        PS1=
+    fi
+fi
+
+conda activate base'
+++ '[' 0 -eq 0 ']'
+++ eval 'export CONDA_EXE='\''/Users/unixwzrd/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/Users/unixwzrd/miniconda3/bin/python'\''
+
+# Copyright (C) 2012 Anaconda, Inc
+# SPDX-License-Identifier: BSD-3-Clause
+__conda_exe() (
+    "$CONDA_EXE" $_CE_M $_CE_CONDA "$@"
+)
+
+__conda_hashr() {
+    if [ -n "${ZSH_VERSION:+x}" ]; then
+        \rehash
+    elif [ -n "${POSH_VERSION:+x}" ]; then
+        :  # pass
+    else
+        \hash -r
+    fi
+}
+
+__conda_activate() {
+    if [ -n "${CONDA_PS1_BACKUP:+x}" ]; then
+        # Handle transition from shell activated with conda <= 4.3 to a subsequent activation
+        # after conda updated to >= 4.4. See issue #6173.
+        PS1="$CONDA_PS1_BACKUP"
+        \unset CONDA_PS1_BACKUP
+    fi
+    \local ask_conda
+    ask_conda="$(PS1="${PS1:-}" __conda_exe shell.posix "$@")" || \return
+    \eval "$ask_conda"
+    __conda_hashr
+}
+
+__conda_reactivate() {
+    \local ask_conda
+    ask_conda="$(PS1="${PS1:-}" __conda_exe shell.posix reactivate)" || \return
+    \eval "$ask_conda"
+    __conda_hashr
+}
+
+conda() {
+    \local cmd="${1-__missing__}"
+    case "$cmd" in
+        activate|deactivate)
+            __conda_activate "$@"
+            ;;
+        install|update|upgrade|remove|uninstall)
+            __conda_exe "$@" || \return
+            __conda_reactivate
+            ;;
+        *)
+            __conda_exe "$@"
+            ;;
+    esac
+}
+
+if [ -z "${CONDA_SHLVL+x}" ]; then
+    \export CONDA_SHLVL=0
+    # In dev-mode CONDA_EXE is python.exe and on Windows
+    # it is in a different relative location to condabin.
+    if [ -n "${_CE_CONDA:+x}" ] && [ -n "${WINDIR+x}" ]; then
+        PATH="$(\dirname "$CONDA_EXE")/condabin${PATH:+":${PATH}"}"
+    else
+        PATH="$(\dirname "$(\dirname "$CONDA_EXE")")/condabin${PATH:+":${PATH}"}"
+    fi
+    \export PATH
+
+    # We'\''re not allowing PS1 to be unbound. It must at least be set.
+    # However, we'\''re not exporting it, which can cause problems when starting a second shell
+    # via a first shell (i.e. starting zsh from bash).
+    if [ -z "${PS1+x}" ]; then
+        PS1=
+    fi
+fi
+
+conda activate base'
++++ export CONDA_EXE=/Users/unixwzrd/miniconda3/bin/conda
++++ CONDA_EXE=/Users/unixwzrd/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/Users/unixwzrd/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/Users/unixwzrd/miniconda3/bin/python
++++ '[' -z x ']'
++++ conda activate base
++++ local cmd=activate
++++ case "$cmd" in
++++ __conda_activate activate base
++++ '[' -n '' ']'
++++ local ask_conda
+++++ PS1='[unixwzrd@xanax: \W]\$ '
+++++ __conda_exe shell.posix activate base
+++++ /Users/unixwzrd/miniconda3/bin/conda shell.posix activate base
++++ ask_conda='PS1='\''(base) [unixwzrd@xanax: \W]\$ '\''
+export PATH='\''/Users/unixwzrd/miniconda3/bin:/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/usr/local/bin'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_PROMPT_MODIFIER='\''(base) '\'''
++++ eval 'PS1='\''(base) [unixwzrd@xanax: \W]\$ '\''
+export PATH='\''/Users/unixwzrd/miniconda3/bin:/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/usr/local/bin'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_PROMPT_MODIFIER='\''(base) '\'''
+++++ PS1='(base) [unixwzrd@xanax: \W]\$ '
+++++ export PATH=/Users/unixwzrd/miniconda3/bin:/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/usr/local/bin
+++++ PATH=/Users/unixwzrd/miniconda3/bin:/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/usr/local/bin
+++++ export CONDA_SHLVL=1
+++++ CONDA_SHLVL=1
+++++ export 'CONDA_PROMPT_MODIFIER=(base) '
+++++ CONDA_PROMPT_MODIFIER='(base) '
++++ __conda_hashr
++++ '[' -n '' ']'
++++ '[' -n '' ']'
++++ hash -r
+++ unset __conda_setup
+++ [[ -f /Users/unixwzrd/.cargo/env ]]
+++ source /Users/unixwzrd/.cargo/env
++++ case ":${PATH}:" in
++++ export PATH=/Users/unixwzrd/.cargo/bin:/Users/unixwzrd/miniconda3/bin:/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/usr/local/bin
++++ PATH=/Users/unixwzrd/.cargo/bin:/Users/unixwzrd/miniconda3/bin:/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/usr/local/bin
+++ [[ -s /Users/unixwzrd/.rvm/scripts/rvm ]]
+++ . /Users/unixwzrd/.rvm/scripts/rvm
++++ builtin test -n '5.2.32(1)-release' -o -n '' -o -n ''
++++ case "`uname`" in
+++++ uname
+++++ command ps -p 68038 -o ucomm=
++++ __shell_name='bash            '
++++ case "$__shell_name" in
++++ unset __shell_name
++++ __rvm_has_opt posix
++++ [[ -n '' ]]
++++ [[ -n '' ]]
++++ [[ -n 5.2.32(1)-release ]]
++++ [[ :braceexpand:hashall:histexpand:history:interactive-comments:monitor:vi:xtrace: == *\:\p\o\s\i\x\:* ]]
++++ return 1
++++ export HOME rvm_prefix rvm_user_install_flag rvm_path
++++ HOME=/Users/unixwzrd
++++ [[ -n '' ]]
+++++ umask
++++ export rvm_stored_umask=0022
++++ rvm_stored_umask=0022
++++ ((  0 == 0  ))
++++ rvm_rvmrc_files=("/etc/rvmrc" "$HOME/.rvmrc")
++++ [[ -n /Users/unixwzrd ]]
++++ [[ /Users/unixwzrd/.rvmrc -ef /Users/unixwzrd/.rvmrc ]]
++++ rvm_rvmrc_files+=("${rvm_prefix}/.rvmrc")
++++ for rvmrc in "${rvm_rvmrc_files[@]}"
++++ [[ -f /etc/rvmrc ]]
++++ for rvmrc in "${rvm_rvmrc_files[@]}"
++++ [[ -f /Users/unixwzrd/.rvmrc ]]
++++ for rvmrc in "${rvm_rvmrc_files[@]}"
++++ [[ -f /Users/unixwzrd/.rvmrc ]]
++++ unset rvm_rvmrc_files
++++ [[ -z /Users/unixwzrd/.rvm ]]
++++ rvm_path=/Users/unixwzrd/.rvm
++++ [[ -z /Users/unixwzrd ]]
++++ [[ -n '' ]]
++++ case "$rvm_path" in
++++ rvm_user_install_flag=1
++++ export rvm_loaded_flag
++++ [[ -n 5.2.32(1)-release ]]
++++ typeset -f rvm
++++ rvm_loaded_flag=0
++++ ((  0 == 0  ))
++++ [[ -n /Users/unixwzrd/.rvm ]]
++++ [[ -d /Users/unixwzrd/.rvm ]]
++++ true /Users/unixwzrd/.rvm/scripts
++++ [[ ! -f /Users/unixwzrd/.rvm/scripts/base ]]
++++ source /Users/unixwzrd/.rvm/scripts/base
+++++ __rvm_has_opt errexit
+++++ [[ -n '' ]]
+++++ [[ -n '' ]]
+++++ [[ -n 5.2.32(1)-release ]]
+++++ [[ :braceexpand:hashall:histexpand:history:interactive-comments:monitor:vi:xtrace: == *\:\e\r\r\e\x\i\t\:* ]]
+++++ return 1
+++++ set +e
+++++ ((  0 == 1  ))
+++++ export __array_start rvm_path
+++++ [[ -n '' ]]
+++++ __array_start=0
+++++ ((  0 == 0  ))
+++++ [[ -n 0022 ]]
+++++ rvm_rvmrc_files=("/etc/rvmrc" "$HOME/.rvmrc")
+++++ [[ -n /Users/unixwzrd ]]
+++++ [[ /Users/unixwzrd/.rvmrc -ef /Users/unixwzrd/.rvmrc ]]
+++++ rvm_rvmrc_files+=("${rvm_prefix}/.rvmrc")
+++++ for rvmrc in "${rvm_rvmrc_files[@]}"
+++++ [[ -f /etc/rvmrc ]]
+++++ for rvmrc in "${rvm_rvmrc_files[@]}"
+++++ [[ -f /Users/unixwzrd/.rvmrc ]]
+++++ for rvmrc in "${rvm_rvmrc_files[@]}"
+++++ [[ -f /Users/unixwzrd/.rvmrc ]]
+++++ unset rvm_rvmrc_files
+++++ export rvm_path
+++++ [[ -z /Users/unixwzrd/.rvm ]]
+++++ true /Users/unixwzrd/.rvm/scripts
+++++ load_rvm_scripts
+++++ typeset -a scripts
+++++ scripts=(selector logging support utility init cleanup env rvmrc install environment gemset checksum list)
+++++ source /Users/unixwzrd/.rvm/scripts/initialize
++++++ [[ -n 5.2.32(1)-release ]]
++++++ shopt -s extglob
++++++ ((  0 == 1  ))
++++++ export __rvm_env_loaded
++++++ : __rvm_env_loaded:0:
++++++ : __rvm_env_loaded:1:
++++++ [[ -z '' ]]
++++++ typeset -f __rvm_cleanse_variables
++++++ ((  0 == 0  ))
++++++ [[ -n 0022 ]]
++++++ rvm_rvmrc_files=("/etc/rvmrc" "$HOME/.rvmrc")
++++++ [[ -n /Users/unixwzrd ]]
++++++ [[ /Users/unixwzrd/.rvmrc -ef /Users/unixwzrd/.rvmrc ]]
++++++ rvm_rvmrc_files+=("${rvm_prefix}/.rvmrc")
++++++ for rvmrc in "${rvm_rvmrc_files[@]}"
++++++ [[ -f /etc/rvmrc ]]
++++++ for rvmrc in "${rvm_rvmrc_files[@]}"
++++++ [[ -f /Users/unixwzrd/.rvmrc ]]
++++++ for rvmrc in "${rvm_rvmrc_files[@]}"
++++++ [[ -f /Users/unixwzrd/.rvmrc ]]
++++++ unset rvm_rvmrc_files
++++++ export rvm_path
++++++ [[ -z /Users/unixwzrd/.rvm ]]
++++++ true /Users/unixwzrd/.rvm/scripts
++++++ [[ -n 1 ]]
++++++ export rvm_user_install_flag
++++++ : rvm_bin_path:/Users/unixwzrd/.rvm/bin rvm_man_path:/Users/unixwzrd/.rvm/share/man rvm_archives_path:/Users/unixwzrd/.rvm/archives rvm_docs_path:/Users/unixwzrd/.rvm/docs rvm_environments_path:/Users/unixwzrd/.rvm/environments rvm_examples_path:/Users/unixwzrd/.rvm/examples rvm_gems_path:/Users/unixwzrd/.rvm/gems rvm_gemsets_path:/Users/unixwzrd/.rvm/gemsets rvm_help_path:/Users/unixwzrd/.rvm/help rvm_docs_path:/Users/unixwzrd/.rvm/docs rvm_hooks_path:/Users/unixwzrd/.rvm/hooks rvm_lib_path:/Users/unixwzrd/.rvm/lib rvm_log_path:/Users/unixwzrd/.rvm/log rvm_patches_path:/Users/unixwzrd/.rvm/patches rvm_repos_path:/Users/unixwzrd/.rvm/repos rvm_rubies_path:/Users/unixwzrd/.rvm/rubies rvm_rubygems_path:/Users/unixwzrd/.rvm/rubygems rvm_src_path:/Users/unixwzrd/.rvm/src rvm_tmp_path:/Users/unixwzrd/.rvm/tmp rvm_user_path:/Users/unixwzrd/.rvm/user rvm_usr_path:/Users/unixwzrd/.rvm/usr rvm_wrappers_path:/Users/unixwzrd/.rvm/wrappers rvm_verbose_flag:0 rvm_debug_flag:0 rvm_gems_cache_path:/Users/unixwzrd/.rvm/gems/cache
++++++ export rvm_action rvm_alias_expanded rvm_archive_extension rvm_archives_path rvm_bin_flag rvm_bin_path rvm_debug_flag rvm_default_flag rvm_delete_flag rvm_docs_path rvm_docs_type rvm_dump_environment_flag rvm_environments_path rvm_error_message rvm_examples_path rvm_expanding_aliases rvm_file_name rvm_gemdir_flag rvm_gems_cache_path rvm_gems_path rvm_gemset_name rvm_gemset_separator rvm_gemsets_path rvm_gemstone_package_file rvm_gemstone_url rvm_head_flag rvm_help_path rvm_docs_path rvm_hook rvm_hooks_path rvm_install_on_use_flag rvm_lib_path rvm_llvm_flag rvm_loaded_flag rvm_log_path rvm_niceness rvm_nightly_flag rvm_only_path_flag rvm_parse_break rvm_patch_original_pwd rvm_patches_path rvm_path rvm_pretty_print_flag rvm_proxy rvm_quiet_flag rvm_reload_flag rvm_remove_flag rvm_repos_path rvm_rubies_path rvm_ruby_alias rvm_ruby_args rvm_ruby_binary rvm_ruby_bits rvm_ruby_configure rvm_ruby_file rvm_ruby_gem_home rvm_ruby_gem_path rvm_ruby_global_gems_path rvm_ruby_home rvm_ruby_interpreter rvm_ruby_irbrc rvm_ruby_major_version rvm_ruby_make rvm_ruby_make_install rvm_ruby_minor_version rvm_ruby_mode rvm_ruby_name rvm_ruby_package_file rvm_ruby_package_name rvm_ruby_patch rvm_ruby_patch_level rvm_ruby_release_version rvm_ruby_repo_url rvm_ruby_revision rvm_ruby_selected_flag rvm_ruby_sha rvm_ruby_string rvm_ruby_strings rvm_ruby_tag rvm_ruby_url rvm_ruby_user_tag rvm_ruby_version rvm_script_name rvm_scripts_path rvm_sdk rvm_user_install_flag rvm_silent_flag rvm_src_path rvm_sticky_flag rvm_system_flag rvm_tmp_path rvm_token rvm_trace_flag rvm_use_flag rvm_user_flag rvm_user_path rvm_usr_path rvm_verbose_flag rvm_wrappers_path rvm_ruby_repo_branch rvm_man_path rvm_remote_flag rvm_ruby_repo_tag
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \s\e\l\e\c\t\o\r\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/selector
++++++ source /Users/unixwzrd/.rvm/scripts/functions/selector_gemsets
++++++ source /Users/unixwzrd/.rvm/scripts/functions/selector_late
++++++ source /Users/unixwzrd/.rvm/scripts/functions/selector_parse
++++++ source /Users/unixwzrd/.rvm/scripts/functions/selector_interpreters
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \l\o\g\g\i\n\g\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/logging
++++++ __rvm_set_colors
++++++ case "${TERM:-dumb}" in
++++++ __rvm_set_color rvm_error_clr red
++++++ typeset __buffer __variable
++++++ __buffer='
+_variable=rvm_error_clr
++++++ shift
++++++ ((  1  ))
++++++ __rvm_set_color_single red
++++++ case "$1" in
++++++ __buffer+=31
++++++ shift
++++++ ((  0  ))
++++++ ((  0  ))
++++++ __buffer+=m
++++++ [[ rvm_error_clr == '' ]]
++++++ [[ rvm_error_clr == \p\r\i\n\t ]]
++++++ eval 'rvm_error_clr='\'''\'''
+++++++ rvm_error_clr=''
++++++ __rvm_set_color rvm_warn_clr yellow
++++++ typeset __buffer __variable
++++++ __buffer='
+_variable=rvm_warn_clr
++++++ shift
++++++ ((  1  ))
++++++ __rvm_set_color_single yellow
++++++ case "$1" in
++++++ __buffer+=33
++++++ shift
++++++ ((  0  ))
++++++ ((  0  ))
++++++ __buffer+=m
++++++ [[ rvm_warn_clr == '' ]]
++++++ [[ rvm_warn_clr == \p\r\i\n\t ]]
++++++ eval 'rvm_warn_clr='\'''\'''
+++++++ rvm_warn_clr=''
++++++ __rvm_set_color rvm_debug_clr magenta
++++++ typeset __buffer __variable
++++++ __buffer='
+_variable=rvm_debug_clr
++++++ shift
++++++ ((  1  ))
++++++ __rvm_set_color_single magenta
++++++ case "$1" in
++++++ __buffer+=35
++++++ shift
++++++ ((  0  ))
++++++ ((  0  ))
++++++ __buffer+=m
++++++ [[ rvm_debug_clr == '' ]]
++++++ [[ rvm_debug_clr == \p\r\i\n\t ]]
++++++ eval 'rvm_debug_clr='\'''\'''
+++++++ rvm_debug_clr=''
++++++ __rvm_set_color rvm_notify_clr green
++++++ typeset __buffer __variable
++++++ __buffer='
+_variable=rvm_notify_clr
++++++ shift
++++++ ((  1  ))
++++++ __rvm_set_color_single green
++++++ case "$1" in
++++++ __buffer+=32
++++++ shift
++++++ ((  0  ))
++++++ ((  0  ))
++++++ __buffer+=m
++++++ [[ rvm_notify_clr == '' ]]
++++++ [[ rvm_notify_clr == \p\r\i\n\t ]]
++++++ eval 'rvm_notify_clr='\'''\'''
+++++++ rvm_notify_clr=''
++++++ __rvm_set_color rvm_code_clr blue
++++++ typeset __buffer __variable
++++++ __buffer='
+_variable=rvm_code_clr
++++++ shift
++++++ ((  1  ))
++++++ __rvm_set_color_single blue
++++++ case "$1" in
++++++ __buffer+=34
++++++ shift
++++++ ((  0  ))
++++++ ((  0  ))
++++++ __buffer+=m
++++++ [[ rvm_code_clr == '' ]]
++++++ [[ rvm_code_clr == \p\r\i\n\t ]]
++++++ eval 'rvm_code_clr='\'''\'''
+++++++ rvm_code_clr=''
++++++ __rvm_set_color rvm_comment_clr iblack
++++++ typeset __buffer __variable
++++++ __buffer='
+_variable=rvm_comment_clr
++++++ shift
++++++ ((  1  ))
++++++ __rvm_set_color_single iblack
++++++ case "$1" in
++++++ __buffer+='30;1'
++++++ shift
++++++ ((  0  ))
++++++ ((  0  ))
++++++ __buffer+=m
++++++ [[ rvm_comment_clr == '' ]]
++++++ [[ rvm_comment_clr == \p\r\i\n\t ]]
++++++ eval 'rvm_comment_clr='\'''\'''
+++++++ rvm_comment_clr=''
++++++ __rvm_set_color rvm_reset_clr reset
++++++ typeset __buffer __variable
++++++ __buffer='
+_variable=rvm_reset_clr
++++++ shift
++++++ ((  1  ))
++++++ __rvm_set_color_single reset
++++++ case "$1" in
++++++ __buffer+=0
++++++ shift
++++++ ((  0  ))
++++++ ((  0  ))
++++++ __buffer+=m
++++++ [[ rvm_reset_clr == '' ]]
++++++ [[ rvm_reset_clr == \p\r\i\n\t ]]
++++++ eval 'rvm_reset_clr='\'''\'''
+++++++ rvm_reset_clr=''
++++++ exec
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \s\u\p\p\o\r\t\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/support
++++++ [[ -n '' ]]
++++++ __rvm_setup_utils_functions
++++++ typeset gnu_tools_path gnu_prefix gnu_util
++++++ typeset -a gnu_utils gnu_missing
++++++ gnu_utils=(awk cp date find sed tail tar xargs)
++++++ gnu_missing=()
++++++ is_a_function __rvm_setup_utils_functions_
++++++ typeset -f __rvm_setup_utils_functions_
++++++ return 1
++++++ __rvm_setup_utils_functions_Other
++++++ __rvm_setup_utils_functions_common
++++++ command which --skip-alias --skip-functions which
++++++ command which whence
++++++ command which which
++++++ for gnu_util in "${gnu_utils[@]}"
++++++ eval '__rvm_awk() { \awk "$@" || return $?; }'
++++++ for gnu_util in "${gnu_utils[@]}"
++++++ eval '__rvm_cp() { \cp "$@" || return $?; }'
++++++ for gnu_util in "${gnu_utils[@]}"
++++++ eval '__rvm_date() { \date "$@" || return $?; }'
++++++ for gnu_util in "${gnu_utils[@]}"
++++++ eval '__rvm_find() { \find "$@" || return $?; }'
++++++ for gnu_util in "${gnu_utils[@]}"
++++++ eval '__rvm_sed() { \sed "$@" || return $?; }'
++++++ for gnu_util in "${gnu_utils[@]}"
++++++ eval '__rvm_tail() { \tail "$@" || return $?; }'
++++++ for gnu_util in "${gnu_utils[@]}"
++++++ eval '__rvm_tar() { \tar "$@" || return $?; }'
++++++ for gnu_util in "${gnu_utils[@]}"
++++++ eval '__rvm_xargs() { \xargs "$@" || return $?; }'
++++++ source /Users/unixwzrd/.rvm/scripts/functions/db
++++++ source /Users/unixwzrd/.rvm/scripts/functions/detect/system
+++++++ source /Users/unixwzrd/.rvm/scripts/functions/detect/system_version/codename
+++++++ __rvm_detect_system
+++++++ unset _system_type _system_name _system_version _system_arch
+++++++ export _system_type _system_name _system_version _system_arch
++++++++ command uname -a
+++++++ _system_info='Darwin xanax.local 24.0.0 Darwin Kernel Version 24.0.0: Tue Sep 24 23:37:36 PDT 2024; root:xnu-11215.1.12~1/RELEASE_ARM64_T6020 arm64 arm Darwin'
+++++++ _system_type=unknown
+++++++ _system_name=unknown
+++++++ _system_name_lowercase=unknown
+++++++ _system_version=unknown
++++++++ command uname -m
+++++++ _system_arch=arm64
+++++++ case "$(command uname)" in
++++++++ command uname
+++++++ _system_type=Darwin
+++++++ _system_name=OSX
++++++++ sw_vers -productVersion
++++++++ command awk -F. '{print $1"."$2}'
+++++++ _system_version=15.0
+++++++ _system_type=Darwin
+++++++ _system_name=OSX
++++++++ echo OSX
++++++++ command tr '[A-Z]' '[a-z]'
+++++++ _system_name_lowercase=osx
+++++++ _system_version=15.0
+++++++ _system_arch=arm64
+++++++ _system_arch=arm64
+++++++ _system_arch=arm64
+++++++ __rvm_detect_system_override
+++++++ typeset _var
+++++++ for _var in system_type system_name system_name_lowercase system_version system_arch
+++++++ __rvm_db system_type _system_type
+++++++ typeset value key variable
+++++++ key=system_type
+++++++ variable=_system_type
+++++++ value=
+++++++ [[ -f /Users/unixwzrd/.rvm/user/db ]]
++++++++ __rvm_db_ /Users/unixwzrd/.rvm/user/db system_type
++++++++ typeset __db __key __value
++++++++ __db=/Users/unixwzrd/.rvm/user/db
++++++++ __key=system_type
++++++++ shift 2
++++++++ __value=
++++++++ case "${__value}" in
++++++++ __rvm_db_get /Users/unixwzrd/.rvm/user/db system_type
++++++++ [[ -f /Users/unixwzrd/.rvm/user/db ]]
++++++++ __rvm_sed -n -e '\#^system_type=# { s#^system_type=##;; p; }' -e '/^$/d'
++++++++ sed -n -e '\#^system_type=# { s#^system_type=##;; p; }' -e '/^$/d'
+++++++ value=
+++++++ [[ -z '' ]]
+++++++ [[ -f /Users/unixwzrd/.rvm/config/db ]]
++++++++ __rvm_db_ /Users/unixwzrd/.rvm/config/db system_type
++++++++ typeset __db __key __value
++++++++ __db=/Users/unixwzrd/.rvm/config/db
++++++++ __key=system_type
++++++++ shift 2
++++++++ __value=
++++++++ case "${__value}" in
++++++++ __rvm_db_get /Users/unixwzrd/.rvm/config/db system_type
++++++++ [[ -f /Users/unixwzrd/.rvm/config/db ]]
++++++++ __rvm_sed -n -e '\#^system_type=# { s#^system_type=##;; p; }' -e '/^$/d'
++++++++ sed -n -e '\#^system_type=# { s#^system_type=##;; p; }' -e '/^$/d'
+++++++ value=
+++++++ [[ -n '' ]]
+++++++ return 1
+++++++ for _var in system_type system_name system_name_lowercase system_version system_arch
+++++++ __rvm_db system_name _system_name
+++++++ typeset value key variable
+++++++ key=system_name
+++++++ variable=_system_name
+++++++ value=
+++++++ [[ -f /Users/unixwzrd/.rvm/user/db ]]
++++++++ __rvm_db_ /Users/unixwzrd/.rvm/user/db system_name
++++++++ typeset __db __key __value
++++++++ __db=/Users/unixwzrd/.rvm/user/db
++++++++ __key=system_name
++++++++ shift 2
++++++++ __value=
++++++++ case "${__value}" in
++++++++ __rvm_db_get /Users/unixwzrd/.rvm/user/db system_name
++++++++ [[ -f /Users/unixwzrd/.rvm/user/db ]]
++++++++ __rvm_sed -n -e '\#^system_name=# { s#^system_name=##;; p; }' -e '/^$/d'
++++++++ sed -n -e '\#^system_name=# { s#^system_name=##;; p; }' -e '/^$/d'
+++++++ value=
+++++++ [[ -z '' ]]
+++++++ [[ -f /Users/unixwzrd/.rvm/config/db ]]
++++++++ __rvm_db_ /Users/unixwzrd/.rvm/config/db system_name
++++++++ typeset __db __key __value
++++++++ __db=/Users/unixwzrd/.rvm/config/db
++++++++ __key=system_name
++++++++ shift 2
++++++++ __value=
++++++++ case "${__value}" in
++++++++ __rvm_db_get /Users/unixwzrd/.rvm/config/db system_name
++++++++ [[ -f /Users/unixwzrd/.rvm/config/db ]]
++++++++ __rvm_sed -n -e '\#^system_name=# { s#^system_name=##;; p; }' -e '/^$/d'
++++++++ sed -n -e '\#^system_name=# { s#^system_name=##;; p; }' -e '/^$/d'
+++++++ value=
+++++++ [[ -n '' ]]
+++++++ return 1
+++++++ for _var in system_type system_name system_name_lowercase system_version system_arch
+++++++ __rvm_db system_name_lowercase _system_name_lowercase
+++++++ typeset value key variable
+++++++ key=system_name_lowercase
+++++++ variable=_system_name_lowercase
+++++++ value=
+++++++ [[ -f /Users/unixwzrd/.rvm/user/db ]]
++++++++ __rvm_db_ /Users/unixwzrd/.rvm/user/db system_name_lowercase
++++++++ typeset __db __key __value
++++++++ __db=/Users/unixwzrd/.rvm/user/db
++++++++ __key=system_name_lowercase
++++++++ shift 2
++++++++ __value=
++++++++ case "${__value}" in
++++++++ __rvm_db_get /Users/unixwzrd/.rvm/user/db system_name_lowercase
++++++++ [[ -f /Users/unixwzrd/.rvm/user/db ]]
++++++++ __rvm_sed -n -e '\#^system_name_lowercase=# { s#^system_name_lowercase=##;; p; }' -e '/^$/d'
++++++++ sed -n -e '\#^system_name_lowercase=# { s#^system_name_lowercase=##;; p; }' -e '/^$/d'
+++++++ value=
+++++++ [[ -z '' ]]
+++++++ [[ -f /Users/unixwzrd/.rvm/config/db ]]
++++++++ __rvm_db_ /Users/unixwzrd/.rvm/config/db system_name_lowercase
++++++++ typeset __db __key __value
++++++++ __db=/Users/unixwzrd/.rvm/config/db
++++++++ __key=system_name_lowercase
++++++++ shift 2
++++++++ __value=
++++++++ case "${__value}" in
++++++++ __rvm_db_get /Users/unixwzrd/.rvm/config/db system_name_lowercase
++++++++ [[ -f /Users/unixwzrd/.rvm/config/db ]]
++++++++ __rvm_sed -n -e '\#^system_name_lowercase=# { s#^system_name_lowercase=##;; p; }' -e '/^$/d'
++++++++ sed -n -e '\#^system_name_lowercase=# { s#^system_name_lowercase=##;; p; }' -e '/^$/d'
+++++++ value=
+++++++ [[ -n '' ]]
+++++++ return 1
+++++++ for _var in system_type system_name system_name_lowercase system_version system_arch
+++++++ __rvm_db system_version _system_version
+++++++ typeset value key variable
+++++++ key=system_version
+++++++ variable=_system_version
+++++++ value=
+++++++ [[ -f /Users/unixwzrd/.rvm/user/db ]]
++++++++ __rvm_db_ /Users/unixwzrd/.rvm/user/db system_version
++++++++ typeset __db __key __value
++++++++ __db=/Users/unixwzrd/.rvm/user/db
++++++++ __key=system_version
++++++++ shift 2
++++++++ __value=
++++++++ case "${__value}" in
++++++++ __rvm_db_get /Users/unixwzrd/.rvm/user/db system_version
++++++++ [[ -f /Users/unixwzrd/.rvm/user/db ]]
++++++++ __rvm_sed -n -e '\#^system_version=# { s#^system_version=##;; p; }' -e '/^$/d'
++++++++ sed -n -e '\#^system_version=# { s#^system_version=##;; p; }' -e '/^$/d'
+++++++ value=
+++++++ [[ -z '' ]]
+++++++ [[ -f /Users/unixwzrd/.rvm/config/db ]]
++++++++ __rvm_db_ /Users/unixwzrd/.rvm/config/db system_version
++++++++ typeset __db __key __value
++++++++ __db=/Users/unixwzrd/.rvm/config/db
++++++++ __key=system_version
++++++++ shift 2
++++++++ __value=
++++++++ case "${__value}" in
++++++++ __rvm_db_get /Users/unixwzrd/.rvm/config/db system_version
++++++++ [[ -f /Users/unixwzrd/.rvm/config/db ]]
++++++++ __rvm_sed -n -e '\#^system_version=# { s#^system_version=##;; p; }' -e '/^$/d'
++++++++ sed -n -e '\#^system_version=# { s#^system_version=##;; p; }' -e '/^$/d'
+++++++ value=
+++++++ [[ -n '' ]]
+++++++ return 1
+++++++ for _var in system_type system_name system_name_lowercase system_version system_arch
+++++++ __rvm_db system_arch _system_arch
+++++++ typeset value key variable
+++++++ key=system_arch
+++++++ variable=_system_arch
+++++++ value=
+++++++ [[ -f /Users/unixwzrd/.rvm/user/db ]]
++++++++ __rvm_db_ /Users/unixwzrd/.rvm/user/db system_arch
++++++++ typeset __db __key __value
++++++++ __db=/Users/unixwzrd/.rvm/user/db
++++++++ __key=system_arch
++++++++ shift 2
++++++++ __value=
++++++++ case "${__value}" in
++++++++ __rvm_db_get /Users/unixwzrd/.rvm/user/db system_arch
++++++++ [[ -f /Users/unixwzrd/.rvm/user/db ]]
++++++++ __rvm_sed -n -e '\#^system_arch=# { s#^system_arch=##;; p; }' -e '/^$/d'
++++++++ sed -n -e '\#^system_arch=# { s#^system_arch=##;; p; }' -e '/^$/d'
+++++++ value=
+++++++ [[ -z '' ]]
+++++++ [[ -f /Users/unixwzrd/.rvm/config/db ]]
++++++++ __rvm_db_ /Users/unixwzrd/.rvm/config/db system_arch
++++++++ typeset __db __key __value
++++++++ __db=/Users/unixwzrd/.rvm/config/db
++++++++ __key=system_arch
++++++++ shift 2
++++++++ __value=
++++++++ case "${__value}" in
++++++++ __rvm_db_get /Users/unixwzrd/.rvm/config/db system_arch
++++++++ [[ -f /Users/unixwzrd/.rvm/config/db ]]
++++++++ __rvm_sed -n -e '\#^system_arch=# { s#^system_arch=##;; p; }' -e '/^$/d'
++++++++ sed -n -e '\#^system_arch=# { s#^system_arch=##;; p; }' -e '/^$/d'
+++++++ value=
+++++++ [[ -n '' ]]
+++++++ return 1
++++++ __rvm_setup_statf_function
++++++ [[ Darwin == Darwin ]]
++++++ __rvm_setup_sudo_function
++++++ is_a_function __rvm_setup_sudo_function_OSX
++++++ typeset -f __rvm_setup_sudo_function_OSX
++++++ return 1
++++++ __rvm_setup_sudo_function_Other
++++++ __rvm_which sudo
++++++ other_utils=(ant automake autoreconf libtoolize make mount patch readlink)
++++++ [[ OSX 15.0 == \S\o\l\a\r\i\s\ \1\0 ]]
++++++ for other_util in "${other_utils[@]}"
++++++ eval '__rvm_ant() { \ant "$@" || return $?; }'
++++++ for other_util in "${other_utils[@]}"
++++++ eval '__rvm_automake() { \automake "$@" || return $?; }'
++++++ for other_util in "${other_utils[@]}"
++++++ eval '__rvm_autoreconf() { \autoreconf "$@" || return $?; }'
++++++ for other_util in "${other_utils[@]}"
++++++ eval '__rvm_libtoolize() { \libtoolize "$@" || return $?; }'
++++++ for other_util in "${other_utils[@]}"
++++++ eval '__rvm_make() { \make "$@" || return $?; }'
++++++ for other_util in "${other_utils[@]}"
++++++ eval '__rvm_mount() { \mount "$@" || return $?; }'
++++++ for other_util in "${other_utils[@]}"
++++++ eval '__rvm_patch() { \patch "$@" || return $?; }'
++++++ for other_util in "${other_utils[@]}"
++++++ eval '__rvm_readlink() { \readlink "$@" || return $?; }'
++++++ unset other_util other_utils
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \u\t\i\l\i\t\y\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/utility
++++++ source /Users/unixwzrd/.rvm/scripts/functions/utility_logging
++++++ source /Users/unixwzrd/.rvm/scripts/functions/utility_package
++++++ source /Users/unixwzrd/.rvm/scripts/functions/utility_rubygems
++++++ source /Users/unixwzrd/.rvm/scripts/functions/utility_system
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \i\n\i\t\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/init
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \c\l\e\a\n\u\p\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/cleanup
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \e\n\v\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/env
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \r\v\m\r\c\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/rvmrc
++++++ source /Users/unixwzrd/.rvm/scripts/functions/rvmrc_env
++++++ source /Users/unixwzrd/.rvm/scripts/functions/rvmrc_project
++++++ source /Users/unixwzrd/.rvm/scripts/functions/rvmrc_set
++++++ source /Users/unixwzrd/.rvm/scripts/functions/rvmrc_to
++++++ source /Users/unixwzrd/.rvm/scripts/functions/rvmrc_trust
++++++ source /Users/unixwzrd/.rvm/scripts/functions/rvmrc_warning
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \i\n\s\t\a\l\l\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/install
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \e\n\v\i\r\o\n\m\e\n\t\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/environment
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \g\e\m\s\e\t\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/gemset
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \c\h\e\c\k\s\u\m\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/checksum
+++++ for entry in ${scripts[@]}
+++++ [[    == *\ \l\i\s\t\ * ]]
+++++ source /Users/unixwzrd/.rvm/scripts/functions/list
+++++ unset rvm_base_except
++++ __rvm_ensure_is_a_function
++++ [[ 0 == 1 ]]
++++ is_a_function rvm
++++ typeset -f rvm
++++ return 1
++++ for script in functions/version functions/selector cd functions/cli cli override_gem
++++ [[ -f /Users/unixwzrd/.rvm/scripts/functions/version ]]
++++ source /Users/unixwzrd/.rvm/scripts/functions/version
++++ for script in functions/version functions/selector cd functions/cli cli override_gem
++++ [[ -f /Users/unixwzrd/.rvm/scripts/functions/selector ]]
++++ source /Users/unixwzrd/.rvm/scripts/functions/selector
+++++ source /Users/unixwzrd/.rvm/scripts/functions/selector_gemsets
+++++ source /Users/unixwzrd/.rvm/scripts/functions/selector_late
+++++ source /Users/unixwzrd/.rvm/scripts/functions/selector_parse
+++++ source /Users/unixwzrd/.rvm/scripts/functions/selector_interpreters
++++ for script in functions/version functions/selector cd functions/cli cli override_gem
++++ [[ -f /Users/unixwzrd/.rvm/scripts/cd ]]
++++ source /Users/unixwzrd/.rvm/scripts/cd
+++++ case "${rvm_project_rvmrc:-1}" in
+++++ source /Users/unixwzrd/.rvm/scripts/extras/bash_zsh_support/chpwd/function.sh
+++++ [[ -n '' ]]
+++++ [[    == *\ \_\_\r\v\m\_\c\d\_\f\u\n\c\t\i\o\n\s\_\s\e\t\ * ]]
+++++ chpwd_functions=("${chpwd_functions[@]}" __rvm_cd_functions_set)
+++++ ((  0 == 1  ))
++++ for script in functions/version functions/selector cd functions/cli cli override_gem
++++ [[ -f /Users/unixwzrd/.rvm/scripts/functions/cli ]]
++++ source /Users/unixwzrd/.rvm/scripts/functions/cli
+++++ source /Users/unixwzrd/.rvm/scripts/functions/version
++++ for script in functions/version functions/selector cd functions/cli cli override_gem
++++ [[ -f /Users/unixwzrd/.rvm/scripts/cli ]]
++++ source /Users/unixwzrd/.rvm/scripts/cli
++++ for script in functions/version functions/selector cd functions/cli cli override_gem
++++ [[ -f /Users/unixwzrd/.rvm/scripts/override_gem ]]
++++ source /Users/unixwzrd/.rvm/scripts/override_gem
+++++ [[ 0 -eq 0 ]]
++++ __rvm_setup
++++ __variables_definition export
++++ typeset -a __variables_list __array_list
++++ typeset __method
++++ __method=export
++++ __variables_list=(rvm_head_flag rvm_ruby_selected_flag rvm_user_install_flag rvm_path_flag rvm_cron_flag rvm_static_flag rvm_default_flag rvm_loaded_flag rvm_llvm_flag rvm_skip_autoreconf_flag rvm_dynamic_extensions_flag rvm_18_flag rvm_19_flag rvm_20_flag rvm_21_flag rvm_force_autoconf_flag rvm_dump_environment_flag rvm_curl_flags rvm_rubygems_version rvm_verbose_flag rvm_debug_flag rvm_trace_flag __array_start rvm_skip_pristine_flag rvm_create_flag rvm_remove_flag rvm_movable_flag rvm_archive_flag rvm_gemdir_flag rvm_reload_flag rvm_auto_reload_flag rvm_disable_binary_flag rvm_ignore_gemsets_flag rvm_skip_gemsets_flag rvm_install_on_use_flag rvm_remote_flag rvm_verify_downloads_flag rvm_skip_openssl_flag rvm_gems_cache_path rvm_gems_path rvm_man_path rvm_ruby_gem_path rvm_ruby_log_path rvm_gems_cache_path rvm_archives_path rvm_docs_path rvm_environments_path rvm_examples_path rvm_gems_path rvm_gemsets_path rvm_help_path rvm_hooks_path rvm_lib_path rvm_log_path rvm_patches_path rvm_repos_path rvm_rubies_path rvm_scripts_path rvm_src_path rvm_tmp_path rvm_user_path rvm_usr_path rvm_wrappers_path rvm_stored_errexit rvm_ruby_strings rvm_ruby_binary rvm_ruby_gem_home rvm_ruby_home rvm_ruby_interpreter rvm_ruby_irbrc rvm_ruby_major_version rvm_ruby_minor_version rvm_ruby_package_name rvm_ruby_patch_level rvm_ruby_release_version rvm_ruby_repo_url rvm_ruby_repo_branch rvm_ruby_revision rvm_ruby_tag rvm_ruby_sha rvm_ruby_repo_tag rvm_ruby_version rvm_ruby_package_file rvm_ruby_name rvm_ruby_name rvm_ruby_args rvm_ruby_user_tag rvm_ruby_patch detected_rvm_ruby_name __rvm_env_loaded next_token rvm_error_message rvm_gemset_name rvm_parse_break rvm_token rvm_action rvm_export_args rvm_gemset_separator rvm_expanding_aliases rvm_tar_command rvm_tar_options rvm_patch_original_pwd rvm_project_rvmrc rvm_archive_extension rvm_autoinstall_bundler_flag rvm_codesign_identity rvm_expected_gemset_name rvm_without_gems rvm_with_gems rvm_with_default_gems rvm_ignore_dotfiles_flag rvm_fuzzy_flag rvm_autolibs_flag rvm_autolibs_flag_number rvm_autolibs_flag_runner rvm_quiet_curl_flag rvm_max_time_flag rvm_error_clr rvm_warn_clr rvm_debug_clr rvm_notify_clr rvm_code_clr rvm_comment_clr rvm_reset_clr rvm_error_color rvm_warn_color rvm_debug_color rvm_notify_color rvm_code_color rvm_comment_color rvm_reset_color rvm_log_timestamp rvm_log_filesystem rvm_log_namelen rvm_show_log_lines_on_error)
++++ __array_list=(rvm_patch_names rvm_ree_options rvm_autoconf_flags rvm_architectures)
++++ case "${__method}" in
++++ true
++++ export rvm_head_flag rvm_ruby_selected_flag rvm_user_install_flag rvm_path_flag rvm_cron_flag rvm_static_flag rvm_default_flag rvm_loaded_flag rvm_llvm_flag rvm_skip_autoreconf_flag rvm_dynamic_extensions_flag rvm_18_flag rvm_19_flag rvm_20_flag rvm_21_flag rvm_force_autoconf_flag rvm_dump_environment_flag rvm_curl_flags rvm_rubygems_version rvm_verbose_flag rvm_debug_flag rvm_trace_flag __array_start rvm_skip_pristine_flag rvm_create_flag rvm_remove_flag rvm_movable_flag rvm_archive_flag rvm_gemdir_flag rvm_reload_flag rvm_auto_reload_flag rvm_disable_binary_flag rvm_ignore_gemsets_flag rvm_skip_gemsets_flag rvm_install_on_use_flag rvm_remote_flag rvm_verify_downloads_flag rvm_skip_openssl_flag rvm_gems_cache_path rvm_gems_path rvm_man_path rvm_ruby_gem_path rvm_ruby_log_path rvm_gems_cache_path rvm_archives_path rvm_docs_path rvm_environments_path rvm_examples_path rvm_gems_path rvm_gemsets_path rvm_help_path rvm_hooks_path rvm_lib_path rvm_log_path rvm_patches_path rvm_repos_path rvm_rubies_path rvm_scripts_path rvm_src_path rvm_tmp_path rvm_user_path rvm_usr_path rvm_wrappers_path rvm_stored_errexit rvm_ruby_strings rvm_ruby_binary rvm_ruby_gem_home rvm_ruby_home rvm_ruby_interpreter rvm_ruby_irbrc rvm_ruby_major_version rvm_ruby_minor_version rvm_ruby_package_name rvm_ruby_patch_level rvm_ruby_release_version rvm_ruby_repo_url rvm_ruby_repo_branch rvm_ruby_revision rvm_ruby_tag rvm_ruby_sha rvm_ruby_repo_tag rvm_ruby_version rvm_ruby_package_file rvm_ruby_name rvm_ruby_name rvm_ruby_args rvm_ruby_user_tag rvm_ruby_patch detected_rvm_ruby_name __rvm_env_loaded next_token rvm_error_message rvm_gemset_name rvm_parse_break rvm_token rvm_action rvm_export_args rvm_gemset_separator rvm_expanding_aliases rvm_tar_command rvm_tar_options rvm_patch_original_pwd rvm_project_rvmrc rvm_archive_extension rvm_autoinstall_bundler_flag rvm_codesign_identity rvm_expected_gemset_name rvm_without_gems rvm_with_gems rvm_with_default_gems rvm_ignore_dotfiles_flag rvm_fuzzy_flag rvm_autolibs_flag rvm_autolibs_flag_number rvm_autolibs_flag_runner rvm_quiet_curl_flag rvm_max_time_flag rvm_error_clr rvm_warn_clr rvm_debug_clr rvm_notify_clr rvm_code_clr rvm_comment_clr rvm_reset_clr rvm_error_color rvm_warn_color rvm_debug_color rvm_notify_color rvm_code_color rvm_comment_color rvm_reset_color rvm_log_timestamp rvm_log_filesystem rvm_log_namelen rvm_show_log_lines_on_error
++++ [[ -n 5.2.32(1)-release ]]
++++ export -fn __rvm_select_version_variables __rvm_ruby_string_parse_ __rvm_rm_rf_verbose __rvm_parse_args __rvm_ruby_string_find __rvm_file_load_env __rvm_remove_without_gems
++++ ((  __rvm_env_loaded != 1  ))
++++ [[ -n 5.2.32(1)-release ]]
++++ __function_on_stack cd pushd popd
++++ __rvm_string_includes '__function_on_stack __rvm_setup source source source' cd pushd popd
++++ typeset __search '__text=__function_on_stack __rvm_setup source source source'
++++ shift
++++ for __search in "$@"
++++ [[  __function_on_stack __rvm_setup source source source  == *\ \c\d\ * ]]
++++ for __search in "$@"
++++ [[  __function_on_stack __rvm_setup source source source  == *\ \p\u\s\h\d\ * ]]
++++ for __search in "$@"
++++ [[  __function_on_stack __rvm_setup source source source  == *\ \p\o\p\d\ * ]]
++++ return 1
++++ return 1
++++ export rvm_shell_nounset
++++ __rvm_has_opt nounset
++++ [[ -n '' ]]
++++ [[ -n '' ]]
++++ [[ -n 5.2.32(1)-release ]]
++++ [[ :braceexpand:hashall:histexpand:history:interactive-comments:monitor:vi:xtrace: == *\:\n\o\u\n\s\e\t\:* ]]
++++ return 1
++++ rvm_bash_nounset=0
++++ set +o nounset
+++++ trap
+++++ __rvm_grep -E 'EXIT|HUP|INT|QUIT|TERM'
+++++ GREP_OPTIONS=
+++++ command grep -E 'EXIT|HUP|INT|QUIT|TERM'
+++++ return 1
+++++ true
++++ _rvm_old_traps=
++++ trap '__rvm_teardown_final ; set +x' EXIT HUP INT QUIT TERM
++++ [[ -n '' ]]
++++ export rvm_version
+++++ __rvm_version_installed
++++++ command cat /Users/unixwzrd/.rvm/VERSION
++++++ command cat /Users/unixwzrd/.rvm/RELEASE
+++++ echo '1.29.12 (latest)'
++++ rvm_version='1.29.12 (latest)'
++++ alias 'rvm-restart=rvm_reload_flag=1 source '\''/Users/unixwzrd/.rvm/scripts/rvm'\'''
+++++ builtin command -v ruby
++++ __path_to_ruby=/usr/local/bin/ruby
++++ [[ -z /usr/local/bin/ruby ]]
++++ [[ /usr/local/bin/ruby != \/\U\s\e\r\s\/\u\n\i\x\w\z\r\d\/\.\r\v\m* ]]
++++ [[ -n /Users/unixwzrd/.rvm/environments ]]
++++ [[ -s /Users/unixwzrd/.rvm/environments/default ]]
++++ source /Users/unixwzrd/.rvm/environments/default
+++++ export PATH=/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io/bin:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@global/bin:/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4/bin:/Users/unixwzrd/.cargo/bin:/Users/unixwzrd/miniconda3/bin:/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/usr/local/bin
+++++ PATH=/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io/bin:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@global/bin:/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4/bin:/Users/unixwzrd/.cargo/bin:/Users/unixwzrd/miniconda3/bin:/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/usr/local/bin
+++++ export GEM_HOME=/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io
+++++ GEM_HOME=/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io
+++++ export GEM_PATH=/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@global
+++++ GEM_PATH=/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@global
+++++ export MY_RUBY_HOME=/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4
+++++ MY_RUBY_HOME=/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4
+++++ export IRBRC=/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4/.irbrc
+++++ IRBRC=/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4/.irbrc
+++++ unset MAGLEV_HOME
+++++ unset RBXOPT
+++++ export RUBY_VERSION=ext-ruby-3.3.4
+++++ RUBY_VERSION=ext-ruby-3.3.4
++++ [[ 1 -gt 0 ]]
++++ __function_on_stack __rvm_project_rvmrc
++++ __rvm_string_includes '__function_on_stack source source source' __rvm_project_rvmrc
++++ typeset __search '__text=__function_on_stack source source source'
++++ shift
++++ for __search in "$@"
++++ [[  __function_on_stack source source source  == *\ \_\_\r\v\m\_\p\r\o\j\e\c\t\_\r\v\m\r\c\ * ]]
++++ return 1
++++ return 1
++++ rvm_current_rvmrc=
++++ rvm_project_rvmrc_default=2
++++ rvm_promptless=1
++++ __rvm_project_rvmrc
++++ export __rvm_project_rvmrc_lock
++++ : __rvm_project_rvmrc_lock:0
++++ : __rvm_project_rvmrc_lock:1
++++ ((  __rvm_project_rvmrc_lock > 1  ))
++++ typeset working_dir found_file rvm_trustworthiness_result save_PATH
++++ working_dir=/Users/mps/projects/AI-PROJECTS/venv-build-checker
++++ save_PATH=/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io/bin:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@global/bin:/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4/bin:/Users/unixwzrd/.cargo/bin:/Users/unixwzrd/miniconda3/bin:/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/usr/local/bin
++++ :
++++ [[ -z /Users/mps/projects/AI-PROJECTS/venv-build-checker ]]
++++ [[ /Users/unixwzrd == \/\U\s\e\r\s\/\m\p\s\/\p\r\o\j\e\c\t\s\/\A\I\-\P\R\O\J\E\C\T\S\/\v\e\n\v\-\b\u\i\l\d\-\c\h\e\c\k\e\r ]]
++++ [[ /Users/unixwzrd == \/\U\s\e\r\s\/\m\p\s\/\p\r\o\j\e\c\t\s\/\A\I\-\P\R\O\J\E\C\T\S\/\v\e\n\v\-\b\u\i\l\d\-\c\h\e\c\k\e\r ]]
++++ [[ /Users/mps/projects/AI-PROJECTS/venv-build-checker == \. ]]
++++ __rvm_project_dir_check /Users/mps/projects/AI-PROJECTS/venv-build-checker found_file
++++ typeset _found_file path_to_check variable variable_default
++++ typeset -a _valid_files
++++ path_to_check=/Users/mps/projects/AI-PROJECTS/venv-build-checker
++++ variable=found_file
++++ variable_default=
++++ _valid_files=("$path_to_check" "$path_to_check/.rvmrc" "$path_to_check/.versions.conf" "$path_to_check/.ruby-version" "$path_to_check/.rbfu-version" "$path_to_check/.rbenv-version" "$path_to_check/Gemfile")
++++ __rvm_find_first_file _found_file /Users/mps/projects/AI-PROJECTS/venv-build-checker /Users/mps/projects/AI-PROJECTS/venv-build-checker/.rvmrc /Users/mps/projects/AI-PROJECTS/venv-build-checker/.versions.conf /Users/mps/projects/AI-PROJECTS/venv-build-checker/.ruby-version /Users/mps/projects/AI-PROJECTS/venv-build-checker/.rbfu-version /Users/mps/projects/AI-PROJECTS/venv-build-checker/.rbenv-version /Users/mps/projects/AI-PROJECTS/venv-build-checker/Gemfile
++++ typeset _first_file _variable_first_file __file_enum
++++ _first_file=
++++ _variable_first_file=_found_file
++++ shift
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/venv-build-checker ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/.rvmrc ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/.versions.conf ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/.ruby-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/.rbfu-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/.rbenv-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/venv-build-checker/Gemfile ]]
++++ eval '_found_file=""'
+++++ _found_file=
++++ return 1
++++ true
++++ [[ ! -s '' ]]
++++ _found_file=
++++ [[ -n found_file ]]
++++ eval 'found_file="${_found_file:-}"'
+++++ found_file=
++++ [[ -n '' ]]
++++ typeset __result=1
++++ unset RVM_PROJECT_PATH
++++ return 1
++++ working_dir=/Users/mps/projects/AI-PROJECTS
++++ :
++++ [[ -z /Users/mps/projects/AI-PROJECTS ]]
++++ [[ /Users/unixwzrd == \/\U\s\e\r\s\/\m\p\s\/\p\r\o\j\e\c\t\s\/\A\I\-\P\R\O\J\E\C\T\S ]]
++++ [[ /Users/unixwzrd == \/\U\s\e\r\s\/\m\p\s\/\p\r\o\j\e\c\t\s\/\A\I\-\P\R\O\J\E\C\T\S ]]
++++ [[ /Users/mps/projects/AI-PROJECTS == \. ]]
++++ __rvm_project_dir_check /Users/mps/projects/AI-PROJECTS found_file
++++ typeset _found_file path_to_check variable variable_default
++++ typeset -a _valid_files
++++ path_to_check=/Users/mps/projects/AI-PROJECTS
++++ variable=found_file
++++ variable_default=
++++ _valid_files=("$path_to_check" "$path_to_check/.rvmrc" "$path_to_check/.versions.conf" "$path_to_check/.ruby-version" "$path_to_check/.rbfu-version" "$path_to_check/.rbenv-version" "$path_to_check/Gemfile")
++++ __rvm_find_first_file _found_file /Users/mps/projects/AI-PROJECTS /Users/mps/projects/AI-PROJECTS/.rvmrc /Users/mps/projects/AI-PROJECTS/.versions.conf /Users/mps/projects/AI-PROJECTS/.ruby-version /Users/mps/projects/AI-PROJECTS/.rbfu-version /Users/mps/projects/AI-PROJECTS/.rbenv-version /Users/mps/projects/AI-PROJECTS/Gemfile
++++ typeset _first_file _variable_first_file __file_enum
++++ _first_file=
++++ _variable_first_file=_found_file
++++ shift
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/.rvmrc ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/.versions.conf ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/.ruby-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/.rbfu-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/.rbenv-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/AI-PROJECTS/Gemfile ]]
++++ eval '_found_file=""'
+++++ _found_file=
++++ return 1
++++ true
++++ [[ ! -s '' ]]
++++ _found_file=
++++ [[ -n found_file ]]
++++ eval 'found_file="${_found_file:-}"'
+++++ found_file=
++++ [[ -n '' ]]
++++ typeset __result=1
++++ unset RVM_PROJECT_PATH
++++ return 1
++++ working_dir=/Users/mps/projects
++++ :
++++ [[ -z /Users/mps/projects ]]
++++ [[ /Users/unixwzrd == \/\U\s\e\r\s\/\m\p\s\/\p\r\o\j\e\c\t\s ]]
++++ [[ /Users/unixwzrd == \/\U\s\e\r\s\/\m\p\s\/\p\r\o\j\e\c\t\s ]]
++++ [[ /Users/mps/projects == \. ]]
++++ __rvm_project_dir_check /Users/mps/projects found_file
++++ typeset _found_file path_to_check variable variable_default
++++ typeset -a _valid_files
++++ path_to_check=/Users/mps/projects
++++ variable=found_file
++++ variable_default=
++++ _valid_files=("$path_to_check" "$path_to_check/.rvmrc" "$path_to_check/.versions.conf" "$path_to_check/.ruby-version" "$path_to_check/.rbfu-version" "$path_to_check/.rbenv-version" "$path_to_check/Gemfile")
++++ __rvm_find_first_file _found_file /Users/mps/projects /Users/mps/projects/.rvmrc /Users/mps/projects/.versions.conf /Users/mps/projects/.ruby-version /Users/mps/projects/.rbfu-version /Users/mps/projects/.rbenv-version /Users/mps/projects/Gemfile
++++ typeset _first_file _variable_first_file __file_enum
++++ _first_file=
++++ _variable_first_file=_found_file
++++ shift
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/.rvmrc ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/.versions.conf ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/.ruby-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/.rbfu-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/.rbenv-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/projects/Gemfile ]]
++++ eval '_found_file=""'
+++++ _found_file=
++++ return 1
++++ true
++++ [[ ! -s '' ]]
++++ _found_file=
++++ [[ -n found_file ]]
++++ eval 'found_file="${_found_file:-}"'
+++++ found_file=
++++ [[ -n '' ]]
++++ typeset __result=1
++++ unset RVM_PROJECT_PATH
++++ return 1
++++ working_dir=/Users/mps
++++ :
++++ [[ -z /Users/mps ]]
++++ [[ /Users/unixwzrd == \/\U\s\e\r\s\/\m\p\s ]]
++++ [[ /Users/unixwzrd == \/\U\s\e\r\s\/\m\p\s ]]
++++ [[ /Users/mps == \. ]]
++++ __rvm_project_dir_check /Users/mps found_file
++++ typeset _found_file path_to_check variable variable_default
++++ typeset -a _valid_files
++++ path_to_check=/Users/mps
++++ variable=found_file
++++ variable_default=
++++ _valid_files=("$path_to_check" "$path_to_check/.rvmrc" "$path_to_check/.versions.conf" "$path_to_check/.ruby-version" "$path_to_check/.rbfu-version" "$path_to_check/.rbenv-version" "$path_to_check/Gemfile")
++++ __rvm_find_first_file _found_file /Users/mps /Users/mps/.rvmrc /Users/mps/.versions.conf /Users/mps/.ruby-version /Users/mps/.rbfu-version /Users/mps/.rbenv-version /Users/mps/Gemfile
++++ typeset _first_file _variable_first_file __file_enum
++++ _first_file=
++++ _variable_first_file=_found_file
++++ shift
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/.rvmrc ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/.versions.conf ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/.ruby-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/.rbfu-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/.rbenv-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/mps/Gemfile ]]
++++ eval '_found_file=""'
+++++ _found_file=
++++ return 1
++++ true
++++ [[ ! -s '' ]]
++++ _found_file=
++++ [[ -n found_file ]]
++++ eval 'found_file="${_found_file:-}"'
+++++ found_file=
++++ [[ -n '' ]]
++++ typeset __result=1
++++ unset RVM_PROJECT_PATH
++++ return 1
++++ working_dir=/Users
++++ :
++++ [[ -z /Users ]]
++++ [[ /Users/unixwzrd == \/\U\s\e\r\s ]]
++++ [[ /Users/unixwzrd == \/\U\s\e\r\s ]]
++++ [[ /Users == \. ]]
++++ __rvm_project_dir_check /Users found_file
++++ typeset _found_file path_to_check variable variable_default
++++ typeset -a _valid_files
++++ path_to_check=/Users
++++ variable=found_file
++++ variable_default=
++++ _valid_files=("$path_to_check" "$path_to_check/.rvmrc" "$path_to_check/.versions.conf" "$path_to_check/.ruby-version" "$path_to_check/.rbfu-version" "$path_to_check/.rbenv-version" "$path_to_check/Gemfile")
++++ __rvm_find_first_file _found_file /Users /Users/.rvmrc /Users/.versions.conf /Users/.ruby-version /Users/.rbfu-version /Users/.rbenv-version /Users/Gemfile
++++ typeset _first_file _variable_first_file __file_enum
++++ _first_file=
++++ _variable_first_file=_found_file
++++ shift
++++ for __file_enum in "$@"
++++ [[ -f /Users ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/.rvmrc ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/.versions.conf ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/.ruby-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/.rbfu-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/.rbenv-version ]]
++++ for __file_enum in "$@"
++++ [[ -f /Users/Gemfile ]]
++++ eval '_found_file=""'
+++++ _found_file=
++++ return 1
++++ true
++++ [[ ! -s '' ]]
++++ _found_file=
++++ [[ -n found_file ]]
++++ eval 'found_file="${_found_file:-}"'
+++++ found_file=
++++ [[ -n '' ]]
++++ typeset __result=1
++++ unset RVM_PROJECT_PATH
++++ return 1
++++ working_dir=
++++ :
++++ [[ -z '' ]]
++++ ((  2 >= 1  ))
++++ rvm_previous_environment=default
++++ [[ -n default ]]
++++ ((  2 < 2  ))
++++ __rvm_file_env_check_unload
++++ ((  0 > 0  ))
++++ rvm_saved_env=()
++++ unset rvm_current_rvmrc rvm_previous_environment
++++ break
++++ unset __rvm_project_rvmrc_lock
++++ return 1
++++ unset __path_to_ruby
++++ [[ :/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io/bin:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@global/bin:/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4/bin:/Users/unixwzrd/.cargo/bin:/Users/unixwzrd/miniconda3/bin:/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/usr/local/bin: == *\:\/\U\s\e\r\s\/\u\n\i\x\w\z\r\d\/\.\r\v\m\/\b\i\n\:* ]]
++++ PATH=/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@unixwzrd.github.io/bin:/Users/unixwzrd/.rvm/gems/ext-ruby-3.3.4@global/bin:/Users/unixwzrd/.rvm/rubies/ext-ruby-3.3.4/bin:/Users/unixwzrd/.cargo/bin:/Users/unixwzrd/miniconda3/bin:/usr/local/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/sbin:/Users/unixwzrd/bin:/Users/unixwzrd/local/bin:/usr/local/texlive/2024/bin/universal-darwin:/usr/X11R6/bin:/usr/local/bin:/Users/unixwzrd/.rvm/bin
++++ ((  0 == 1  ))
++++ rvm_loaded_flag=1
++++ __rvm_teardown
++++ builtin command -v __rvm_cleanup_tmp
++++ __rvm_cleanup_tmp
++++ [[ -d /Users/unixwzrd/.rvm/tmp/ ]]
++++ case "${rvm_tmp_path%\/}" in
++++ __rvm_rm_rf '/Users/unixwzrd/.rvm/tmp/68038*'
++++ __rvm_rm_rf_verbose '/Users/unixwzrd/.rvm/tmp/68038*'
++++ typeset target
++++ target='/Users/unixwzrd/.rvm/tmp/68038*'
++++ [[ -n '' ]]
++++ [[ -n 5.2.32(1)-release ]]
++++ builtin shopt -s extglob
++++ case "${target}" in
++++ [[ -z /Users/unixwzrd/.rvm/tmp/68038* ]]
++++ [[ -d /Users/unixwzrd/.rvm/tmp/68038* ]]
++++ [[ -f /Users/unixwzrd/.rvm/tmp/68038* ]]
++++ [[ -L /Users/unixwzrd/.rvm/tmp/68038* ]]
++++ rvm_debug '__rvm_rm_rf already gone: /Users/unixwzrd/.rvm/tmp/68038*'
++++ ((  0  ))
++++ return 0
++++ true
++++ true
++++ export __rvm_env_loaded
++++ : __rvm_env_loaded:1:
++++ : __rvm_env_loaded:1:
++++ : __rvm_env_loaded:0:
++++ [[ -z /Users/unixwzrd/.rvm/tmp ]]
++++ ((  __rvm_env_loaded > 0  ))
++++ [[ -n 5.2.32(1)-release ]]
++++ trap - EXIT HUP INT QUIT TERM
++++ [[ -n '' ]]
++++ ((  rvm_bash_nounset == 1  ))
++++ unset rvm_bash_nounset
++++ [[ -n '' ]]
++++ [[ -n 0022 ]]
++++ umask 0022
++++ unset rvm_stored_umask
++++ builtin command -v __rvm_cleanup_download
++++ [[ '' == \1 ]]
++++ __variables_definition unset
++++ typeset -a __variables_list __array_list
++++ typeset __method
++++ __method=unset
++++ __variables_list=(rvm_head_flag rvm_ruby_selected_flag rvm_user_install_flag rvm_path_flag rvm_cron_flag rvm_static_flag rvm_default_flag rvm_loaded_flag rvm_llvm_flag rvm_skip_autoreconf_flag rvm_dynamic_extensions_flag rvm_18_flag rvm_19_flag rvm_20_flag rvm_21_flag rvm_force_autoconf_flag rvm_dump_environment_flag rvm_curl_flags rvm_rubygems_version rvm_verbose_flag rvm_debug_flag rvm_trace_flag __array_start rvm_skip_pristine_flag rvm_create_flag rvm_remove_flag rvm_movable_flag rvm_archive_flag rvm_gemdir_flag rvm_reload_flag rvm_auto_reload_flag rvm_disable_binary_flag rvm_ignore_gemsets_flag rvm_skip_gemsets_flag rvm_install_on_use_flag rvm_remote_flag rvm_verify_downloads_flag rvm_skip_openssl_flag rvm_gems_cache_path rvm_gems_path rvm_man_path rvm_ruby_gem_path rvm_ruby_log_path rvm_gems_cache_path rvm_archives_path rvm_docs_path rvm_environments_path rvm_examples_path rvm_gems_path rvm_gemsets_path rvm_help_path rvm_hooks_path rvm_lib_path rvm_log_path rvm_patches_path rvm_repos_path rvm_rubies_path rvm_scripts_path rvm_src_path rvm_tmp_path rvm_user_path rvm_usr_path rvm_wrappers_path rvm_stored_errexit rvm_ruby_strings rvm_ruby_binary rvm_ruby_gem_home rvm_ruby_home rvm_ruby_interpreter rvm_ruby_irbrc rvm_ruby_major_version rvm_ruby_minor_version rvm_ruby_package_name rvm_ruby_patch_level rvm_ruby_release_version rvm_ruby_repo_url rvm_ruby_repo_branch rvm_ruby_revision rvm_ruby_tag rvm_ruby_sha rvm_ruby_repo_tag rvm_ruby_version rvm_ruby_package_file rvm_ruby_name rvm_ruby_name rvm_ruby_args rvm_ruby_user_tag rvm_ruby_patch detected_rvm_ruby_name __rvm_env_loaded next_token rvm_error_message rvm_gemset_name rvm_parse_break rvm_token rvm_action rvm_export_args rvm_gemset_separator rvm_expanding_aliases rvm_tar_command rvm_tar_options rvm_patch_original_pwd rvm_project_rvmrc rvm_archive_extension rvm_autoinstall_bundler_flag rvm_codesign_identity rvm_expected_gemset_name rvm_without_gems rvm_with_gems rvm_with_default_gems rvm_ignore_dotfiles_flag rvm_fuzzy_flag rvm_autolibs_flag rvm_autolibs_flag_number rvm_autolibs_flag_runner rvm_quiet_curl_flag rvm_max_time_flag rvm_error_clr rvm_warn_clr rvm_debug_clr rvm_notify_clr rvm_code_clr rvm_comment_clr rvm_reset_clr rvm_error_color rvm_warn_color rvm_debug_color rvm_notify_color rvm_code_color rvm_comment_color rvm_reset_color rvm_log_timestamp rvm_log_filesystem rvm_log_namelen rvm_show_log_lines_on_error)
++++ __array_list=(rvm_patch_names rvm_ree_options rvm_autoconf_flags rvm_architectures)
++++ case "${__method}" in
++++ unset rvm_patch_names rvm_ree_options rvm_autoconf_flags rvm_architectures
++++ unset rvm_head_flag rvm_ruby_selected_flag rvm_user_install_flag rvm_path_flag rvm_cron_flag rvm_static_flag rvm_default_flag rvm_loaded_flag rvm_llvm_flag rvm_skip_autoreconf_flag rvm_dynamic_extensions_flag rvm_18_flag rvm_19_flag rvm_20_flag rvm_21_flag rvm_force_autoconf_flag rvm_dump_environment_flag rvm_curl_flags rvm_rubygems_version rvm_verbose_flag rvm_debug_flag rvm_trace_flag __array_start rvm_skip_pristine_flag rvm_create_flag rvm_remove_flag rvm_movable_flag rvm_archive_flag rvm_gemdir_flag rvm_reload_flag rvm_auto_reload_flag rvm_disable_binary_flag rvm_ignore_gemsets_flag rvm_skip_gemsets_flag rvm_install_on_use_flag rvm_remote_flag rvm_verify_downloads_flag rvm_skip_openssl_flag rvm_gems_cache_path rvm_gems_path rvm_man_path rvm_ruby_gem_path rvm_ruby_log_path rvm_gems_cache_path rvm_archives_path rvm_docs_path rvm_environments_path rvm_examples_path rvm_gems_path rvm_gemsets_path rvm_help_path rvm_hooks_path rvm_lib_path rvm_log_path rvm_patches_path rvm_repos_path rvm_rubies_path rvm_scripts_path rvm_src_path rvm_tmp_path rvm_user_path rvm_usr_path rvm_wrappers_path rvm_stored_errexit rvm_ruby_strings rvm_ruby_binary rvm_ruby_gem_home rvm_ruby_home rvm_ruby_interpreter rvm_ruby_irbrc rvm_ruby_major_version rvm_ruby_minor_version rvm_ruby_package_name rvm_ruby_patch_level rvm_ruby_release_version rvm_ruby_repo_url rvm_ruby_repo_branch rvm_ruby_revision rvm_ruby_tag rvm_ruby_sha rvm_ruby_repo_tag rvm_ruby_version rvm_ruby_package_file rvm_ruby_name rvm_ruby_name rvm_ruby_args rvm_ruby_user_tag rvm_ruby_patch detected_rvm_ruby_name __rvm_env_loaded next_token rvm_error_message rvm_gemset_name rvm_parse_break rvm_token rvm_action rvm_export_args rvm_gemset_separator rvm_expanding_aliases rvm_tar_command rvm_tar_options rvm_patch_original_pwd rvm_project_rvmrc rvm_archive_extension rvm_autoinstall_bundler_flag rvm_codesign_identity rvm_expected_gemset_name rvm_without_gems rvm_with_gems rvm_with_default_gems rvm_ignore_dotfiles_flag rvm_fuzzy_flag rvm_autolibs_flag rvm_autolibs_flag_number rvm_autolibs_flag_runner rvm_quiet_curl_flag rvm_max_time_flag rvm_error_clr rvm_warn_clr rvm_debug_clr rvm_notify_clr rvm_code_clr rvm_comment_clr rvm_reset_clr rvm_error_color rvm_warn_color rvm_debug_color rvm_notify_color rvm_code_color rvm_comment_color rvm_reset_color rvm_log_timestamp rvm_log_filesystem rvm_log_namelen rvm_show_log_lines_on_error
++++ [[ -n 5.2.32(1)-release ]]
++++ export -fn __rvm_select_version_variables __rvm_ruby_string_parse_ __rvm_rm_rf_verbose __rvm_parse_args __rvm_ruby_string_find __rvm_file_load_env __rvm_remove_without_gems
++++ unset _system_arch _system_name _system_type _system_version
++++ return 0
++++ [[ 0 -eq 1 ]]
++++ unset rvm_prefix_needs_trailing_slash rvm_gems_cache_path rvm_gems_path rvm_project_rvmrc_default rvm_gemset_separator rvm_reload_flag
+++ command -v termium
++++ termium shell-hook show post
+++ eval '#!/usr/bin/env bash
+__termium_install_bash_preexec() {
+  # bash-preexec.sh -- Bash support for ZSH-like '\''preexec'\'' and '\''precmd'\'' functions.
+  # https://github.com/rcaloras/bash-preexec
+  #
+  #
+  # '\''preexec'\'' functions are executed before each interactive command is
+  # executed, with the interactive command as its argument. The '\''precmd'\''
+  # function is executed before each prompt is displayed.
+  #
+  # Author: Ryan Caloras (ryan@bashhub.com)
+  # Forked from Original Author: Glyph Lefkowitz
+  #
+  # V0.5.0
+  #
+
+  # General Usage:
+  #
+  #  1. Source this file at the end of your bash profile so as not to interfere
+  #     with anything else that'\''s using PROMPT_COMMAND.
+  #
+  #  2. Add any precmd or preexec functions by appending them to their arrays:
+  #       e.g.
+  #       precmd_functions+=(my_precmd_function)
+  #       precmd_functions+=(some_other_precmd_function)
+  #
+  #       preexec_functions+=(my_preexec_function)
+  #
+  #  3. Consider changing anything using the DEBUG trap or PROMPT_COMMAND
+  #     to use preexec and precmd instead. Preexisting usages will be
+  #     preserved, but doing so manually may be less surprising.
+  #
+  #  Note: This module requires two Bash features which you must not otherwise be
+  #  using: the "DEBUG" trap, and the "PROMPT_COMMAND" variable. If you override
+  #  either of these after bash-preexec has been installed it will most likely break.
+
+  # Tell shellcheck what kind of file this is.
+  # shellcheck shell=bash
+
+  # Make sure this is bash that'\''s running and return otherwise.
+  # Use POSIX syntax for this line:
+  if [ -z "${BASH_VERSION-}" ]; then
+      return 1;
+  fi
+
+  # We only support Bash 3.1+.
+  # Note: BASH_VERSINFO is first available in Bash-2.0.
+  if [[ -z "${BASH_VERSINFO-}" ]] || (( BASH_VERSINFO[0] < 3 || (BASH_VERSINFO[0] == 3 && BASH_VERSINFO[1] < 1) )); then
+      return 1
+  fi
+
+  # Avoid duplicate inclusion
+  if [[ -n "${bash_preexec_imported:-}" ]]; then
+      return 0
+  fi
+  bash_preexec_imported="defined"
+
+  # WARNING: This variable is no longer used and should not be relied upon.
+  # Use ${bash_preexec_imported} instead.
+  # shellcheck disable=SC2034
+  __bp_imported="${bash_preexec_imported}"
+
+  # Should be available to each precmd and preexec
+  # functions, should they want it. $? and $_ are available as $? and $_, but
+  # $PIPESTATUS is available only in a copy, $BP_PIPESTATUS.
+  # TODO: Figure out how to restore PIPESTATUS before each precmd or preexec
+  # function.
+  __bp_last_ret_value="$?"
+  BP_PIPESTATUS=("${PIPESTATUS[@]}")
+  __bp_last_argument_prev_command="$_"
+
+  __bp_inside_precmd=0
+  __bp_inside_preexec=0
+
+  # Initial PROMPT_COMMAND string that is removed from PROMPT_COMMAND post __bp_install
+  __bp_install_string=$'\''__bp_trap_string="$(trap -p DEBUG)"\ntrap - DEBUG\n__bp_install'\''
+
+  # Fails if any of the given variables are readonly
+  # Reference https://stackoverflow.com/a/4441178
+  __bp_require_not_readonly() {
+    local var
+    for var; do
+      if ! ( unset "$var" 2> /dev/null ); then
+        echo "bash-preexec requires write access to ${var}" >&2
+        return 1
+      fi
+    done
+  }
+
+  # Remove ignorespace and or replace ignoreboth from HISTCONTROL
+  # so we can accurately invoke preexec with a command from our
+  # history even if it starts with a space.
+  __bp_adjust_histcontrol() {
+      local histcontrol
+      histcontrol="${HISTCONTROL:-}"
+      histcontrol="${histcontrol//ignorespace}"
+      # Replace ignoreboth with ignoredups
+      if [[ "$histcontrol" == *"ignoreboth"* ]]; then
+          histcontrol="ignoredups:${histcontrol//ignoreboth}"
+      fi;
+      export HISTCONTROL="$histcontrol"
+  }
+
+  # This variable describes whether we are currently in "interactive mode";
+  # i.e. whether this shell has just executed a prompt and is waiting for user
+  # input.  It documents whether the current command invoked by the trace hook is
+  # run interactively by the user; it'\''s set immediately after the prompt hook,
+  # and unset as soon as the trace hook is run.
+  __bp_preexec_interactive_mode=""
+
+  # These arrays are used to add functions to be run before, or after, prompts.
+  declare -a precmd_functions
+  declare -a preexec_functions
+
+  # Trims leading and trailing whitespace from $2 and writes it to the variable
+  # name passed as $1
+  __bp_trim_whitespace() {
+      local var=${1:?} text=${2:-}
+      text="${text#"${text%%[![:space:]]*}"}"   # remove leading whitespace characters
+      text="${text%"${text##*[![:space:]]}"}"   # remove trailing whitespace characters
+      printf -v "$var" '\''%s'\'' "$text"
+  }
+
+
+  # Trims whitespace and removes any leading or trailing semicolons from $2 and
+  # writes the resulting string to the variable name passed as $1. Used for
+  # manipulating substrings in PROMPT_COMMAND
+  __bp_sanitize_string() {
+      local var=${1:?} text=${2:-} sanitized
+      __bp_trim_whitespace sanitized "$text"
+      sanitized=${sanitized%;}
+      sanitized=${sanitized#;}
+      __bp_trim_whitespace sanitized "$sanitized"
+      printf -v "$var" '\''%s'\'' "$sanitized"
+  }
+
+  # This function is installed as part of the PROMPT_COMMAND;
+  # It sets a variable to indicate that the prompt was just displayed,
+  # to allow the DEBUG trap to know that the next command is likely interactive.
+  __bp_interactive_mode() {
+      __bp_preexec_interactive_mode="on";
+  }
+
+
+  # This function is installed as part of the PROMPT_COMMAND.
+  # It will invoke any functions defined in the precmd_functions array.
+  __bp_precmd_invoke_cmd() {
+      # Save the returned value from our last command, and from each process in
+      # its pipeline. Note: this MUST be the first thing done in this function.
+      # BP_PIPESTATUS may be unused, ignore
+      # shellcheck disable=SC2034
+
+      __bp_last_ret_value="$?" BP_PIPESTATUS=("${PIPESTATUS[@]}")
+
+      # Don'\''t invoke precmds if we are inside an execution of an "original
+      # prompt command" by another precmd execution loop. This avoids infinite
+      # recursion.
+      if (( __bp_inside_precmd > 0 )); then
+        return
+      fi
+      local __bp_inside_precmd=1
+
+      # Invoke every function defined in our function array.
+      local precmd_function
+      for precmd_function in "${precmd_functions[@]}"; do
+
+          # Only execute this function if it actually exists.
+          # Test existence of functions with: declare -[Ff]
+          if type -t "$precmd_function" 1>/dev/null; then
+              __bp_set_ret_value "$__bp_last_ret_value" "$__bp_last_argument_prev_command"
+              # Quote our function invocation to prevent issues with IFS
+              "$precmd_function"
+          fi
+      done
+
+      __bp_set_ret_value "$__bp_last_ret_value"
+  }
+
+  # Sets a return value in $?. We may want to get access to the $? variable in our
+  # precmd functions. This is available for instance in zsh. We can simulate it in bash
+  # by setting the value here.
+  __bp_set_ret_value() {
+      return ${1:+"$1"}
+  }
+
+  __bp_in_prompt_command() {
+
+      local prompt_command_array IFS=$'\''\n;'\''
+      read -rd '\'''\'' -a prompt_command_array <<< "${PROMPT_COMMAND[*]:-}"
+
+      local trimmed_arg
+      __bp_trim_whitespace trimmed_arg "${1:-}"
+
+      local command trimmed_command
+      for command in "${prompt_command_array[@]:-}"; do
+          __bp_trim_whitespace trimmed_command "$command"
+          if [[ "$trimmed_command" == "$trimmed_arg" ]]; then
+              return 0
+          fi
+      done
+
+      return 1
+  }
+
+  # This function is installed as the DEBUG trap.  It is invoked before each
+  # interactive prompt display.  Its purpose is to inspect the current
+  # environment to attempt to detect if the current command is being invoked
+  # interactively, and invoke '\''preexec'\'' if so.
+  __bp_preexec_invoke_exec() {
+
+      # Save the contents of $_ so that it can be restored later on.
+      # https://stackoverflow.com/questions/40944532/bash-preserve-in-a-debug-trap#40944702
+      __bp_last_argument_prev_command="${1:-}"
+      # Don'\''t invoke preexecs if we are inside of another preexec.
+      if (( __bp_inside_preexec > 0 )); then
+        return
+      fi
+      local __bp_inside_preexec=1
+
+      # Checks if the file descriptor is not standard out (i.e. '\''1'\'')
+      # __bp_delay_install checks if we'\''re in test. Needed for bats to run.
+      # Prevents preexec from being invoked for functions in PS1
+      if [[ ! -t 1 && -z "${__bp_delay_install:-}" ]]; then
+          return
+      fi
+
+      if [[ -n "${COMP_LINE:-}" ]]; then
+          # We'\''re in the middle of a completer. This obviously can'\''t be
+          # an interactively issued command.
+          return
+      fi
+      if [[ -z "${__bp_preexec_interactive_mode:-}" ]]; then
+          # We'\''re doing something related to displaying the prompt.  Let the
+          # prompt set the title instead of me.
+          return
+      else
+          # If we'\''re in a subshell, then the prompt won'\''t be re-displayed to put
+          # us back into interactive mode, so let'\''s not set the variable back.
+          # In other words, if you have a subshell like
+          #   (sleep 1; sleep 2)
+          # You want to see the '\''sleep 2'\'' as a set_command_title as well.
+          if [[ 0 -eq "${BASH_SUBSHELL:-}" ]]; then
+              __bp_preexec_interactive_mode=""
+          fi
+      fi
+
+      if  __bp_in_prompt_command "${BASH_COMMAND:-}"; then
+          # If we'\''re executing something inside our prompt_command then we don'\''t
+          # want to call preexec. Bash prior to 3.1 can'\''t detect this at all :/
+          __bp_preexec_interactive_mode=""
+          return
+      fi
+
+      local this_command
+      this_command=$(
+          export LC_ALL=C
+          HISTTIMEFORMAT='\'''\'' builtin history 1 | sed '\''1 s/^ *[0-9][0-9]*[* ] //'\''
+      )
+
+      # Sanity check to make sure we have something to invoke our function with.
+      if [[ -z "$this_command" ]]; then
+          return
+      fi
+
+      # Invoke every function defined in our function array.
+      local preexec_function
+      local preexec_function_ret_value
+      local preexec_ret_value=0
+      for preexec_function in "${preexec_functions[@]:-}"; do
+
+          # Only execute each function if it actually exists.
+          # Test existence of function with: declare -[fF]
+          if type -t "$preexec_function" 1>/dev/null; then
+              __bp_set_ret_value "${__bp_last_ret_value:-}"
+              # Quote our function invocation to prevent issues with IFS
+              "$preexec_function" "$this_command"
+              preexec_function_ret_value="$?"
+              if [[ "$preexec_function_ret_value" != 0 ]]; then
+                  preexec_ret_value="$preexec_function_ret_value"
+              fi
+          fi
+      done
+
+      # Restore the last argument of the last executed command, and set the return
+      # value of the DEBUG trap to be the return code of the last preexec function
+      # to return an error.
+      # If `extdebug` is enabled a non-zero return value from any preexec function
+      # will cause the user'\''s command not to execute.
+      # Run `shopt -s extdebug` to enable
+      __bp_set_ret_value "$preexec_ret_value" "$__bp_last_argument_prev_command"
+  }
+
+  __bp_install() {
+      # Exit if we already have this installed.
+      if [[ "${PROMPT_COMMAND[*]:-}" == *"__bp_precmd_invoke_cmd"* ]]; then
+          return 1;
+      fi
+
+      trap '\''__bp_preexec_invoke_exec "$_"'\'' DEBUG
+
+      # Preserve any prior DEBUG trap as a preexec function
+      local prior_trap
+      # we can'\''t easily do this with variable expansion. Leaving as sed command.
+      # shellcheck disable=SC2001
+      prior_trap=$(sed "s/[^'\'']*'\''\(.*\)'\''[^'\'']*/\1/" <<<"${__bp_trap_string:-}")
+      unset __bp_trap_string
+      if [[ -n "$prior_trap" ]]; then
+          eval '\''__bp_original_debug_trap() {
+            '\''"$prior_trap"'\''
+          }'\''
+          preexec_functions+=(__bp_original_debug_trap)
+      fi
+
+      # Adjust our HISTCONTROL Variable if needed.
+      __bp_adjust_histcontrol
+
+      # Issue #25. Setting debug trap for subshells causes sessions to exit for
+      # backgrounded subshell commands (e.g. (pwd)& ). Believe this is a bug in Bash.
+      #
+      # Disabling this by default. It can be enabled by setting this variable.
+      if [[ -n "${__bp_enable_subshells:-}" ]]; then
+
+          # Set so debug trap will work be invoked in subshells.
+          set -o functrace > /dev/null 2>&1
+          shopt -s extdebug > /dev/null 2>&1
+      fi;
+
+      local existing_prompt_command
+      # Remove setting our trap install string and sanitize the existing prompt command string
+      existing_prompt_command="${PROMPT_COMMAND:-}"
+      # Edge case of appending to PROMPT_COMMAND
+      existing_prompt_command="${existing_prompt_command//$__bp_install_string/:}" # no-op
+      existing_prompt_command="${existing_prompt_command//$'\''\n'\'':$'\''\n'\''/$'\''\n'\''}" # remove known-token only
+      existing_prompt_command="${existing_prompt_command//$'\''\n'\'':;/$'\''\n'\''}" # remove known-token only
+      __bp_sanitize_string existing_prompt_command "$existing_prompt_command"
+      if [[ "${existing_prompt_command:-:}" == ":" ]]; then
+          existing_prompt_command=
+      fi
+
+      # Install our hooks in PROMPT_COMMAND to allow our trap to know when we'\''ve
+      # actually entered something.
+      PROMPT_COMMAND='\''__bp_precmd_invoke_cmd'\''
+      PROMPT_COMMAND+=${existing_prompt_command:+$'\''\n'\''$existing_prompt_command}
+      if (( BASH_VERSINFO[0] > 5 || (BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1) )); then
+          PROMPT_COMMAND+=('\''__bp_interactive_mode'\'')
+      else
+          # shellcheck disable=SC2179 # PROMPT_COMMAND is not an array in bash <= 5.0
+          PROMPT_COMMAND+=$'\''\n__bp_interactive_mode'\''
+      fi
+
+      # Add two functions to our arrays for convenience
+      # of definition.
+      precmd_functions+=(precmd)
+      preexec_functions+=(preexec)
+
+      # Invoke our two functions manually that were added to $PROMPT_COMMAND
+      __bp_precmd_invoke_cmd
+      __bp_interactive_mode
+  }
+
+  # Sets an installation string as part of our PROMPT_COMMAND to install
+  # after our session has started. This allows bash-preexec to be included
+  # at any point in our bash profile.
+  __bp_install_after_session_init() {
+      # bash-preexec needs to modify these variables in order to work correctly
+      # if it can'\''t, just stop the installation
+      __bp_require_not_readonly PROMPT_COMMAND HISTCONTROL HISTTIMEFORMAT || return
+
+      local sanitized_prompt_command
+      __bp_sanitize_string sanitized_prompt_command "${PROMPT_COMMAND:-}"
+      if [[ -n "$sanitized_prompt_command" ]]; then
+          # shellcheck disable=SC2178 # PROMPT_COMMAND is not an array in bash <= 5.0
+          PROMPT_COMMAND=${sanitized_prompt_command}$'\''\n'\''
+      fi;
+      # shellcheck disable=SC2179 # PROMPT_COMMAND is not an array in bash <= 5.0
+      PROMPT_COMMAND+=${__bp_install_string}
+  }
+
+  # Run our install so long as we'\''re not delaying it.
+  if [[ -z "${__bp_delay_install:-}" ]]; then
+      __bp_install_after_session_init
+  fi;
+}
+
+__termium_install_bash_preexec
+
+if [ -z "${BASH_VERSION}" -a -z "${ZSH_NAME}" ] ; then
+  # Only enable in bash or zsh
+  return 0
+fi
+
+if [[ $- != *i* ]] ; then
+  # Shell integrations only useful in interactive sessions
+  return 0
+fi
+
+case "$TERM" in
+  linux | dumb)
+    # Avoid terminals that don'\''t like custom OSC sequences
+    return 0
+    ;;
+esac
+
+
+if [[ -n "$ZSH_NAME" ]]; then
+  __termium_shell="zsh"
+elif [[ -n "$BASH_VERSION" ]]; then
+  __termium_shell="bash"
+else
+  # Should never hit this case.
+  return 0
+fi
+
+
+__termium_semantic_precmd_executing=""
+__termium_semantic_preexec() {
+  # Restore user defined prompt before executing.
+  [[ -z ${PS1+x} ]] || PS1="$__termium_save_PS1"
+  [[ -z ${PS2+x} ]] || PS2="$__termium_save_PS2"
+  [[ -z ${RPS1+x} ]] || RPS1="$__termium_save_RPS1"
+  [[ -z ${RPS2+x} ]] || RPS2="$__termium_save_RPS2"
+
+  printf "\033]133;C;aid=%s\007" "$$"
+  __termium_semantic_precmd_executing=1
+}
+
+__termium_osc7() {
+  printf "\033]7;file://%s%s\033\\" "${HOSTNAME}" "${PWD}"
+}
+
+__termium_set_user_var() {
+  if hash base64 2>/dev/null ; then
+    if [[ -z "${TMUX}" ]] ; then
+      printf "\033]1337;SetUserVar=%s=%s\007" "$1" `echo -n "$2" | base64`
+    else
+      # <https://github.com/tmux/tmux/wiki/FAQ#what-is-the-passthrough-escape-sequence-and-how-do-i-use-it>
+      # Note that you ALSO need to add "set -g allow-passthrough on" to your tmux.conf
+      printf "\033Ptmux;\033\033]1337;SetUserVar=%s=%s\007\033\\" "$1" `echo -n "$2" | base64`
+    fi
+  fi
+}
+
+__termium_request_active_position_report() {
+  __termium_set_user_var "TERMIUM_ACTIVE_POSITION_MARK" ""
+  printf "\033[6n"
+}
+
+
+__termium_semantic_precmd() {
+  local last_command_return="$1"
+
+  __termium_reset_hooks
+
+  if [[ "$__termium_semantic_precmd_executing" != "0" ]]; then
+    # Save user defined prompts.
+    __termium_save_PS1="$PS1"
+    __termium_save_PS2="$PS2"
+    __termium_save_RPS1="$RPS1"
+    __termium_save_RPS2="$RPS2"
+
+    if [[ -n "$ZSH_NAME" ]]; then
+      PS1=$'\''%{\e]133;P;k=i\a%}'\''$PS1$'\''%{\e]133;B\a%}'\''
+      PS2=$'\''%{\e]133;P;k=s\a%}'\''$PS2$'\''%{\e]133;B\a%}'\''
+      [[ -z ${RPS1+x} ]] || RPS1=$'\''%{\e]133;P;k=r\a%}'\''$RPS1$'\''%{\e]133;B\a%}'\''
+      [[ -z ${RPS2+x} ]] || RPS2=$'\''%{\e]133;P;k=r\a%}'\''$RPS2$'\''%{\e]133;B\a%}'\''
+    else
+      PS1='\''\[\e]133;P;k=i\a\]'\''$PS1'\''\[\e]133;B\a\]'\''
+      PS2='\''\[\e]133;P;k=s\a\]'\''$PS2'\''\[\e]133;B\a\]'\''
+    fi
+  fi
+
+
+  if [[ "$__termium_semantic_precmd_executing" != "" ]] ; then
+    printf "\033]133;D;%s;aid=%s\007" "$last_command_return" "$$"
+  fi
+
+  printf "\033]133;A;cl=m;aid=%s\007" "$$"
+
+  __termium_semantic_precmd_executing=0
+}
+
+__termium_preexec() {
+  __termium_semantic_preexec
+}
+
+__termium_precmd() {
+  local ret="$?"
+
+  __termium_set_user_var "TERMIUM_SHELL" "$__termium_shell"
+  # __termium_request_active_position_report
+  __termium_semantic_precmd $ret
+  __termium_osc7
+
+  return $ret
+}
+
+__termium_reset_hooks() {
+  # Function to ensure we are the last precmd function and the first preexec function.
+  if [[ -n "${ZSH_NAME}" ]]; then
+    if [[ "$precmd_functions[-1]" != __termium_precmd ]]; then
+      precmd_functions=(${precmd_functions:#__termium_precmd} __termium_precmd)
+    fi
+    if [[ "$preexec_functions[1]" != __termium_preexec ]]; then
+      preexec_functions=(__termium_preexec ${preexec_functions:#__termium_preexec})
+    fi
+  elif [[ -n "${BASH_VERSION}" ]]; then
+    local pc
+
+    # PROMPT_COMMAND runs after pre_cmd_functions from bash-preexec, so
+    # we add __termium_precmd to the end of PROMPT_COMMAND to
+    # ensure it is run last.
+
+    # Filter out __termium_precmd and __bp_interactive_mode
+    # from PROMPT_COMMAND
+    pc="${PROMPT_COMMAND}"
+    pc="${pc//__termium_precmd}"
+    pc="${pc//__termium_precmd[;$'\''\n'\'']}"
+    pc="${pc//__bp_interactive_mode}"
+    pc="${pc//__bp_interactive_mode[;$'\''\n'\'']}"
+    __bp_sanitize_string pc "$pc"
+
+    # Make sure __bp_interactive_mode is last since this is set in bash preexec.
+    PROMPT_COMMAND=${pc}$'\''\n__termium_precmd\n__bp_interactive_mode'\''
+
+    if [[ ${preexec_functions[0]} != __termium_preexec ]]; then
+      for index in "${!preexec_functions[@]}"; do
+        if [[ ${preexec_functions[$index]} == __termium_preexec ]]; then
+          unset -v '\''preexec_functions[$index]'\''
+        fi
+      done
+      preexec_functions=(__termium_preexec "${preexec_functions[@]}")
+    fi
+  fi
+}
+
+__termium_reset_hooks'
++++ __termium_install_bash_preexec
++++ '[' -z '5.2.32(1)-release' ']'
++++ [[ -z 5 ]]
++++ ((  BASH_VERSINFO[0] < 3 || (BASH_VERSINFO[0] == 3 && BASH_VERSINFO[1] < 1)  ))
++++ [[ -n '' ]]
++++ bash_preexec_imported=defined
++++ __bp_imported=defined
++++ __bp_last_ret_value=0
++++ BP_PIPESTATUS=("${PIPESTATUS[@]}")
++++ __bp_last_argument_prev_command=
++++ __bp_inside_precmd=0
++++ __bp_inside_preexec=0
++++ __bp_install_string='__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ __bp_preexec_interactive_mode=
++++ declare -a precmd_functions
++++ declare -a preexec_functions
++++ [[ -z '' ]]
++++ __bp_install_after_session_init
++++ __bp_require_not_readonly PROMPT_COMMAND HISTCONTROL HISTTIMEFORMAT
++++ local var
++++ for var in "$@"
++++ unset PROMPT_COMMAND
++++ for var in "$@"
++++ unset HISTCONTROL
++++ for var in "$@"
++++ unset HISTTIMEFORMAT
++++ local sanitized_prompt_command
++++ __bp_sanitize_string sanitized_prompt_command '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ local var=sanitized_prompt_command 'text=__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"' sanitized
++++ __bp_trim_whitespace sanitized '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ local var=sanitized 'text=__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ text='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ text='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ printf -v sanitized %s '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ sanitized='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ sanitized='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ __bp_trim_whitespace sanitized '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ local var=sanitized 'text=__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ text='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ text='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ printf -v sanitized %s '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ printf -v sanitized_prompt_command %s '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ [[ -n __venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}" ]]
++++ PROMPT_COMMAND='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+'
++++ PROMPT_COMMAND+='__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ '[' -z '5.2.32(1)-release' -a -z '' ']'
++++ [[ himxBH != *i* ]]
++++ case "$TERM" in
++++ [[ -n '' ]]
++++ [[ -n 5.2.32(1)-release ]]
++++ __termium_shell=bash
++++ __termium_semantic_precmd_executing=
++++ __termium_reset_hooks
++++ [[ -n '' ]]
++++ [[ -n 5.2.32(1)-release ]]
++++ local pc
++++ pc='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ pc='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ pc='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ pc='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ pc='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ __bp_sanitize_string pc '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ local var=pc 'text=__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install' sanitized
++++ __bp_trim_whitespace sanitized '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ local var=sanitized 'text=__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ text='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ text='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ printf -v sanitized %s '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ sanitized='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ sanitized='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ __bp_trim_whitespace sanitized '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ local var=sanitized 'text=__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ text='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ text='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ printf -v sanitized %s '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ printf -v pc %s '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install'
++++ PROMPT_COMMAND='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install
+__termium_precmd
+__bp_interactive_mode'
++++ [[ '' != __termium_preexec ]]
++++ preexec_functions=(__termium_preexec "${preexec_functions[@]}")
+++ __venv_conda_check
++++ get_function_hash conda
++++ declare -f conda
++++ md5
++++ cut '-d ' -f1
+++ current_hash=83c0c0558c8a905d2a9ee9362dfd1707
+++ [[ 83c0c0558c8a905d2a9ee9362dfd1707 != \9\a\6\a\c\6\f\2\f\d\e\a\0\6\e\0\c\3\3\f\9\6\7\b\6\7\a\e\d\0\8\2 ]]
++++ declare -f conda
++++ sed 1d
+++ eval '__venv_conda() {
+    \local cmd="${1-__missing__}";
+    case "$cmd" in
+        activate | deactivate)
+            __conda_activate "$@"
+        ;;
+        install | update | upgrade | remove | uninstall)
+            __conda_exe "$@" || \return;
+            __conda_reactivate
+        ;;
+        *)
+            __conda_exe "$@"
+        ;;
+    esac
+}'
++++ get_function_hash conda
++++ declare -f conda
++++ md5
++++ cut '-d ' -f1
+++ __venv_conda_hash=9a6ac6f2fdea06e0c33f967b67aed082
++++ basename /Users/mps/projects/AI-PROJECTS/venv-build-checker
+++ echo -ne '\033]0;(base)  unixwzrd@xanax: venv-build-checker \007'
+++ export ARCHIVE=/Users/unixwzrd/Warehouse/Users/mps/projects/AI-PROJECTS/venv-build-checker
+++ ARCHIVE=/Users/unixwzrd/Warehouse/Users/mps/projects/AI-PROJECTS/venv-build-checker
++++ trap -p DEBUG
+++ __bp_trap_string=
+++ trap - DEBUG
+++ __bp_install
+++ [[ __venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install
+__termium_precmd
+__bp_interactive_mode == *\_\_\b\p\_\p\r\e\c\m\d\_\i\n\v\o\k\e\_\c\m\d* ]]
+++ trap '__bp_preexec_invoke_exec "$_"' DEBUG
++++ __bp_preexec_invoke_exec DEBUG
++++ __bp_last_argument_prev_command=DEBUG
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ local prior_trap
++++ __bp_preexec_invoke_exec prior_trap
++++ __bp_last_argument_prev_command=prior_trap
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
++++ sed 's/[^'\'']*'\''\(.*\)'\''[^'\'']*/\1/'
+++ prior_trap=
++++ __bp_preexec_invoke_exec ''
++++ __bp_last_argument_prev_command=
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ unset __bp_trap_string
++++ __bp_preexec_invoke_exec __bp_trap_string
++++ __bp_last_argument_prev_command=__bp_trap_string
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ [[ -n '' ]]
++++ __bp_preexec_invoke_exec __bp_trap_string
++++ __bp_last_argument_prev_command=__bp_trap_string
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ __bp_adjust_histcontrol
+++ local histcontrol
+++ histcontrol=
+++ histcontrol=
+++ [[ '' == *\i\g\n\o\r\e\b\o\t\h* ]]
+++ export HISTCONTROL=
+++ HISTCONTROL=
++++ __bp_preexec_invoke_exec __bp_adjust_histcontrol
++++ __bp_last_argument_prev_command=__bp_adjust_histcontrol
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ [[ -n '' ]]
++++ __bp_preexec_invoke_exec __bp_adjust_histcontrol
++++ __bp_last_argument_prev_command=__bp_adjust_histcontrol
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ local existing_prompt_command
++++ __bp_preexec_invoke_exec existing_prompt_command
++++ __bp_last_argument_prev_command=existing_prompt_command
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ existing_prompt_command='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__bp_trap_string="$(trap -p DEBUG)"
+trap - DEBUG
+__bp_install
+__termium_precmd
+__bp_interactive_mode'
++++ __bp_preexec_invoke_exec ''
++++ __bp_last_argument_prev_command=
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ existing_prompt_command='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+:
+__termium_precmd
+__bp_interactive_mode'
++++ __bp_preexec_invoke_exec ''
++++ __bp_last_argument_prev_command=
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ existing_prompt_command='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
++++ __bp_preexec_invoke_exec ''
++++ __bp_last_argument_prev_command=
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ existing_prompt_command='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
++++ __bp_preexec_invoke_exec ''
++++ __bp_last_argument_prev_command=
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ __bp_sanitize_string existing_prompt_command '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ local var=existing_prompt_command 'text=__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode' sanitized
+++ __bp_trim_whitespace sanitized '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ local var=sanitized 'text=__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ text='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ text='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ printf -v sanitized %s '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ sanitized='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ sanitized='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ __bp_trim_whitespace sanitized '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ local var=sanitized 'text=__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ text='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ text='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ printf -v sanitized %s '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ printf -v existing_prompt_command %s '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
++++ __bp_preexec_invoke_exec '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
++++ __bp_last_argument_prev_command='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ [[ __venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode == \: ]]
++++ __bp_preexec_invoke_exec '__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
++++ __bp_last_argument_prev_command='__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ PROMPT_COMMAND=__bp_precmd_invoke_cmd
++++ __bp_preexec_invoke_exec ''
++++ __bp_last_argument_prev_command=
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ PROMPT_COMMAND+='
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
++++ __bp_preexec_invoke_exec ''
++++ __bp_last_argument_prev_command=
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ ((  BASH_VERSINFO[0] > 5 || (BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 1)  ))
++++ __bp_preexec_invoke_exec ''
++++ __bp_last_argument_prev_command=
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ PROMPT_COMMAND+=('__bp_interactive_mode')
++++ __bp_preexec_invoke_exec ''
++++ __bp_last_argument_prev_command=
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ precmd_functions+=(precmd)
++++ __bp_preexec_invoke_exec ''
++++ __bp_last_argument_prev_command=
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ preexec_functions+=(preexec)
++++ __bp_preexec_invoke_exec ''
++++ __bp_last_argument_prev_command=
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ __bp_precmd_invoke_cmd
+++ __bp_last_ret_value=0
+++ BP_PIPESTATUS=("${PIPESTATUS[@]}")
+++ ((  __bp_inside_precmd > 0  ))
+++ local __bp_inside_precmd=1
+++ local precmd_function
+++ for precmd_function in "${precmd_functions[@]}"
+++ type -t precmd
+++ __bp_set_ret_value 0
+++ return 0
++++ __bp_preexec_invoke_exec __bp_precmd_invoke_cmd
++++ __bp_last_argument_prev_command=__bp_precmd_invoke_cmd
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ __bp_interactive_mode
+++ __bp_preexec_interactive_mode=on
++++ __bp_preexec_invoke_exec __bp_install
++++ __bp_last_argument_prev_command=__bp_install
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z on ]]
++++ [[ 0 -eq 0 ]]
++++ __bp_preexec_interactive_mode=
++++ __bp_in_prompt_command __termium_precmd
++++ local prompt_command_array 'IFS=
+;'
++++ read -rd '' -a prompt_command_array
++++ local trimmed_arg
++++ __bp_trim_whitespace trimmed_arg __termium_precmd
++++ local var=trimmed_arg text=__termium_precmd
++++ text=__termium_precmd
++++ text=__termium_precmd
++++ printf -v trimmed_arg %s __termium_precmd
++++ local command trimmed_command
++++ for command in "${prompt_command_array[@]:-}"
++++ __bp_trim_whitespace trimmed_command __bp_precmd_invoke_cmd
++++ local var=trimmed_command text=__bp_precmd_invoke_cmd
++++ text=__bp_precmd_invoke_cmd
++++ text=__bp_precmd_invoke_cmd
++++ printf -v trimmed_command %s __bp_precmd_invoke_cmd
++++ [[ __bp_precmd_invoke_cmd == \_\_\t\e\r\m\i\u\m\_\p\r\e\c\m\d ]]
++++ for command in "${prompt_command_array[@]:-}"
++++ __bp_trim_whitespace trimmed_command __venv_conda_check
++++ local var=trimmed_command text=__venv_conda_check
++++ text=__venv_conda_check
++++ text=__venv_conda_check
++++ printf -v trimmed_command %s __venv_conda_check
++++ [[ __venv_conda_check == \_\_\t\e\r\m\i\u\m\_\p\r\e\c\m\d ]]
++++ for command in "${prompt_command_array[@]:-}"
++++ __bp_trim_whitespace trimmed_command ' echo -ne "\033]0'
++++ local var=trimmed_command 'text= echo -ne "\033]0'
++++ text='echo -ne "\033]0'
++++ text='echo -ne "\033]0'
++++ printf -v trimmed_command %s 'echo -ne "\033]0'
++++ [[ echo -ne "\033]0 == \_\_\t\e\r\m\i\u\m\_\p\r\e\c\m\d ]]
++++ for command in "${prompt_command_array[@]:-}"
++++ __bp_trim_whitespace trimmed_command '${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" '
++++ local var=trimmed_command 'text=${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" '
++++ text='${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" '
++++ text='${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007"'
++++ printf -v trimmed_command %s '${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007"'
++++ [[ ${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" == \_\_\t\e\r\m\i\u\m\_\p\r\e\c\m\d ]]
++++ for command in "${prompt_command_array[@]:-}"
++++ __bp_trim_whitespace trimmed_command '                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ local var=trimmed_command 'text=                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ text='export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ text='export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ printf -v trimmed_command %s 'export ARCHIVE="${HOME}/Warehouse${PWD}"'
++++ [[ export ARCHIVE="${HOME}/Warehouse${PWD}" == \_\_\t\e\r\m\i\u\m\_\p\r\e\c\m\d ]]
++++ for command in "${prompt_command_array[@]:-}"
++++ __bp_trim_whitespace trimmed_command __termium_precmd
++++ local var=trimmed_command text=__termium_precmd
++++ text=__termium_precmd
++++ text=__termium_precmd
++++ printf -v trimmed_command %s __termium_precmd
++++ [[ __termium_precmd == \_\_\t\e\r\m\i\u\m\_\p\r\e\c\m\d ]]
++++ return 0
++++ __bp_preexec_interactive_mode=
++++ return
+++ __termium_precmd
+++ local ret=0
+++ __termium_set_user_var TERMIUM_SHELL bash
+++ hash base64
+++ [[ -z '' ]]
++++ echo -n bash
++++ base64
+++ printf '\033]1337;SetUserVar=%s=%s\007' TERMIUM_SHELL YmFzaA==
+++ __termium_semantic_precmd 0
+++ local last_command_return=0
+++ __termium_reset_hooks
+++ [[ -n '' ]]
+++ [[ -n 5.2.32(1)-release ]]
+++ local pc
+++ pc='__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ pc='__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+
+__bp_interactive_mode'
+++ pc='__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+
+__bp_interactive_mode'
+++ pc='__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+
+'
+++ pc='__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+
+'
+++ __bp_sanitize_string pc '__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+
+'
+++ local var=pc 'text=__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+
+' sanitized
+++ __bp_trim_whitespace sanitized '__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+
+'
+++ local var=sanitized 'text=__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+
+'
+++ text='__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+
+'
+++ text='__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
+++ printf -v sanitized %s '__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
+++ sanitized='__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
+++ sanitized='__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
+++ __bp_trim_whitespace sanitized '__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
+++ local var=sanitized 'text=__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
+++ text='__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
+++ text='__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
+++ printf -v sanitized %s '__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
+++ printf -v pc %s '__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"'
+++ PROMPT_COMMAND='__bp_precmd_invoke_cmd
+__venv_conda_check; echo -ne "\033]0;${CONDA_PROMPT_MODIFIER} ${user}@${host_name}: $(basename "${PWD}") \007" ;
+                   export ARCHIVE="${HOME}/Warehouse${PWD}"
+__termium_precmd
+__bp_interactive_mode'
+++ [[ __termium_preexec != __termium_preexec ]]
+++ [[ '' != \0 ]]
+++ __termium_save_PS1='(base) [unixwzrd@xanax: \W]\$ '
+++ __termium_save_PS2='> '
+++ __termium_save_RPS1=
+++ __termium_save_RPS2=
+++ [[ -n '' ]]
+++ PS1='\[\e]133;P;k=i\a\](base) [unixwzrd@xanax: \W]\$ \[\e]133;B\a\]'
+++ PS2='\[\e]133;P;k=s\a\]> \[\e]133;B\a\]'
+++ [[ '' != '' ]]
+++ printf '\033]133;A;cl=m;aid=%s\007' 68038
+++ __termium_semantic_precmd_executing=0
+++ __termium_osc7
+++ printf '\033]7;file://%s%s\033\' xanax.local /Users/mps/projects/AI-PROJECTS/venv-build-checker
+++ return 0
++++ __bp_preexec_invoke_exec __termium_precmd
++++ __bp_last_argument_prev_command=__termium_precmd
++++ ((  __bp_inside_preexec > 0  ))
++++ local __bp_inside_preexec=1
++++ [[ ! -t 1 ]]
++++ [[ -n '' ]]
++++ [[ -z '' ]]
++++ return
+++ __bp_interactive_mode
+++ __bp_preexec_interactive_mode=on

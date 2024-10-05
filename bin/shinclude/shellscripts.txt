@@ -1,0 +1,1914 @@
+Script: errno.sh:
+
+```bash
+#!/usr/bin/env bash
+
+# Capture the fully qualified path of the sourced script
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Don't source this script if it's already been sourced.
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+echo "Sourcing: ${THIS_SCRIPT}"
+
+# Extract script name, directory, and arguments
+MY_NAME=$(basename ${THIS_SCRIPT})
+__VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
+__VENV_BASE=$(dirname "${__VENV_BIN}")
+__VENV_ARGS=$*
+__VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
+
+__VENV_INTERNAL_FUNCTIONS=(
+   ${__VENV_INTERNAL_FUNCTIONS[@]}
+   "to_upper"
+)
+
+__rc__=0
+
+# Check if the function errno is already defined and if it has return 0
+if declare -f errno &> /dev/null; then
+    __rc__=0
+    return ${__rc__}
+fi
+
+function errno() {
+# Function: errno
+#
+# Provides POSIX errno codes and values for use in scripts or lookup of error codes on th ecommand line.
+#
+# Description: This function takes an errno code or errno number and prints the corresponding error message to STDOUT. Sets the exit code to the errno value and returns, unless there is an internal error.
+#
+# Usage: errno [errno_code|errno_number]
+#
+# Example: errno EACCES
+#
+# Returns: "error_code: error_text"
+#
+# Errors: 2, 22
+#   2: Could not find system errno.h
+#  22: Invalid errno name
+#
+    if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+        echo "Usage: errno [errno_code|errno_number]"
+        echo "Example: errno EACCES"
+        __rc__=0
+        return ${__rc__}
+    fi
+
+    local errno_code
+    errno_code="$(to_upper "$1")"
+    local errno_file
+    if [ -f "/usr/include/sys/errno.h" ]; then
+        errno_file="/usr/include/sys/errno.h"
+    elif [ -f "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h" ]; then
+        errno_file="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h"
+    else
+        echo "Error: Could not lookup error code '${errno_code}' system errno.h not found." >&2
+        __rc__=2
+        return ${__rc__}
+    fi
+
+    local line errno_num errno_text
+
+    if [[ "$errno_code" =~ ^[0-9]+$ ]]; then
+        line=$(grep -wE "#define [A-Z_]*[ \t]*\b$errno_code\b" "$errno_file")
+        errno_code=$(echo "$line" | awk '{print $2}')
+    else
+        line=$(grep -wE "#define $errno_code[ \t]*" "$errno_file")
+    fi
+
+    errno_num=$(echo "$line" | awk '{print $3}')
+    errno_text=$(echo "$line" | sed -e 's/#define[ \t]*[A-Z0-9_]*[ \t]*[0-9]*[ \t]*\/\* \(.*\) \*\//\1/')
+
+    if [ -z "$errno_num" ]; then
+        echo "Error: Invalid errno code $errno_code" >&2
+        __rc__=22
+        return ${__rc__}
+    else
+        echo "($errno_code: $errno_num): $errno_text"
+        __rc__="$errno_num"
+        return ${__rc__}
+    fi
+}
+
+ errfind() {
+# Function: errfind
+#
+# Find the error code for a given streing.
+#
+# Description: Searches the POSIX errno.h file for a given string abd returns any matching error codes and messages.
+#
+# Usage: errfind <string>
+#
+# Example: errfind invalid 
+#
+# Returns: "error_code: error_text"
+#         or
+#         "No error codes found for <string>"
+#
+# Errors: None
+#
+    local errno_file
+    if [ -f "/usr/include/sys/errno.h" ]; then
+        errno_file="/usr/include/sys/errno.h"
+    elif [ -f "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h" ]; then
+        errno_file="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h"
+    else
+        echo "Error: Could not lookup error code '${errno_code}' system errno.h not found." >&2
+        __rc__=2
+        return ${__rc__}
+    fi
+
+    local lines errno_code errno_num errno_text
+    local search_string="$1"
+
+    lines=$(grep -i "#define [A-Z_]*[ \t]*.*$search_string.*" "$errno_file")
+    if [ -z "$lines" ]; then
+        echo "No error codes found for $search_string"
+        __rc__=0
+        return ${__rc__}
+    fi
+
+    echo "$lines" | while read -r line; do
+        errno_code=$(echo "$line" | awk '{print $2}')
+        errno_num=$(echo "$line" | awk '{print $3}')
+        errno_text=$(echo "$line" | sed -e 's/#define[ \t]*[A-Z0-9_]*[ \t]*[0-9]*[ \t]*\/\* \(.*\) \*\//\1/')
+
+        echo "($errno_code: $errno_num): $errno_text"
+    done
+
+    __rc__=0
+    return ${__rc__}
+}
+
+function to_upper() {
+# Function: to_upper
+#
+# Description: This function converts a string to uppercase
+#
+# Usage: to_upper <string>
+#
+# Example: to_upper "hello"
+#
+# Returns: "HELLO"
+#
+# Errors: None
+#
+    local str="$1"
+    echo "${str^^}"
+}
+
+function errno_warn() {
+# Function: errno_warn
+#
+# Description: This function prints a warning using the errno function to STDERR and returns the error number
+#
+# Usage: errno_warn <errno_code>
+#
+    __rc__=$1
+    echo "WARNING: $(errno "${__rc__}")" >&2
+    return ${__rc__}
+}
+
+function errno_exit() {
+# Function: errno_exit
+#
+# Description: This function prints an error to STDERROR using the errno function and exits with the error number
+#
+# Usage: errno_exit <errno_code>
+#
+    __rc__=$1
+    echo "ERROR: $(errno "${__rc__}")" >&2
+    exit ${__rc__}
+}
+```
+```
+```
+```
+```
+```
+```
+```
+```
+```
+```
+```
+```
+Script: help_sys.sh:
+
+```bash
+#!/bin/bash
+#
+# # help_sys.sh - Help System Functions for Bash Scripts
+#
+# - **Purpose**: 
+#   - This script provides a dynamic help system for all sourced bash scripts.
+#   - It can list available functions, provide detailed information about each function, and list sourced scripts.
+#
+# - **Usage**: 
+#   - Source this script in other bash scripts to enable the dynamic help system.
+#   - For example, in another script: `source help_sys.sh`.
+#
+# - **Input Parameters**: 
+#   - None. All input is handled by the individual functions.
+#
+# - **Output**: 
+#   - Enables a help system that can be accessed by calling `help` in the terminal.
+#   - Also supports generating Markdown documentation.
+#
+# - **Exceptions**: 
+#   - Some functions may return specific error codes or print error messages to STDERR.
+#   - Refer to individual function documentation for details.
+#
+# - **Environment**:
+#
+#   - **MD_PROCESSOR**: Set to the markdown processor of your choice, if `glow`
+#       is in your path this will use that.
+
+# Capture the fully qualified path of the sourced script
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Don't source this script if it's already been sourced.
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+echo "Sourcing: ${THIS_SCRIPT}"
+
+
+# Help System Functions
+
+# Use an environment variable for markdown processor, defaulting to 'glow'
+export MD_PROCESSOR=${MD_PROCESSOR:-"glow"}
+
+# Define an array of internal functions to exclude from help and documentation
+__VENV_INTERNAL_FUNCTIONS=(
+    ${__VENV_INTERNAL_FUNCTIONS[@]}
+    "init_help_system"
+    "general_help"
+    "help_scripts"
+    "specific_script_help"
+    "specific_function_help"
+    "help_functions"
+    "do_help"
+    "help"
+)
+
+
+# Initialize a single array to store function names and their corresponding documentation
+declare -a __VENV_FUNCTIONS
+declare -a __VENV_SCRIPTS
+
+
+init_help_system() {
+#
+# init_help_system - Populate and sort __VENV_FUNCTIONS with function names and documentation from sourced scripts.
+# - **Purpose**:
+#   - Initializes the help system by populating the __VENV_FUNCTIONS with function names and their documentation.
+# - **Usage**: 
+#   - Automatically called when the script is sourced. No need to call it manually.
+# - **Scope**:
+#   - Global. Modifies the global array __VENV_FUNCTIONS.
+# - **Input Parameters**: 
+#   - None. Internally iterates over the scripts listed in the __VENV_SOURCED_LIST array.
+# - **Output**: 
+#   - Populates __VENV_FUNCTIONS with function names and their corresponding documentation.
+#   - Sorts __VENV_FUNCTIONS based on function names.
+# - **Exceptions**: 
+#   - None
+#
+    [ -n "${__VENV_FUNCTIONS[*]}" ] && return
+
+    local script func line dir_name
+    local shdoc_dir="${__VENV_BASE}/docs/shdoc"
+    local conf_file="${__VENV_BASE}/conf/help_sys.conf"
+    # Read directories from the configuration file
+    local search_dirs=($(grep -v '^#' "$conf_file" | sed '/^$/d'))
+
+    # Iterate over directories to find shell scripts
+    for dir_name in "${search_dirs[@]}"; do
+        local script_dir="${__VENV_BASE}/${dir_name}"
+        local doc_dir="${shdoc_dir}/${dir_name}"
+
+        local script_files=($(file "${script_dir}"/* | grep "shell script" | cut -d":" -f1))
+        for script in ${script_files[@]}; do
+            # Set the markdown path to the script markdown documentation
+            local script_name=$(basename "${script}")  # Extract just the script name
+            local markdown_file="${doc_dir}/scripts/${script_name}.md"
+            # Store script name andpath to markdown in __VENV_SCRIPTS
+            __VENV_SCRIPTS+=("${script_name}")
+            __VENV_SCRIPTS+=("${markdown_file}")
+            
+            # Now extract function names for __VENV_FUNCTIONS
+            while IFS= read -r line; do
+                if [[ "$line" =~ ^(function[[:space:]]+)?[a-zA-Z_][a-zA-Z0-9_]*\(\)[[:space:]]*\{ ]]; then
+                    # Reading function name
+                    func="${line%%(*}"
+                    func="${func/#function /}"  # Remove 'function ' prefix if exists
+                    # Correct the function markdown path
+                    local func_markdown_path="${doc_dir}/functions/${func}.md"
+                    # Store function name and path to its documentation
+                    __VENV_FUNCTIONS+=("$func")
+                    __VENV_FUNCTIONS+=("$func_markdown_path")
+                fi
+            done < "${script}"
+        done
+    done 
+
+    # Sort __VENV_FUNCTIONS and __VENV_SCRIPTS
+    sort_2d_array __VENV_FUNCTIONS
+    sort_2d_array __VENV_SCRIPTS
+}
+
+write_index_header() {
+    local readme_path="$1"
+    echo "# Project Documentation" > "${readme_path}"
+    echo "## Brief introduction of the project." >> "${readme_path}"
+    # Add other header content here
+}
+
+write_index_footer() {
+    local readme_path="$1"
+    local date_mark=$(date "+Generated: %Y %m %d at %H:%M:%S")
+
+    echo "" >> "${readme_path}"
+    echo "Footer content" >> "${readme_path}"
+    echo "${date_mark}" >> "${readme_path}"
+    # Add other footer content here
+}
+
+create_readme() {
+    local name="$1"
+    local description="$2"
+    local markdown_path="$3"
+    local readme_path="$4"
+
+    description="${description#*- }"   # Extract everything after '- '
+    description="${description%%\\n*}"  # Stop at the first newline
+
+    # Create a relative path for the markdown link
+    local markdown_rel_path="${markdown_path/#${__VENV_BASE}/}"
+
+    echo "- [${name}](${markdown_rel_path}): ${description} >> ${readme_path}"
+    echo "- [${name}](${markdown_rel_path}): ${description}" >> "${readme_path}"
+}
+
+generate_markdown() {
+#
+# ## generate_markdown - Generate Markdown documentation for all available functions.
+# 
+# - **Purpose**:
+#   - Generate comprehensive Markdown documentation for all functions.
+# - **Usage**: 
+#   - vhelp generate_markdown
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Markdown-formatted documentation for all functions.
+# - **Exceptions**: 
+#   - None
+#
+    local conf_file="${__VENV_BASE}/conf/help_sys.conf"
+    local shdoc_dir="docs/shdoc"
+    [ -d "${shdoc_dir}" ] || mkdir -p ${shdoc_dir}
+
+    local timestamp_file="${__VENV_BASE}/${shdoc_dir}/AUTO_GENERATED_DO_NOT_MODIFY_OR_PLACE_FILES_HERE"
+    local progress_file="${shdoc_dir}/.in-progress"
+    local readme_index="${__VENV_BASE}/docs/README.md"
+
+    touch "${progress_file}"
+    
+    # Temporary arrays to hold th edocumentation foe each function and script.
+    local script_doc=()  # Array to collect scripts' names and documentation
+    local function_doc=()  # Array to collect functions' names and documentation
+
+    # State variables
+    local in_script=false
+    local in_function=false
+
+    # Read the directories to document from the conf file
+    local search_dirs=($(grep -v '^#' "$conf_file" | sed '/^$/d'))
+
+    write_index_header ${readme_index}
+    # Iterate over directories to find shell scripts and their documentation
+    for dir_name in "${search_dirs[@]}"; do
+        local script_dir="${__VENV_BASE}/${dir_name}"
+        local doc_dir="${shdoc_dir}/${dir_name}"
+        # local doc_dir="${shdoc_dir}/${dir_name}"
+        [ -d "${doc_dir}/functions" ] || mkdir -p ${__VENV_BASE}${doc_dir}/functions
+        [ -d "${doc_dir}/scripts" ] || mkdir -p ${doc_dir}/scripts
+
+        local script_files=($(file "${script_dir}"/* | grep "shell script" | cut -d":" -f1))
+        for script in "${script_files[@]}"; do
+            local script_name=$(basename "${script}")
+            local current_func_name=""  # Keep track of the current function
+
+            # Extract the documentation from the script and functions
+            while IFS= read -r line || [[ -n "${line}" ]]; do
+
+                # Skip over a blank line in the documentation
+                if [[ "${line}" =~ ^#[[:space:]]*$ ]]; then
+                    continue
+                fi
+
+                # CHeck for beginning of the script.
+                if [[ "${line}" =~ ^#! ]]; then
+                    in_script=true
+                    in_function=false
+                    script_doc+=("${script_name}")
+                    script_doc+=("")  # Placeholder for the documentation to be appended next
+                    continue
+                fi
+
+                # Handle Script documentation
+                if [[ "${in_script}" == true && "${line}" == \#* ]]; then
+                    script_doc[$(( ${#script_doc[@]} - 1 ))]+="${line/#\# /}\n"
+                    continue
+                else
+                    in_script=false
+                fi
+
+                # Check for beginning of a function
+                if [[ "$line" =~ ^(function[[:space:]]+)?[a-zA-Z_][a-zA-Z0-9_]*\(\)[[:space:]]*\{ ]]; then  # Found a function definition
+                    in_function=true
+                    current_func_name="${line%%(*}"
+                    current_func_name="${current_func_name/#function /}"  # Remove 'function ' prefix if exists
+                    function_doc+=("${current_func_name}")
+                    function_doc+=("")  # Placeholder for the documentation to be appended next
+                    continue
+                fi
+
+                # Handle Function documentation
+                if [[ "$in_function" == true && "${line}" == \#* ]]; then
+                    function_doc[$(( ${#function_doc[@]} - 1 ))]+="${line/#\# /}\n"
+                    continue
+                fi
+                
+                # We reached the end of the function, reset
+                if [[ "${in_function}" == true && "${line}" == '}' ]]; then
+                    in_function=false
+                    continue
+                fi
+
+            done < "$script"
+        done
+    done
+
+    # Sort the arrays to align with __VENV_FUNCTIONS and __VENV_SCRIPTS
+    sort_2d_array script_doc
+    sort_2d_array function_doc
+
+    # Write the documentation to markdown files
+    for ((i=0; i<${#script_doc[@]}; i+=2)); do
+        if [[ "${script_doc[i]}" == "${__VENV_SCRIPTS[i]}" ]]; then
+            echo "Writing out script docs for ${script_doc[i]}"
+            echo -e "__VENV_BASE: ${__VENV_BASE}"
+            echo -e "${script_doc[i+1]}" > "${__VENV_SCRIPTS[i+1]}"
+            create_readme "${script_doc[i]}" "${script_doc[i+1]}" "${__VENV_SCRIPTS[i+1]}" "${readme_index}"
+        else
+            echo "Oh Crap! something went wrong generating for SCRIPTS, you need to reinitialize your shell."
+            echo "Mismnatch: '${script_doc[i]}'  '${__VENV_SCRIPTS[i]}'"
+            echo "Bailing out on further generation, the expected SCRIPT list does not agree"
+            echo "with the help system initialization."
+            return
+        fi
+    done
+    for ((i=0; i<${#function_doc[@]}; i+=2)); do
+        if [[ "${function_doc[i]}" == "${__VENV_FUNCTIONS[i]}" ]]; then
+            echo "Writing out function docs for ${function_doc[i]}"
+            echo -e "${function_doc[i+1]}" > "${__VENV_FUNCTIONS[i+1]}"
+            create_readme "${function_doc[i]}" "${function_doc[i+1]}" "${__VENV_FUNCTIONS[i+1]}" "${readme_index}"
+        else
+            echo "Oh Crap! something went wrong generating for FUNCTIONS, you need to reinitialize your shell."
+            echo "Mismnatch: '${function_doc[i]}'  '${__VENV_FUNCTIONS[i]}'"
+            echo "Bailing out on further generation, the expected FUNCTION list does not agree"
+            echo "with the help system initialization."
+            return
+        fi
+    done
+
+    write_index_footer ${readme_index}
+
+    # After documentation generation is complete
+    mv "${progress_file}" "${timestamp_file}"
+    # Now find and delete old markdown files
+    # This should be either older or newer if it doesn't work, change it.
+    find "${shdoc_dir}" -type f -name '*.md' ! -newer "${timestamp_file}" -exec rm {} \;
+}
+
+
+general_help() {
+#
+# general_help - Display general help options for the 'help' command.
+#
+# - **Purpose**:
+#   - Provide an overview of the available help commands.
+# - **Usage**: 
+#   - general_help
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Lists the general help commands available.
+# - **Exceptions**: 
+#   - None
+#
+    echo -e "\nAvailable commands for 'vhelp':\n"
+    echo "  - **functions**:         List available functions and their purpose."
+    echo "  - **scripts**:           List available scripts and their purpose."
+    echo "  - **generate_markdown**: Generate Markdown documentation for all functions."
+    echo -e "\nTo get help on a specific function, use 'vhelp function_name'.\n"
+}
+
+
+help_scripts() {
+#
+# help_scripts - List sourced scripts and their purpose.
+#
+# - **Purpose**:
+#   - Display a list of sourced scripts.
+# - **Usage**: 
+#   - help_scripts
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Lists the names of the sourced scripts.
+# - **Exceptions**: 
+#   - None
+#
+    local longest=0
+    local name description
+
+    echo -e "\nList of sourced scripts and their purpose:\n"
+
+    # Find the longest script name
+    for ((i=0; i<${#__VENV_SCRIPTS[@]}; i+=2)); do
+        if [[ ${#__VENV_SCRIPTS[i]} -gt ${longest} ]]; then
+            longest=${#__VENV_SCRIPTS[i]}
+        fi
+    done
+
+    for ((i=0; i<${#__VENV_SCRIPTS[@]}; i+=2)); do
+        name="${__VENV_SCRIPTS[i]}"
+        markdown_file="${__VENV_SCRIPTS[i+1]}"
+
+        if [[ -f "$markdown_file" ]]; then
+            # Fetch the first line or a specific section from the markdown file
+            local description=$(head -n 1 "$markdown_file")
+            description="${description#*- }"  # Extracts the part after '- '
+            printf "  * %-$((${longest}+1))s %s\n" "${name}:" "${description}"
+       else
+            printf "  - %s - No description available\n" "$name"
+        fi
+    done
+    echo -e "\nUse 'vhelp \`script_name\` for detailed information on each script"
+}
+
+
+specific_script_help() {
+
+    local script=$1
+
+    for ((i=0; i<${#__VENV_SCRIPTS[@]}; i+=2)); do
+        if [[ "${__VENV_SCRIPTS[i]}" == "${script}" ]]; then
+            local markdown_file="${__VENV_SCRIPTS[i+1]}"
+            if [[ -f "${markdown_file}" ]]; then
+                ${MD_PROCESSOR:-cat} ${markdown_file}
+            else
+                echo "No documentation available for '${script}'."
+            fi
+            return
+        fi
+    done
+    echo "Unknown script: '${script}'"
+    general_help
+}
+
+
+specific_function_help() {
+#
+# specific_function_help - Provide detailed documentation for a given function.
+#
+# - **Purpose**:
+#   - Display documentation for a specific function.
+# - **Usage**: 
+#   - specific_function_help "function_name"
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   1. `function_name` (string) - The name of the function.
+# - **Output**: 
+#   - Displays the documentation for the given function.
+# - **Exceptions**: 
+#   - Displays general help if the function is unknown.
+#
+    local func=$1
+
+    if [[ " ${__VENV_INTERNAL_FUNCTIONS[@]} " =~ " ${func} " ]]; then
+        echo "The function '${func}' is for internal use. Please refer to the system documentation."
+        return
+    fi
+
+    echo ""
+
+    for ((i=0; i<${#__VENV_FUNCTIONS[@]}; i+=2)); do
+        if [[ "${__VENV_FUNCTIONS[i]}" == "${func}" ]]; then
+            local markdown_file="${__VENV_FUNCTIONS[i+1]}"
+            if [[ -f "${markdown_file}" ]]; then
+                ${MD_PROCESSOR:-cat} ${markdown_file}
+            else
+                echo "No documentation available for '${func}'."
+            fi
+            return
+        fi
+    done
+    echo "Unknown function: '${func}'"
+    general_help
+}
+
+
+help_functions() {
+    #
+    # help_functions - List available functions and how to get their documentation.
+    #
+    # - **Purpose**:
+    #   - Provide a list of available functions and guidance on getting detailed documentation.
+    # - **Usage**:
+    #   - help_functions
+    # - **Scope**:
+    #   - Global
+    # - **Input Parameters**:
+    #   - None
+    # - **Output**:
+    #   - Lists available functions and how to get more information about them.
+    # - **Exceptions**:
+    #   - None. However, it skips functions listed in __VENV_INTERNAL_FUNCTIONS and those already in __VENV_FUNCTIONS.
+    #
+    local longest=0
+    local name description
+
+    # Find the longest function name
+    for ((i=0; i<${#__VENV_FUNCTIONS[@]}; i+=2)); do
+        if [[ ${#__VENV_FUNCTIONS[i]} -gt ${longest} ]]; then
+            longest=${#__VENV_FUNCTIONS[i]}
+        fi
+    done
+
+    echo -e "\nAvailable functions and their brief descriptions:\n"
+
+    for ((i=0; i<${#__VENV_FUNCTIONS[@]}; i+=2)); do
+        local name="${__VENV_FUNCTIONS[i]}"
+        local markdown_file="${__VENV_FUNCTIONS[i+1]}"
+
+        # TODO This i a slight problkem need to change to list commands/function explicitly
+        # listed in am array of functions to list when getting help.
+        # shellcheck disable=SC2076,SC2199
+        if [[ " ${__VENV_INTERNAL_FUNCTIONS[@]} " =~ " ${name} " ]]; then
+            continue
+        fi
+
+        if [[ -f "${markdown_file}" ]]; then
+            # Fetch the first line or a specific section from the markdown file
+            local description=$(head -n 1 "${markdown_file}")
+            description="${description#*- }"  # Extracts the part after '- '
+
+            # Adjust the spacing for name and description
+            printf "  * %-${longest}s %s\n" "${name}:" "${description}"
+        else
+            # Handle case where there is no description available
+            printf "  * %-${longest}s No description available\n" "${name}"
+        fi
+    done
+
+    echo -e "\nUse 'vhelp \`function_name\` for detailed information on each function."
+}
+
+
+vhelp() {
+#
+# vhelp - Main entry point for the help system.
+#
+# - **Purpose**:
+#   - Facilitate the help system by initializing and delegating to other help functions.
+# - **Usage**: 
+#   - vhelp [subcommand]
+# - **Scope**:
+#   - Global
+# - **Input Parameters**: 
+#   1. `subcommand` (optional string) - The specific help topic or function name.
+# - **Output**: 
+#   - Help information based on the optional subcommand, or general help if none provided.
+# - **Exceptions**: 
+#   - None
+#
+    local subcommand=$1
+    local is_script=0
+    local md_command
+
+    # Initialize help, if it hasn't been already
+    if [[ -z "${__VENV_FUNCTIONS[*]}" ]]; then
+        init_help_system
+    fi
+
+    # Use the markdown processor if available, otherwise default to 'cat'
+    command -v ${MD_PROCESSOR} > /dev/null 2>&1 &&  md_command="${MD_PROCESSOR}" \
+        || md_command="cat"
+
+    # Check if the subcommand is a known script name (without the .sh extension)
+    for script in ${__VENV_SOURCED_LIST[@]}; do
+        if [[ "${script##*/}" == "${subcommand}" ]]; then
+            is_script=1
+            break
+        fi
+    done
+
+    case "${subcommand}" in
+        "generate_markdown")
+            generate_markdown 
+            echo "Markdown geneartion complete."
+            ;;
+        "functions")
+            help_functions | ${md_command}
+            ;;
+        "scripts")
+            help_scripts | ${md_command}
+            ;;
+        "")
+            general_help | ${md_command}
+            ;;
+        *)
+            if (( is_script )); then
+                specific_script_help "${subcommand}" | ${md_command}
+            else
+                specific_function_help "${subcommand}" | ${md_command}
+            fi
+            ;;
+    esac
+}
+```
+Script: init_env.sh:
+
+```bash
+#!/bin/bash
+#
+# `init_env.sh` - Initialize Environment and Source Utility Scripts
+# 
+# ## Description
+# - **Purpose**: 
+#   - `init_env.sh` is designed to initialize the environment for bash scripting, particularly in the context of managing virtual environments. It sets up the necessary environment and sources utility scripts required for the proper functioning of other scripts in the system. It is responsible for orchestrating the environment setup in the correct order and can also be used to source additional environment or setup scripts as required, such as `.env.local` files.
+# - **Usage**: 
+#   - This script is intended to be sourced in other bash scripts to import the necessary environment and utility functions. It also contains a function that can be called to perform environment setup tasks in user scripts. To use it, include the following line in your bash scripts:
+#     ```bash
+#     source /path/to/init_env.sh
+#     ```
+# - **Input Parameters**: 
+#   - None. The script operates without requiring any input parameters.
+# - **Output**: 
+#   - Upon execution, `init_env.sh` sets up the environment, sources utility scripts, and prepares the system for managing virtual environments.
+# - **Exceptions**: 
+#   - The script exits with code 1 if it fails to find any of the required scripts or if any part of the initialization process fails.
+# 
+# ## Dependencies
+# - This script relies on utility scripts located in a specified directory (`__VENV_INCLUDE`). It specifically sources the following utility scripts:
+#   - `util_funcs.sh`
+#   - `help_sys.sh`
+#   - `venv_funcs.sh`
+# - The script also assumes the presence of a Conda environment and attempts to initialize it.
+# 
+# ## Examples
+# - **Sourcing the Script**:
+#   ```bash
+#   # In your bash script
+#   source /path/to/init_env.sh
+# ```
+# 
+
+# Determine the real path of the script
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Don't source this script if it's already been sourced.
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+echo "Sourcing: ${THIS_SCRIPT}"
+
+# Extract script name, directory, and arguments
+__VENV_BIN=$(dirname $(dirname "${THIS_SCRIPT}"))
+__VENV_BASE=$(dirname "${__VENV_BIN}")
+__VENV_ARGS=$*
+__VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
+
+__VENV_INTERNAL_FUNCTIONS=(
+    ${__VENV_INTERNAL_FUNCTIONS[@]}
+    "source_util_script"
+)
+
+__rc__=0
+
+source_util_script() {
+# # Function: source_util_script
+# 
+# ## Description
+# - **Purpose**: 
+#   - The `source_util_script` function is designed to source a utility script from a specified directory. It's a helper function used within the `init_env.sh` script to modularly load additional scripts as needed.
+# - **Usage**: 
+#   - This function is called with a single argument: the name of the script to be sourced (without the `.sh` extension). It checks for the presence of the script in the directory specified by `__VENV_INCLUDE` and sources it if found. If the script is not found, it prints an error message and returns with an exit code of 1.
+# - **Input Parameters**: 
+#   - `script_name`: The name of the script to source (without the `.sh` extension).
+# - **Output**: 
+#   - Sources the specified script if found. Otherwise, outputs an error message.
+# - **Exceptions**: 
+#   - Exits with a return code of 1 if the specified script is not found in the directory `__VENV_INCLUDE`.
+# 
+# ## Examples
+# - **Sourcing a Script**:
+#   ```bash
+#   # Call within a bash script
+#   source_util_script "my_util"
+#   # This attempts to source 'my_util.sh' from the directory specified in __VENV_INCLUDE
+#   ```
+# 
+    local script_name="$1"  
+    [ -f "${__VENV_INCLUDE}/${script_name}.sh" ] && . "${__VENV_INCLUDE}/${script_name}.sh" \
+        || { echo "${__VENV_INCLUDE}: Error sourcing script ${script_name}.sh in INCLUDE_DIR: ${__VENV_INCLUDE}"; return 1; }
+}
+
+# Initialize Conda environment
+__conda_setup="$('${HOME}/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "${HOME}/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "${HOME}/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="${HOME}/miniconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+
+# Source utility functions
+source_util_script "util_funcs"
+source_util_script "errno"
+source_util_script "help_sys"
+source_util_script "wrapper_funcs"
+source_util_script "venv_funcs"
+```
+Script: util_funcs.sh:
+
+```bash
+#!/bin/bash
+#
+# # `util_funcs.sh` - Utility Functions for Bash Scripts
+#
+# ## Description
+# - **Purpose**:
+#   - `util_funcs.sh` offers a collection of utility functions to assist in various common tasks within bash scripting. These functions provide streamlined solutions for string manipulation, number padding, and stack operations, enhancing the efficiency and readability of bash scripts that incorporate them.
+# - **Usage**: 
+#   - Source this script within other bash scripts to make the utility functions available for use:
+#     ```bash
+#     source /path/to/util_funcs.sh
+#     ```
+# - **Input Parameters**: 
+#   - None. This script does not require input parameters as it is intended to be sourced by other scripts.
+# - **Output**: 
+#   - Provides utility functions that can be called from other bash scripts.
+# - **Exceptions**: 
+#   - Some functions within the script may return specific error codes depending on their internal logic. Refer to the individual function documentation for detailed exception handling.
+#
+# ## Dependencies
+# - None explicitly stated. The script is designed to be self-contained, relying only on standard bash features.
+# 
+
+# Capture the fully qualified path of the sourced script
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Don't source this script if it's already been sourced.
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+echo "Sourcing: ${THIS_SCRIPT}"
+
+__VENV_INTERNAL_FUNCTIONS=(
+    ${__VENV_INTERNAL_FUNCTIONS[@]}
+)
+
+# Utility functions
+
+strip_space() {
+#
+# # `strip_space` - Remove Leading and Trailing Whitespaces
+# 
+# ## Description
+# - **Purpose**:
+#   - Removes leading and trailing spaces from the input string. 
+# - **Usage**: 
+#   - `strip_space "string"`
+# - **Input Parameters**: 
+#   - `str`: The string from which to remove leading and trailing whitespaces.
+# - **Output**: 
+#   - A new string with whitespaces removed from both ends.
+# - **Exceptions**: None.
+# 
+    local argstring="$*"
+    echo ${argstring}
+}
+
+zero_pad() {
+# 
+# # `zero_pad` - Pad a Single-Digit Number with a Leading Zero
+# 
+# ## Description
+# - **Purpose**:
+#   - The `zero_pad` function pads a given number with a leading zero if it's a single-digit number, ensuring consistent formatting for numerical values.
+# - **Usage**: 
+#   - Call the function with a number to add a leading zero if it is a single digit. For example:
+#     ```bash
+#     padded_number=$(zero_pad "5")
+#     # Returns "05"
+#     ```
+# - **Input Parameters**: 
+#   - `nn`: A number that needs padding.
+# - **Output**: 
+#   - A string representation of the number, padded with a leading zero if it was a single digit.
+# - **Exceptions**: 
+#   - None. The function handles single-digit numbers and does not modify numbers with two or more digits.
+# 
+    local num="$1"
+    printf "%02d" "${num}"
+}
+
+next_step() {
+#
+# next_step - Increment a given sequence number by 1 and pad it with a zero if needed.
+#
+# - **Purpose**:
+#
+#   - Increment a given sequence number by 1 and pad it with a zero if needed.
+#
+# - **Usage**: 
+#
+#   - next_step "[0-99]"
+#
+# - **Scope**: Local. Modifies no global variables.
+#
+# - **Input Parameters**: 
+#
+#   1. `sequenceNum` (integer) - The sequence number to increment. Must be between 00 and 99.
+#
+# - **Output**: 
+#
+#   - The next sequence number as a string, zero-padded if necessary.
+#
+# - **Exceptions**: 
+#
+#   - Returns an error code 22 if the sequence number is not between 00 and 99. Error 22 means "Invalid Argument".
+#
+    local sn="$1"
+    case "$sn" in
+        ""|[[:space:]]* )
+            sn=0
+            ;;
+       [0-9]|[0-9][0-9] )
+            sn=$((10#${sn}))
+            ((sn++))
+            ;;
+       *)
+            echo "Exception, sequence must be a value between 00 and 99." >&2
+            __rc__=22   # EINVAL: Invalid Argument
+            return ${__rc__}
+            ;;
+    esac
+    echo "$(zero_pad ${sn})"
+}
+
+sort_2d_array() {
+# 
+# # `sort_2d_array` - Sort a Two-Dimensional Array
+# 
+# ## Description
+# - **Purpose**:
+#   - Sorts a two-dimensional array in Bash. It's particularly useful for organizing data that is stored in a format of paired elements.
+# - **Usage**: 
+#   - This function can be used to sort arrays where each element consists of a pair of values (e.g., key-value pairs). It's beneficial in scenarios where data needs to be sorted based on one of the dimensions.
+# - **Input Parameters**: 
+#   - `array_name`: The name of the array variable that needs to be sorted.
+# - **Output**: 
+#   - The original array sorted based on the specified criteria.
+# - **Exceptions**: 
+#   - Handles exceptions or errors that may arise during the sorting process (to be detailed based on function's implementation).
+# 
+    local -a array_name=$1
+    local i j temp1 temp2 len temp_arary
+
+    # Assign named array to local array
+    eval "temp_arary=(\"\${$array_name[@]}\")"
+    len=${#temp_arary[@]}
+
+    for ((i=2; i<len; i+=2)); do
+        temp1=${temp_arary[i]}
+        temp2=${temp_arary[i+1]}
+
+        # Find the correct position for temp1, temp2 by comparing with all preceding pairs
+        j=i
+        while [[ j -ge 2 ]]; do
+            if [[ ${temp_arary[j-2]} > $temp1 ]]; then
+                # Shift the pair at j-2 forward to make room for temp1, temp2
+                temp_arary[j]=${temp_arary[j-2]}
+                temp_arary[j+1]=${temp_arary[j-1]}
+                j=$((j-2))
+            else
+                # Correct position found, break the loop
+                break
+            fi
+        done
+
+        # Place temp1, temp2 in their correct position
+        temp_arary[j]=$temp1
+        temp_arary[j+1]=$temp2
+    done
+
+    # Assign sorted local array back to original named array
+    eval "${array_name}=(\"\${temp_arary[@]}\")"
+
+}
+
+
+# last value popped off the stack. This is how to get the value on the stack sfetr popping it if it's a string since we cannot set it using $(pop_statck STACKNAME).
+__sv__=''
+
+push_stack() {
+#
+# # `push_stack` - Push a Value onto a Named Stack
+# 
+# ## Description
+# - **Purpose**:
+#   - Pushes a value onto a named stack (added to the end of the stack). 
+# - **Usage**: 
+#   - `push_stack "stack_name" "value"`
+# - **Input Parameters**: 
+#   - `stack_name`: The name of the stack array.
+#   - `value`: The value to push onto the stack.
+# - **Output**: 
+#   - Modifies the named stack by adding a new element.
+# - **Exceptions**: None.
+#
+    local stack_name=$1
+    local stack_value=$2
+
+    eval "${stack_name}+=(\"$stack_value\")"
+    # echo "PUSH ${stack_name}: ${stack_value}" >&2
+}
+
+pop_stack() {
+#
+# # `pop_stack` - Pop a Value from a Named Stack
+# 
+# ## Description
+# - **Purpose**:
+#   - Pops a value from a named stack.
+# - **Usage**: 
+#   - `pop_stack "stack_name"`
+# - **Input Parameters**: 
+#   - `stack_name`: The name of the stack array.
+# - **Output**: 
+#   - Removes and returns the top element from the named stack.
+# - **Exceptions**: 
+#   - Returns an error message and error code 1 if the stack is empty.
+# 
+    local stack_name=$1
+    local popped_value
+
+    # Dynamically get the length of the stack
+    eval "local stack_length=\${#${stack_name}[@]}"
+
+    # Check if the stack is empty
+    if [[ "${stack_length}" -eq 0 ]]; then
+        echo "Stack is empty" >&2
+        __rc__=1
+        return ${__rc__}
+    fi
+
+    # Pop the last value and store to return top stack value
+    eval "popped_value=\${${stack_name}[-1]}"
+
+    # Calculate the index of the last element
+    local last_index=$((stack_length - 1))
+
+     # Remove the last element from the stack
+    if [[ "${last_index}" -eq 0 ]]; then
+        eval "unset ${stack_name} && declare -a ${stack_name}"
+    else
+        eval "${stack_name}=(\${${stack_name}[@]:0:${last_index}})"
+    fi
+
+    __sv__="${popped_value}"
+    __rc__=0
+    return ${__rc__}
+}
+
+stack_op() {
+#
+# # Function: stack_op
+# ## Description: Performs stack operations such as push, pop, and debug on a given stack.
+# - **Parameters**:
+#   - stack_name: The name of the stack.
+#   - action: The action to perform on the stack (push, pop, debug).
+#   - value: The value to push onto the stack (required for push action).
+# - **Returns**: 
+#   - For the pop action, returns the popped value.
+# - **Exceptions**:
+#   - Returns an error message if an invalid action is provided.
+#
+    local action=$1
+    local stack_name=$2
+    local stack_value=$3
+    case $action in
+        "push")
+            push_stack "$stack_name" "$stack_value"
+            ;;
+        "pop")
+            stack_value=$(pop_stack "$stack_name")
+            echo "%{stack_value}"      # Return the popped value
+            ;;
+        "debug")
+            echo "***************************** STACK: ${stack_name} *****************************" >&2
+            eval "echo \"\${${stack_name}[@]}\"" >&2 
+            echo "***************************** STACK *****************************" >&2
+            ;;
+        *)
+            errno_warn 78
+            return $?
+            ;;
+    esac
+}
+
+stringclean() {
+# # Function: stringclean
+#
+# ## Description: Sanitizes a string by removing all characters except alphabets and numbers.
+#
+# - **Parameters**:
+#   - str: The string to sanitize.
+#
+# - **Returns**:
+#   The sanitized string.
+#
+    local str="$1"
+    echo "${str//[^a-zA-Z0-9]/}"
+}
+
+to_upper() {
+# # Function: to_upper
+#
+# ## Description: This function converts a string to uppercase
+#
+# - **Usage**:
+#    - `to_upper`` <string>
+#
+# Example: to_upper "hello"
+#
+# Returns: "HELLO"
+#
+# Errors: None
+#
+    local str="$1"
+    echo "${str^^}"
+}
+
+ptree() {
+    local pid=$1
+    local indent=${2:-""}
+    
+    # Display the current process
+    ps -o pid,ppid,cmd --no-headers --pid $pid
+
+    # Get child processes
+    local children=$(pgrep -P $pid)
+    
+    # Recurse for each child process
+    for child in $children; do
+        ptree $child "$indent  "
+    done
+}```
+Script: venv_funcs.sh:
+
+```bash
+#!/bin/bash
+#
+# ## venv_funcs.sh - Virtual Environment Management Functions for Bash Scripts
+#
+# - **Purpose**: 
+#   - This script provides a collection of functions to manage conda virtual environments.
+#   - Functions include creating, deleting, switching, and cloning environments, among others.
+#
+# - **Usage**: 
+#   - Source this script in other bash scripts to import the virtual environment management functions.
+#   - For example, in another script: `source venv_funcs.sh`.
+#
+# - **Input Parameters**: 
+#   - None. All input is handled by the individual functions.
+#
+# - **Output**: 
+#   - The script provides various virtual environment management functions for use in other bash scripts.
+#
+# - **Exceptions**: 
+#   - Some functions may return specific error codes or print error messages to STDERR.
+#   - Refer to individual function documentation for details.
+#
+# - **Internal Variables**
+#   - __VENV_NUM    The sequence of the venv in a "__VENV_PREFIX" series.
+#   - __VENV_PREFIX The prefix of the VENV
+#   - __VENV_DESC   A very short description of the VENV.
+#
+# - **Functions**:
+#   - `push_venv()`: Specialized push the default VENV onto the stack.
+#   - `pop_venv()`: Specialized pop the VENV off the stack and decrement.
+#   - `__set_venv_vars()`: Sets internal VENV variables.
+#   - `snum()`: Force set the VENV Sequence number.
+#   - `vpfx()`: Return the current VENV prefix.
+#   - `vnum()`: Return the current VENV sequence number.
+#   - `vdsc()`: Return the current VENV description.
+#   - `cact()`: Change active VENV.
+#   - `dact()`: Deactivate the current VENV.
+#   - `pact()`: Switch to the Previous Active VENV.
+#   - `lenv()`: List All Current VENVs.
+#   - `lastenv()`: Retrieve the Last Environment with a Given Prefix.
+#   - `benv()`: Create a New Base Virtual Environment.
+#   - `nenv()`: Create a New Virtual Environment in a Series.
+#
+# - **Usage Example**:
+#   ```shellscript
+#   source venv_funcs.sh
+#   benv myenv
+#   cact myenv
+#   ```
+#
+# - **Dependencies**: 
+#   - This script depends on the `conda` command-line tool for managing virtual environments.
+#   - The `util_funcs.sh` script is also required and should be located in the same directory as this script.
+#
+# - **Notes**:
+#   - This script assumes that the `conda` command is available in the system's PATH.
+#   - It is recommended to source this script in other scripts rather than executing it directly.
+#   - Make sure to set the appropriate permissions on this script to allow execution.
+#
+# - **Author**: [Your Name]
+# - **Last Modified**: [Date]
+#
+# - **Version**: [Version Number]
+#
+
+# Capture the fully qualified path of the sourced script
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Don't source this script if it's already been sourced.
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+echo "Sourcing: ${THIS_SCRIPT}"
+
+# Extract script name, directory, and arguments
+MY_NAME=$(basename ${THIS_SCRIPT})
+__VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
+__VENV_BASE=$(dirname "${__VENV_BIN}")
+__VENV_ARGS=$*
+__VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
+
+[ -f "${__VENV_INCLUDE}/util_funcs.sh" ] && . "${__VENV_INCLUDE}/util_funcs.sh" \
+    || ( echo "Could not find util_funcs.sh in INCLUDEDIR: ${__VENV_INCLUDE}" && exit 1 )
+
+__VENV_INTERNAL_FUNCTIONS=(
+    ${__VENV_INTERNAL_FUNCTIONS[@]}
+    "push_venv"
+    "pop_venv"
+    "__set_venv_vars"
+)
+
+# This is so we can pass a return code up through sub-shells since set values are lost in subshells.
+# May or may not be a good ide, but we might want to pass get the return value of our funudtion calls,
+# and not that o fthe last command that ren in the function call which may me 0 for an echo comamnd
+# when it's the last command in th efunction and we want the return code of the function.
+# This is something we would like where the echo sattement will return a value lik ethe last item
+# poped off the stack. So instead of a sub-shell, whcih will also not return a value, we can use
+# this to set the return code and exit the function passing thie to return or exit.  echo would be
+# the last command in the function and we would get the return code of the function.
+#
+#__rc__ is internal aand is in a our function shell includes.
+# It woudl be nice to come up with a fairly "automatuc" way to do this.
+__rc__=0
+
+# Initialize the stack
+__VENV_STACK=()
+
+# Specialized push the default VENV onto the stack
+push_venv() {
+    push_stack __VENV_STACK "${CONDA_DEFAULT_ENV}"
+}
+
+# Specialized pop the VENV off the stack and decrement.j
+pop_venv() {
+    local stack_value
+    pop_stack __VENV_STACK
+    stack_value=${__sv__}
+    return ${__rc__}
+}
+
+
+# Sets internal VENV variables
+__set_venv_vars() {
+    __VENV_PREFIX=$(echo "$*" | cut -d '.' -f 1)
+    __VENV_DESC=$(echo "$*" | cut -d '.' -f 3-) &&  __VENV_NUM=$(echo "$*" | cut -d '.' -f 2)
+}
+
+snum() {
+#
+# snum - Force set the VENV Sequence number.
+#
+# - **Purpose**:
+#   - Force set the VENV Sequence number.
+# - **Usage**: 
+#   - snum NN
+# - **Input Parameters**: 
+#   1. `NN` (integer) - The VENV Sequence number to set. Must be a numeric value between 00 and 99.
+# - **Output**: 
+#   - Sets the global variable `__VENV_NUM` to the zero-padded sequence number.
+#   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
+# - **Exceptions**: None
+#
+    local new_num=$1
+    
+    # Validate that a number is actually provided
+    if [ -z "${new_num}" ]; then
+        echo "Error: No sequence number provided." >&2
+        __rc__=1
+    fi
+    
+    # Validate that the provided number is numeric
+    if ! [[ "${new_num}" =~ ^[0-9]+$ ]]; then
+        echo "Error: Sequence number must be numeric." >&2
+        __rc__=1
+        return ${__rc__}
+    fi
+    
+    # Validate that the provided number is within a valid range (00-99)
+    if [ "${new_num}" -lt 0 ] || [ "${new_num}" -gt 99 ]; then
+        echo "Error: Sequence number must be between 00 and 99." >&2
+        __rc__=1
+        return ${__rc__}
+    fi
+    
+    __VENV_NUM=$( zero_pad "${new_num}" )
+}
+
+vpfx() {
+#
+# vpfx - Return the current VENV prefix.
+#
+# - **Purpose**:
+#   - Return the current VENV prefix.
+# - **Usage**: 
+#   - vpfx
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Prints the current VENV prefix to STDOUT.
+#   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
+# - **Exceptions**:
+#    1  No value set.
+#
+    if [ -z "${__VENV_PREFIX}" ]; then
+        echo "Error: No VENV prefix has been set." >&2
+        __rc__=1
+        return ${__rc__}
+    fi
+    
+    echo "${__VENV_PREFIX}"
+}
+
+vnum() {
+#
+# vnum - Return the current VENV sequence number.
+#
+# - **Purpose**:
+#   - Return the current VENV sequence number.
+# - **Usage**: 
+#   - vnum
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Prints the current VENV sequence number to STDOUT.
+#   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
+# - **Exceptions**:
+#    1  No value set.
+#
+    if [ -z "${__VENV_NUM}" ]; then
+        echo "Error: No VENV sequence number has been set." >&2
+        __rc__=1
+        return ${__rc__}
+    fi
+    
+    echo "${__VENV_NUM}"
+}
+
+vdsc() {
+#
+# vdsc - Return the current VENV description.
+#
+# - **Purpose**:
+#   - Return the current VENV description.
+# - **Usage**: 
+#   - vdsc
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Prints the current VENV description to STDOUT.
+#   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
+# - **Exceptions**:
+#    1  No value set.
+#
+    if [ -z "${__VENV_DESC}" ]; then
+        echo "Error: No VENV sequence number has been set." >&2
+        __rc__=1
+        return ${__rc__}
+    fi
+    
+    echo "${__VENV_DESC}"
+}
+
+cact() {
+#
+# cact - Change active VENV
+#
+# - **Purpose**:
+#    - Change the active virtual environment.
+# - **Usage**: 
+#    -  cact VENV_NAME
+# - **Input Parameters**: 
+#    1. `VENV_NAME` (string) - The name of the virtual environment to activate.
+# - **Output**: 
+#    - Messages indicating the deactivation and activation process.
+#    - If unsuccessful, prints an error message to STDERR and returns with status code 1.
+# - **Exceptions**: None
+#
+    local new_env="$1"
+    # Validate input
+    if [ -z "$1" ]; then
+        echo "Error: No VENV name provided." 1>&2
+        __rc__=1
+        return ${__rc__}
+    fi
+
+    if [[ ${CONDA_DEFAULT_ENV} == "$new_env" ]]; then
+        echo "Environment ${new_env} is already active." 1>&2
+        return 0
+    fi
+
+    # Pop from stack if top of stack matches the new environment
+    if [[ "${__VENV_STACK[${#__VENV_STACK[@]}]}" == "$new_env" ]]; then
+        pop_venv
+    fi
+
+    # Set variables
+    __VENV_NAME=$1
+    __set_venv_vars ${__VENV_NAME}
+    __VENV_PARMS=$(echo "$*" | cut -d '.' -f 4-)
+    # Push new environment to stack
+    push_venv
+    # Deactivate current environment
+    # dact
+    # Activate new environment
+    echo "Activating new environment: ${__VENV_NAME}..."
+    conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." 1>&2; return 1; }
+}
+
+dact() {
+#
+# dact - Deactivate the current VENV
+#
+# - **Purpose**:
+#   - Deactivate the currently active conda virtual environment.
+# - **Usage**: 
+#   - dact
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Deactivates the current virtual environment.
+#   - Prints a message indicating the deactivated environment.
+# - **Exceptions**: 
+#   - If no environment is currently activated, conda will display an appropriate message.
+#
+    local stack_value
+
+    if [ -z "${CONDA_DEFAULT_ENV}" ]; then
+        echo "No conda environment is currently activated." 1>&2
+        __rc__=1
+        return ${__rc__}
+    fi
+    
+    # Check if the environment actually exists
+    if ! conda info --envs | awk '{print $1}' | grep -q -w "${CONDA_DEFAULT_ENV}"; then
+        echo "Warning: The environment ${CONDA_DEFAULT_ENV} does not exist. It might have been renamed or deleted." 1>&2
+        # Optionally pop from stack
+        if [[ "${__VENV_STACK[-1]}" == "${CONDA_DEFAULT_ENV}" ]]; then
+            pop_venv
+        fi
+        return 17
+    fi
+
+    echo "Deactivating: ${CONDA_DEFAULT_ENV}" 1>&2
+    conda deactivate
+    pop_venv
+    stack_value="${__sv__}"
+    return ${__rc__}
+}
+
+
+pact() {
+#
+# pact - Switch to the Previous Active VENV
+#
+# - **Purpose**:
+#   - Deactivate the current virtual environment and activate the previously active one.
+# - **Usage**: 
+#   - pact
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Deactivates the current environment and activates the previous one.
+#   - Prints messages to indicate the switch.
+# - **Exceptions**: 
+#   - If no previous environment is stored, an error message will be displayed.
+#
+    pop_venv
+    local previous_env=${__sv__}
+
+    # Change to previous VENV
+    if [ $? -eq 0 ]; then
+        cact "$previous_env"
+        pop_venv > /dev/null
+    else
+        echo "No previous environment to switch to."
+    fi
+}
+
+lenv() {
+#
+# lenv - List All Current VENVs
+#
+# - **Purpose**:
+#  - List all the currently available conda virtual environments.
+# - **Usage**: 
+#     lenv
+# - **Input Parameters**: 
+#     None
+# - **Output**: 
+#     - A list of all existing conda virtual environments.
+# - **Exceptions**: 
+#     - If no environments are available, the output from `conda info -e` will indicate this.
+#
+    conda info -e | grep -E -v '^#'
+}
+
+lastenv() {
+#
+# lastenv - Retrieve the Last Environment with a Given Prefix
+#
+# - **Purpose**:
+#   - Return the last conda virtual environment that starts with a given prefix.
+# - **Usage**: 
+#   - lastenv PREFIX
+# - **Input Parameters**: 
+#    1. `PREFIX` (string) - The prefix for the environment names you want to match.
+# - **Output**: 
+#   - The last conda environment that starts with the given prefix.
+# - **Exceptions**: 
+#   - If no environments match the prefix, the output will be empty.
+#
+    local prefix="$1"
+    local last_env=$(lenv | grep -E "^${prefix}." | tail -1 | cut -d " " -f 1)
+    echo "${last_env}"
+}
+
+benv() {
+#
+# benv - Create a New Base Virtual Environment
+#
+# - **Purpose**:
+#   - Create a new base conda virtual environment and activate it.
+# - **Usage**: 
+#   - benv ENV_NAME [EXTRA_OPTIONS]
+#   
+#   ```code
+#   benv myenv  python==3.10
+#   ```
+#
+#   Will create a new environment named `myenv` with Python 3.10
+#
+#   After that, it will become the active virtual environment. This environment may be used for creating a series of new environments. with `nenv`.
+#
+# - **Input Parameters**: 
+#   1. `ENV_NAME` (string) - The name of the new environment to create.
+#   2. `EXTRA_OPTIONS` (string, optional) - Additional options to pass to `conda create`.
+# - **Output**: 
+#   - Creates and activates the new environment.
+# - **Exceptions**: 
+#   - Errors during environment creation are handled by conda.
+#
+    local env_name="$1"; shift
+    local extra_options="$*"
+
+    echo "Creating base virtual environment ${env_name} ${extra_options}"
+    conda create -n "${env_name}" ${extra_options} -y || {
+        echo "Error: Failed to create environment ${env_name}" >&2
+        __rc__=1
+        return ${__rc__}
+    }
+
+    echo "Base environment created - activating ${env_name}"
+    cact "${env_name}"
+}
+
+nenv() {
+#
+# nenv - Create a New Virtual Environment in a Series
+#
+# - **Purpose**:
+#   - Create a new conda virtual environment in a series identified by a prefix as a clone of the current venv. Resets and starts the sequence number from "00".
+# - **Usage**: 
+#   - nenv PREFIX [EXTRA_OPTIONS]
+# - **Input Parameters**: 
+#   1. `PREFIX` (string) - The prefix to identify the series of environments.
+#   2. `EXTRA_OPTIONS` (string, optional) - Additional options to pass to the environment creation.
+# - **Output**: 
+#   - Creates and activates the new environment with sequence number "00".
+# - **Exceptions**: 
+#   - Errors during environment creation are handled by conda.
+#
+    local prefix="$1"; shift
+    local extra_options="$*"
+
+    [ -z "${prefix}" ] && {
+        echo "Error: Prefix is required." >&2
+        __rc__=1
+        return ${__rc__}
+    }
+
+    # Reset the sequence number to start from "00"
+    __VENV_NUM=""
+    # Set the global prefix
+    __VENV_PREFIX="${prefix}"
+    # Create a clone of the base environment
+    ccln "base"
+}
+
+denv() {
+#
+#  denv - Delete a Specified Virtual Environment
+#
+# - **Purpose**:
+#   - Delete a specified conda virtual environment.
+# - **Usage**: 
+#   - denv ENV_NAME
+# - **Input Parameters**: 
+#   1. `ENV_NAME` (string) - The name of the environment to be deleted.
+# - **Output**: 
+#   - Removes the specified environment.
+# - **Exceptions**: 
+#   - If no environment name is provided, an error message is displayed.
+#   - Errors during deletion are handled by conda.
+#
+    local env_to_delete="$1"
+
+    if [ -z "${env_to_delete}" ]; then
+        echo "Error: Environment name is required for deletion." >&2
+        __rc__=1
+        return ${__rc__}
+    fi
+
+    echo "Removing environment -> ${env_to_delete}"
+    conda remove --all -n ${env_to_delete} -y
+}
+
+renv() {
+#
+# renv - Revert to Previous Virtual Environment
+#
+# - **Purpose**:
+#   - Deactivate the current active environment, delete it, and then re-activate the previously active environment.
+# - **Usage**: 
+#   - renv
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Removes the current environment and reverts to the previous one.
+# - **Exceptions**: 
+#   - Errors during deactivation or deletion are handled by conda.
+#
+    local env_to_delete=${CONDA_DEFAULT_ENV}
+    local previous_env=${__VENV_PREV}
+
+    if [ -z "${env_to_delete}" ]; then
+        echo "Error: No active environment to remove." >&2
+        __rc__=1
+        return ${__rc__}
+    fi
+
+    if [ -z "${previous_env}" ]; then
+        echo "Warning: No previous environment to revert to. Reverting to base environment." >&2
+        previous_env="base"
+    fi
+
+    dact  # Deactivate the current environment
+    denv ${env_to_delete}  # Delete the environment
+    cact ${previous_env}  # Reactivate the previous environment
+}
+
+ccln() {
+#
+# ccln - Clone the current VENV and increment the sequence number.
+#
+# - **Purpose**:
+#   - Clone the current virtual environment and increment its sequence number.
+# - **Usage**: 
+#   - ccln [DESCRIPTION]
+# - **Input Parameters**: 
+#   1. `DESCRIPTION` (optional string) - A description for the new virtual environment.
+# - **Output**: 
+#   - Creates and activates a clone of the current environment with an incremented sequence number.
+# - **Exceptions**: 
+#   - None. If no description is provided, the description of the current VENV is used.
+#
+    # If no description is provided, use the description of the current VENV
+    if [ -z "$1" ]; then
+        __VENV_DESC=$( vdsc )
+    else
+        __VENV_DESC=$1
+    fi
+
+    __VENV_NUM=$( next_step "$(vnum)" )
+    __VENV_NAME="${__VENV_PREFIX}.${__VENV_NUM}.${__VENV_DESC}"
+
+    # Clone the VENV
+    conda create --clone "${CONDA_DEFAULT_ENV}" -n "${__VENV_NAME}" -y || return $?
+
+    # Switch to the newly created VENV
+    cact "${__VENV_NAME}"
+}
+
+venvdiff() {
+# venvdiff - Compare the packages in two virtual environments (EXPERIMENTAl)
+#
+# - **Purpose**:
+#   - Compare the packages installed in two conda virtual environments.
+# - **Usage**:
+#   - venvdiff ENV1 ENV2
+# - **Input Parameters**:
+#   1. `ENV1` (string) - The name of the first environment to compare.
+#   2. `ENV2` (string) - The name of the second environment to compare.
+# - **Output**:
+#   - A side-by-side comparison of the packages installed in the two environments.
+# - **Exceptions**:
+#   - If the number of arguments is not equal to 2, an error message is displayed.
+
+    # Check that two arguments are provided
+    if [ "$#" -ne 2 ]; then
+        echo "Usage: venvdiff env1 env2"
+        __rc__=1
+        return ${__rc__}
+    fi
+
+    local env1=$1
+    local env2=$2
+
+    # Activate the first environment and get the list of packages
+    cact $env1 > /dev/null
+    local env1_packages=$(pip list | tail -n +1)
+    dact > /dev/null
+
+    cact $env2 > /dev/null
+    local env2_packages=$(pip list | tail -n +1)
+    dact > /dev/null
+
+    echo "Comparing packages in $env1 and $env2:"
+    diff -y <(echo "$env1_packages") <(echo "$env2_packages")
+}
+```
+Script: wrapper_funcs.sh:
+
+```bash
+#!/bin/bash
+
+# Determine the real path of the script
+THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}")
+# Don't source this script if it's already been sourced.
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+echo "Sourcing: ${THIS_SCRIPT}"
+
+# Define an array of internal functions to exclude from help and documentation
+__VENV_INTERNAL_FUNCTIONS=(
+    "${__VENV_INTERNAL_FUNCTIONS[@]}"
+    "pip"
+    "conda"
+    "get_function_hash"
+    "__venv_conda_check"
+)
+
+# Function to get the hash of a function's definition
+get_function_hash() {
+    declare -f "$1" | md5 | cut -d' ' -f1
+}
+
+# Define the location of the venvutil config directory
+export VENVUTIL_CONFIG="${VENVUTIL_CONFIG:-${HOME}/.venvutil}"
+# Create the directory recursively for the frozen VENV's for recovery.
+[[ -d ${VENVUTIL_CONFIG}/freeze ]] || mkdir -p "${VENVUTIL_CONFIG}/freeze"
+
+do_wrapper() {
+#
+# do_wrapper - General wrapper function for logging specific command actions
+#
+# - **Purpose**:
+#   - Executes a Python package maneger command with optional logging based on the specified action.
+# - **Usage**:
+#   - `do_wrapper <cmd> <additional parameters>`
+#  - **Parameters**:
+#    - cmd: The command to be executed.
+#    - Additional parameters: Any additional parameters to be passed to the command.
+# - **Returns**:
+#   - None
+#
+    local cmd="$1"; shift
+    local action="$1"
+    local actions_to_log=("install" "uninstall" "remove" "rename" "update" "upgrade" "create" "clean" "config" "clone")
+    local actions_to_exclude=("--help" "-h" "--dry-run")
+    local cmd_args="$@"
+    local env_vars
+    env_vars=$( env | sed -E '/^SHELL=/,$d' | sed -E 's/^([A-Za-z_]+)=(.*)$/\1="\2"/' | tr '\n' ' ' )
+
+    # Make the command be how the user invoked it rather than with the wrappers.
+    local user_cmd=$(echo "${cmd} ${cmd_args}" | sed 's/__venv_//g')
+
+    # Check if the command ${cmd} is a file or a function/alias. If it's not a function,
+    # we want to run it with the "command" builtin to bypass shell functions or aliases.
+    if type -P ${cmd} &>/dev/null; then
+        cmd="command ${cmd}"
+    fi
+
+    # local cmd_line="${env_vars} ${cmd} ${cmd_args}"
+    local user_line="${env_vars} ${user_cmd} ${cmd_args}"
+
+    # Check if the action is potentially destructive and should be logged.
+    if [[ " ${actions_to_log[*]} " =~ "${action}" ]] && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
+        local freeze_date=$(date "+%Y%m%d%H%M%S")
+        local cmd_date=$(date '+%Y-%m-%d %H:%M:%S')
+        local freeze_dir="${VENVUTIL_CONFIG}/freeze"
+        local freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${freeze_date}.txt"
+        local hist_log="${VENVUTIL_CONFIG}/${CONDA_DEFAULT_ENV}.log"
+        # Freeze the state of the environment before a potentially destructive command is executed.
+        command pip freeze > "${freeze_state}"
+        if eval " ${env_vars} ${cmd} ${cmd_args} "; then
+            # Logging the command invocation if it completed successfully.
+            local hist_log="${VENVUTIL_CONFIG}/${CONDA_DEFAULT_ENV}.log"
+            echo "# ${cmd_date}: ${user_line}" >> "${hist_log}"
+            echo "# ${cmd_date}: Current working directory: ${PWD}" >> "${hist_log}"
+            echo "# ${cmd_date}: $(${cmd} --version)" >> "${hist_log}"
+            local venvutil_log="${VENVUTIL_CONFIG}/venvutil.log"
+            echo "# ${cmd_date} - ${CONDA_DEFAULT_ENV}: ${user_line}" >> "${venvutil_log}"
+            # Freeze it again to get the current state, after any potentially destructive command is executed.
+            # Update the new date and time sleep 1 second to ensure the filename is unique.
+            sleep 1
+            freeze_date=$(date "+%Y%m%d%H%M%S")
+            freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${freeze_date}.txt"
+            commmand pip freeze > "${freeze_state}"
+            # Make a symlink so the currecnt state is allways up-to-date.
+            ln -sf "${freeze_state}" ${freeze_dir}/${CONDA_DEFAULT_ENV}.current.txt
+        fi
+    else
+        # Execute the command without logging.
+        ${cmd} ${cmd_args}
+    fi
+}
+
+
+# Specific wrapper function for pip
+pip() {
+    do_wrapper pip "$@"
+}
+
+# Function to check if conda definition changed and re-hook if necessary
+__venv_conda_check() {
+    current_hash=$(get_function_hash conda)
+    if [[ "${current_hash}" != "${__venv_conda_hash}" ]]; then
+        # Capture the current conda function definition and assign it to __venv_conda
+        eval "__venv_conda() $(declare -f conda | sed '1d')"
+
+        # Redefine the conda function to include the wrapper
+        conda() {
+            do_wrapper "__venv_conda" "$@"
+        }
+
+        # Set the hash to be the new conda function.
+        __venv_conda_hash=$(get_function_hash conda)
+    fi
+}
+
+# Run through the conda check function to ensure the conda function is wrapped
+__venv_conda_check
+
+# Initial hash of the Conda function. Must always  new hash after defining.
+__venv_conda_hash=$(get_function_hash conda)
+
+# Modify the PROMPT_COMMAND to continuously check for function `conda` changes
+__venv_prompt_command="${PROMPT_COMMAND}"
+PROMPT_COMMAND="__venv_conda_check; ${PROMPT_COMMAND}"
+```

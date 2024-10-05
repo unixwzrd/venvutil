@@ -1,0 +1,182 @@
+Script: errno.sh:
+
+```bash
+#!/usr/bin/env bash
+
+# Capture the fully qualified path of the sourced script
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Don't source this script if it's already been sourced.
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+echo "Sourcing: ${THIS_SCRIPT}"
+
+# Extract script name, directory, and arguments
+MY_NAME=$(basename ${THIS_SCRIPT})
+__VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
+__VENV_BASE=$(dirname "${__VENV_BIN}")
+__VENV_ARGS=$*
+__VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
+
+__VENV_INTERNAL_FUNCTIONS=(
+   ${__VENV_INTERNAL_FUNCTIONS[@]}
+   "to_upper"
+)
+
+__rc__=0
+
+# Check if the function errno is already defined and if it has return 0
+if declare -f errno &> /dev/null; then
+    __rc__=0
+    return ${__rc__}
+fi
+
+function errno() {
+# Function: errno
+#
+# Provides POSIX errno codes and values for use in scripts or lookup of error codes on th ecommand line.
+#
+# Description: This function takes an errno code or errno number and prints the corresponding error message to STDOUT. Sets the exit code to the errno value and returns, unless there is an internal error.
+#
+# Usage: errno [errno_code|errno_number]
+#
+# Example: errno EACCES
+#
+# Returns: "error_code: error_text"
+#
+# Errors: 2, 22
+#   2: Could not find system errno.h
+#  22: Invalid errno name
+#
+    if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+        echo "Usage: errno [errno_code|errno_number]"
+        echo "Example: errno EACCES"
+        __rc__=0
+        return ${__rc__}
+    fi
+
+    local errno_code
+    errno_code="$(to_upper "$1")"
+    local errno_file
+    if [ -f "/usr/include/sys/errno.h" ]; then
+        errno_file="/usr/include/sys/errno.h"
+    elif [ -f "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h" ]; then
+        errno_file="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h"
+    else
+        echo "Error: Could not lookup error code '${errno_code}' system errno.h not found." >&2
+        __rc__=2
+        return ${__rc__}
+    fi
+
+    local line errno_num errno_text
+
+    if [[ "$errno_code" =~ ^[0-9]+$ ]]; then
+        line=$(grep -wE "#define [A-Z_]*[ \t]*\b$errno_code\b" "$errno_file")
+        errno_code=$(echo "$line" | awk '{print $2}')
+    else
+        line=$(grep -wE "#define $errno_code[ \t]*" "$errno_file")
+    fi
+
+    errno_num=$(echo "$line" | awk '{print $3}')
+    errno_text=$(echo "$line" | sed -e 's/#define[ \t]*[A-Z0-9_]*[ \t]*[0-9]*[ \t]*\/\* \(.*\) \*\//\1/')
+
+    if [ -z "$errno_num" ]; then
+        echo "Error: Invalid errno code $errno_code" >&2
+        __rc__=22
+        return ${__rc__}
+    else
+        echo "($errno_code: $errno_num): $errno_text"
+        __rc__="$errno_num"
+        return ${__rc__}
+    fi
+}
+
+ errfind() {
+# Function: errfind
+#
+# Find the error code for a given streing.
+#
+# Description: Searches the POSIX errno.h file for a given string abd returns any matching error codes and messages.
+#
+# Usage: errfind <string>
+#
+# Example: errfind invalid 
+#
+# Returns: "error_code: error_text"
+#         or
+#         "No error codes found for <string>"
+#
+# Errors: None
+#
+    local errno_file
+    if [ -f "/usr/include/sys/errno.h" ]; then
+        errno_file="/usr/include/sys/errno.h"
+    elif [ -f "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h" ]; then
+        errno_file="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h"
+    else
+        echo "Error: Could not lookup error code '${errno_code}' system errno.h not found." >&2
+        __rc__=2
+        return ${__rc__}
+    fi
+
+    local lines errno_code errno_num errno_text
+    local search_string="$1"
+
+    lines=$(grep -i "#define [A-Z_]*[ \t]*.*$search_string.*" "$errno_file")
+    if [ -z "$lines" ]; then
+        echo "No error codes found for $search_string"
+        __rc__=0
+        return ${__rc__}
+    fi
+
+    echo "$lines" | while read -r line; do
+        errno_code=$(echo "$line" | awk '{print $2}')
+        errno_num=$(echo "$line" | awk '{print $3}')
+        errno_text=$(echo "$line" | sed -e 's/#define[ \t]*[A-Z0-9_]*[ \t]*[0-9]*[ \t]*\/\* \(.*\) \*\//\1/')
+
+        echo "($errno_code: $errno_num): $errno_text"
+    done
+
+    __rc__=0
+    return ${__rc__}
+}
+
+function to_upper() {
+# Function: to_upper
+#
+# Description: This function converts a string to uppercase
+#
+# Usage: to_upper <string>
+#
+# Example: to_upper "hello"
+#
+# Returns: "HELLO"
+#
+# Errors: None
+#
+    local str="$1"
+    echo "${str^^}"
+}
+
+function errno_warn() {
+# Function: errno_warn
+#
+# Description: This function prints a warning using the errno function to STDERR and returns the error number
+#
+# Usage: errno_warn <errno_code>
+#
+    __rc__=$1
+    echo "WARNING: $(errno "${__rc__}")" >&2
+    return ${__rc__}
+}
+
+function errno_exit() {
+# Function: errno_exit
+#
+# Description: This function prints an error to STDERROR using the errno function and exits with the error number
+#
+# Usage: errno_exit <errno_code>
+#
+    __rc__=$1
+    echo "ERROR: $(errno "${__rc__}")" >&2
+    exit ${__rc__}
+}
+```
