@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Declare and assign separately to avoid masking return values. shellcheck SC2155
+# shellcheck disable=SC2155
+
 # Determine the real path of the script
 THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}")
 # Don't source this script if it's already been sourced.
@@ -52,7 +55,7 @@ do_wrapper() {
 
     # Check if the command ${cmd} is a file or a function/alias. If it's not a function,
     # we want to run it with the "command" builtin to bypass shell functions or aliases.
-    if type -P ${cmd} &>/dev/null; then
+    if type -P "${cmd}" &>/dev/null; then
         cmd="command ${cmd}"
     fi
 
@@ -71,23 +74,25 @@ do_wrapper() {
         if eval " ${env_vars} ${cmd} ${cmd_args} "; then
             # Logging the command invocation if it completed successfully.
             local hist_log="${VENVUTIL_CONFIG}/${CONDA_DEFAULT_ENV}.log"
-            echo "# ${cmd_date}: ${user_line}" >> "${hist_log}"
-            echo "# ${cmd_date}: Current working directory: ${PWD}" >> "${hist_log}"
-            echo "# ${cmd_date}: $(${cmd} --version)" >> "${hist_log}"
             local venvutil_log="${VENVUTIL_CONFIG}/venvutil.log"
+            {
+                echo "# ${cmd_date}: ${user_line}"
+                echo "# ${cmd_date}: Current working directory: ${PWD}"
+                echo "# ${cmd_date}: $(${cmd} --version)"
+            } >> "${hist_log}"
             echo "# ${cmd_date} - ${CONDA_DEFAULT_ENV}: ${user_line}" >> "${venvutil_log}"
             # Freeze it again to get the current state, after any potentially destructive command is executed.
             # Update the new date and time sleep 1 second to ensure the filename is unique.
             sleep 1
             freeze_date=$(date "+%Y%m%d%H%M%S")
             freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${freeze_date}.txt"
-            commmand pip freeze > "${freeze_state}"
+            command pip freeze > "${freeze_state}"
             # Make a symlink so the currecnt state is allways up-to-date.
-            ln -sf "${freeze_state}" ${freeze_dir}/${CONDA_DEFAULT_ENV}.current.txt
+            ln -sf "${freeze_state}" "${freeze_dir}/${CONDA_DEFAULT_ENV}.current.txt"
         fi
     else
         # Execute the command without logging.
-        ${cmd} ${cmd_args}
+        ${cmd} "${cmd_args}"
     fi
 }
 
