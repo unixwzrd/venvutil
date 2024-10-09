@@ -90,6 +90,9 @@ errno() {
         line=$(grep -wE "#define [A-Z_]*[ \t]*\b$errno_code\b" "$errno_file")
         errno_code=$(echo "$line" | awk '{print $2}')
     else
+        # Use braces when expanding arrays, e.g. ${array[idx]} (or ${var}[.. to quiet). shellcheck SC1087
+        # shellcheck disable=SC1087
+        # Not using braces fo rthat, it's a regular expression here.
         line=$(grep -wE "#define $errno_code[ \t]*" "$errno_file")
     fi
 
