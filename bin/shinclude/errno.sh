@@ -24,11 +24,16 @@
 
 # Determine the real path of the script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
-# Don't source this script if it's already been sourced.
+# Remove quotes from right-hand side of =~ to match as a regex rather than literally. shellcheck SC2076
+# Don't source this script if it's already been sourced. The SC message is intentional the list is treated likee
+# string to search for the string in the list/array.
+# shellcheck disable=SC2076
 [[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
 echo "Sourcing: ${THIS_SCRIPT}"
 
 # Extract script name, directory, and arguments
+# MY_NAME appears unused. Verify use (or export if used externally).
+# shellcheck disable=SC2034
 MY_NAME=$(basename "${THIS_SCRIPT}")
 __VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
 __VENV_BASE=$(dirname "${__VENV_BIN}")
@@ -38,6 +43,9 @@ __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 # Ensure util_funcs.sh is sourced for utility functions
 source_util_script "util_funcs"
 
+# Add internal functions to the __VENV_INTERNAL_FUNCTIONS array.
+# Quote to prevent word splitting/globbing, or split robustly with mapfile or read -a.
+# shellcheck disable=SC2206
 __VENV_INTERNAL_FUNCTIONS=(
    ${__VENV_INTERNAL_FUNCTIONS[@]}
    "errno"
@@ -106,7 +114,7 @@ errno() {
     else
         echo "($errno_code: $errno_num): $errno_text"
         __rc__="$errno_num"
-        return ${__rc__}
+        return "${__rc__}"
     fi
 }
 
@@ -175,7 +183,7 @@ errfind() {
 errno_warn() {
     __rc__=$1
     echo "WARNING: $(errno "${__rc__}")" >&2
-    return ${__rc__}
+    return "${__rc__}"
 }
 
 # # Function: errno_exit
@@ -195,5 +203,5 @@ errno_warn() {
 errno_exit() {
     __rc__=$1
     echo "ERROR: $(errno "${__rc__}")" >&2
-    exit ${__rc__}
+    exit "${__rc__}"
 }

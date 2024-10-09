@@ -51,7 +51,7 @@ do_wrapper() {
     env_vars=$( env | sed -E '/^SHELL=/,$d' | sed -E 's/^([A-Za-z_]+)=(.*)$/\1="\2"/' | tr '\n' ' ' )
 
     # Make the command be how the user invoked it rather than with the wrappers.
-    local user_cmd=$(echo "${cmd} ${cmd_args}" | sed 's/__venv_//g')
+    local user_cmd=$(echo "${cmd}" "${cmd_args}" | sed 's/__venv_//g')
 
     # Check if the command ${cmd} is a file or a function/alias. If it's not a function,
     # we want to run it with the "command" builtin to bypass shell functions or aliases.
@@ -92,7 +92,7 @@ do_wrapper() {
         fi
     else
         # Execute the command without logging.
-        ${cmd} "${cmd_args}"
+        ${cmd} ${cmd_args}
     fi
 }
 
