@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+
+def split_file(input_file, lines_per_chunk=1750):
+    with open(input_file, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+        
+    chunk_count = len(lines) // lines_per_chunk + 1
+    for i in range(chunk_count):
+        start_line = i * lines_per_chunk
+        end_line = (i + 1) * lines_per_chunk
+        chunk_lines = lines[start_line:end_line]
+        
+        # Write each chunk to a new file
+        chunk_filename = f'{input_file}_part_{i+1}.txt'
+        with open(chunk_filename, 'w', encoding='utf-8') as chunk_file:
+            chunk_file.writelines(chunk_lines)
+        print(f'Created: {chunk_filename}')
+
+# Example usage
+split_file('20241002-Tim-Sorcerer-too-long.md')

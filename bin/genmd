@@ -1,0 +1,500 @@
+#!/usr/bin/env bash
+#
+# Name:
+#       genmd - Combined source code markdown generator.
+#
+# Usage:
+#       genmd [options]
+#
+# Options:
+#       -d, --debug [level]   Set debug level (0-9)
+#                             0: No debug output
+#                             1: Show informational messages
+#                             2: Show debug messages
+#                             3: Show regex commands and patterns
+#                             9: Show xtrace messages
+#       -h, --help            Show this help message
+#       -e, --exclude ["excluded strings" | excludefile]
+#                             Exclude files matching the given strings or from a file.
+#                             Multiple patterns can be separated by '|'.
+#       -i, --include ["included strings" | includefile]
+#                             Include only files matching the given strings or from a file.
+#                             Multiple patterns can be separated by '|'.
+#       -p, --pattern ["patterns" | patternfile]
+#                             Exclude additional patterns matching the given strings or from a file.
+#                             Multiple patterns can be separated by '|'.
+#       -o, --output [filename]
+#                             Output file (default: combined_source.md)
+#       -n, --dry-run         Do not write the output file; print the files to be processed.
+#       -v, --verbose         Show verbose output
+#
+# Description:
+#       The genmd script will generate markdown from the files in the current directory, and
+#       will descend the BASE_DIR directory tree for all files in the include file if one
+#       exists, and will skip all files in the exclude file. This will produce markdown
+#       containing:
+#       - Project filesystem directory structure
+#       - Source code in a single markdown file for all included files.
+#       - Excluded files are omitted based on exclusion patterns.
+#
+# Examples:
+#       genmd -e '*.md$|*.html$|*.liquid$' -i 'ss' -o output.md
+#       genmd --exclude exclude_patterns.txt --include include_patterns.txt --dry-run
+#
+# Environment:
+#       BASE_DIR: The base directory to search for files in.
+#       GENMD_FILE_EXCLUDES: A default list of file patterns to exclude from the generated markdown.
+#       GENMD_FILE_INCLUDES: A default list of file patterns to include in the generated markdown.
+#       GENMD_DIR_EXCLUDES: A default list of directory patterns to exclude from the generated markdown.
+#       GENMD_PATTERN_EXCLUDES: A default list of additional patterns to exclude from the generated markdown.
+#       PAGER: The pager to use for output, defaults to `less -R`
+#
+# Author:
+#       Michael Sullivan <unixwzrd@unixwzrd.ai>
+#           https://unixwzrd.ai/
+#           https://github.com/unixwzrd
+#
+# License:
+#       Apache License, Version 2.0
+#
+
+# Ensure the script exits on error and treats unset variables as errors
+set -euo pipefail
+
+# Check for Bash version 4+
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+    echo "Error: genmd requires Bash version 4 or higher." >&2
+    exit 75     # (EPROGMISMATCH: 75): Program version wrong
+fi
+
+my_name="$(basename "${BASH_SOURCE[0]}")"
+BASE_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")/../..")"
+cd "$BASE_DIR" || {
+    echo "Error: Failed to navigate to BASE_DIR: $BASE_DIR" >&2
+    exit 20     # (ENOENT: 20): No such file or directory
+}
+
+# Initialize include and exclude arrays with default exclusions or environment variables
+read -r -a file_excludes <<< "${GENMD_FILE_EXCLUDES:-*.ico *.svg *.png *.pdf *.jpg *.htaccess *.webp *.jekyll .DS_Store combined_source.md *.JPG}"
+read -r -a dir_excludes <<< "${GENMD_DIR_EXCLUDES:-tmp .git _site .jekyll new_files}"
+read -r -a pattern_excludes <<< "${GENMD_PATTERN_EXCLUDES:-}"
+read -r -a file_includes <<< "${GENMD_FILE_INCLUDES:-}"
+
+# Flags
+dry_run=false
+debuglvl=0
+verbose=false
+
+# Function to display help message
+display_help() {
+    cat <<_EOT_ | ${PAGER:-less -R}
+
+Usage: $my_name [options]
+
+Options:
+  -d, --debug [level]   Set debug level (0-9)
+                          0: No debug output
+                          1: Show informational messages
+                          2: Show debug messages
+                          3: Show regex commands and patterns
+                          9: Show xtrace messages
+  -h, --help            Show this help message
+  -e, --exclude ["excluded strings" | excludefile]
+                          Exclude directories matching the given strings or from a file.
+                          Multiple patterns can be separated by '|'.
+  -f, --file ["excluded strings" | excludefile]
+                          Exclude files matching the given strings or from a file.
+                          Multiple patterns can be separated by '|' or spaces.
+  -i, --include ["included strings" | includefile]
+                          Include only files matching the given strings or from a file.
+                          Multiple patterns can be separated by '|'.
+  -p, --pattern ["patterns" | patternfile]
+                          Exclude additional patterns matching the given strings or from a file.
+                          Multiple patterns can be separated by '|'.
+  -o, --output [file]   Output file (default: combined_source.md)
+  -n, --dry-run         Do not write the output file; print the files to be processed.
+  -v, --verbose         Show verbose output
+
+Examples:
+  $my_name -e '*.md$|*.html$|*.liquid$' -i 'ss' -o output.md
+  $my_name --exclude exclude_patterns.txt --include include_patterns.txt --dry-run
+
+Author: Michael Sullivan <unixwzrd@unixwzrd.ai>
+        https://unixwzrd.ai/
+        https://github.com/unixwzrd
+
+License: Apache License, Version 2.0
+
+_EOT_
+    exit 22     # (EINVAL: 22): Invalid argument
+}
+
+
+sanitize_patterns() {
+    # Sanitize a string by retaining only alphanumerics, underscores, dots, and spaces
+    #
+    # Usage: sanitized_string=$(sanitize_patterns "$input")
+    #
+    # Examples:
+    #   $ sanitize_patterns "regex[0-9].*"
+    #   regex[0-9].*
+    local input="$1"
+    # Retain only alphanumerics, underscores, dots, and spaces
+    cleanstring=$(echo "$input" | sed -E 's/[^a-zA-Z0-9._ ]//g')
+    if [[ "$debuglvl" -gt 1 ]]; then
+        echo "DEBUG ($my_name): Dirty pattern: $input" >&2
+        echo "DEBUG ($my_name): Clean pattern: $cleanstring" >&2
+    fi
+    echo "$cleanstring"
+}
+
+
+# Function to build a single regex pattern from an array of patterns
+#
+# Arguments:
+#   $1: Caller message (for debugging)
+#   $2: Name of the array containing patterns
+# Output:
+#   Echoes the combined regex pattern
+build_regex() {
+    local caller_message="$1"
+    local -n patterns_ref=$2  # Correctly reference the array
+    local regex=""
+    if [[ "$debuglvl" -gt 1 ]]; then
+        # Argument mixes string and array. Use * or separate argument.
+        # shellcheck disable=SC2145
+        echo "DEBUG ($my_name): $caller_message patterns: ${patterns_ref[@]}" >&2
+    fi
+    for pattern in "${patterns_ref[@]}"; do
+        if [[ "$debuglvl" -gt 2 ]]; then
+            echo "DEBUG ($my_name): $caller_message input pattern: $pattern" >&2
+        fi
+        # Escape special regex characters except for *
+        escaped_pattern=$(echo "$pattern" | sed -E 's/([+.^(){}])/\\\1/g')
+        # Replace '*' with '.*' to allow wildcard matching
+        escaped_pattern=${escaped_pattern//\*/.*}
+        escaped_pattern=${escaped_pattern// /|}
+        if [[ "$debuglvl" -gt 2 ]]; then
+            echo "DEBUG ($my_name): $caller_message escaped pattern: $escaped_pattern" >&2
+        fi
+        if [[ -z "$regex" ]]; then
+            regex="$escaped_pattern"
+        else
+            regex="$regex|$escaped_pattern"
+        fi
+    done
+    if [[ "$debuglvl" -gt 1 ]]; then
+        echo "DEBUG ($my_name): $caller_message final regex: $regex" >&2
+    fi
+    echo "$regex"
+}
+
+# Function to build a list of files to include in the combined source
+#
+# Arguments:
+#   $1: Name of the array to populate with included files
+#   $2: Name of the array containing include patterns
+#   $3: Name of the array containing file exclude patterns
+#   $4: Name of the array containing directory exclude patterns
+#   $5: Name of the array containing additional pattern excludes
+# Output:
+#   Populates the array referenced by $1 with the final list of files
+build_file_list() {
+    local -n files_ref=$1
+    local -n include_files_ref=$2
+    local -n exclude_files_ref=$3
+    local -n exclude_dirs_ref=$4
+    local -n pattern_excludes_ref=$5
+
+    # Find all files
+    readarray -t files < <(find . -type f | sort -u)
+
+    # Exclude directories in the exclude directory list
+    if [[ ${#exclude_dirs_ref[@]} -gt 0 ]]; then
+        # Build exclude regex for directory patterns
+        exclude_dirs_regex=$(build_regex "Exclude directories" "exclude_dirs_ref" | sed -E 's/([^|]+)/\/\1\//g')
+        if [ "$debuglvl" -gt 1 ]; then
+            echo "DEBUG ($my_name): exclude_dirs_regex: $exclude_dirs_regex" >&2
+        fi
+        # Exclude files within excluded directories
+        if [[ "$debuglvl" -gt 2 ]]; then
+        # echo may not expand escape sequences. Use printf.
+        # Argument mixes string and array. Use * or separate argument.
+        # shellcheck disable=SC2028,SC2145
+            echo "DEBUG ($my_name): grep command: \"readarray -t files < <(printf \"%s\n\" \"${files[@]}\" | grep -vE \"$exclude_dirs_regex\"\) )\"" >&2
+        fi
+        readarray -t files < <(printf "%s\n" "${files[@]}" | grep -vE "$exclude_dirs_regex")
+    fi
+
+    # Exclude files based on file patterns
+    if [[ ${#exclude_files_ref[@]} -gt 0 ]]; then
+        exclude_files_regex=$(build_regex "Exclude files" "exclude_files_ref")
+        if [[ "$debuglvl" -gt 2 ]]; then
+        # echo may not expand escape sequences. Use printf.
+        # Argument mixes string and array. Use * or separate argument.
+        # shellcheck disable=SC2028,SC2145
+            echo "DEBUG ($my_name): grep command: \"readarray -t files < <(printf \"%s\n\" \"${files[@]}\" | grep -vE \"$exclude_files_regex\"\) )\"" >&2
+        fi
+        readarray -t files < <(printf "%s\n" "${files[@]}" | grep -vE "$exclude_files_regex")
+    fi
+
+    # Exclude any strings in the extra pattern list
+    if [[ ${#pattern_excludes_ref[@]} -gt 0 ]]; then
+        pattern_excludes_regex=$(build_regex "Exclude patterns" "pattern_excludes_ref")
+        if [[ "$debuglvl" -gt 2 ]]; then
+        # echo may not expand escape sequences. Use printf.
+        # Argument mixes string and array. Use * or separate argument.
+        # shellcheck disable=SC2028,SC2145
+            echo "DEBUG ($my_name): grep command: \"readarray -t files < <(printf \"%s\n\" \"${files[@]}\" | grep -vE \"$pattern_excludes_regex\"\) )\"" >&2
+        fi
+        readarray -t files < <(printf "%s\n" "${files[@]}" | grep -vE "$pattern_excludes_regex")
+    fi
+
+    # Include only files explicitly specified in the include file list
+    if [[ ${#include_files_ref[@]} -gt 0 ]]; then
+        include_files_regex=$(build_regex "Include files" "include_files_ref")
+        # echo may not expand escape sequences. Use printf.
+        # Argument mixes string and array. Use * or separate argument.
+        # shellcheck disable=SC2028,SC2145
+        if [[ "$debuglvl" -gt 2 ]]; then
+            echo "DEBUG ($my_name): grep command: \"readarray -t files < <(printf \"%s\n\" \"${files[@]}\" | grep -E \"$include_files_regex\"\) )\"" >&2
+        fi
+        readarray -t files < <(printf "%s\n" "${files[@]}" | grep -E "$include_files_regex")
+    fi
+
+    # Remove duplicates and sort
+    files_ref=("${files[@]}")
+}
+
+# Function to generate markdown for a source file
+#
+# Args:
+#   $1: The path to the source file
+#   $2: The markdown type (e.g. "shell", "python", etc.)
+generate_markdown() {
+    local source_file="$1"
+    local markdown_type="$2"
+    if [[ "${dry_run:-false}" = true ]]; then
+        echo "Would generate markdown type $markdown_type for: $source_file" >&2
+        return
+    fi
+    if [[ "${verbose:-false}" = true || "$debuglvl" -gt 0 ]]; then
+        echo "INFO ($my_name): Generating markdown for: $source_file" >&2
+    fi
+    {
+        echo
+        echo
+        echo "## Filename ==>  $source_file"
+        echo "\`\`\`$markdown_type"
+        cat "$source_file"
+        echo
+        echo "\`\`\`"
+    } >> "$outfile"
+}
+
+# Function to generate the filetree markdown
+#
+# Args:
+#   $1: The output file path
+#   $2...: List of directories to exclude
+#
+# Description:
+#   Generates a markdown-formatted file tree, excluding specified directories.
+generate_filetree() {
+    local output_file="$1"
+    shift
+    local exclude_list=("$@")
+    local exclude_string
+    exclude_string=$(sanitize_patterns "${exclude_list[@]}")
+    if [ "$debuglvl" -gt 1 ]; then
+        echo "INFO ($my_name): Generating directory and file structure using $exclude_string" >&2
+    fi
+    if [[ "${dry_run:-false}" = true ]]; then
+        echo "Generating directory and file structure." >&2
+        filetree --exclude tmp .git ${exclude_string}
+        return
+    fi
+    {
+        echo
+        echo
+        echo "## Jekyll filesystem directory structure"
+        echo "\`\`\`text"
+        filetree --exclude tmp .git ${exclude_string}
+        echo
+        echo "\`\`\`"
+    } >> "$output_file"
+}
+
+# Function to get the file type using the `file` command
+#
+# Args:
+#   $1: The file path
+# Output:
+#   Echoes the file type
+get_filetype() {
+    local file_path="$1"
+    local file_description
+    file_description=$(file -b "$file_path")
+    case "$file_description" in
+        *Ruby*) echo "ruby";;
+        *Python*) echo "python";;
+        *Bourne-Again*) echo "shell";;
+        *Perl*) echo "perl";;
+        *PHP*) echo "php";;
+        *Bourne*) echo "shell";;
+        *JavaScript*) echo "javascript";;
+        *Java*) echo "java";;
+        *HTML*) echo "html";;
+        *Markdown*) echo "markdown";;
+        *YAML*) echo "yaml";;
+        *Text*) echo "text";;
+        *JSON*) echo "json";;
+        *SASS*) echo "sass";;
+        *SCSS*) echo "scss";;
+        *CSS*) echo "css";;
+        *Shell*) echo "bash";;
+        *text*) echo "text";;
+        *) echo "unknown";;
+    esac
+}
+
+# Function to process a list of files and generate markdown
+#
+# Arguments:
+#   $1: The output file path
+#   $2: Name of the array containing files to process
+process_files(){
+    local output_file=$1
+    local -n files_ref=$2
+    # Iterate over files and generate markdown
+    for file in "${files_ref[@]}"; do
+        # Determine file type based on extension
+        local filetype
+        case "$file" in
+            *".md") filetype="markdown";;
+            *".yml") filetype="yaml";;
+            *".html") filetype="html";;
+            *".rb") filetype="ruby";;
+            *".sh") filetype="bash";;
+            *".txt") filetype="text";;
+            *".py") filetype="python";;
+            *".js") filetype="javascript";;
+            *".css") filetype="css";;
+            *".json") filetype="json";;
+            *".sass") filetype="sass";;
+            *".scss") filetype="scss";;
+            *) filetype=$(get_filetype "$file");;
+        esac
+        if [[ "$filetype" = "unknown" ]]; then
+            echo "ERROR ($my_name): Skipping unknown file type: $file" >&2
+            continue
+        fi
+        generate_markdown "$file" "$filetype"
+    done
+}
+
+# Process command-line options
+while getopts ":d:he:f:i:p:o:nv" opt; do
+    case $opt in
+        d)
+            if [[ "$OPTARG" -ge 0 && "$OPTARG" -le 9 ]]; then
+                debuglvl="$OPTARG"
+            else
+                echo "Error: Debug level must be between 0 and 9." >&2
+                exit 22     # (EINVAL: 22): Invalid argument
+            fi
+            if [[ "$debuglvl" -eq 9 ]]; then
+                set -x
+            fi
+            ;;
+        h)
+            display_help
+            ;;
+        e)
+            if [[ -f "$OPTARG" ]]; then
+                # Read exclude patterns from file, ignoring comments
+                mapfile -t user_excludes < <(grep -v '^#' "$OPTARG")
+                dir_excludes+=("${user_excludes[@]}")
+            elif [[ -n "$OPTARG" ]]; then
+                # Split the input string on '|' and add each pattern separately
+                IFS='|' read -r -a user_excludes <<< "$OPTARG"
+                dir_excludes+=("${user_excludes[@]}")
+            else
+                echo "Error: Exclude option requires a file or string." >&2
+                exit 22     # (EINVAL: 22): Invalid argument
+            fi
+            ;;
+        f)
+            if [[ -f "$OPTARG" ]]; then
+                # Read exclude patterns from file, ignoring comments
+                mapfile -t user_excludes < <(grep -v '^#' "$OPTARG")
+                file_excludes+=("${user_excludes[@]}")
+            elif [[ -n "$OPTARG" ]]; then
+                # Split the input string on '|' and add each pattern separately
+                IFS='|' read -r -a user_excludes <<< "$OPTARG"
+                file_excludes+=("${user_excludes[@]}")
+            else
+                echo "Error: Exclude option requires a file or string." >&2
+                exit 22     # (EINVAL: 22): Invalid argument
+            fi
+            ;;
+        i)
+            if [[ -f "$OPTARG" ]]; then
+                # Read include patterns from file, ignoring comments
+                mapfile -t includes < <(grep -v '^#' "$OPTARG")
+                file_includes+=("${includes[@]}")
+            elif [[ -n "$OPTARG" ]]; then
+                # Split the input string on '|' and add each pattern separately
+                IFS='|' read -r -a includes <<< "$OPTARG"
+                file_includes+=("${includes[@]}")
+            else
+                echo "Error: Include option requires a file or string." >&2
+                exit 22     # (EINVAL: 22): Invalid argument
+            fi
+            ;;
+        p)
+            if [[ -f "$OPTARG" ]]; then
+                # Read pattern excludes from file, ignoring comments
+                mapfile -t patterns < <(grep -v '^#' "$OPTARG")
+                pattern_excludes+=("${patterns[@]}")
+            elif [[ -n "$OPTARG" ]]; then
+                # Split the input string on ',' and add each pattern separately
+                IFS=',' read -r -a patterns <<< "$OPTARG"
+                pattern_excludes+=("${patterns[@]}")
+            else
+                echo "Error: Pattern option requires a file or string." >&2
+                exit 22     # (EINVAL: 22): Invalid argument
+            fi
+            ;;
+        o)
+            outfile="${BASE_DIR}/$OPTARG"
+            ;;
+        n)
+            dry_run=true
+            ;;
+        v)
+            verbose=true
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            display_help
+            ;;
+    esac
+done
+
+# Set default output file if not set
+if [ -n $outfile ]; then
+    dir_excludes+=("$outfile")
+fi
+outfile="${outfile:-$BASE_DIR/combined_source.md}"
+cat /dev/null > "$outfile"  # Truncate the output file
+
+# Generate file tree markdown
+generate_filetree "$outfile" "${dir_excludes[*]} ${file_excludes[*]}"
+
+# Build the file list
+declare -a final_files
+build_file_list "final_files" "file_includes" "file_excludes" "dir_excludes" "pattern_excludes"
+
+# Process the files and generate markdown
+process_files "$outfile" final_files
