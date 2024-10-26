@@ -1,9 +1,10 @@
 # Project Documentation
 ## Brief introduction of the project.
 - [buildvenvs](/docs/shdoc/bin/scripts/buildvenvs.md): shellcheck disable=2317,2164
-- [errno.sh](/docs/shdoc/bin/shinclude/scripts/errno.sh.md): 
-- [help_sys.sh](/docs/shdoc/bin/shinclude/scripts/help_sys.sh.md): Help System Functions for Bash Scripts
-- [init_env.sh](/docs/shdoc/bin/shinclude/scripts/init_env.sh.md): Initialize Environment and Source Utility Scripts
+- [errno.sh](/docs/shdoc/bin/shinclude/scripts/errno.sh.md): Combined source code markdown generator.
+- [genmd](/docs/shdoc/bin/scripts/genmd.md): Combined source code markdown generator.
+- [help_sys.sh](/docs/shdoc/bin/shinclude/scripts/help_sys.sh.md): 
+- [init_env.sh](/docs/shdoc/bin/shinclude/scripts/init_env.sh.md): 
 - [purgebld](/docs/shdoc/bin/scripts/purgebld.md): 
 - [runbench](/docs/shdoc/bin/scripts/runbench.md): 
 - [util_funcs.sh](/docs/shdoc/bin/shinclude/scripts/util_funcs.sh.md): Utility Functions for Bash Scripts
@@ -20,50 +21,76 @@
 - [__set_venv_vars](/docs/shdoc/bin/shinclude/functions/__set_venv_vars.md): 
 - [__venv_conda_check](/docs/shdoc/bin/shinclude/functions/__venv_conda_check.md): 
 - [benv](/docs/shdoc/bin/shinclude/functions/benv.md): Create a New Base Virtual Environment
+- [build_file_list](/docs/shdoc/bin/functions/build_file_list.md): 
+- [build_file_list](/docs/shdoc/bin/shinclude/functions/build_file_list.md): 
+- [build_regex](/docs/shdoc/bin/functions/build_regex.md): 
+- [build_regex](/docs/shdoc/bin/shinclude/functions/build_regex.md): 
 - [cact](/docs/shdoc/bin/shinclude/functions/cact.md): Change active VENV
 - [ccln](/docs/shdoc/bin/shinclude/functions/ccln.md): Clone the current VENV and increment the sequence number.
 - [create_readme](/docs/shdoc/bin/shinclude/functions/create_readme.md): 
 - [dact](/docs/shdoc/bin/shinclude/functions/dact.md): Deactivate the current VENV
 - [denv](/docs/shdoc/bin/shinclude/functions/denv.md): Delete a Specified Virtual Environment
+- [display_help](/docs/shdoc/bin/functions/display_help.md): 
+- [display_help](/docs/shdoc/bin/shinclude/functions/display_help.md): 
+- [display_settings](/docs/shdoc/bin/functions/display_settings.md): 
+- [display_settings](/docs/shdoc/bin/shinclude/functions/display_settings.md): 
 - [do_wrapper](/docs/shdoc/bin/shinclude/functions/do_wrapper.md): General wrapper function for logging specific command actions
-- [errno](/docs/shdoc/bin/shinclude/functions/errno.md): Function: errno
-- [errno_exit](/docs/shdoc/bin/shinclude/functions/errno_exit.md): Function: errno_exit
-- [errno_warn](/docs/shdoc/bin/shinclude/functions/errno_warn.md): Function: errno_warn
-- [general_help](/docs/shdoc/bin/shinclude/functions/general_help.md): Display general help options for the 'help' command.
-- [generate_markdown](/docs/shdoc/bin/shinclude/functions/generate_markdown.md): Generate Markdown documentation for all available functions.
+- [ensure_directory_exists](/docs/shdoc/bin/functions/ensure_directory_exists.md): 
+- [ensure_directory_exists](/docs/shdoc/bin/shinclude/functions/ensure_directory_exists.md): 
+- [general_help](/docs/shdoc/bin/shinclude/functions/general_help.md): 
+- [generate_filetree](/docs/shdoc/bin/functions/generate_filetree.md): 
+- [generate_filetree](/docs/shdoc/bin/shinclude/functions/generate_filetree.md): 
+- [generate_markdown](/docs/shdoc/bin/functions/generate_markdown.md): 
+- [generate_markdown](/docs/shdoc/bin/shinclude/functions/generate_markdown.md): 
+- [generate_markdown](/docs/shdoc/bin/shinclude/functions/generate_markdown.md): 
 - [get_function_hash](/docs/shdoc/bin/shinclude/functions/get_function_hash.md): 
+- [get_unknown_filetype](/docs/shdoc/bin/functions/get_unknown_filetype.md): 
+- [get_unknown_filetype](/docs/shdoc/bin/shinclude/functions/get_unknown_filetype.md): 
 - [help_functions](/docs/shdoc/bin/shinclude/functions/help_functions.md): 
-- [help_scripts](/docs/shdoc/bin/shinclude/functions/help_scripts.md): List sourced scripts and their purpose.
-- [init_help_system](/docs/shdoc/bin/shinclude/functions/init_help_system.md): Populate and sort __VENV_FUNCTIONS with function names and documentation from sourced scripts.
+- [help_scripts](/docs/shdoc/bin/shinclude/functions/help_scripts.md): 
+- [init_help_system](/docs/shdoc/bin/shinclude/functions/init_help_system.md): 
 - [lastenv](/docs/shdoc/bin/shinclude/functions/lastenv.md): Retrieve the Last Environment with a Given Prefix
 - [lenv](/docs/shdoc/bin/shinclude/functions/lenv.md): List All Current VENVs
+- [log](/docs/shdoc/bin/functions/log.md): 
+- [log](/docs/shdoc/bin/shinclude/functions/log.md): 
 - [nenv](/docs/shdoc/bin/shinclude/functions/nenv.md): Create a New Virtual Environment in a Series
-- [next_step](/docs/shdoc/bin/shinclude/functions/next_step.md): Increment a given sequence number by 1 and pad it with a zero if needed.
+- [next_step](/docs/shdoc/bin/shinclude/functions/next_step.md): 
 - [pact](/docs/shdoc/bin/shinclude/functions/pact.md): Switch to the Previous Active VENV
 - [pip](/docs/shdoc/bin/shinclude/functions/pip.md): 
-- [pop_stack](/docs/shdoc/bin/shinclude/functions/pop_stack.md): Pop a Value from a Named Stack
+- [pop_stack](/docs/shdoc/bin/shinclude/functions/pop_stack.md): 
 - [pop_venv](/docs/shdoc/bin/shinclude/functions/pop_venv.md): 
-- [push_stack](/docs/shdoc/bin/shinclude/functions/push_stack.md): Push a Value onto a Named Stack
+- [process_files](/docs/shdoc/bin/functions/process_files.md): 
+- [process_files](/docs/shdoc/bin/shinclude/functions/process_files.md): 
+- [ptree](/docs/shdoc/bin/shinclude/functions/ptree.md): 
+- [push_stack](/docs/shdoc/bin/shinclude/functions/push_stack.md): 
 - [push_venv](/docs/shdoc/bin/shinclude/functions/push_venv.md): 
+- [remove_duplicates](/docs/shdoc/bin/functions/remove_duplicates.md): 
+- [remove_duplicates](/docs/shdoc/bin/shinclude/functions/remove_duplicates.md): 
 - [renv](/docs/shdoc/bin/shinclude/functions/renv.md): Revert to Previous Virtual Environment
+- [sanitize_patterns](/docs/shdoc/bin/functions/sanitize_patterns.md): 
+- [sanitize_patterns](/docs/shdoc/bin/shinclude/functions/sanitize_patterns.md): 
+- [save_config](/docs/shdoc/bin/functions/save_config.md): 
+- [save_config](/docs/shdoc/bin/shinclude/functions/save_config.md): 
 - [set_args](/docs/shdoc/bin/functions/set_args.md): 
 - [snum](/docs/shdoc/bin/shinclude/functions/snum.md): Force set the VENV Sequence number.
-- [sort_2d_array](/docs/shdoc/bin/shinclude/functions/sort_2d_array.md): Sort a Two-Dimensional Array
-- [source_util_script](/docs/shdoc/bin/shinclude/functions/source_util_script.md): **Purpose**: 
-- [specific_function_help](/docs/shdoc/bin/shinclude/functions/specific_function_help.md): Provide detailed documentation for a given function.
+- [sort_2d_array](/docs/shdoc/bin/shinclude/functions/sort_2d_array.md): 
+- [source_util_script](/docs/shdoc/bin/shinclude/functions/source_util_script.md): 
+- [specific_function_help](/docs/shdoc/bin/shinclude/functions/specific_function_help.md): 
 - [specific_script_help](/docs/shdoc/bin/shinclude/functions/specific_script_help.md): 
-- [stack_op](/docs/shdoc/bin/shinclude/functions/stack_op.md): **Parameters**:
-- [stringclean](/docs/shdoc/bin/shinclude/functions/stringclean.md): str: The string to sanitize.
-- [strip_space](/docs/shdoc/bin/shinclude/functions/strip_space.md): Remove Leading and Trailing Whitespaces
-- [to_upper](/docs/shdoc/bin/shinclude/functions/to_upper.md): Function: to_upper
-- [to_upper](/docs/shdoc/bin/shinclude/functions/to_upper.md): Function: to_upper
+- [stack_op](/docs/shdoc/bin/shinclude/functions/stack_op.md): 
+- [stringclean](/docs/shdoc/bin/shinclude/functions/stringclean.md): 
+- [strip_space](/docs/shdoc/bin/shinclude/functions/strip_space.md): 
+- [to_upper](/docs/shdoc/bin/shinclude/functions/to_upper.md): 
+- [validate_pattern](/docs/shdoc/bin/functions/validate_pattern.md): 
+- [validate_pattern](/docs/shdoc/bin/shinclude/functions/validate_pattern.md): 
 - [vdsc](/docs/shdoc/bin/shinclude/functions/vdsc.md): Return the current VENV description.
-- [vhelp](/docs/shdoc/bin/shinclude/functions/vhelp.md): Main entry point for the help system.
+- [venvdiff](/docs/shdoc/bin/shinclude/functions/venvdiff.md): Compare the packages in two virtual environments (EXPERIMENTAl)
+- [vhelp](/docs/shdoc/bin/shinclude/functions/vhelp.md): 
 - [vnum](/docs/shdoc/bin/shinclude/functions/vnum.md): Return the current VENV sequence number.
 - [vpfx](/docs/shdoc/bin/shinclude/functions/vpfx.md): Return the current VENV prefix.
 - [write_index_footer](/docs/shdoc/bin/shinclude/functions/write_index_footer.md): 
 - [write_index_header](/docs/shdoc/bin/shinclude/functions/write_index_header.md): 
-- [zero_pad](/docs/shdoc/bin/shinclude/functions/zero_pad.md): Pad a Single-Digit Number with a Leading Zero
+- [zero_pad](/docs/shdoc/bin/shinclude/functions/zero_pad.md): 
 
 Footer content
-Generated: 2024 07 29 at 20:43:48
+Generated: 2024 10 26 at 02:37:43

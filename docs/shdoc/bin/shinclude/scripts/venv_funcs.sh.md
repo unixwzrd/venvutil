@@ -37,7 +37,7 @@
   benv myenv
   cact myenv
   ```
-- **Dependencies**:
+- **Dependencies**: 
   - This script depends on the `conda` command-line tool for managing virtual environments.
   - The `util_funcs.sh` script is also required and should be located in the same directory as this script.
 - **Notes**:

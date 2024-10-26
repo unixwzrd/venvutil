@@ -1,11 +1,35 @@
 # venvutil - Manage Conda and Pip VENV's with some simple functions and scripts.
 (*Still under development*)
 
-## Update: Functions all seem to be working correctly
+## Table of Contents
+- [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts.](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
+  - [Table of Contents](#table-of-contents)
+  - [2024-10-25 - Added  useful markdown wrapper script, well several scripts actually](#2024-10-25---added--useful-markdown-wrapper-script-well-several-scripts-actually)
+  - [2024-07-09 - Fixed recursion bug in pip wrapper.](#2024-07-09---fixed-recursion-bug-in-pip-wrapper)
+  - [Building all necessary items for oobabooga for macOS on Apple Silicon Series Processors](#building-all-necessary-items-for-oobabooga-for-macos-on-apple-silicon-series-processors)
+  - [Tools to help maintain Python VENV's and more](#tools-to-help-maintain-python-venvs-and-more)
+  - [To use this/Install, clone the repository locally, then do this:](#to-use-thisinstall-clone-the-repository-locally-then-do-this)
+  - [buildvenvs](#buildvenvs)
+  - [Misc Items from the old oobabooga-macOS repository](#misc-items-from-the-old-oobabooga-macos-repository)
+    - [I've moved these things to here for now.](#ive-moved-these-things-to-here-for-now)
 
-2025-07-09 - Fixed recursion bug in pip wrapper.
+## 2024-10-25 - Added  useful markdown wrapper script, well several scripts actually
+
+The script will scan a project directory and create a markdown document with only the directory and file patters specified in the config file, using the command line and/or using environment variables. Documentation is in the docs directory.
+    - [filetree](docs/filetree.md): generates a file hierarchy tree from the current directory and excludes and includes files and directories based on patterns specified in the command line or in environment variables. Required by `genmd`
+    - [genmd](docs/genmd.md): Useful for uploading or pasting on the command line for ChatGPT, groups of related files wrapped in markdown you are working on.  The configuration options may be saved in a config file for later use.
+    - [chunktext](docs/chunktext.md): splits a file into chunks of text and then puts the chunks into a markdown file. For breaking your conversations with one GPT into chunks for ingestion by a new instance, keeping context somewhat intact.
+  
+ I am in the process of getting pip to do a recompile of NumPy but things have been in a state of disarray as I needed to get all my Open Source packages updated, whichI did from source. I now have a working FORTRAN compiler. That and getting loose ends tied up on a bunch of other things like my web site. I wasn't expecting to have to learn Jekyll.
+ 
+ Eventually I will get back to building things again, with a focus on performing text analysis of interpersonal communications using AI to help detect signs of parental alienation. My hope is to be able to stop this before it is too late.
+
+ *I and still open to any sort of remote work, and if you like what you see here, you can always [buy me a coffee](https://www.buymeacoffee.com/unixwzrd), or help fund my work on [Patreon](https://www.patreon.com/unixwzrd). There will be more to come in the next few weeks.*
+
+## 2024-07-09 - Fixed recursion bug in pip wrapper.
 
 All functions seem to be working properly, though there is a lot of cleanup and documentation which needs updating, but they are all pretty handy.  I have the annoyances worked out of the wrapper functions for conda and pip, they work properly run, the intended commands, and the logging, while in place, is not quiet operational.  There are a few issues I'd like to work out such as when cloning an VENV, deleting a VENV and where the changes get logged.
+
 ## Building all necessary items for oobabooga for macOS on Apple Silicon Series Processors
 
 The purpose of this originally was to build all the required modules and source code required for oobabooga necessary for best performance possible on macOS on Apple Silicon M-series processors. This is done with a single configuration file. All still under development, but currently in testing.  If you are brave, go right ahead and have a look at the config files in the config directory.
@@ -26,12 +50,15 @@ I am working on documentation, but you can have a look at what's in the [doc dir
 
 * [VENV Utility functions used](docs/Functions.md)
   
-## To use this, clone the repository locally, then do this:
+## To use this/Install, clone the repository locally, then do this:
 
 1. Include the line in your appropriate .bash_profile or .profile file:
 
     ```bash
     source {repository_path}/bin/shinclude/init_env.sh
+    
+    # In whatever python environment you are using, you will need to install Rich.
+    pip install rich
     ```
 
     **Be sure to replace `{repository_path}` with the location you cloned the repository in.**
