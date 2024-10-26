@@ -174,3 +174,4 @@ project-notes/
 #docs/shdoc/
 #bin/shinclude/help_sys.sh
 vardump*.txt
+utils/output

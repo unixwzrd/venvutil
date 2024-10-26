@@ -141,6 +141,7 @@ read -r -a file_includes <<< "${GENMD_FILE_INCLUDES:-footer|social|ss|liquid|\.m
 # Function to display help message
 display_help() {
     cat <<_EOT_ | ${PAGER:-less -R}
+Name: $my_name - Combined source code markdown generator.
 
 Usage: $my_name [options]
 
