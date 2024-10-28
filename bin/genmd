@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 #
-# Name:
-#       genmd - Combined source code markdown generator.
+# genmd - Combined source code markdown generator.
+#
+# `genmd` is a versatile Bash script designed to generate comprehensive Markdown documentation
+# from your source code files. It scans directories, includes or excludes files based on
+# specified patterns, and consolidates the content into a structured Markdown file.
+# Additionally, it can generate a visual directory structure and manage configurations through
+# dedicated files.
 #
 # Usage:
 #       genmd [options]
@@ -13,25 +18,36 @@
 #                                 2: Show debug messages
 #                                 3: Show regex commands and patterns
 #                                 9: Show xtrace messages
+#
 #       -h, --help                Show this help message
+#
 #       -e, --exclude [patterns]  Exclude directories matching the given patterns.
 #                                 Multiple patterns can be separated by '|'.
+#
 #       -f, --file [patterns]     Exclude files matching the given patterns.
 #                                 Multiple patterns can be separated by '|' or spaces.
+#
 #       -p, --pattern [patterns]  Exclude additional patterns matching the given strings.
 #                                 Multiple patterns can be separated by '|' or spaces.
+#
 #       -i, --include [patterns]  Include files matching the given patterns.
 #                                 Multiple patterns can be separated by '|' or spaces.
+#
 #       -o, --output [filename]   Output file (default: combined_source.md)
+#
 #       -c, --config [filename]   Load configuration from a .grc or .cfg file.
-#                                 If the filename does not end with .grc or .cfg, .grc will be appended.
+#                                 If the filename does not end with .grc or .cfg, .grc will be
+#                                 appended.
+#
 #       -s, --settings [modes]    Show settings. Modes can be:
-#                                 info: Show current settings
+#                                 info Show current settings
 #                                 cfg: Write to configuration file
 #                                 md: Include settings in markdown output
 #                                 env: Output settings as environment variables
 #                                 all: Perform info, md, and env actions
+#
 #       -n, --dry-run             Do not write the output file; print the files to be processed.
+#
 #       -v, --verbose             Show verbose output
 #
 # Description:
@@ -40,19 +56,40 @@
 #       - Project filesystem directory structure
 #       - Source code in a single markdown file for all included files.
 #       - Excluded files are omitted based on exclusion patterns.
+#       - Configuration file will be read if the `-c` option is used, and it assumes .grc is the 
+#         file extension and the file is in the GENMD_BASE/utils/etc directory.
+#       - Configuration file will be written if -o is used and will be placed in the
+#         GENMD_BASE/utils/etc directory and will have the same name as the output file with
+#         .grc appended.
+#       - All exit codes are POSIX exit codes.
 #
 # Examples:
-#       genmd -e "node_modules|dist" -f "*.log *.tmp"  -i "*css *.js" -s "info,md" -o project_overview.md
+#       genmd -e "node_modules|dist" -f "*.log *.tmp"  -i "*css *.js" -s "info,md" \
+#             -o project_overview.md
 #       genmd --exclude "node_modules|dist" --file "*.log *.tmp" --include "info" --dry-run
 #       genmd -s info,md -d 2
 #
 # Environment:
 #       GENMD_BASE: The base directory to search for files in.
-#       GENMD_DIR_EXCLUDES: A default list of directory patterns to exclude from the generated markdown.
+#       GENMD_DIR_EXCLUDES: A default list of directory patterns to exclude from the generated
+#                          markdown.
 #       GENMD_FILE_EXCLUDES: A default list of file patterns to exclude from the generated markdown.
-#       GENMD_PATTERN_EXCLUDES: A default list of additional patterns to exclude from the generated markdown.
+#       GENMD_PATTERN_EXCLUDES: A default list of additional patterns to exclude from the generated
+#                              markdown.
 #       GENMD_FILE_INCLUDES: A default list of file patterns to include in the generated markdown.
 #       PAGER: The pager to use for output, defaults to `less -R`
+#
+# Files and directories:
+#       Files are located in the GENMD_BASE directory.
+#       - utils/etc/genmd.grc: Default configuration file.
+#       - utils/etc: Default directory for configuration files.
+#       - utils/output: Default directory for output files.
+#
+# Dependencies:
+#       - bash 4.0 or higher
+#       - filetree, located in this repository
+#           https://github.com/unixwzrd/venvutil
+#       
 #
 # Author:
 #       Michael Sullivan <unixwzrd@unixwzrd.ai>
@@ -61,18 +98,32 @@
 #
 # License:
 #       Apache License, Version 2.0
-#
+# ---
 
 # Ensure the script exits on error and treats unset variables as errors
 set -euo pipefail
 
+# Declare arrays
+declare -a dir_excludes=(".git" "_data" "_includes" "_posts" "collaborates" "js" "projects" "tmp" "utils")
+declare -a file_excludes=("*.JPG" "*.htaccess" "*.ico" "*.jekyll" "*.jpg" "*.pdf" "*.png" "*.svg" "*.webp" "*impression*")
+declare -a pattern_excludes=()
+declare -a file_includes=()
+
+# Get the base directory where we will have sub-directories for config files and output.
+GENMD_BASE="${GENMD_BASE:-${BASE_DIR:-"."}}"
+# Get my name to be used in log messages.
+my_name="$(basename "${BASH_SOURCE[0]}")"
+echo "INFO ($my_name): Using base directory - $GENMD_BASE" >&2
+
 # Check for Bash version 4+
 if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
-    echo "Error: genmd requires Bash version 4 or higher." >&2
+    echo "ERROR ($my_name): genmd requires Bash version 4 or higher." >&2
     exit 75     # (EPROGMISMATCH: 75): Program version wrong
 fi
 
-# Define an array of variable names to display
+PAGER="${PAGER:-less -R}"
+
+# Define a list of variable names to display or save.
 settings_variables=(
     "GENMD_FILE_EXCLUDES"
     "GENMD_DIR_EXCLUDES"
@@ -85,115 +136,90 @@ settings_variables=(
     "verbose"
 )
 
-my_name="$(basename "${BASH_SOURCE[0]}")"
-
-# Allow the user to set GENMD_BASE externally, falling back to BASE_DIR, then to the current directory.
-GENMD_BASE="${GENMD_BASE:-${BASE_DIR:-"."}}"
-
-# Define output directories
-output_dir="$GENMD_BASE/utils/output"
-config_dir="$GENMD_BASE/utils/etc"
-
-# Function to ensure directories exist
-ensure_directory_exists() {
-    local dir_path="$1"
-    if [[ ! -d "$dir_path" ]]; then
-        mkdir -p "$dir_path" || { echo "Error: Failed to create directory \"$dir_path\"." >&2; exit 1; }
-    fi
-}
-
-# Ensure necessary directories exist
-ensure_directory_exists "$output_dir"
-ensure_directory_exists "$config_dir"
-
-# Set default output filename within the output directory
-output_filename="${output_dir}/combined_source.md"
-
-# Derive the base name without extension
-output_basename="$(basename "$output_filename" .md)"
-
-# Set default config filename (prefer .grc, fallback to .cfg)
-config_filename="${output_basename}.grc"
-
-# Define the config file path
-config_file_path="$config_dir/$config_filename"
-
-# Check if config file exists and source it
-if [[ -f "$config_file_path" ]]; then
-    # shellcheck disable=SC1091
-    source "$config_file_path"
-    echo "INFO ($my_name): Configuration loaded from $config_file_path" >&2
-fi
-
-# Flags
+# Set default flag values.
 dry_run=false
 debug_level=0
 verbose=false
 settings_modes=("md")
 
-# Initialize include and exclude arrays with default exclusions or environment variables
-read -r -a file_excludes <<< "${GENMD_FILE_EXCLUDES:-*.ico *.svg *.png *.pdf *.jpg *.htaccess *.webp *.jekyll .DS_Store combined_source.md *.JPG *.png}"
-read -r -a dir_excludes <<< "${GENMD_DIR_EXCLUDES:-tmp}"
-echo "INFO ($my_name): GENMD_DIR_EXCLUDES: ${dir_excludes[*]}"
-read -r -a pattern_excludes <<< "${GENMD_PATTERN_EXCLUDES:-}"
-read -r -a file_includes <<< "${GENMD_FILE_INCLUDES:-footer|social|ss|liquid|\.md}"
+# Define default directory
+default_filename="combined_source"
+output_dir="$GENMD_BASE/utils/output"
+config_dir="$GENMD_BASE/utils/etc"
+specified_config=""
+specified_output=""
 
-# Function to display help message
+# Function to ensure directories exist
+ensure_directory_exists() {
+    local dir_path="$1"
+    if [[ ! -d "$dir_path" ]]; then
+        mkdir -p "$dir_path" || { echo "ERROR Failed to create directory \"$dir_path\"." >&2
+                    exit 1  # (EPERM: 1): Operation not permitted
+                }
+    fi
+}
+
+# Function to remove duplicates from an array
+remove_duplicates() {
+    local -n arr_ref=$1
+    declare -A seen
+    local unique=()
+    echo "INFO ($my_name): Removing duplicates from array '$1': '${arr_ref[*]}'"
+
+    for regex in "${arr_ref[@]}"; do
+        # Skip empty patterns
+        [[ -n "$regex" ]] || continue
+
+        if [[ $debug_level -gt 1 ]]; then
+            echo "DEBUG ($my_name): remove_duplicates input regex: $regex" >&2
+        fi
+
+        if [[ -z "${seen[$regex]+_}" ]]; then
+            seen["$regex"]=1
+            unique+=("$regex")
+        fi
+    done
+
+    echo "INFO ($my_name): Finished removing duplicates from array '$1': '${unique[*]}'"
+    arr_ref=("${unique[@]}")
+}
+
+# Function to display short help message
 display_help() {
-    cat <<_EOT_ | ${PAGER:-less -R}
-Name: $my_name - Combined source code markdown generator.
-
-Usage: $my_name [options]
-
-Options:
-    -d, --debug [level]               Set debug level (0-9)
-                                        0: No debug output
-                                        1: Show informational messages
-                                        2: Show debug messages
-                                        3: Show regex commands and patterns
-                                        9: Show xtrace messages
-    -h, --help                        Show this help message
-    -e, --exclude [patterns]          Exclude directories matching the given patterns.
-                                        Multiple patterns can be separated by '|'.
-    -f, --file [patterns]             Exclude files matching the given patterns.
-                                        Multiple patterns can be separated by '|' or spaces.
-    -p, --pattern [patterns]          Exclude additional patterns matching the given patterns.
-                                        Multiple patterns can be separated by '|' or spaces.
-    -i, --include [patterns]          Include only files matching the given strings
-                                        Multiple patterns can be separated by '|' or spaces.
-    -o, --output [filename]           Output file (default: combined_source.md)
-    -c, --config [filename]           Load configuration from a .grc or .cfg file.
-                                        If the filename does not end with .grc or .cfg, .grc will be appended.
-    -s, --settings [modes]            Show settings. Modes can be:
-                                        info: Show current settings
-                                        md: Include settings in markdown output
-                                        cfg: Write to configuration file
-                                        env: Output settings as environment variables
-                                        all: Perform info, md, and env actions
-    -n, --dry-run                     Do not write the output file; print the files to be processed.
-    -v, --verbose                     Show verbose output
-
-Examples:
-    $my_name -d 9 -e "utils _includes _data _posts js collaborates projects" \
-            -f "*impression* professional.md *.png" \
-            -i "footer social icss liquid" \
-            -s all
-    $my_name --exclude "node_modules|dist" --file "*.log *.tmp" --include "info" --dry-run
-    $my_name -s info,md -d 2
-
-Author: Michael Sullivan <unixwzrd@unixwzrd.ai>
-        https://unixwzrd.ai/
-        https://github.com/unixwzrd
-
-License: Apache License, Version 2.0
-
-_EOT_
+    # Initialize a variable to hold the help text
+    local message=$1
+    local help_text=""
+    
+    # Read the script file line by line
+    help_text+="$message"$'\n\n'
+    while IFS= read -r line; do
+        # Skip the shebang line
+        if [[ "$line" =~ ^#!/ ]]; then
+            continue
+        fi
+        if [[ "$line" =~ ^$ ]]; then
+            break
+        fi
+        if [[ "$line" =~ ^\#$ ]]; then
+            help_text+=$'\n'
+            continue
+        fi
+        if [[ "$line" =~ ^\#[[:space:]]* ]]; then
+            help_text+="${line//\# /}"$'\n'
+            continue
+        fi
+    done < "$0"
+    printf "%s" "$help_text" | ${PAGER:-cat}
     exit 22     # (EINVAL: 22): Invalid argument
 }
 
 # Function to display or write out the current settings
 display_settings() {
-    local modes=("$@")  # Array of modes passed to the function
+    local -n modes=$1  # Array of modes passed to the function
+
+    if [[ "${modes[*]}" =~ "all" ]]; then
+        modes=("info" "md" "cfg" "env")
+    fi
 
     for mode in "${modes[@]}"; do
         case "$mode" in
@@ -231,26 +257,12 @@ display_settings() {
                     echo ""
                 } > "${GENMD_BASE}/genmd_env.sh"
                 ;;
-            all)
-                display_settings "info" "md" "env" "cfg"
-                ;;
             *)
-                echo "Error: Unknown mode '$mode' for --settings" >&2
+                echo "ERROR Unknown mode '$mode' for --settings" >&2
                 exit 22     # (EINVAL: 22): Invalid argument
                 ;;
         esac
     done
-}
-
-sanitize_patterns() {
-    # Retain alphanumerics, underscores, dots, asterisks, pipes, and spaces
-    local cleanstring
-    cleanstring=$(printf "%s" "$1" | sed -E 's/[^a-zA-Z0-9._*| ]//g')
-    if [[ $debug_level -gt 1 ]]; then
-        echo "DEBUG ($my_name): Dirty pattern: $1" >&2
-        echo "DEBUG ($my_name): Clean pattern: $cleanstring" >&2
-    fi
-    echo "$cleanstring"
 }
 
 # Function to build a single regex pattern from an array of patterns
@@ -261,6 +273,8 @@ build_regex() {
     local escaped_pattern
 
     if [[ $debug_level -gt 1 ]]; then
+        # Argument mixes string and array. Use * or separate argument
+        # shellcheck disable=SC2145
         echo "DEBUG ($my_name): $caller_message patterns: ${patterns_ref[@]}" >&2
     fi
 
@@ -269,10 +283,9 @@ build_regex() {
             echo "DEBUG ($my_name): $caller_message input pattern: $pattern" >&2
         fi
         # Escape special regex characters except for '*' and '|'
-        escaped_pattern=$(printf "%s" "$pattern" | sed -E 's/([.+^(){}])/\\\1/g')
+        escaped_pattern=$(printf "%s" "$pattern" | sed -E 's/([.+^|(){}])/\\\1/g')
         # Replace '*' with '.*' for wildcard matching
         escaped_pattern=${escaped_pattern//\*/.*}
-        # '|' is already handled as pattern separators
         if [[ $debug_level -gt 2 ]]; then
             echo "DEBUG ($my_name): $caller_message escaped pattern: $escaped_pattern" >&2
         fi
@@ -373,12 +386,12 @@ generate_filetree() {
     local output_filename="$1"
     shift
     local exclude_list=("$@")
-    if [ $debug_level -gt 0 ]; then
+    if [[ $debug_level -gt 0 ]]; then
         echo "INFO ($my_name): Generating directory and file structure excluding: ${exclude_list[*]}" >&2
     fi
 
     if ! command -v filetree >/dev/null 2>&1; then
-        printf "Error: 'filetree' command not found. Please install it or use an alternative.\n" >&2
+        printf "ERROR 'filetree' command not found. Please install it or use an alternative.\n" >&2
         printf "It should have been included with this script and it should be in your \$PATH.\n" >&2
         exit 2  # (ENOENT: 2): No such file or directory
     fi
@@ -427,6 +440,8 @@ get_unknown_filetype() {
 # Function to process a list of files and generate markdown
 process_files(){
     local output_filename="$1"
+    # Variable was used as an array but is now assigned a string.
+    # shellcheck disable=2178
     local -n files_ref="$2"
     # Iterate over files and generate markdown
     for file in "${files_ref[@]}"; do
@@ -449,76 +464,54 @@ process_files(){
             *) filetype=$(get_unknown_filetype "$file");;
         esac
         if [[ "$filetype" = "unknown" ]]; then
-            echo "ERROR ($my_name): Skipping unknown file type: \"$file\"" >&2
+            echo "INFO ($my_name): Skipping unknown file type: \"$file\"" >&2
             continue
         fi
         generate_markdown "$file" "$filetype"
     done
 }
 
-# Function to remove duplicates from an array
-remove_duplicates() {
-    local -n arr_ref=$1
-    declare -A seen=()
-    local unique=()
-    for item in "${arr_ref[@]}"; do
-        if [[ ! -v seen["$item"] ]]; then
-            seen["$item"]=1
-            unique+=("$item")
-        fi
-    done
-    arr_ref=("${unique[@]}")
+# Function to set environment variables from internal arrays
+set_env_vars() {
+    readarray -t GENMD_DIR_EXCLUDES < <( printf "%s\n" "${dir_excludes[@]}" )
+    readarray -t GENMD_FILE_EXCLUDES < <( printf "%s\n" "${file_excludes[@]}" )
+    readarray -t GENMD_FILE_INCLUDES < <( printf "%s\n" "${file_includes[@]}" )
+    readarray -t GENMD_PATTERN_EXCLUDES < <( printf "%s\n" "${pattern_excludes[@]}" )
 }
 
 # Function to save configuration to a .grc file
 save_config() {
-    local config_file="$config_file_path"
+    local config_file="${config_filename_out}"
     ensure_directory_exists "$(dirname "$config_file")"
 
     {
-        echo "GENMD_DIR_EXCLUDES=\"${GENMD_DIR_EXCLUDES[*]}\""
-        echo "GENMD_FILE_EXCLUDES=\"${GENMD_FILE_EXCLUDES[*]}\""
-        echo "GENMD_FILE_INCLUDES=\"${GENMD_FILE_INCLUDES[*]}\""
-        echo "GENMD_PATTERN_EXCLUDES=\"${GENMD_PATTERN_EXCLUDES[*]}\""
-        echo "GENMD_BASE=\"$GENMD_BASE\""
+        echo "export GENMD_DIR_EXCLUDES=\"${dir_excludes[*]}\""
+        echo "export GENMD_FILE_EXCLUDES=\"${file_excludes[*]}\""
+        echo "export GENMD_FILE_INCLUDES=\"${file_includes[*]}\""
+        echo "export GENMD_PATTERN_EXCLUDES=\"${pattern_excludes[*]}\""
+        echo "export GENMD_BASE=\"$GENMD_BASE\""
         echo "output_filename=\"$output_filename\""
+        echo "settings_modes=\"${settings_modes[*]}\""
         echo "dry_run=$dry_run"
         echo "debug_level=$debug_level"
         echo "verbose=$verbose"
     } > "$config_file"
-    echo "INFO ($my_name): Configuration saved to $config_file" >&2
+    # echo "INFO ($my_name): Configuration saved to $config_file" >&2
 }
 
 # Function to validate patterns (optional enhancement)
 validate_pattern() {
     local pattern="$1"
     if ! echo "" | grep -E "$pattern" >/dev/null 2>&1; then
-        echo "Error: Invalid pattern '$pattern'." >&2
-        exit 1
+        echo "ERROR ($my_name): Invalid pattern '$pattern'." >&2
+        exit 22 # (EINVAL: 22): Invalid argument
     fi
 }
 
-# Function to log messages based on debug level
-log() {
-    local level="$1"
-    shift
-    case "$level" in
-        "INFO")
-            echo "INFO ($my_name): $*" >&2
-            ;;
-        "DEBUG")
-            if [[ "$debug_level" -gt 1 ]]; then
-                echo "DEBUG ($my_name): $*" >&2
-            fi
-            ;;
-        "ERROR")
-            echo "ERROR ($my_name): $*" >&2
-            ;;
-        *)
-            echo "$*" >&2
-            ;;
-    esac
-}
+# Function to display or write out the current settings
+# (Note: Already defined above)
+
+# Function to display help (Note: Already defined above)
 
 # Process command-line options using getopts
 # Reset OPTIND in case getopts has been used previously
@@ -534,67 +527,66 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
                     set -x
                 fi
             else
-                echo "Error: Debug level must be between 0 and 9." >&2
-                display_help
+                display_help "ERROR ($my_name): Debug level must be between 0 and 9."
             fi
             ;;
         e)
-            # Split the input string on '|' and add each pattern separately
-            IFS='|' read -r -a user_excludes <<< "$OPTARG"
-            dir_excludes+=("${user_excludes[@]}")
+            if [[ -n "$OPTARG" && ! "$OPTARG" =~ ^- ]]; then
+                IFS='| ' read -r -a values <<< "$OPTARG"
+                for pattern in "${values[@]}"; do
+                    dir_excludes+=("$pattern")
+                done
+            else
+                display_help "ERROR ($my_name): -e requires a directory pattern string to exclude."
+            fi
             ;;
         f)
-            # Split the input string on '|' or spaces and add each pattern separately
-            IFS='| ' read -r -a user_excludes <<< "$OPTARG"
-            file_excludes+=("${user_excludes[@]}")
+            if [[ -n "$OPTARG" && ! "$OPTARG" =~ ^- ]]; then
+                IFS='| ' read -r -a values <<< "$OPTARG"
+                for pattern in "${values[@]}"; do
+                    file_excludes+=("$pattern")
+                done
+            else
+                display_help "ERROR ($my_name): -f requires a file pattern string to exclude."
+            fi
             ;;
         i)
             if [[ -n "$OPTARG" && ! "$OPTARG" =~ ^- ]]; then
-                # Split the input string on '|' or spaces and add each pattern separately
-                IFS='| ' read -r -a include_patterns <<< "$OPTARG"
-                file_includes+=("${include_patterns[@]}")
+                IFS='| ' read -r -a values <<< "$OPTARG"
+                for pattern in "${values[@]}"; do
+                    file_includes+=("$pattern")
+                done
             else
-                echo "Error: --include requires a pattern string." >&2
-                display_help
+                display_help "ERROR ($my_name): -i requires a file name pattern string to include."
             fi
             ;;
         p)
-            # Split the input string on '|' or spaces and add each pattern separately
-            IFS='| ' read -r -a patterns <<< "$OPTARG"
-            pattern_excludes+=("${patterns[@]}")
+            if [[ -n "$OPTARG" && ! "$OPTARG" =~ ^- ]]; then
+                IFS='| ' read -r -a values <<< "$OPTARG"
+                for pattern in "${values[@]}"; do
+                    pattern_excludes+=("$pattern")
+                done
+            else
+                display_help "ERROR ($my_name): -p requires a pattern string to exclude."
+            fi
             ;;
         o)
-            output_filename="$output_dir/$OPTARG"
-            output_basename="$(basename "$output_filename" .md)"
-            config_filename="${output_basename}.grc"
-            config_file_path="$config_dir/$config_filename"
-            # Check if config file exists and source it
-            if [[ -f "$config_file_path" ]]; then
-                # shellcheck disable=SC1091
-                source "$config_file_path"
-                log "INFO" "Configuration loaded from \"$config_file_path\""
-            fi
+            value="${OPTARG#*=}"
+            specified_output="$(basename "$value" .md)"
             ;;
         c)
-            specified_config="$OPTARG"
-            # Append .grc or .cfg if not present
-            if [[ "$specified_config" != *.grc && "$specified_config" != *.cfg ]]; then
-                specified_config="${specified_config}.grc"
-            fi
-            full_config_path="$config_dir/$specified_config"
-            if [[ -f "$full_config_path" ]]; then
-                # shellcheck disable=SC1091
-                source "$full_config_path"
-                log "INFO" "Configuration loaded from \"$full_config_path\""
-            else
-                echo "Error: Configuration file \"$full_config_path\" not found." >&2
-                exit 2
-            fi
+            value="${OPTARG#*=}"
+            specified_config="$(basename "$value" .grc)"
             ;;
         s)
-            # Replace commas with spaces, then split on spaces to handle both separators
-            IFS=' ' read -r -a modes <<< "${OPTARG//,/ }"
-            settings_modes+=("${modes[@]}")
+            if [[ -n "$OPTARG" && ! "$OPTARG" =~ ^- ]]; then
+                IFS='| ' read -r -a values <<< "$OPTARG"
+                for mode in "${values[@]}"; do
+                    settings_modes+=("$mode")
+                done
+            else
+                display_help "ERROR ($my_name): -s requires setting selections."
+            fi
             ;;
         n)
             dry_run=true
@@ -603,79 +595,82 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
             verbose=true
             ;;
         h)
-            display_help
+            display_help ""
             ;;
         -)
             # Handle long options manually
             case "${OPTARG}" in
                 debug=*)
-                    debug_level="${OPTARG#*=}"
-                    if [[ "$debug_level" =~ ^[0-9]$ ]]; then
+                    debug_value="${OPTARG#*=}"
+                    if [[ "$debug_value" =~ ^[0-9]$ ]]; then
+                        debug_level="$debug_value"
                         if [[ "$debug_level" -eq 9 ]]; then
                             set -x
                         fi
                     else
-                        echo "Error: Debug level must be between 0 and 9." >&2
-                        display_help
+                        display_help "ERROR ($my_name): Debug level must be between 0 and 9."
                     fi
                     ;;
                 help)
-                    display_help
+                    display_help ""
                     ;;
                 exclude=*)
-                    value="${OPTARG#*=}"
-                    IFS='|' read -r -a user_excludes <<< "$value"
-                    dir_excludes+=("${user_excludes[@]}")
+                    if [[ -n "$OPTARG" && ! "$OPTARG" =~ ^- ]]; then
+                        IFS='| ' read -r -a values <<< "$OPTARG"
+                        for pattern in "${values[@]}"; do
+                            dir_excludes+=("$pattern")
+                        done
+                    else
+                        display_help "ERROR ($my_name): --exclude requires a directory pattern string."
+                    fi
                     ;;
                 file=*)
-                    value="${OPTARG#*=}"
-                    IFS='| ' read -r -a user_excludes <<< "$value"
-                    file_excludes+=("${user_excludes[@]}")
+                    if [[ -n "$OPTARG" && ! "$OPTARG" =~ ^- ]]; then
+                        IFS='| ' read -r -a values <<< "$OPTARG"
+                        for pattern in "${values[@]}"; do
+                            file_excludes+=("$pattern")
+                        done
+                    else
+                        display_help "ERROR ($my_name): --file requires a file pattern string."
+                    fi
                     ;;
                 include=*)
-                    value="${OPTARG#*=}"
-                    IFS='| ' read -r -a include_patterns <<< "$value"
-                    file_includes+=("${include_patterns[@]}")
+                    if [[ -n "${OPTARG#*=}" && ! "${OPTARG#*=}" =~ ^- ]]; then
+                        IFS='| ' read -r -a values <<< "${OPTARG#*=}"
+                        for pattern in "${values[@]}"; do
+                            file_includes+=("$pattern")
+                        done
+                    else
+                        display_help "ERROR ($my_name): --include requires a file pattern string."
+                    fi
                     ;;
                 pattern=*)
-                    value="${OPTARG#*=}"
-                    IFS='| ' read -r -a patterns <<< "$value"
-                    pattern_excludes+=("${patterns[@]}")
+                    if [[ -n "${OPTARG#*=}" && ! "${OPTARG#*=}" =~ ^- ]]; then
+                        IFS='| ' read -r -a values <<< "${OPTARG#*=}"
+                        for pattern in "${values[@]}"; do
+                            pattern_excludes+=("$pattern")
+                        done
+                    else
+                        display_help "ERROR ($my_name): --pattern requires a pattern string."
+                    fi
                     ;;
                 output=*)
                     value="${OPTARG#*=}"
-                    output_filename="$output_dir/$value"
-                    output_basename="$(basename "$output_filename" .md)"
-                    config_filename="${output_basename}.grc"
-                    config_file_path="$config_dir/$config_filename"
-                    # Check if config file exists and source it
-                    if [[ -f "$config_file_path" ]]; then
-                        # shellcheck disable=SC1091
-                        source "$config_file_path"
-                        log "INFO" "Configuration loaded from \"$config_file_path\""
-                    fi
+                    specified_output="$(basename "$value" .md)"
                     ;;
                 config=*)
                     value="${OPTARG#*=}"
-                    specified_config="$value"
-                    # Append .grc or .cfg if not present
-                    if [[ "$specified_config" != *.grc && "$specified_config" != *.cfg ]]; then
-                        specified_config="${specified_config}.grc"
-                    fi
-                    full_config_path="$config_dir/$specified_config"
-                    if [[ -f "$full_config_path" ]]; then
-                        # shellcheck disable=SC1091
-                        source "$full_config_path"
-                        log "INFO" "Configuration loaded from \"$full_config_path\""
-                    else
-                        echo "Error: Configuration file \"$full_config_path\" not found." >&2
-                        exit 2
-                    fi
+                    specified_config="$(basename "$value" .grc)"
                     ;;
                 settings=*)
-                    value="${OPTARG#*=}"
-                    IFS=' ' read -r -a modes <<< "${value//,/ }"
-                    settings_modes+=("${modes[@]}")
+                    if [[ -n "${OPTARG#*=}" && ! "${OPTARG#*=}" =~ ^- ]]; then
+                        IFS=' ' read -r -a values <<< "${OPTARG#*=}"
+                        for mode in "${values[@]}"; do
+                            settings_modes+=("$mode")
+                        done
+                    else
+                        display_help "ERROR ($my_name): --settings requires a setting pattern string."
+                    fi
                     ;;
                 dry-run)
                     dry_run=true
@@ -684,18 +679,18 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
                     verbose=true
                     ;;
                 *)
-                    echo "Error: Unknown option '--${OPTARG}'" >&2
-                    display_help
+                    display_help "ERROR ($my_name): Unknown option '--${OPTARG}'"
                     ;;
             esac
             ;;
         \?)
-            echo "Error: Invalid option '-$OPTARG'" >&2
-            display_help
+            display_help "ERROR ($my_name): Invalid option '-$OPTARG'"
             ;;
         :)
-            echo "Error: Option '-$OPTARG' requires an argument." >&2
-            display_help
+            display_help "ERROR ($my_name): Option '-$OPTARG' requires an argument."
+            ;;
+        ?)
+            display_help "ERROR ($my_name): Unknown option '-$OPTARG'"
             ;;
     esac
 done
@@ -703,15 +698,94 @@ done
 # Shift off the options and optional --
 shift $((OPTIND -1))
 
+# Ensure necessary directories exist
+ensure_directory_exists "$output_dir"
+ensure_directory_exists "$config_dir"
+
+# Now set the final values for output files after options have been processed
+# We will override these with any new values from the config file or the command line
+output_filename="${output_dir}/${default_filename}.md"
+config_filename_in="${config_dir}/${default_filename}.grc"
+config_filename_out="$config_filename_in"
+
+# If a config file is specified we will load it and use it to override the defaults
+# The default output filename is based on the config filename or the contents of the config file.
+# Strip the extension if it exists
+# If a config file is specified, load it
+if [[ -n "$specified_config" ]]; then
+    specified_config=${specified_config%.grc}
+    config_filename_in=${config_dir}/${specified_config}.grc
+    config_filename_out=$config_filename_in
+    output_filename=${output_dir}/${specified_config}.md
+    if [[ -e "$config_filename_in" ]]; then
+        # shellcheck disable=SC1090
+        source "$config_filename_in"
+        echo "INFO ($my_name): Configuration loaded from \"$config_filename_in\"" >&2
+        
+        # Split the config strings into arrays
+        for pattern in $GENMD_DIR_EXCLUDES; do
+            dir_excludes+=("$pattern")
+        done
+        for pattern in $GENMD_FILE_EXCLUDES; do
+            file_excludes+=("$pattern")
+        done
+        for pattern in $GENMD_PATTERN_EXCLUDES; do
+            pattern_excludes+=("$pattern")
+        done
+        for pattern in $GENMD_FILE_INCLUDES; do
+            file_includes+=("$pattern")
+        done
+    else
+        echo "ERROR ($my_name): Configuration file \"$config_filename_in\" not found" >&2
+        exit 2
+    fi
+fi
+
+
+# Override the default output filename or the one in the config file.
+# We may be running a new version of the config with new command line options.
+# Strip the extension if it exists
+if [[ -n "$specified_output" ]]; then
+    specified_output=$(basename "$specified_output" .md)
+    output_filename="${output_dir}/${specified_output}.md"
+    config_filename_out="${config_dir}/${specified_output}.grc"
+    if [[ -z "$specified_config" ]]; then
+        config_filename_in="${config_dir}/${specified_output}.grc"
+        config_filename_out="${config_dir}/${specified_output}.grc"
+        if [[ -e "$config_filename_in" ]]; then
+            # shellcheck disable=SC1090
+            source "$config_filename_in"
+            echo "INFO ($my_name): Configuration loaded from \"$config_filename_in\"" >&2
+            
+            # Split the config strings into arrays
+            for pattern in $GENMD_DIR_EXCLUDES; do
+                dir_excludes+=("$pattern")
+            done
+            for pattern in $GENMD_FILE_EXCLUDES; do
+                file_excludes+=("$pattern")
+            done
+            for pattern in $GENMD_PATTERN_EXCLUDES; do
+                pattern_excludes+=("$pattern")
+            done
+            for pattern in $GENMD_FILE_INCLUDES; do
+                file_includes+=("$pattern")
+            done
+        else
+            echo "NOTICE ($my_name): No configuration file specified, configuration will be saved to \"$config_filename_out\"" >&2
+        fi
+    fi
+fi
+
+# Make sure to override the debug settings in any config fioles, this is probably the
+# only setting we'd want to voverride and not merge from the command line
+debug_level=$debug_value
+
 # Remove duplicates from exclusion and inclusion lists
 remove_duplicates dir_excludes
 remove_duplicates file_excludes
 remove_duplicates pattern_excludes
 remove_duplicates file_includes
 remove_duplicates settings_modes
-
-# Set default output file if not set via -o/--output
-output_filename="${output_filename:-$output_dir/combined_source.md}"
 
 # Truncate the output file only if not in dry_run
 if [[ "$dry_run" != true ]]; then
@@ -722,11 +796,12 @@ fi
 
 # After truncating, handle the settings_modes to include info at the top
 if [[ ${#settings_modes[@]} -gt 0 ]]; then
-    display_settings "${settings_modes[@]}"
+    set_env_vars
+    display_settings settings_modes
 fi
 
-# Debug: Show final directory exclusions
-if [[ $debug_level -gt 0 ]]; then
+# Debug  Show final directory exclusions
+if [[ $debug_level -gt 1 ]]; then
     echo "DEBUG ($my_name): Final directory exclusions: ${dir_excludes[*]}" >&2
 fi
 
@@ -737,8 +812,8 @@ generate_filetree "$output_filename" "${dir_excludes[@]}"
 declare -a final_files
 build_file_list final_files file_includes file_excludes dir_excludes pattern_excludes
 
-# Debug: Show final files to be processed
-if [[ $debug_level -gt 0 ]]; then
+# Debug  Show final files to be processed
+if [[ $debug_level -gt 4 ]]; then
     echo "DEBUG ($my_name): Final files to process:" >&2
     for f in "${final_files[@]}"; do
         echo "  \"$f\"" >&2

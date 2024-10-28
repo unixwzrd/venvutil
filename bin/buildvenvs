@@ -92,6 +92,21 @@ echo "${MY_NAME}: Sourcing in user config-  '${MY_CONF_DIR}/config-${MY_CONFIG}.
 [ -e "${MY_CONF_DIR}/config-${MY_CONFIG}.sh" ] && . "${MY_CONF_DIR}/config-${MY_CONFIG}.sh" \
     || echo "${MY_NAME}: File not found - '${MY_CONF_DIR}/config-${MY_CONFIG}.sh'"
 
+__VENV_INTERNAL_FUNCTIONS=(
+    ${__VENV_INTERNAL_FUNCTIONS[@]}
+    "__CONDA"
+    "__PYTHON_BASE"
+    "__CREATE_APP_BASE"
+    "__CMAKE"
+    "__BLIS"
+    "__OPENBLAS"
+    "__PKG_BUILD"
+    "__CLEANUP"
+    "__BUILD_STEPS"
+    "__CLEANUP"
+)
+
+
 __BUILD_DIR="${BUILD_DIR:=${__BUILD_BASE}/build}"
 __BENCHMARK_DIR="${__BUILD_DIR}/benchmark"
 [ -e "${__BUILD_BASE}" ] || mkdir -p "${__BUILD_BASE}"
@@ -103,7 +118,7 @@ __LASTENV_FILE="${__BUILD_DIR}/.lastvenv"
 __STEP_FILE="${__BUILD_DIR}/.stepnum"
 [ -e "${__STEP_FILE}" ] || echo "0" > "${__STEP_FILE}"
 
-# Internal steps done to set up th einitial Conda VENV for an application.
+# Internal steps done to set up the initial Conda VENV for an application.
 __INTERNAL_STEPS=(
     "__CONDA"
     "__PYTHON_BASE"

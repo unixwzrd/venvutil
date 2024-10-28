@@ -15,6 +15,8 @@
   - [Settings Modes](#settings-modes)
   - [Dry Run](#dry-run)
   - [Verbose and Debug Levels](#verbose-and-debug-levels)
+  - [Files and Directories](#files-and-directories)
+  - [Dependencies](#dependencies)
   - [Author](#author)
   - [License](#license)
 
@@ -92,10 +94,11 @@ genmd [options]
 - `-o [filename]`: **Output File**
   - **Description:** Specifies the output Markdown file.
   - **Default:** `combined_source.md`
+  - **Note:** If specified, a corresponding `.grc` configuration file will be used or created in the `GENMD_BASE/utils/etc` directory.
 
 - `-c [filename]`: **Load Configuration**
   - **Description:** Loads configuration from a `.grc` or `.cfg` file.
-  - **Note:** If the filename does not end with `.grc` or `.cfg`, `.grc` will be appended.
+  - **Note:** If the filename does not end with `.grc` or `.cfg`, `.grc` will be appended automatically. The configuration file should reside in the `GENMD_BASE/utils/etc` directory.
 
 - `-s [modes]`: **Show Settings**
   - **Description:** Displays or saves settings based on the specified modes.
@@ -159,38 +162,40 @@ All short options have corresponding long options with double dashes (`--`):
 
 - `GENMD_DIR_EXCLUDES`: **Default Directory Exclusions**
   - **Description:** A default list of directory patterns to exclude from the generated Markdown.
-  - **Default Value:** `tmp`
+  - **Default Value:** `tmp .git`
 
 - `GENMD_FILE_EXCLUDES`: **Default File Exclusions**
   - **Description:** A default list of file patterns to exclude from the generated Markdown.
-  - **Default Value:** `*.ico *.svg *.png *.pdf *.jpg *.htaccess *.webp *.jekyll .DS_Store combined_source.md *.JPG *.png`
+  - **Default Value:** `*.ico *.svg *.png *.pdf *.jpg *.htaccess *.webp *.jekyll .DS_Store *.JPG *.png`
 
 - `GENMD_PATTERN_EXCLUDES`: **Default Additional Pattern Exclusions**
   - **Description:** A default list of additional patterns to exclude from the generated Markdown.
-  - **Default Value:** \*(Empty)`
+  - **Default Value:** \*(Empty)*
 
 - `GENMD_FILE_INCLUDES`: **Default File Inclusions**
   - **Description:** A default list of file patterns to include in the generated Markdown.
-  - **Default Value:** `footer|social|ss|liquid|\\.md`
+  - **Default Value:** \*(Empty)*
 
 - `PAGER`: **Pager for Output**
   - **Description:** The pager to use for output.
   - **Default Value:** `less -R`
-    
+
 ---
 
 ## Configuration Files
 
-`genmd` supports loading configurations from `.grc` or `.cfg` files, allowing you to save and reuse your settings:
+`genmd` supports loading configurations from `.grc` files, allowing you to save and reuse your settings:
 
 - **Loading a Configuration File:**
   ```bash
   genmd -c myconfig
   ```
-  - If `myconfig` does not end with `.grc` or `.cfg`, `.grc` will be appended automatically.
+  - If `myconfig` does not end with `.grc`, `.grc` will be appended automatically.
+  - The configuration file should reside in the `GENMD_BASE/utils/etc` directory.
 
 - **Saving Configuration:**
-  - Use the `cfg` mode with the `-s` option to save current settings to a configuration file.
+  - Use the `cfg` mode with the `-s` option to save current settings to a configuration file, output will be written to `STDEOUT`.
+  - When using the `-o` option to specify an output file, a corresponding `.grc` file will be created in the `GENMD_BASE/utils/etc` directory, matching the output filename.
 
 ---
 
@@ -244,6 +249,38 @@ The `-n` or `--dry-run` option allows you to simulate the actions of the script 
     ```bash
     genmd -d 2
     ```
+
+---
+
+## Files and Directories
+
+`genmd` organizes its files and directories within the `GENMD_BASE` directory. The default structure includes:
+
+- **Configuration Files:**
+  - `utils/etc/genmd.grc`: Default configuration file.
+  - `utils/etc`: Default directory for configuration files.
+
+- **Output Files:**
+  - `utils/output`: Default directory for output Markdown files.
+
+- **Custom Configurations:**
+  - When using the `-o` option to specify an output file, a corresponding `.grc` configuration file will be created or used in the `GENMD_BASE/utils/etc` directory, matching the output filename.
+
+---
+
+## Dependencies
+
+`genmd` requires the following dependencies to function correctly:
+
+- **Bash:** Version 4.0 or higher.
+  
+- **`filetree` Command:**
+  - **Description:** Used to generate a visual representation of the project's directory structure.
+  - **Location:** Included in this repository.
+  - **Repository:** [https://github.com/unixwzrd/venvutil](https://github.com/unixwzrd/venvutil)
+  
+- **Other Utilities:**
+  - Ensure that all required utilities used within the script are installed and accessible in your system's PATH.
 
 ---
 

@@ -4,6 +4,8 @@
 ## Table of Contents
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts.](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
   - [Table of Contents](#table-of-contents)
+  - [2024-10-28 - Updates and stability enhancements to `genmd`](#2024-10-28---updates-and-stability-enhancements-to-genmd)
+    - [Refactor option handling and improve configuration loading](#refactor-option-handling-and-improve-configuration-loading)
   - [2024-10-25 - Added  useful markdown wrapper script, well several scripts actually](#2024-10-25---added--useful-markdown-wrapper-script-well-several-scripts-actually)
   - [2024-07-09 - Fixed recursion bug in pip wrapper.](#2024-07-09---fixed-recursion-bug-in-pip-wrapper)
   - [Building all necessary items for oobabooga for macOS on Apple Silicon Series Processors](#building-all-necessary-items-for-oobabooga-for-macos-on-apple-silicon-series-processors)
@@ -13,12 +15,23 @@
   - [Misc Items from the old oobabooga-macOS repository](#misc-items-from-the-old-oobabooga-macos-repository)
     - [I've moved these things to here for now.](#ive-moved-these-things-to-here-for-now)
 
+## 2024-10-28 - Updates and stability enhancements to `genmd`
+
+### Refactor option handling and improve configuration loading
+- Centralized handling of -c and -o options
+- Enhanced display_help function to capture all help comments
+- Established configuration loading precedence: defaults, ENV, system .grc, command-line .grc
+- Improved array management and duplicate removal
+- Enhanced logging and debugging capabilities
+- Added comprehensive error handling and exit codes
+- Fixed duplicate handling in patterns written to config files.
+
 ## 2024-10-25 - Added  useful markdown wrapper script, well several scripts actually
 
 The script will scan a project directory and create a markdown document with only the directory and file patters specified in the config file, using the command line and/or using environment variables. Documentation is in the docs directory.
-    - [filetree](docs/filetree.md): generates a file hierarchy tree from the current directory and excludes and includes files and directories based on patterns specified in the command line or in environment variables. Required by `genmd`
-    - [genmd](docs/genmd.md): Useful for uploading or pasting on the command line for ChatGPT, groups of related files wrapped in markdown you are working on.  The configuration options may be saved in a config file for later use.
-    - [chunktext](docs/chunktext.md): splits a file into chunks of text and then puts the chunks into a markdown file. For breaking your conversations with one GPT into chunks for ingestion by a new instance, keeping context somewhat intact.
+  - [filetree](docs/filetree.md): generates a file hierarchy tree from the current directory and excludes and includes files and directories based on patterns specified in the command line or in environment variables. Required by `genmd`
+  - [genmd](docs/genmd.md): Useful for uploading or pasting on the command line for ChatGPT, groups of related files wrapped in markdown you are working on.  The configuration options may be saved in a config file for later use.
+  - [chunktext](docs/chunktext.md): splits a file into chunks of text and then puts the chunks into a markdown file. For breaking your conversations with one GPT into chunks for ingestion by a new instance, keeping context somewhat intact.
   
  I am in the process of getting pip to do a recompile of NumPy but things have been in a state of disarray as I needed to get all my Open Source packages updated, whichI did from source. I now have a working FORTRAN compiler. That and getting loose ends tied up on a bunch of other things like my web site. I wasn't expecting to have to learn Jekyll.
  
