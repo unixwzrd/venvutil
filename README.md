@@ -4,6 +4,7 @@
 ## Table of Contents
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts.](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
   - [Table of Contents](#table-of-contents)
+  - [2024-10-30 - `genmd` Now pre-populates exclusions with .gitignore](#2024-10-30---genmd-now-pre-populates-exclusions-with-gitignore)
   - [2024-10-28 - Updates and stability enhancements to `genmd`](#2024-10-28---updates-and-stability-enhancements-to-genmd)
     - [Refactor option handling and improve configuration loading](#refactor-option-handling-and-improve-configuration-loading)
   - [2024-10-25 - Added  useful markdown wrapper script, well several scripts actually](#2024-10-25---added--useful-markdown-wrapper-script-well-several-scripts-actually)
@@ -14,6 +15,14 @@
   - [buildvenvs](#buildvenvs)
   - [Misc Items from the old oobabooga-macOS repository](#misc-items-from-the-old-oobabooga-macos-repository)
     - [I've moved these things to here for now.](#ive-moved-these-things-to-here-for-now)
+
+## 2024-10-30 - `genmd` Now pre-populates exclusions with .gitignore
+
+I thoughht it mighht be nice to add twop options to `genmd` to limit the files and directories that are included and excluded. These are the `-C` and `-g` options. The .gitignore is included in the exclusions and inclusions by default. Typically you would want to exclude those files anyway. I plan to move this to a change log at some point, but have additional projects to get loaded.
+
+One project I have almost completed is an extension for Safari to extract all of your CharGPT history into a JSON file.  I'll also have a couple of utilities for parsing it and producing markdown content by date ranges and other criteria. This is so you can get a new GPT instance up ad running as quickly as possible using the context from a prior GPT instance. These are all tools for assisting your workflow when working with ChatGPT. These extracts may be uploaded where a GPT will summarize the conversation and use that for initializing its context.
+
+I do have further plans for this repository, but want to get some other projects moved along further and pushed to make them available as quickly as possibel.
 
 ## 2024-10-28 - Updates and stability enhancements to `genmd`
 

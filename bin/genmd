@@ -9,47 +9,54 @@
 # dedicated files.
 #
 # Usage:
-#       genmd [options]
-#
+#     genmd [options]
+# 
 # Options:
-#       -d, --debug [level]       Set debug level (0-9)
-#                                 0: No debug output
-#                                 1: Show informational messages
-#                                 2: Show debug messages
-#                                 3: Show regex commands and patterns
-#                                 9: Show xtrace messages
-#
-#       -h, --help                Show this help message
-#
-#       -e, --exclude [patterns]  Exclude directories matching the given patterns.
-#                                 Multiple patterns can be separated by '|'.
-#
-#       -f, --file [patterns]     Exclude files matching the given patterns.
-#                                 Multiple patterns can be separated by '|' or spaces.
-#
-#       -p, --pattern [patterns]  Exclude additional patterns matching the given strings.
-#                                 Multiple patterns can be separated by '|' or spaces.
-#
-#       -i, --include [patterns]  Include files matching the given patterns.
-#                                 Multiple patterns can be separated by '|' or spaces.
-#
-#       -o, --output [filename]   Output file (default: combined_source.md)
-#
-#       -c, --config [filename]   Load configuration from a .grc or .cfg file.
-#                                 If the filename does not end with .grc or .cfg, .grc will be
-#                                 appended.
-#
-#       -s, --settings [modes]    Show settings. Modes can be:
-#                                 info Show current settings
-#                                 cfg: Write to configuration file
-#                                 md: Include settings in markdown output
-#                                 env: Output settings as environment variables
-#                                 all: Perform info, md, and env actions
-#
-#       -n, --dry-run             Do not write the output file; print the files to be processed.
-#
-#       -v, --verbose             Show verbose output
-#
+#     -d, --debug [level]       Set debug level (0-9)
+#                               0: No debug output
+#                               1: Show informational messages
+#                               2: Show debug messages
+#                               3: Show regex commands and patterns
+#                               9: Show xtrace messages
+# 
+#     -h, --help                Show this help message
+# 
+#     -e, --exclude [patterns]  Exclude directories matching the given patterns.
+#                               Multiple patterns can be separated by '|' or spaces.
+# 
+#     -f, --file [patterns]     Exclude files matching the given patterns.
+#                               Multiple patterns can be separated by '|' or spaces.
+# 
+#     -p, --pattern [patterns]  Exclude additional patterns matching the given strings.
+#                               Multiple patterns can be separated by '|' or spaces.
+# 
+#     -i, --include [patterns]  Include files matching the given patterns.
+#                               Multiple patterns can be separated by '|' or spaces.
+# 
+#     -o, --output [filename]   Output file (default: combined_source.md)
+# 
+#     -c, --config [filename]   Load configuration from a .grc or .cfg file.
+#                               If the filename does not end with .grc or .cfg, .grc will be appended.
+# 
+#     -s, --settings [modes]    Show settings. Modes can be:
+#                               info    Show current settings
+#                               cfg     Write to configuration file
+#                               md      Include settings in markdown output
+#                               env     Output settings as environment variables
+#                               all     Perform info, md, and env actions
+# 
+#     -n, --dry-run             Do not write the output file; print the files to be processed.
+# 
+#     -v, --verbose             Show verbose output
+# 
+#     -g, --no-gitignore        Disable integration with .gitignore patterns.
+#                               By default, genmd uses patterns from .gitignore to exclude files
+#                               and directories. Use this flag to disable this behavior.
+# 
+#     -C, --no-config           Run without sourcing the .grc configuration file.
+#                               This allows you to execute genmd using only the provided
+#                               command-line options and .gitignore patterns (if enabled).
+# 
 # Description:
 #       The genmd script generates markdown from the files in the specified directory,
 #       excluding files and directories based on provided patterns. It outputs:
@@ -62,6 +69,9 @@
 #         GENMD_BASE/utils/etc directory and will have the same name as the output file with
 #         .grc appended.
 #       - All exit codes are POSIX exit codes.
+#   
+#       - Will use .gitignore patterns by default unless -g is used to reduce redundancy in your
+#         `.grc` files.
 #
 # Examples:
 #       genmd -e "node_modules|dist" -f "*.log *.tmp"  -i "*css *.js" -s "info,md" \
@@ -70,48 +80,49 @@
 #       genmd -s info,md -d 2
 #
 # Environment:
-#       GENMD_BASE: The base directory to search for files in.
-#       GENMD_DIR_EXCLUDES: A default list of directory patterns to exclude from the generated
-#                          markdown.
-#       GENMD_FILE_EXCLUDES: A default list of file patterns to exclude from the generated markdown.
-#       GENMD_PATTERN_EXCLUDES: A default list of additional patterns to exclude from the generated
-#                              markdown.
-#       GENMD_FILE_INCLUDES: A default list of file patterns to include in the generated markdown.
-#       PAGER: The pager to use for output, defaults to `less -R`
-#
+#     GENMD_BASE: The base directory to search for files in.
+#     GENMD_DIR_EXCLUDES: A default list of directory patterns to exclude from the generated
+#                        markdown.
+#     GENMD_FILE_EXCLUDES: A default list of file patterns to exclude from the generated markdown.
+#     GENMD_PATTERN_EXCLUDES: A default list of additional patterns to exclude from the generated
+#                            markdown.
+#     GENMD_FILE_INCLUDES: A default list of file patterns to include in the generated markdown.
+#     PAGER: The pager to use for output, defaults to `less -R`
+# 
 # Files and directories:
-#       Files are located in the GENMD_BASE directory.
-#       - utils/etc/genmd.grc: Default configuration file.
-#       - utils/etc: Default directory for configuration files.
-#       - utils/output: Default directory for output files.
-#
+#     Files are located in the GENMD_BASE directory.
+#     - utils/etc/genmd.grc: Default configuration file.
+#     - utils/etc: Default directory for configuration files.
+#     - utils/output: Default directory for output files.
+# 
 # Dependencies:
-#       - bash 4.0 or higher
-#       - filetree, located in this repository
-#           https://github.com/unixwzrd/venvutil
-#       
-#
+#     - bash 4.0 or higher
+#     - filetree, located in this repository
+#         https://github.com/unixwzrd/venvutil
+#     - filetree requires the Rich Python library. 
+#     
 # Author:
-#       Michael Sullivan <unixwzrd@unixwzrd.ai>
-#           https://unixwzrd.ai/
-#           https://github.com/unixwzrd
-#
+#     Michael Sullivan <unixwzrd@unixwzrd.ai>
+#         https://unixwzrd.ai/
+#         https://github.com/unixwzrd
+# 
 # License:
-#       Apache License, Version 2.0
-# ---
+#     Apache License, Version 2.0
+#
 
 # Ensure the script exits on error and treats unset variables as errors
 set -euo pipefail
 
 # Declare arrays
-declare -a dir_excludes=(".git" "_data" "_includes" "_posts" "collaborates" "js" "projects" "tmp" "utils")
-declare -a file_excludes=("*.JPG" "*.htaccess" "*.ico" "*.jekyll" "*.jpg" "*.pdf" "*.png" "*.svg" "*.webp" "*impression*")
+declare -a dir_excludes=(i".git")
+declare -a file_excludes=()
 declare -a pattern_excludes=()
 declare -a file_includes=()
+declare -a gitignore_exclude=()
+declare -a gitignore_include=()
 
-# Get the base directory where we will have sub-directories for config files and output.
+# Get the base directory
 GENMD_BASE="${GENMD_BASE:-${BASE_DIR:-"."}}"
-# Get my name to be used in log messages.
 my_name="$(basename "${BASH_SOURCE[0]}")"
 echo "INFO ($my_name): Using base directory - $GENMD_BASE" >&2
 
@@ -134,6 +145,7 @@ settings_variables=(
     "dry_run"
     "debug_level"
     "verbose"
+    "use_gitignore"
 )
 
 # Set default flag values.
@@ -141,6 +153,7 @@ dry_run=false
 debug_level=0
 verbose=false
 settings_modes=("md")
+use_gitignore=true  # Default to using .gitignore
 
 # Define default directory
 default_filename="combined_source"
@@ -148,6 +161,7 @@ output_dir="$GENMD_BASE/utils/output"
 config_dir="$GENMD_BASE/utils/etc"
 specified_config=""
 specified_output=""
+skip_config=false  # New flag to skip .grc config file
 
 # Function to ensure directories exist
 ensure_directory_exists() {
@@ -165,7 +179,7 @@ remove_duplicates() {
     declare -A seen
     local unique=()
     echo "INFO ($my_name): Removing duplicates from array '$1': '${arr_ref[*]}'"
-
+    
     for regex in "${arr_ref[@]}"; do
         # Skip empty patterns
         [[ -n "$regex" ]] || continue
@@ -184,6 +198,43 @@ remove_duplicates() {
     arr_ref=("${unique[@]}")
 }
 
+# Function to parse .gitignore and populate gitignore_exclude and gitignore_include
+parse_gitignore() {
+    local gitignore_file="$GENMD_BASE/.gitignore"
+    
+    if [[ -f "$gitignore_file" ]]; then
+        echo "INFO ($my_name): Parsing .gitignore file: $gitignore_file" >&2
+        
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            # Trim leading and trailing whitespace
+            line="$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+            
+            # Skip empty lines and comments
+            if [[ -z "$line" || "$line" =~ ^# ]]; then
+                continue
+            fi
+            
+            # Check for negation patterns
+            if [[ "$line" =~ ^! ]]; then
+                # Remove the '!' and add to gitignore_include
+                pattern="${line:1}"
+                gitignore_include+=("$pattern")
+                if [[ $debug_level -gt 1 ]]; then
+                    echo "DEBUG ($my_name): Parsed .gitignore include pattern: $pattern" >&2
+                fi
+            else
+                # Regular exclusion pattern
+                gitignore_exclude+=("$line")
+                if [[ $debug_level -gt 1 ]]; then
+                    echo "DEBUG ($my_name): Parsed .gitignore exclude pattern: $line" >&2
+                fi
+            fi
+        done < "$gitignore_file"
+    else
+        echo "INFO ($my_name): No .gitignore file found at $gitignore_file. Skipping .gitignore integration." >&2
+    fi
+}
+
 # Function to display short help message
 display_help() {
     # Initialize a variable to hold the help text
@@ -192,7 +243,7 @@ display_help() {
     
     # Read the script file line by line
     help_text+="$message"$'\n\n'
-    while IFS= read -r line; do
+    while IFS= read -r line || [[ -n "$line" ]]; do
         # Skip the shebang line
         if [[ "$line" =~ ^#!/ ]]; then
             continue
@@ -209,6 +260,7 @@ display_help() {
             continue
         fi
     done < "$0"
+
     printf "%s" "$help_text" | ${PAGER:-cat}
     exit 22     # (EINVAL: 22): Invalid argument
 }
@@ -336,6 +388,16 @@ build_file_list() {
         readarray -t files < <(printf "%s\n" "${files[@]}" | grep -vE "$exclude_files_regex")
     fi
 
+    # Exclude files based on .gitignore exclude patterns
+    if [[ ${#gitignore_exclude[@]} -gt 0 ]]; then
+        local git_exclude_regex
+        git_exclude_regex=$(build_regex "Gitignore exclude" "gitignore_exclude")
+        if [[ $debug_level -gt 2 ]]; then
+            echo "DEBUG ($my_name): Excluding files with Gitignore exclude regex: $git_exclude_regex" >&2
+        fi
+        readarray -t files < <(printf "%s\n" "${files[@]}" | grep -vE "$git_exclude_regex")
+    fi
+
     # Exclude any strings in the extra pattern list
     if [[ ${#pattern_excludes_ref[@]} -gt 0 ]]; then
         local pattern_excludes_regex
@@ -344,6 +406,18 @@ build_file_list() {
             echo "DEBUG ($my_name): Excluding patterns with regex: $pattern_excludes_regex" >&2
         fi
         readarray -t files < <(printf "%s\n" "${files[@]}" | grep -vE "$pattern_excludes_regex")
+    fi
+
+    # Re-include files based on .gitignore include patterns
+    if [[ "${use_gitignore}" = true && ${#gitignore_include[@]} -gt 0 ]]; then
+        local git_include_regex
+        git_include_regex=$(build_regex "Gitignore include" "gitignore_include")
+        if [[ $debug_level -gt 2 ]]; then
+            echo "DEBUG ($my_name): Including files with Gitignore include regex: $git_include_regex" >&2
+        fi
+        # Find files that match include patterns and add them back
+        readarray -t included_files < <(find . -type f | grep -E "$git_include_regex")
+        files=($(printf "%s\n" "${files[@]}" "${included_files[@]}" | sort -u))
     fi
 
     # Include only files explicitly specified in the include file list
@@ -495,8 +569,9 @@ save_config() {
         echo "dry_run=$dry_run"
         echo "debug_level=$debug_level"
         echo "verbose=$verbose"
+        echo "use_gitignore=$use_gitignore"  # Save gitignore usage
     } > "$config_file"
-    # echo "INFO ($my_name): Configuration saved to $config_file" >&2
+    echo "INFO ($my_name): Configuration saved to $config_file" >&2
 }
 
 # Function to validate patterns (optional enhancement)
@@ -508,16 +583,11 @@ validate_pattern() {
     fi
 }
 
-# Function to display or write out the current settings
-# (Note: Already defined above)
-
-# Function to display help (Note: Already defined above)
-
 # Process command-line options using getopts
 # Reset OPTIND in case getopts has been used previously
 OPTIND=1
 
-while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
+while getopts ":d:he:f:i:p:o:c:s:nvgC-:" opt; do
     case "$opt" in
         # Short options
         d)
@@ -537,7 +607,7 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
                     dir_excludes+=("$pattern")
                 done
             else
-                display_help "ERROR ($my_name): -e requires a directory pattern string to exclude."
+                display_help "ERROR ($my_name): -e requires a directory pattern string."
             fi
             ;;
         f)
@@ -547,7 +617,7 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
                     file_excludes+=("$pattern")
                 done
             else
-                display_help "ERROR ($my_name): -f requires a file pattern string to exclude."
+                display_help "ERROR ($my_name): -f requires a file pattern string."
             fi
             ;;
         i)
@@ -557,7 +627,7 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
                     file_includes+=("$pattern")
                 done
             else
-                display_help "ERROR ($my_name): -i requires a file name pattern string to include."
+                display_help "ERROR ($my_name): -i requires a file pattern string."
             fi
             ;;
         p)
@@ -567,7 +637,7 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
                     pattern_excludes+=("$pattern")
                 done
             else
-                display_help "ERROR ($my_name): -p requires a pattern string to exclude."
+                display_help "ERROR ($my_name): -p requires a pattern string."
             fi
             ;;
         o)
@@ -580,12 +650,12 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
             ;;
         s)
             if [[ -n "$OPTARG" && ! "$OPTARG" =~ ^- ]]; then
-                IFS='| ' read -r -a values <<< "$OPTARG"
+                IFS=' ' read -r -a values <<< "$OPTARG"
                 for mode in "${values[@]}"; do
                     settings_modes+=("$mode")
                 done
             else
-                display_help "ERROR ($my_name): -s requires setting selections."
+                display_help "ERROR ($my_name): -s requires a setting pattern string."
             fi
             ;;
         n)
@@ -594,6 +664,12 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
         v)
             verbose=true
             ;;
+        g)
+            use_gitignore=false  # Disable gitignore integration
+            ;;
+        C)
+            skip_config=true  # New option to skip config files
+            ;;
         h)
             display_help ""
             ;;
@@ -601,9 +677,8 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
             # Handle long options manually
             case "${OPTARG}" in
                 debug=*)
-                    debug_value="${OPTARG#*=}"
-                    if [[ "$debug_value" =~ ^[0-9]$ ]]; then
-                        debug_level="$debug_value"
+                    debug_level="${OPTARG#*=}"
+                    if [[ "$debug_level" =~ ^[0-9]$ ]]; then
                         if [[ "$debug_level" -eq 9 ]]; then
                             set -x
                         fi
@@ -615,8 +690,8 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
                     display_help ""
                     ;;
                 exclude=*)
-                    if [[ -n "$OPTARG" && ! "$OPTARG" =~ ^- ]]; then
-                        IFS='| ' read -r -a values <<< "$OPTARG"
+                    if [[ -n "${OPTARG#*=}" && ! "${OPTARG#*=}" =~ ^- ]]; then
+                        IFS='| ' read -r -a values <<< "${OPTARG#*=}"
                         for pattern in "${values[@]}"; do
                             dir_excludes+=("$pattern")
                         done
@@ -625,8 +700,8 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
                     fi
                     ;;
                 file=*)
-                    if [[ -n "$OPTARG" && ! "$OPTARG" =~ ^- ]]; then
-                        IFS='| ' read -r -a values <<< "$OPTARG"
+                    if [[ -n "${OPTARG#*=}" && ! "${OPTARG#*=}" =~ ^- ]]; then
+                        IFS='| ' read -r -a values <<< "${OPTARG#*=}"
                         for pattern in "${values[@]}"; do
                             file_excludes+=("$pattern")
                         done
@@ -672,11 +747,11 @@ while getopts ":d:he:f:i:p:o:c:s:nv-:" opt; do
                         display_help "ERROR ($my_name): --settings requires a setting pattern string."
                     fi
                     ;;
-                dry-run)
-                    dry_run=true
+                no-gitignore)
+                    use_gitignore=false
                     ;;
-                verbose)
-                    verbose=true
+                no-config)
+                    skip_config=true
                     ;;
                 *)
                     display_help "ERROR ($my_name): Unknown option '--${OPTARG}'"
@@ -703,16 +778,13 @@ ensure_directory_exists "$output_dir"
 ensure_directory_exists "$config_dir"
 
 # Now set the final values for output files after options have been processed
-# We will override these with any new values from the config file or the command line
 output_filename="${output_dir}/${default_filename}.md"
 config_filename_in="${config_dir}/${default_filename}.grc"
 config_filename_out="$config_filename_in"
 
-# If a config file is specified we will load it and use it to override the defaults
-# The default output filename is based on the config filename or the contents of the config file.
-# Strip the extension if it exists
-# If a config file is specified, load it
-if [[ -n "$specified_config" ]]; then
+# If a config file is specified and not skipped, we will load it and use it to override the defaults
+if [[ "$skip_config" = false && -n "$specified_config" ]]; then
+    # Specified a config file on the command line
     specified_config=${specified_config%.grc}
     config_filename_in=${config_dir}/${specified_config}.grc
     config_filename_out=$config_filename_in
@@ -722,7 +794,7 @@ if [[ -n "$specified_config" ]]; then
         source "$config_filename_in"
         echo "INFO ($my_name): Configuration loaded from \"$config_filename_in\"" >&2
         
-        # Split the config strings into arrays
+        # Split the space-separated strings into arrays
         for pattern in $GENMD_DIR_EXCLUDES; do
             dir_excludes+=("$pattern")
         done
@@ -735,21 +807,22 @@ if [[ -n "$specified_config" ]]; then
         for pattern in $GENMD_FILE_INCLUDES; do
             file_includes+=("$pattern")
         done
+        # Load gitignore usage from config if present
+        if [[ -n "${use_gitignore:-}" ]]; then
+            use_gitignore="$use_gitignore"
+        fi
     else
         echo "ERROR ($my_name): Configuration file \"$config_filename_in\" not found" >&2
-        exit 2
+        exit 2  # (ENOENT: 2): No such file or directory
     fi
 fi
 
-
-# Override the default output filename or the one in the config file.
-# We may be running a new version of the config with new command line options.
-# Strip the extension if it exists
+# If an output file is specified, handle it
 if [[ -n "$specified_output" ]]; then
     specified_output=$(basename "$specified_output" .md)
     output_filename="${output_dir}/${specified_output}.md"
     config_filename_out="${config_dir}/${specified_output}.grc"
-    if [[ -z "$specified_config" ]]; then
+    if [[ "$skip_config" = false && -z "$specified_config" ]]; then
         config_filename_in="${config_dir}/${specified_output}.grc"
         config_filename_out="${config_dir}/${specified_output}.grc"
         if [[ -e "$config_filename_in" ]]; then
@@ -757,7 +830,7 @@ if [[ -n "$specified_output" ]]; then
             source "$config_filename_in"
             echo "INFO ($my_name): Configuration loaded from \"$config_filename_in\"" >&2
             
-            # Split the config strings into arrays
+            # Split the space-separated strings into arrays
             for pattern in $GENMD_DIR_EXCLUDES; do
                 dir_excludes+=("$pattern")
             done
@@ -770,21 +843,28 @@ if [[ -n "$specified_output" ]]; then
             for pattern in $GENMD_FILE_INCLUDES; do
                 file_includes+=("$pattern")
             done
+            # Load gitignore usage from config if present
+            if [[ -n "${use_gitignore:-}" ]]; then
+                use_gitignore="$use_gitignore"
+            fi
         else
             echo "NOTICE ($my_name): No configuration file specified, configuration will be saved to \"$config_filename_out\"" >&2
         fi
     fi
 fi
 
-# Make sure to override the debug settings in any config fioles, this is probably the
-# only setting we'd want to voverride and not merge from the command line
-debug_level=$debug_value
+# Parse .gitignore and populate gitignore_exclude and gitignore_include if enabled
+if [[ "$use_gitignore" = true ]]; then
+    parse_gitignore
+fi
 
 # Remove duplicates from exclusion and inclusion lists
 remove_duplicates dir_excludes
 remove_duplicates file_excludes
 remove_duplicates pattern_excludes
 remove_duplicates file_includes
+remove_duplicates gitignore_exclude
+remove_duplicates gitignore_include
 remove_duplicates settings_modes
 
 # Truncate the output file only if not in dry_run
@@ -813,10 +893,10 @@ declare -a final_files
 build_file_list final_files file_includes file_excludes dir_excludes pattern_excludes
 
 # Debug  Show final files to be processed
-if [[ $debug_level -gt 4 ]]; then
+if [[ $debug_level -gt 3 ]]; then
     echo "DEBUG ($my_name): Final files to process:" >&2
     for f in "${final_files[@]}"; do
-        echo "  \"$f\"" >&2
+        printf "  \"$f\"" >&2
     done
 fi
 
