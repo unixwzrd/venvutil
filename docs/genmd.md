@@ -125,9 +125,6 @@ genmd [options]
 - `-n`: **Dry Run**
   - **Description:** Simulates the actions without writing to any files; outputs the files that would be processed.
 
-- `-v`: **Verbose Output**
-  - **Description:** Enables verbose output for more detailed information during execution.
-
 ### Long Options
 All short options have corresponding long options with double dashes (`--`):
 
@@ -143,7 +140,6 @@ All short options have corresponding long options with double dashes (`--`):
 - `--no-config`
 - `--settings [modes]`
 - `--dry-run`
-- `--verbose`
 
 ---
 

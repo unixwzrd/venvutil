@@ -347,3 +347,36 @@ ptree() {
         ptree "$child" "  $indent"
     done
 }
+
+# # Function: var_type
+# `var_type` - Get the Type of a Variable
+#
+# ## Description
+# - **Purpose**:
+#   - Retrieves the type of a variable.
+# - **Usage**: 
+#   - `var_type=$(var_type "var_name")`
+# - **Input Parameters**: 
+#   - `var_name`: The name of the variable.
+# - **Output**: 
+#   - The type of the variable as a string. Can be one of `array`, `associative`, `scalar`, or `unknown`.
+# - **Exceptions**: 
+#   - None.
+var_type() {
+    local var_name="$1"
+    local var_type=$(declare -p "$var_name" 2>/dev/null | cut -d ' ' -f 2) 
+    case "$var_type" in
+        -a)
+            echo "array"
+            ;;
+        -A)
+            echo "associative"
+            ;;
+        --)
+            echo "scalar"
+            ;;
+        *)
+            echo "unknown"
+            ;;
+    esac
+}

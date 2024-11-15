@@ -22,39 +22,6 @@
 # ## Dependencies
 # - `util_funcs.sh` (for utility functions like `to_upper`)
 
-# Determine the real path of the script
-[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
-# Remove quotes from right-hand side of =~ to match as a regex rather than literally. shellcheck SC2076
-# Don't source this script if it's already been sourced. The SC message is intentional the list is treated likee
-# string to search for the string in the list/array.
-# shellcheck disable=SC2076
-[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
-echo "Sourcing: ${THIS_SCRIPT}"
-
-# Extract script name, directory, and arguments
-# MY_NAME appears unused. Verify use (or export if used externally).
-# shellcheck disable=SC2034
-MY_NAME=$(basename "${THIS_SCRIPT}")
-__VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
-__VENV_BASE=$(dirname "${__VENV_BIN}")
-__VENV_ARGS=$*
-__VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
-
-# Ensure util_funcs.sh is sourced for utility functions
-source_util_script "util_funcs"
-
-# Add internal functions to the __VENV_INTERNAL_FUNCTIONS array.
-# Quote to prevent word splitting/globbing, or split robustly with mapfile or read -a.
-# shellcheck disable=SC2206
-__VENV_INTERNAL_FUNCTIONS=(
-   ${__VENV_INTERNAL_FUNCTIONS[@]}
-   "errno"
-   "errfind"
-   "errno_warn"
-   "errno_exit"
-)
-
-__rc__=0
 
 # # Function: errno
 #  `errno` - Provides POSIX errno codes and values for use in scripts or lookup of error codes on the command line.
@@ -71,6 +38,7 @@ __rc__=0
 #   - 2: Could not find system errno.h
 #   - 22: Invalid errno name
 #
+
 errno() {
     if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
         echo "Usage: errno [errno_code|errno_number]"
@@ -150,6 +118,7 @@ errfind() {
     lines=$(grep -i "#define [A-Z_]*[ \t]*.*$search_string.*" "$errno_file")
     if [ -z "$lines" ]; then
         echo "No error codes found for $search_string"
+        log_message "WARN" "No error codes found for $search_string"
         __rc__=0
         return ${__rc__}
     fi
@@ -205,3 +174,110 @@ errno_exit() {
     echo "ERROR: $(errno "${__rc__}")" >&2
     exit "${__rc__}"
 }
+
+
+#  `log_message` - Prints a message to STDERR based on the provided log level.
+# ## Description
+# - **Purpose**: 
+#   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
+# - **Usage**: 
+#   - `log_message <log_level> <message>`
+# - **Input Parameters**: 
+#   - `log_level`: The log level to check against the debug level. Supported log levels are:
+#     - `TRACE`
+#     - `DEBUG8`-`DEBUG0`
+#     - `DEBUG`
+#     - `INFO`
+#     - `WARNING`
+#     - `ERROR`
+#     - `CRITICAL`
+#     - `SILENT`
+#   - `message`: The message to print if the log level is greater than or equal to the current debug level.
+# - **Output**: 
+#   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
+declare -A message_class=(
+    ["SILENT"]=0
+    ["TRACE"]=10
+    ["DEBUG8"]=22
+    ["DEBUG7"]=22
+    ["DEBUG6"]=23
+    ["DEBUG5"]=24
+    ["DEBUG4"]=25
+    ["DEBUG3"]=26
+    ["DEBUG2"]=27
+    ["DEBUG1"]=28
+    ["DEBUG0"]=29
+    ["DEBUG"]=29
+    ["INFO"]=30
+    ["WARNING"]=40
+    ["WARN"]=40
+    ["WARNING"]=40
+    ["ERROR"]=50
+    ["CRITICAL"]=60
+    ["SILENT"]=99
+)
+    log_message() {
+    local message_level="$1"; shift
+    local message_out="$*"
+    # Define an associative array for message classes with standard logging levels
+
+
+    # Check if the provided message level exists in the message_class array
+    if [[ -z "${message_class[$message_level]+_}" ]]; then
+        echo "($MY_NAME) WARNING: Unknown log level '$message_level'. Message: $message_out" >&2
+        errno_exit 9
+    fi
+
+    # echo " LOG_MESSAGE CALLED: ${message_level} ${debug_level} ($MY_NAME): ${message_out}" >&2
+    # Compare the current debug_level with the message's severity level
+    if [ "$debug_level" -le "${message_class[$message_level]}" ]; then
+        echo "$MY_NAME ${message_level}($debug_level): ${message_out}" >&2
+    fi
+}
+
+## Initialization
+__VENV_SOURCED_LIST=${__VENV_SOURCED_LIST:-""}
+# Determine the real path of the script
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Remove quotes from right-hand side of =~ to match as a regex rather than literally. shellcheck SC2076
+# Don't source this script if it's already been sourced. The SC message is intentional the list is treated like
+# string to search for the string in the list/array.
+# shellcheck disable=SC2076
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+echo "Sourcing: ${THIS_SCRIPT}"
+
+# Extract script name, directory, and arguments
+# MY_NAME appears unused. Verify use (or export if used externally).
+# shellcheck disable=SC2034
+MY_NAME=$(basename "${THIS_SCRIPT}")
+__VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
+__VENV_BASE=$(dirname "${__VENV_BIN}")
+__VENV_ARGS=$*
+__VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
+
+# Add internal functions to the __VENV_INTERNAL_FUNCTIONS array.
+# Quote to prevent word splitting/globbing, or split robustly with mapfile or read -a.
+# shellcheck disable=SC2206
+__VENV_INTERNAL_FUNCTIONS=(
+   ${__VENV_INTERNAL_FUNCTIONS[@]}
+   "errno"
+   "errfind"
+   "errno_warn"
+   "errno_exit"
+   log_message
+)
+
+
+
+debug_level=${debug_level:-30}
+
+# Ensure util_funcs.sh is sourced for utility functions
+if declare -f "source_util_script" >/dev/null; then
+    source_util_script "util_funcs"
+    log_message "INFO" "Sourced util_funcs.sh"
+else
+    source "${__VENV_INCLUDE}/util_funcs.sh"
+    log_message "INFO" "Sourced ${__VENV_INCLUDE}/util_funcs.sh"
+fi
+
+__rc__=0

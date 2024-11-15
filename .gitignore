@@ -175,3 +175,5 @@ project-notes/
 #bin/shinclude/help_sys.sh
 vardump*.txt
 utils/output
+utils/etc
+data/
