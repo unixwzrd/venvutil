@@ -21,6 +21,7 @@
 # - Utility scripts located in `__VENV_INCLUDE`:
 #   - `util_funcs.sh`
 #   - `help_sys.sh`
+#   - `errno.sh`
 #   - `venv_funcs.sh`
 #   - `wrapper_funcs.sh`
 # - Conda environment

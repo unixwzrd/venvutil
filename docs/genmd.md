@@ -27,7 +27,7 @@
 
 `genmd` is a versatile Bash script designed to generate comprehensive Markdown documentation from your source code files. It scans directories, includes or excludes files based on specified patterns, and consolidates the content into a structured Markdown file. Additionally, it can generate a visual directory structure and manage configurations through dedicated files.
 
-One of the main purposed of this is to create a markdown file containing the directory hierarchy and source code for anything which is plain text. Handy for taking related files you are working on and grouping them together in a single markdown file which has your files wrapped in markdown tags indicating their name and location in the project followed by a block quote containing the type of file and contents. This makes it easier for a Large Language Model (LLM) to consume and work with, and you don't have to copy and paste your files.
+One of the main purposes of this is to create a markdown file containing the directory hierarchy and source code for anything which is plain text. Handy for taking related files you are working on and grouping them together in a single markdown file which has your files wrapped in markdown tags indicating their name and location in the project followed by a block quote containing the type of file and contents. This makes it easier for a Large Language Model (LLM) to consume and work with, and you don't have to copy and paste your files.
 
 By saving the configuration and settings of any particular run of the command, you can re-run it again to capture the same files for review as they change. This is especially handy for feeding models with large context windows your project organization and code.
 
@@ -54,6 +54,8 @@ By saving the configuration and settings of any particular run of the command, y
 
 ---
 
+You may want to find a location and just make symlinks to the utilities in the bin directory since many of the scripts depend on some of the included scripts in the `shinclude` directory. Just create the symlinks in your favorite bin directory and the scripts will find the proper included scripts. It also depends on the `filetree` script, also in the bin directory of this repository.
+
 ## Usage
 
 ```bash
@@ -71,11 +73,21 @@ genmd [options]
 - `-d [level]`: **Set Debug Level**
   - **Description:** Sets the debug level for the script's output.
   - **Levels:**
-    - `0`: No debug output
-    - `1`: Show informational messages
-    - `2`: Show debug messages
-    - `3`: Show regex commands and patterns
-    - `9`: Show xtrace messages
+  - `0`: SILENT
+  - `10`: TRACE
+  - `21`: DEBUG8
+  - `22`: DEBUG7
+  - `23`: DEBUG6
+  - `24`: DEBUG5
+  - `25`: DEBUG4
+  - `26`: DEBUG3
+  - `27`: DEBUG2
+  - `28`: DEBUG1
+  - `29`: DEBUG0/DEBUG
+  - `30`: INFO
+  - `40`: WARN/WARNING
+  - `50`: ERROR
+  - `60`: CRITICAL
 
 - `-h`: **Show Help**
   - **Description:** Displays the help message with usage instructions.
@@ -102,28 +114,31 @@ genmd [options]
   - **Note:** If specified, a corresponding `.grc` configuration file will be used or created in the `GENMD_BASE/utils/etc` directory.
 
 - `-c [filename]`: **Load Configuration**
-  - **Description:** Loads configuration from a `.grc` or `.cfg` file.
-  - **Note:** If the filename does not end with `.grc` or `.cfg`, `.grc` will be appended automatically. The configuration file should reside in the `GENMD_BASE/utils/etc` directory.
+  - **Description:** Loads configuration from a `.grc` file.
+  - **Note:** If the filename does not end with `.grc`, `.grc` will be appended automatically. The configuration file should reside in the `GENMD_BASE/utils/etc` directory.
 
-- `-g` :**Ignore .gitignore**
-  - **Description:** By default, genmd uses patterns from .gitignore to exclude files and directories.
-  - **Note:** Use this flag to disable this behavior.
- 
-- `-C,`: **No Configuration**
-  - **Description:** Run without sourcing the `.grc` configuration file.
-  - **Note:** This allows you to execute `genmd` using only the provided command-line options and `.gitignore` patterns (if enabled).
- 
+- `-g`: **Ignore .gitignore**
+  - **Description:** By default, `genmd` uses patterns from `.gitignore` to exclude files and directories. Use this flag to disable this behavior.
+
+- `-C`: **No Configuration**
+  - **Description:** Run without sourcing the `.grc` configuration file. This allows you to execute `genmd` using only the provided command-line options and `.gitignore` patterns (if enabled).
+
 - `-s [modes]`: **Show Settings**
   - **Description:** Displays or saves settings based on the specified modes.
-  - **Modes:**
-    - `info`: Show current settings
-    - `cfg`: Write to configuration file
-    - `md`: Include settings in Markdown output
-    - `env`: Output settings as environment variables
-    - `all`: Perform `info`, `md`, and `env` actions
+  - **Modes:** `info`, `cfg`, `md`, `env`, `all`
 
 - `-n`: **Dry Run**
   - **Description:** Simulates the actions without writing to any files; outputs the files that would be processed.
+
+- `-b`: **Remove Lines with Whitespace Only**
+  - **Description:** Removes all lines containing only whitespace from the Markdown file.
+
+- `-l`: **Add Line Numbers**
+  - **Description:** Adds line numbers to each file in the Markdown file.
+
+- `-z [tool]`: **Compress Output**
+  - **Description:** Compresses the final output using the specified compression utility (e.g., gzip, xz, bzip2).
+  - **Note:** The compressed file will be named as `output.md.<extension>` where extension is the default extension for the compression tool.
 
 ### Long Options
 All short options have corresponding long options with double dashes (`--`):
@@ -140,6 +155,9 @@ All short options have corresponding long options with double dashes (`--`):
 - `--no-config`
 - `--settings [modes]`
 - `--dry-run`
+- `--remove-blanks`
+- `--line-numbers`
+- `--compress [tool]`
 
 ---
 
@@ -149,15 +167,15 @@ All short options have corresponding long options with double dashes (`--`):
    ```bash
    genmd -e "node_modules|dist" -f "*.log *.tmp" -i "*css *.js" -s "info,md" -o project_overview.md
    ```
-1. **Using Long Options and Dry Run:**
+2. **Using Long Options and Dry Run:**
    ```bash
    genmd --exclude "node_modules|dist" --file "*.log *.tmp" --include "info" --dry-run
    ```
-1. **Setting Multiple Modes and Debug Level:**
+3. **Setting Multiple Modes and Debug Level:**
    ```bash
-   genmd -s info,md -d 2
+   genmd -s info,md -d 25
    ```
-1. **Generate Markdown with Default Settings (Using .grc and .gitignore):**
+4. **Generate Markdown with Default Settings (Using .grc and .gitignore):**
    ```bash
    genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
          -f "*impression* professional.md *.png" \
@@ -165,7 +183,7 @@ All short options have corresponding long options with double dashes (`--`):
          -s all \
          -o my_test_file
    ```
-1. **Generate Markdown Without Sourcing .grc Configuration (Using Only .gitignore and Command-Line Options):**
+5. **Generate Markdown Without Sourcing .grc Configuration (Using Only .gitignore and Command-Line Options):**
    ```bash
    genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
          -f "*impression* professional.md *.png" \
@@ -175,7 +193,7 @@ All short options have corresponding long options with double dashes (`--`):
          --no-config
    ```
 
-1. **Generate Markdown Without Using .gitignore (Using Only .grc Configuration and Command-Line Options):**
+6. **Generate Markdown Without Using .gitignore (Using Only .grc Configuration and Command-Line Options):**
    ```bash
    genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
          -f "*impression* professional.md *.png" \
@@ -185,7 +203,7 @@ All short options have corresponding long options with double dashes (`--`):
          --no-gitignore
    ```
 
-1. **Generate Markdown Using Only Command-Line Options (Ignoring Both .grc and .gitignore):**
+7. **Generate Markdown Using Only Command-Line Options (Ignoring Both .grc and .gitignore):**
    ```bash
    genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
          -f "*impression* professional.md *.png" \
@@ -207,19 +225,19 @@ All short options have corresponding long options with double dashes (`--`):
 
 - `GENMD_DIR_EXCLUDES`: **Default Directory Exclusions**
   - **Description:** A default list of directory patterns to exclude from the generated Markdown.
-  - **Default Value:** `tmp .git`
+  - **Default Value:** `tmp .git log __pycache__ .vscode`
 
 - `GENMD_FILE_EXCLUDES`: **Default File Exclusions**
   - **Description:** A default list of file patterns to exclude from the generated Markdown.
-  - **Default Value:** `*.ico *.svg *.png *.pdf *.jpg *.htaccess *.webp *.jekyll .DS_Store *.JPG *.png`
+  - **Default Value:** `*.ico *.svg *.png *.pdf *.jpg *.htaccess *.webp *.jekyll .DS_Store *.JPG`
 
 - `GENMD_PATTERN_EXCLUDES`: **Default Additional Pattern Exclusions**
   - **Description:** A default list of additional patterns to exclude from the generated Markdown.
-  - **Default Value:** \*(Empty)*
+  - **Default Value:** *(Empty)*
 
 - `GENMD_FILE_INCLUDES`: **Default File Inclusions**
   - **Description:** A default list of file patterns to include in the generated Markdown.
-  - **Default Value:** \*(Empty)*
+  - **Default Value:** *(Empty)*
 
 - `PAGER`: **Pager for Output**
   - **Description:** The pager to use for output.
@@ -238,18 +256,18 @@ All short options have corresponding long options with double dashes (`--`):
   - The configuration file should reside in the `GENMD_BASE/utils/etc` directory.
 
 - **Saving Configuration:**
-  - Use the `cfg` mode with the `-s` option to save current settings to a configuration file, output will be written to `STDEOUT`.
+  - Use the `cfg` mode with the `-s` option to save current settings to a configuration file, output will be written to `STDOUT`.
   - When using the `-o` option to specify an output file, a corresponding `.grc` file will be created in the `GENMD_BASE/utils/etc` directory, matching the output filename.
 
 ### Using .gitignore with genmd
 
 With the integration of `.gitignore` patterns by default, `genmd` simplifies exclusion patterns, leveraging existing Git configurations to reduce redundancy in your `.grc` files.
 
-To integrate your project's `.gitignore` patterns into the markdown generation process, use the `--use-gitignore` flag. This allows `genmd` to automatically exclude files and directories as specified in `.gitignore`, reducing the need to duplicate exclusion patterns in your `.grc` files.
+To integrate your project's `.gitignore` patterns into the markdown generation process, use the `--no-gitignore` flag. This allows `genmd` to automatically exclude files and directories as specified in `.gitignore`, reducing the need to duplicate exclusion patterns in your `.grc` files.
 
 - **Example Command:**
    ```bash
-  genmd -d 4 -e "utils _includes _data _posts js collaborates projects" -f "*impression* professional.md *.png" -i "css liquid" -s all -o my_test_file --use-gitignore
+  genmd -d 4 -e "utils _includes _data _posts js collaborates projects" -f "*impression* professional.md *.png" -i "css liquid" -s all -o my_test_file --no-gitignore
   ```
 
 ## Settings Modes
@@ -290,15 +308,11 @@ The `-n` or `--dry-run` option allows you to simulate the actions of the script 
 
 - **Debug Levels (`-d` or `--debug`):**
   - **Description:** Sets the level of debugging information.
-  - **Levels:**
-    - `0`: No debug output
-    - `1`: Show informational messages
-    - `2`: Show debug messages
-    - `3`: Show regex commands and patterns
-    - `9`: Show xtrace messages (traces commands as they are executed)
+  - **Default:** `30`
+  - **Levels:** `0` (SILENT) to `60` (CRITICAL)
   - **Usage:**
     ```bash
-    genmd -d 2
+    genmd -d 29
     ```
 
 ---
@@ -328,6 +342,9 @@ The `-n` or `--dry-run` option allows you to simulate the actions of the script 
   - **Location:** Included in this repository.
   - **Repository:** [https://github.com/unixwzrd/venvutil](https://github.com/unixwzrd/venvutil)
   - Requires the Rich Python library to be installed.
+ 
+- **Included Scripts:**
+  - **errno.sh** and **util_funcs.sh** are required scripts included in this repository.
   
 - **Other Utilities:**
   - Ensure that all required utilities used within the script are installed and accessible in your system's PATH.

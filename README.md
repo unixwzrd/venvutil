@@ -1,164 +1,153 @@
 # venvutil - Manage Conda and Pip VENV's with some simple functions and scripts.
-(*Still under development*)
-
-## Table of Contents
+(*Still under development*) This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLLM's.
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts.](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
-  - [Table of Contents](#table-of-contents)
-  - [2024-10-30 - `genmd` Now pre-populates exclusions with .gitignore](#2024-10-30---genmd-now-pre-populates-exclusions-with-gitignore)
-  - [2024-10-28 - Updates and stability enhancements to `genmd`](#2024-10-28---updates-and-stability-enhancements-to-genmd)
-    - [Refactor option handling and improve configuration loading](#refactor-option-handling-and-improve-configuration-loading)
-  - [2024-10-25 - Added  useful markdown wrapper script, well several scripts actually](#2024-10-25---added--useful-markdown-wrapper-script-well-several-scripts-actually)
-  - [2024-07-09 - Fixed recursion bug in pip wrapper.](#2024-07-09---fixed-recursion-bug-in-pip-wrapper)
-  - [Building all necessary items for oobabooga for macOS on Apple Silicon Series Processors](#building-all-necessary-items-for-oobabooga-for-macos-on-apple-silicon-series-processors)
-  - [Tools to help maintain Python VENV's and more](#tools-to-help-maintain-python-venvs-and-more)
-  - [To use this/Install, clone the repository locally, then do this:](#to-use-thisinstall-clone-the-repository-locally-then-do-this)
-  - [buildvenvs](#buildvenvs)
-  - [Misc Items from the old oobabooga-macOS repository](#misc-items-from-the-old-oobabooga-macos-repository)
-    - [I've moved these things to here for now.](#ive-moved-these-things-to-here-for-now)
+  - [Project Overview](#project-overview)
+    - [Key Features](#key-features)
+    - [Why Use Venvutil?](#why-use-venvutil)
+  - [Installation Instructions](#installation-instructions)
+    - [Prerequisites](#prerequisites)
+    - [Download and Install Miniconda](#download-and-install-miniconda)
+    - [Step 1: Create a Conda Environment](#step-1-create-a-conda-environment)
+    - [VENV Management](#venv-management)
+  - [Usage](#usage)
+    - [Tools Overview](#tools-overview)
+  - [Additional Resources](#additional-resources)
+  - [Support and Contribution](#support-and-contribution)
+  - [License](#license)
+  - [C++, G++, and LD Pass-Throughs](#c-g-and-ld-pass-throughs)
+    - [Purpose](#purpose)
+    - [Explanation](#explanation)
+  - [NLTK Installation Guide](#nltk-installation-guide)
+    - [Library Installation](#library-installation)
+    - [Data Installation](#data-installation)
+  - [Support My Work](#support-my-work)
+  - [License](#license-1)
 
-## 2024-11-11 - `genmd` Now updated
+## Project Overview
 
-## 2024-10-30 - `genmd` Now pre-populates exclusions with .gitignore
+Venvutil is a versatile toolset designed to simplify the management of Python virtual environments (VENV) and enhance the workflow for developers working with Python packages and large language models (LLMs). This project provides a collection of scripts and functions that wrap around common tools like Conda and Pip, offering additional features such as logging, environment state freezing, and streamlined package management.
 
-I thought it might be nice to add two options to `genmd` to limit the files and directories that are included and excluded. These are the `-C` and `-g` options. The .gitignore is included in the exclusions and inclusions by default. Typically you would want to exclude those files anyway. I plan to move this to a change log at some point, but have additional projects to get loaded.
+### Key Features
+- **Enhanced VENV Management**: Provides tools to easily create, manage, and replicate Python virtual environments.
+- **Conda and Pip Wrappers**: Includes wrapper scripts for Conda and Pip that log actions and freeze the state of environments for reproducibility.
+- **Cross-Platform Compatibility**: Designed to work seamlessly on macOS and Linux systems, with specific optimizations for Apple Silicon.
+- **Build and Installation Scripts**: Offers scripts to automate the setup of complex environments, including rebuilding NumPy with Apple Silicon optimizations.
+- **Comprehensive Documentation**: Includes detailed instructions and changelogs to help users get started and stay updated with the latest features.
 
-One project I have almost completed is an extension for Safari to extract all of your CharGPT history into a JSON file.  I'll also have a couple of utilities for parsing it and producing markdown content by date ranges and other criteria. This is so you can get a new GPT instance up ad running as quickly as possible using the context from a prior GPT instance. These are all tools for assisting your workflow when working with ChatGPT. These extracts may be uploaded where a GPT will summarize the conversation and use that for initializing its context.
+### Why Use Venvutil?
+- **Simplify Environment Management**: Automate the tedious tasks of setting up and maintaining Python environments, saving time and reducing errors.
+- **Ensure Reproducibility**: By freezing the state of environments, Venvutil helps ensure that your setups are consistent across different machines and setups.
+- **Transparent Tool Wrapping**: Provides pass-through wrappers for C++, G++, and LD to ensure compatibility without compromising security or functionality.
 
-I do have further plans for this repository, but want to get some other projects moved along further and pushed to make them available as quickly as possibel.
+## Installation Instructions
 
-## 2024-10-28 - Updates and stability enhancements to `genmd`
+### Prerequisites
 
-### Refactor option handling and improve configuration loading
-- Centralized handling of -c and -o options
-- Enhanced display_help function to capture all help comments
-- Established configuration loading precedence: defaults, ENV, system .grc, command-line .grc
-- Improved array management and duplicate removal
-- Enhanced logging and debugging capabilities
-- Added comprehensive error handling and exit codes
-- Fixed duplicate handling in patterns written to config files.
+- Xcode command line utilities.
+- Bash 4.0 or higher (macOS has Bash 3.2, you will need to build and install or use Brew)
+- Python 3.11 (Conda will handle this for you when it installs)
+- Conda latest version
+- Python packages
+  - Rich, ticktoken
+- Ensure that your system meets the necessary requirements for running Python and Conda.
 
-## 2024-10-25 - Added  useful markdown wrapper script, well several scripts actually
+### Download and Install Miniconda
 
-The script will scan a project directory and create a markdown document with only the directory and file patters specified in the config file, using the command line and/or using environment variables. Documentation is in the docs directory.
-  - [filetree](docs/filetree.md): generates a file hierarchy tree from the current directory and excludes and includes files and directories based on patterns specified in the command line or in environment variables. Required by `genmd`
-  - [genmd](docs/genmd.md): Useful for uploading or pasting on the command line for ChatGPT, groups of related files wrapped in markdown you are working on.  The configuration options may be saved in a config file for later use.
-  - [chunktext](docs/chunktext.md): splits a file into chunks of text and then puts the chunks into a markdown file. For breaking your conversations with one GPT into chunks for ingestion by a new instance, keeping context somewhat intact.
-  
- I am in the process of getting pip to do a recompile of NumPy but things have been in a state of disarray as I needed to get all my Open Source packages updated, whichI did from source. I now have a working FORTRAN compiler. That and getting loose ends tied up on a bunch of other things like my web site. I wasn't expecting to have to learn Jekyll.
- 
- Eventually I will get back to building things again, with a focus on performing text analysis of interpersonal communications using AI to help detect signs of parental alienation. My hope is to be able to stop this before it is too late.
+To install Miniconda, follow these steps:
 
- *I and still open to any sort of remote work, and if you like what you see here, you can always [buy me a coffee](https://www.buymeacoffee.com/unixwzrd), or help fund my work on [Patreon](https://www.patreon.com/unixwzrd). There will be more to come in the next few weeks.*
+```bash
+mkdir -p "${HOME}/local/bin"
+# Define the line to be appended
+path_line='if [[ "$PATH" =~ "${HOME}/local/bin:" ]]; then PATH="${HOME}/local/bin:${PATH}"; fi'
 
-## 2024-07-09 - Fixed recursion bug in pip wrapper.
+# Check if the line already exists in .bashrc
+if ! grep -Fxq "$path_line" ~/.bashrc; then
+    # Append the line if it doesn't exist
+    echo "$path_line" >> ~/.bashrc
+fi
+# Determine the OS and architecture to get the latest miniconda installer for this architecture from the official website.
+  OS=$(uname -s)
+  [ "$OS" == "Darwin" ] && OS="MacOSX"
+  [ "$OS" == "Linux" ] && OS="Linux"
+  ARCH=$(uname -m)
+  ARCH=${ARCH//aarch64/arm64}
+# Construct the URL for the miniconda installer
+  INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-${OS}-${ARCH}.sh"
+# Download the miniconda installer
+  curl $INSTALLER_URL -o miniconda.sh
+# Run the installer in non-destructive mode to preserve any existing installation.
+  sh miniconda.sh -b -u
+# Activate the Conda installation
+  . "${HOME}/miniconda3/bin/activate"
+# Initialize conda for your shell, this will update your .profile/.bashrc/.bash_profile or other profile for different shells.
+  conda init $(basename "${SHELL}")
+# Update the Conda base environment
+  conda update -n base -c defaults conda -y
+# Get a new login shell with th eupdated environment variables for Conda base environment.
+  exec env -i bash -l
+```
 
-All functions seem to be working properly, though there is a lot of cleanup and documentation which needs updating, but they are all pretty handy.  I have the annoyances worked out of the wrapper functions for conda and pip, they work properly run, the intended commands, and the logging, while in place, is not quiet operational.  There are a few issues I'd like to work out such as when cloning an VENV, deleting a VENV and where the changes get logged.
+### Step 1: Create a Conda Environment
+```bash
+conda create -n myenv python=3.x
+```
 
-## Building all necessary items for oobabooga for macOS on Apple Silicon Series Processors
+### VENV Management
+- Use the provided scripts to manage your virtual environments efficiently.
 
-The purpose of this originally was to build all the required modules and source code required for oobabooga necessary for best performance possible on macOS on Apple Silicon M-series processors. This is done with a single configuration file. All still under development, but currently in testing.  If you are brave, go right ahead and have a look at the config files in the config directory.
+## Usage
 
-To download, build and install all requirements for running oobabooga on macOS with Apple Silicon, do the following:
+### Tools Overview
+- **tokencount**: [Detailed Documentation](#)
+  - A tool designed to count tokens in text files, useful for analyzing text data and preparing it for processing with language models.
+- **chunkfile**: [Detailed Documentation](#)
+  - A script for breaking large files into smaller, manageable chunks for easier processing.
+- **genmd**: [Detailed Documentation](#)
+  - A script that generates markdown documentation from project files, facilitating easy sharing and collaboration.
 
-(working on this right now)
+## Additional Resources
+- Explore additional projects and tools that complement Venvutil.
 
-**Some of the links may be broken as I'm working on the documentation**
+## Support and Contribution
+- Information on how to support the ongoing development of Venvutil.
 
-## Tools to help maintain Python VENV's and more
+## License
+- Licensing information for the project.
 
-I've been working on a number of things, and am attempting to put together a venvdiff function and enhance the pip and conda tracking I have put in the VenvUtil I have built into the set of virtual environment tools I am building here.  IN the bin directory, you will find some Python scripts for checking your GPU and plan to have more on the way.  This will also become my location for LLM, Data Analytics, Artificial Intelligence and clearing house for performance information. There are a number of things I am working on right now, and will be updating the oobabooga-macOS repository soon with the latest oobabooga. I am looking for alternatives to oobabooga and things look promising.  Also, to get best performance out of oobabooga, I am looking into the code and will have updates on the package builds for supporting GGUF models running on macOS soon.
+## C++, G++, and LD Pass-Throughs
 
-This is an incomplete project to allow for consistent builds of Python VENV's which will allow building/installing Python modules using either Conda or Pip. There are configuration files located in the conf directory, you can edit for building consistent VENV builds and rebuilds.
+### Purpose
+- These wrappers ensure that your existing build and compilation processes remain intact while using Venvutil.
 
-I am working on documentation, but you can have a look at what's in the [doc directory](docs). More to come.
+### Explanation
+- By wrapping these tools, Venvutil provides a seamless integration with your existing toolchain, ensuring compatibility and security.
 
-* [VENV Utility functions used](docs/Functions.md)
-  
-## To use this/Install, clone the repository locally, then do this:
+## NLTK Installation Guide
 
-1. Include the line in your appropriate .bash_profile or .profile file:
+### Library Installation
+- Install the NLTK library within a Python virtual environment using Conda:
+```bash
+conda install -n myenv nltk
+```
 
-    ```bash
-    source {repository_path}/bin/shinclude/init_env.sh
-    
-    # In whatever python environment you are using, you will need to install Rich.
-    pip install rich
-    ```
+### Data Installation
+- The NLTK data can be installed separately and shared across different library versions.
+- Consider installing the data in `/usr/local/share` or the user's home directory for efficiency.
+- For detailed instructions, visit the [NLTK website](https://www.nltk.org/data.html).
 
-    **Be sure to replace `{repository_path}` with the location you cloned the repository in.**
+This README provides a comprehensive overview of the Venvutil project, its features, and usage instructions. For more detailed information, refer to the documentation files included in the project.
 
-1. Then simply do this:
+## Support My Work
 
-    ```bash
-    exec ${SHELL} -
-    ```
+If you find Venvutil helpful and would like to support my work, consider sponsoring me on [Patreon](https://www.patreon.com/) or buying me a coffee on [Buy Me a Coffee](https://www.buymeacoffee.com/). Your support helps me continue developing and maintaining this project and other projects. It is greatly appreciated as I pursue contract work opportunities and sponsorships.
 
-This will overlay your shell with a new login shell which, if you did steps above.
+Thank you for your support!
 
-Alternately, if you do not want the functions and you simply want to install oobabooga and its dependencies on your machine, you may do the following:
-
-TBD
-
-To list the functions available and get help on them, after sourcing the init_env.sh script into your environment, use the help function, you may need to generate the script and function documentation using the generate_markdown sub-command for vhelp.
-
-    ```bash
-    vhelp generate_markdown
-    ```
-
-After doing that you will be able to get help on the functions which may be used in scripts or on the command line.
-
-    ```bash
-    vhelp
-
-    # or
-
-    vhelp functions
-    vhelp scripts
-
-    # To list your VENVs, simply:
-
-    lenv
-    ```
-
-## buildvenvs
-This is a script which will read out of configuration file in the conf directory the main goal of this is building consistent and repeatable guild and application environments.  It is still  being worked on and I hope to have it ready in a bit, along with a config file for getting the right libraries and packages in the right order, specifically for macOS. I realize there may be other products or systems which do this or similar, but I wanted a flexible tool which would allow me to manage my Python VENV's easily.
-
-All you need to do is run it a and pass a config file name to it and it will do the rest. Configurations can be made for individual applications  or development environments.  Eventually I'd like to have it build several different trees of venv's with different packages in different combinations. The idea is to put together these combinations of installing libraries in different order or re-installing them if the environment gets hosed up.  This would be done to determine compatibility of one package with another, how they were layered, and more.
-
-Ideally, I would like to be able to do regression testing and performance analysis of the various development stacks.
-
-It will do these things right now:
-* pip installs
-* conda installs
-* GitHub repository cloning
-* Executing functions included in a configuration script.
-
-Right now there are several things built in which I will be removing and making them their own module or functions. I have a few more things palled like looking at your VENV trees and even comparing the two environments. 
-
-The script buildvenvs will run functions included in the configuration file you wish to run. The config files are in the conf directory. Have a look at them and use one that's there or modify it for your specific needs. I'll be putting together more information on these in the next few days. They may or not work as they are, because things keep moving so rapidly.
-
-## Misc Items from the old oobabooga-macOS repository
----
-
-### I've moved these things to here for now.
-
-Performance and regression test various combinations of venv builds mostly for AI
-
-This is my collection of build scripts, benchmarking tools, and regression testing tools.  This is in a state of flux right now and I am actively working on this.
-
-The first thing likely to emerge is a configuration for building and installing both my macOS version and the oobabooga original text-generation-webui.
-
-Also I will be moving any Apple Silicon M1/M2 GPU performance information to this repo and it will become my location for performance related issues with macOS and Apple Silicon.
-
-For these scripts you will need optimized versions of NumPy and PyTorch, Updates for the builds soon. I'm also putting some things together with Apple's New MLX Framework which looks to have very good performance and am currently looking for possible methods of fine-tuning and training on Apple Silicon M series Macs.
-
-If you find any of my work here helpful, please reach out. I would like to have a dialog with anyone else interested.
-
-Watch this spot, more to come, and you can always buy me a coffee.
+## License
 
 ```text
 This project is licensed under the Apache License
-                           Version 2.0, License.
+                 Version 2.0, License.
 
  Copyright 2024 Michael P. Sullivan - unixwzrd@unixwzrd.ai
 
@@ -175,4 +164,3 @@ This project is licensed under the Apache License
    limitations under the License.
 ```
 [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
-

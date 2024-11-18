@@ -87,7 +87,7 @@ __VENV_INTERNAL_FUNCTIONS=(
 )
 
 # This is so we can pass a return code up through sub-shells since set values are lost in subshells.
-# May or may not be a good ide, but we might want to pass get the return value of our funudtion calls,
+# May or may not be a good ide, but we might want to pass get the return value of our function calls,
 # and not that o fthe last command that ren in the function call which may me 0 for an echo comamnd
 # when it's the last command in th efunction and we want the return code of the function.
 # This is something we would like where the echo sattement will return a value lik ethe last item
@@ -102,12 +102,40 @@ __rc__=0
 # Initialize the stack
 __VENV_STACK=()
 
-# Specialized push the default VENV onto the stack
+# # Function: push_venv
+# `push_venv` - Specialized push the default VENV onto the stack.
+#
+# ## Description
+# - **Purpose**: 
+#   - Pushes the default virtual environment onto the stack.
+# - **Usage**: 
+#   - `push_venv`
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Modifies the stack to include the current environment.
+# - **Exceptions**: 
+#   - None
+#
 push_venv() {
     push_stack __VENV_STACK "${CONDA_DEFAULT_ENV}"
 }
 
-# Specialized pop the VENV off the stack and decrement.j
+# # Function: pop_venv
+# `pop_venv` - Specialized pop the VENV off the stack and decrement.
+#
+# ## Description
+# - **Purpose**: 
+#   - Pops the virtual environment off the stack and decrements.
+# - **Usage**: 
+#   - `pop_venv`
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Modifies the stack to remove the current environment.
+# - **Exceptions**: 
+#   - None
+#
 pop_venv() {
     local stack_value
     pop_stack __VENV_STACK
@@ -115,28 +143,42 @@ pop_venv() {
     return ${__rc__}
 }
 
-
-# Sets internal VENV variables
+# # Function: __set_venv_vars
+# `__set_venv_vars` - Sets internal VENV variables.
+#
+# ## Description
+# - **Purpose**: 
+#   - Sets internal variables related to virtual environment management.
+# - **Usage**: 
+#   - `__set_venv_vars`
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Initializes internal VENV variables.
+# - **Exceptions**: 
+#   - None
+#
 __set_venv_vars() {
     __VENV_PREFIX=$(echo "$*" | cut -d '.' -f 1)
     __VENV_DESC=$(echo "$*" | cut -d '.' -f 3-) &&  __VENV_NUM=$(echo "$*" | cut -d '.' -f 2)
 }
 
-snum() {
+# # Function: snum
+# `snum` - Force set the VENV Sequence number.
 #
-# snum - Force set the VENV Sequence number.
-#
-# - **Purpose**:
-#   - Force set the VENV Sequence number.
+# ## Description
+# - **Purpose**: 
+#   - Forces the setting of the VENV sequence number.
 # - **Usage**: 
-#   - snum NN
+#   - `snum [number]`
 # - **Input Parameters**: 
-#   1. `NN` (integer) - The VENV Sequence number to set. Must be a numeric value between 00 and 99.
+#   - `number` (integer) - The sequence number to set.
 # - **Output**: 
-#   - Sets the global variable `__VENV_NUM` to the zero-padded sequence number.
-#   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
-# - **Exceptions**: None
+#   - Updates the sequence number for the current VENV.
+# - **Exceptions**: 
+#   - None
 #
+snum() {
     local new_num=$1
     
     # Validate that a number is actually provided
@@ -162,22 +204,22 @@ snum() {
     __VENV_NUM=$( zero_pad "${new_num}" )
 }
 
-vpfx() {
+# # Function: vpfx
+# `vpfx` - Return the current VENV prefix.
 #
-# vpfx - Return the current VENV prefix.
-#
-# - **Purpose**:
-#   - Return the current VENV prefix.
+# ## Description
+# - **Purpose**: 
+#   - Returns the prefix of the current virtual environment.
 # - **Usage**: 
-#   - vpfx
+#   - `vpfx`
 # - **Input Parameters**: 
 #   - None
 # - **Output**: 
-#   - Prints the current VENV prefix to STDOUT.
-#   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
-# - **Exceptions**:
-#    1  No value set.
+#   - The prefix of the current VENV.
+# - **Exceptions**: 
+#   - None
 #
+vpfx() {
     if [ -z "${__VENV_PREFIX}" ]; then
         echo "Error: No VENV prefix has been set." >&2
         __rc__=1
@@ -187,22 +229,22 @@ vpfx() {
     echo "${__VENV_PREFIX}"
 }
 
-vnum() {
+# # Function: vnum
+# `vnum` - Return the current VENV sequence number.
 #
-# vnum - Return the current VENV sequence number.
-#
-# - **Purpose**:
-#   - Return the current VENV sequence number.
+# ## Description
+# - **Purpose**: 
+#   - Returns the sequence number of the current virtual environment.
 # - **Usage**: 
-#   - vnum
+#   - `vnum`
 # - **Input Parameters**: 
 #   - None
 # - **Output**: 
-#   - Prints the current VENV sequence number to STDOUT.
-#   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
-# - **Exceptions**:
-#    1  No value set.
+#   - The sequence number of the current VENV.
+# - **Exceptions**: 
+#   - None
 #
+vnum() {
     if [ -z "${__VENV_NUM}" ]; then
         echo "Error: No VENV sequence number has been set." >&2
         __rc__=1
@@ -212,22 +254,22 @@ vnum() {
     echo "${__VENV_NUM}"
 }
 
-vdsc() {
+# # Function: vdsc
+# `vdsc` - Return the current VENV description.
 #
-# vdsc - Return the current VENV description.
-#
-# - **Purpose**:
-#   - Return the current VENV description.
+# ## Description
+# - **Purpose**: 
+#   - Returns the description of the current virtual environment.
 # - **Usage**: 
-#   - vdsc
+#   - `vdsc`
 # - **Input Parameters**: 
 #   - None
 # - **Output**: 
-#   - Prints the current VENV description to STDOUT.
-#   - Prints an error message to STDERR and returns with status code 1 if unsuccessful.
-# - **Exceptions**:
-#    1  No value set.
+#   - The description of the current VENV.
+# - **Exceptions**: 
+#   - None
 #
+vdsc() {
     if [ -z "${__VENV_DESC}" ]; then
         echo "Error: No VENV sequence number has been set." >&2
         __rc__=1
@@ -237,21 +279,22 @@ vdsc() {
     echo "${__VENV_DESC}"
 }
 
-cact() {
+# # Function: cact
+# `cact` - Change active VENV.
 #
-# cact - Change active VENV
-#
-# - **Purpose**:
-#    - Change the active virtual environment.
+# ## Description
+# - **Purpose**: 
+#   - Changes the active virtual environment to the specified one.
 # - **Usage**: 
-#    -  cact VENV_NAME
+#   - `cact [env_name]`
 # - **Input Parameters**: 
-#    1. `VENV_NAME` (string) - The name of the virtual environment to activate.
+#   - `env_name` (string) - The name of the environment to activate.
 # - **Output**: 
-#    - Messages indicating the deactivation and activation process.
-#    - If unsuccessful, prints an error message to STDERR and returns with status code 1.
-# - **Exceptions**: None
+#   - Activates the specified virtual environment.
+# - **Exceptions**: 
+#   - Errors if the environment does not exist.
 #
+cact() {
     local new_env="$1"
     # Validate input
     if [ -z "$1" ]; then
@@ -283,22 +326,22 @@ cact() {
     conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." 1>&2; return 1; }
 }
 
-dact() {
+# # Function: dact
+# `dact` - Deactivate the current VENV.
 #
-# dact - Deactivate the current VENV
-#
-# - **Purpose**:
-#   - Deactivate the currently active conda virtual environment.
+# ## Description
+# - **Purpose**: 
+#   - Deactivates the current virtual environment.
 # - **Usage**: 
-#   - dact
+#   - `dact`
 # - **Input Parameters**: 
 #   - None
 # - **Output**: 
-#   - Deactivates the current virtual environment.
-#   - Prints a message indicating the deactivated environment.
+#   - Deactivates the current VENV.
 # - **Exceptions**: 
-#   - If no environment is currently activated, conda will display an appropriate message.
+#   - None
 #
+dact() {
     local stack_value
 
     if [ -z "${CONDA_DEFAULT_ENV}" ]; then
@@ -324,23 +367,22 @@ dact() {
     return ${__rc__}
 }
 
-
-pact() {
+# # Function: pact
+# `pact` - Switch to the Previous Active VENV.
 #
-# pact - Switch to the Previous Active VENV
-#
-# - **Purpose**:
-#   - Deactivate the current virtual environment and activate the previously active one.
+# ## Description
+# - **Purpose**: 
+#   - Switches to the previous active virtual environment.
 # - **Usage**: 
-#   - pact
+#   - `pact`
 # - **Input Parameters**: 
 #   - None
 # - **Output**: 
-#   - Deactivates the current environment and activates the previous one.
-#   - Prints messages to indicate the switch.
+#   - Activates the previous VENV.
 # - **Exceptions**: 
-#   - If no previous environment is stored, an error message will be displayed.
+#   - Errors if no previous environment exists.
 #
+pact() {
     pop_venv
     local previous_env=${__sv__}
 
@@ -353,69 +395,102 @@ pact() {
     fi
 }
 
-lenv() {
+# # Function: lenv
+# `lenv` - List All Current VENVs with last modification date.
 #
-# lenv - List All Current VENVs
-#
-# - **Purpose**:
-#  - List all the currently available conda virtual environments.
+# ## Description
+# - **Purpose**: 
+#   - Lists all the currently available conda virtual environments with their last modification date.
 # - **Usage**: 
-#     lenv
+#   - `lenv`
 # - **Input Parameters**: 
-#     None
+#   - None
 # - **Output**: 
-#     - A list of all existing conda virtual environments.
+#   - A list of all existing conda virtual environments with their last modification date.
 # - **Exceptions**: 
-#     - If no environments are available, the output from `conda info -e` will indicate this.
+#   - If no environments are available, the output from `conda info -e` will indicate this.
 #
-    conda info -e | grep -E -v '^#'
+lenv() {
+    # Fetch environment information
+    local envs_info
+    envs_info=$(conda info --envs | grep -E -v '^#')
+
+    # Prepare a temporary file to store environment details
+    local temp_file
+    temp_file=$(mktemp)
+
+    # Iterate over each environment and fetch creation date
+    while IFS= read -r line; do
+        local env_name env_path creation_date active_marker
+        env_name=$(echo "$line" | awk '{print $1}')
+        env_path=$(echo "$line" | awk '{print $NF}')
+
+        # Fetch creation date using stat
+        if [ -d "$env_path" ]; then
+            creation_date=$(stat -c "%y" "$env_path" | cut -d' ' -f1)
+        else
+            creation_date="N/A"
+        fi
+
+        # Remove $HOME from the path
+        env_path=${env_path/$HOME/\~}
+
+        # Handle active environment marker
+        if [[ "$line" == *\** ]]; then
+            active_marker="*"
+        else
+            active_marker=" "
+        fi
+
+        # Write to temporary file
+        printf "%s\t%s %s\t%s\n" "$creation_date" "$active_marker" "$env_name" "$env_path" >> "$temp_file"
+    done <<< "$envs_info"
+
+    # Display the results
+    column -t -s $'\t' < "$temp_file"
+
+    # Clean up
+    rm "$temp_file"
 }
 
-lastenv() {
+# # Function: lastenv
+# `lastenv` - Retrieve the Last Environment with a Given Prefix.
 #
-# lastenv - Retrieve the Last Environment with a Given Prefix
-#
-# - **Purpose**:
-#   - Return the last conda virtual environment that starts with a given prefix.
+# ## Description
+# - **Purpose**: 
+#   - Retrieves the last environment with a specified prefix.
 # - **Usage**: 
-#   - lastenv PREFIX
+#   - `lastenv [prefix]`
 # - **Input Parameters**: 
-#    1. `PREFIX` (string) - The prefix for the environment names you want to match.
+#   - `prefix` (string) - The prefix to search for.
 # - **Output**: 
-#   - The last conda environment that starts with the given prefix.
+#   - The name of the last environment with the given prefix.
 # - **Exceptions**: 
-#   - If no environments match the prefix, the output will be empty.
+#   - None
 #
+lastenv() {
     local prefix="$1"
     local last_env=$(lenv | grep -E "^${prefix}." | tail -1 | cut -d " " -f 1)
     echo "${last_env}"
 }
 
-benv() {
+# # Function: benv
+# `benv` - Create a New Base Virtual Environment.
 #
-# benv - Create a New Base Virtual Environment
-#
-# - **Purpose**:
-#   - Create a new base conda virtual environment and activate it.
+# ## Description
+# - **Purpose**: 
+#   - Creates a new base conda virtual environment and activates it.
 # - **Usage**: 
-#   - benv ENV_NAME [EXTRA_OPTIONS]
-#   
-#   ```code
-#   benv myenv  python==3.10
-#   ```
-#
-#   Will create a new environment named `myenv` with Python 3.10
-#
-#   After that, it will become the active virtual environment. This environment may be used for creating a series of new environments. with `nenv`.
-#
+#   - `benv ENV_NAME [EXTRA_OPTIONS]`
 # - **Input Parameters**: 
-#   1. `ENV_NAME` (string) - The name of the new environment to create.
-#   2. `EXTRA_OPTIONS` (string, optional) - Additional options to pass to `conda create`.
+#   - `ENV_NAME` (string) - The name of the new environment to create.
+#   - `EXTRA_OPTIONS` (string, optional) - Additional options to pass to `conda create`.
 # - **Output**: 
 #   - Creates and activates the new environment.
 # - **Exceptions**: 
 #   - Errors during environment creation are handled by conda.
 #
+benv() {
     local env_name="$1"; shift
     local extra_options="$*"
 
@@ -430,22 +505,23 @@ benv() {
     cact "${env_name}"
 }
 
-nenv() {
+# # Function: nenv
+# `nenv` - Create a New Virtual Environment in a Series.
 #
-# nenv - Create a New Virtual Environment in a Series
-#
-# - **Purpose**:
-#   - Create a new conda virtual environment in a series identified by a prefix as a clone of the current venv. Resets and starts the sequence number from "00".
+# ## Description
+# - **Purpose**: 
+#   - Creates a new conda virtual environment in a series identified by a prefix as a clone of the current venv.
 # - **Usage**: 
-#   - nenv PREFIX [EXTRA_OPTIONS]
+#   - `nenv PREFIX [EXTRA_OPTIONS]`
 # - **Input Parameters**: 
-#   1. `PREFIX` (string) - The prefix to identify the series of environments.
-#   2. `EXTRA_OPTIONS` (string, optional) - Additional options to pass to the environment creation.
+#   - `PREFIX` (string) - The prefix to identify the series of environments.
+#   - `EXTRA_OPTIONS` (string, optional) - Additional options to pass to the environment creation.
 # - **Output**: 
 #   - Creates and activates the new environment with sequence number "00".
 # - **Exceptions**: 
 #   - Errors during environment creation are handled by conda.
 #
+nenv() {
     local prefix="$1"; shift
     local extra_options="$*"
 
@@ -463,22 +539,22 @@ nenv() {
     ccln "base"
 }
 
-denv() {
+# # Function: denv
+# `denv` - Delete a Virtual Environment.
 #
-#  denv - Delete a Specified Virtual Environment
-#
-# - **Purpose**:
-#   - Delete a specified conda virtual environment.
+# ## Description
+# - **Purpose**: 
+#   - Deletes the specified virtual environment.
 # - **Usage**: 
-#   - denv ENV_NAME
+#   - `denv [env_name]`
 # - **Input Parameters**: 
-#   1. `ENV_NAME` (string) - The name of the environment to be deleted.
+#   - `env_name` (string) - The name of the environment to delete.
 # - **Output**: 
-#   - Removes the specified environment.
+#   - Deletes the specified environment.
 # - **Exceptions**: 
-#   - If no environment name is provided, an error message is displayed.
-#   - Errors during deletion are handled by conda.
+#   - Errors if the environment does not exist.
 #
+denv() {
     local env_to_delete="$1"
 
     if [ -z "${env_to_delete}" ]; then
@@ -491,14 +567,14 @@ denv() {
     conda remove --all -n ${env_to_delete} -y
 }
 
-renv() {
+# # Function: renv
+# `renv` - Revert to Previous Virtual Environment.
 #
-# renv - Revert to Previous Virtual Environment
-#
-# - **Purpose**:
-#   - Deactivate the current active environment, delete it, and then re-activate the previously active environment.
+# ## Description
+# - **Purpose**: 
+#   - Deactivates the current active environment, deletes it, and then re-activates the previously active environment.
 # - **Usage**: 
-#   - renv
+#   - `renv`
 # - **Input Parameters**: 
 #   - None
 # - **Output**: 
@@ -506,6 +582,7 @@ renv() {
 # - **Exceptions**: 
 #   - Errors during deactivation or deletion are handled by conda.
 #
+renv() {
     local env_to_delete=${CONDA_DEFAULT_ENV}
     local previous_env=${__VENV_PREV}
 
@@ -525,21 +602,23 @@ renv() {
     cact ${previous_env}  # Reactivate the previous environment
 }
 
-ccln() {
+# # Function: ccln
+# `ccln` - Clone a Conda Environment.
 #
-# ccln - Clone the current VENV and increment the sequence number.
-#
-# - **Purpose**:
-#   - Clone the current virtual environment and increment its sequence number.
+# ## Description
+# - **Purpose**: 
+#   - Clones an existing conda environment.
 # - **Usage**: 
-#   - ccln [DESCRIPTION]
+#   - `ccln [source_env] [target_env]`
 # - **Input Parameters**: 
-#   1. `DESCRIPTION` (optional string) - A description for the new virtual environment.
+#   - `source_env` (string) - The name of the environment to clone.
+#   - `target_env` (string) - The name of the new cloned environment.
 # - **Output**: 
-#   - Creates and activates a clone of the current environment with an incremented sequence number.
+#   - Creates a clone of the specified environment.
 # - **Exceptions**: 
-#   - None. If no description is provided, the description of the current VENV is used.
+#   - Errors if the source environment does not exist.
 #
+ccln() {
     # If no description is provided, use the description of the current VENV
     if [ -z "$1" ]; then
         __VENV_DESC=$( vdsc )
@@ -557,21 +636,23 @@ ccln() {
     cact "${__VENV_NAME}"
 }
 
-venvdiff() {
-# venvdiff - Compare the packages in two virtual environments (EXPERIMENTAl)
+# # Function: venvdiff
+# `venvdiff` - Compare Two Virtual Environments.
 #
-# - **Purpose**:
-#   - Compare the packages installed in two conda virtual environments.
-# - **Usage**:
-#   - venvdiff ENV1 ENV2
-# - **Input Parameters**:
-#   1. `ENV1` (string) - The name of the first environment to compare.
-#   2. `ENV2` (string) - The name of the second environment to compare.
-# - **Output**:
-#   - A side-by-side comparison of the packages installed in the two environments.
-# - **Exceptions**:
-#   - If the number of arguments is not equal to 2, an error message is displayed.
-
+# ## Description
+# - **Purpose**: 
+#   - Compares two virtual environments and lists differences.
+# - **Usage**: 
+#   - `venvdiff [env1] [env2]`
+# - **Input Parameters**: 
+#   - `env1` (string) - The first environment to compare.
+#   - `env2` (string) - The second environment to compare.
+# - **Output**: 
+#   - Lists the differences between the two environments.
+# - **Exceptions**: 
+#   - Errors if either environment does not exist.
+#
+venvdiff() {
     # Check that two arguments are provided
     if [ "$#" -ne 2 ]; then
         echo "Usage: venvdiff env1 env2"

@@ -38,7 +38,6 @@
 #   - 2: Could not find system errno.h
 #   - 22: Invalid errno name
 #
-
 errno() {
     if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
         echo "Usage: errno [errno_code|errno_number]"
@@ -66,9 +65,9 @@ errno() {
         line=$(grep -wE "#define [A-Z_]*[ \t]*\b$errno_code\b" "$errno_file")
         errno_code=$(echo "$line" | awk '{print $2}')
     else
-        # Use braces when expanding arrays, e.g. ${array[idx]} (or ${var}[.. to quiet). shellcheck SC1087
+        # Not using braces for that, it's a regular expression here.
+        # Use braces when expanding arrays, e.g. ${array[idx]} (or ${var}[.. to quiet).
         # shellcheck disable=SC1087
-        # Not using braces fo rthat, it's a regular expression here.
         line=$(grep -wE "#define $errno_code[ \t]*" "$errno_file")
     fi
 
@@ -118,7 +117,6 @@ errfind() {
     lines=$(grep -i "#define [A-Z_]*[ \t]*.*$search_string.*" "$errno_file")
     if [ -z "$lines" ]; then
         echo "No error codes found for $search_string"
-        log_message "WARN" "No error codes found for $search_string"
         __rc__=0
         return ${__rc__}
     fi
@@ -175,7 +173,6 @@ errno_exit() {
     exit "${__rc__}"
 }
 
-
 #  `log_message` - Prints a message to STDERR based on the provided log level.
 # ## Description
 # - **Purpose**: 
@@ -195,30 +192,31 @@ errno_exit() {
 #   - `message`: The message to print if the log level is greater than or equal to the current debug level.
 # - **Output**: 
 #   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
-declare -A message_class=(
-    ["SILENT"]=0
-    ["TRACE"]=10
-    ["DEBUG8"]=22
-    ["DEBUG7"]=22
-    ["DEBUG6"]=23
-    ["DEBUG5"]=24
-    ["DEBUG4"]=25
-    ["DEBUG3"]=26
-    ["DEBUG2"]=27
-    ["DEBUG1"]=28
-    ["DEBUG0"]=29
-    ["DEBUG"]=29
-    ["INFO"]=30
-    ["WARNING"]=40
-    ["WARN"]=40
-    ["WARNING"]=40
-    ["ERROR"]=50
-    ["CRITICAL"]=60
-    ["SILENT"]=99
-)
-    log_message() {
+log_message() {
     local message_level="$1"; shift
     local message_out="$*"
+
+    declare -A message_class=(
+        ["SILENT"]=0
+        ["TRACE"]=10
+        ["DEBUG8"]=22
+        ["DEBUG7"]=22
+        ["DEBUG6"]=23
+        ["DEBUG5"]=24
+        ["DEBUG4"]=25
+        ["DEBUG3"]=26
+        ["DEBUG2"]=27
+        ["DEBUG1"]=28
+        ["DEBUG0"]=29
+        ["DEBUG"]=29
+        ["INFO"]=30
+        ["WARNING"]=40
+        ["WARN"]=40
+        ["WARNING"]=40
+        ["ERROR"]=50
+        ["CRITICAL"]=60
+        ["SILENT"]=99
+    )
     # Define an associative array for message classes with standard logging levels
 
 
@@ -260,15 +258,9 @@ __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 # shellcheck disable=SC2206
 __VENV_INTERNAL_FUNCTIONS=(
    ${__VENV_INTERNAL_FUNCTIONS[@]}
-   "errno"
-   "errfind"
-   "errno_warn"
-   "errno_exit"
-   log_message
 )
 
-
-
+# Set default debug level, if not already set.
 debug_level=${debug_level:-30}
 
 # Ensure util_funcs.sh is sourced for utility functions

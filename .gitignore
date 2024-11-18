@@ -125,7 +125,6 @@ ENV/
 env.bak/
 venv.bak/
 
-
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -160,7 +159,6 @@ cython_debug/
 # downloaded model .bin files
 docker/open_llama/*.bin
 
-
 # macOS files
 .DS_Store
 
@@ -170,6 +168,8 @@ docker/open_llama/*.bin
 
 build
 project-notes/
+.master-planning
+.project-planning
 *.swp
 #docs/shdoc/
 #bin/shinclude/help_sys.sh
@@ -177,3 +177,6 @@ vardump*.txt
 utils/output
 utils/etc
 data/
+
+# Symlink to data collected by venvutil functions
+.venvutil

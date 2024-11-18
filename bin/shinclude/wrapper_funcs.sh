@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# ## wrapper_funcs.sh - Python Package Manager Wrapper Functions
+#
+# - **Purpose**: 
+#   - Provides enhanced functionality for managing Python package commands by wrapping pip and conda.
+#   - Intercepts and logs changes to virtual environments for rollback, auditing, and future use in venvdiff or vdiff.
+# - **Usage**: 
+#   - Source this script in your command line environment to import the wrapper functions.
+#   - For example, in another script: `source wrapper_funcs.sh`.
+# - **Features**:
+#   - Saves a `pip freeze` before any potentially destructive changes to a virtual environment.
+#   - Logs the complete command line to a log file for both conda and pip.
+#   - Persists logs in the `$HOME/.venvutil` directory, even after virtual environments are deleted.
+# - **Dependencies**: 
+#   - Requires Bash and the Python package managers pip and conda.
+# - **Exceptions**: 
+#   - Some functions may return specific error codes or print error messages to STDERR.
+#   - Refer to individual function documentation for details.
+
 # Declare and assign separately to avoid masking return values. shellcheck SC2155
 # shellcheck disable=SC2155
 
@@ -18,7 +36,21 @@ __VENV_INTERNAL_FUNCTIONS=(
     "__venv_conda_check"
 )
 
-# Function to get the hash of a function's definition
+# # Function: get_function_hash
+# `get_function_hash` - Get the hash of a function's definition.
+#
+# ## Description
+# - **Purpose**: 
+#   - Computes the hash of a function's definition for integrity checks.
+# - **Usage**: 
+#   - `get_function_hash [function_name]`
+# - **Input Parameters**: 
+#   - `function_name` (string) - The name of the function to hash.
+# - **Output**: 
+#   - The hash of the function's definition.
+# - **Exceptions**: 
+#   - None
+#
 get_function_hash() {
     declare -f "$1" | md5 | cut -d' ' -f1
 }
@@ -28,20 +60,23 @@ export VENVUTIL_CONFIG="${VENVUTIL_CONFIG:-${HOME}/.venvutil}"
 # Create the directory recursively for the frozen VENV's for recovery.
 [[ -d ${VENVUTIL_CONFIG}/freeze ]] || mkdir -p "${VENVUTIL_CONFIG}/freeze"
 
-do_wrapper() {
+# # Function: do_wrapper
+# `do_wrapper` - General wrapper function for logging specific command actions.
 #
-# do_wrapper - General wrapper function for logging specific command actions
-#
-# - **Purpose**:
-#   - Executes a Python package maneger command with optional logging based on the specified action.
-# - **Usage**:
+# ## Description
+# - **Purpose**: 
+#   - Executes a Python package manager command with optional logging based on the specified action.
+# - **Usage**: 
 #   - `do_wrapper <cmd> <additional parameters>`
-#  - **Parameters**:
-#    - cmd: The command to be executed.
-#    - Additional parameters: Any additional parameters to be passed to the command.
-# - **Returns**:
+# - **Input Parameters**: 
+#   - `cmd` (string) - The command to be executed.
+#   - `additional parameters` (string) - Any additional parameters to be passed to the command.
+# - **Output**: 
+#   - None
+# - **Exceptions**: 
 #   - None
 #
+do_wrapper() {
     local cmd="$1"; shift
     local action="$1"
     local actions_to_log=("install" "uninstall" "remove" "rename" "update" "upgrade" "create" "clean" "config" "clone")
@@ -96,13 +131,40 @@ do_wrapper() {
     fi
 }
 
-
-# Specific wrapper function for pip
+# # Function: pip
+# `pip` - Wrapper function for pip commands.
+#
+# ## Description
+# - **Purpose**: 
+#   - Wraps pip commands to ensure environment variables are preserved.
+# - **Usage**: 
+#   - `pip [arguments]`
+# - **Input Parameters**: 
+#   - `arguments` (string) - Arguments to pass to pip.
+# - **Output**: 
+#   - Executes the pip command with the provided arguments.
+# - **Exceptions**: 
+#   - None
+#
 pip() {
     do_wrapper pip "$@"
 }
 
-# Function to check if conda definition changed and re-hook if necessary
+# # Function: __venv_conda_check
+# `__venv_conda_check` - Ensure conda function is wrapped and check for definition changes.
+#
+# ## Description
+# - **Purpose**: 
+#   - Checks if the conda function definition has changed and re-hooks if necessary.
+# - **Usage**: 
+#   - `__venv_conda_check`
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Ensures the conda function is wrapped correctly.
+# - **Exceptions**: 
+#   - None
+#
 __venv_conda_check() {
     current_hash=$(get_function_hash conda)
     if [[ "${current_hash}" != "${__venv_conda_hash}" ]]; then
@@ -122,7 +184,7 @@ __venv_conda_check() {
 # Run through the conda check function to ensure the conda function is wrapped
 __venv_conda_check
 
-# Initial hash of the Conda function. Must always  new hash after defining.
+# Initial hash of the Conda function. Must always update with new hash after defining.
 __venv_conda_hash=$(get_function_hash conda)
 
 # Modify the PROMPT_COMMAND to continuously check for function `conda` changes
