@@ -173,6 +173,7 @@ _EOT_
     exit 2     # (ENOENT: 2): No such file or directory
 }
 echo "INFO ($MY_NAME): Using SHINCLUDE directory - ${SHINCLUDE}" >&2
+# shellcheck source=/dev/null
 source "${SHINCLUDE}/errno.sh"
 MY_NAME="$(basename "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}" )"
 
@@ -327,7 +328,8 @@ check_directory() {
 sanitize_patterns() {
     local input="$1"
     # Retain only alphanumerics, underscores, dots, dashes, and spaces
-    cleanstring=$(echo "$input" | sed 's/[^a-zA-Z0-9_.* ]//g')
+    cleanstring=${input//[^a-zA-Z0-9_.* ]/}
+    # cleanstring=$(echo "$input" | sed 's/[^a-zA-Z0-9_.* ]//g')
     log_message "DEBUG" "Dirty pattern: $input"
     log_message "DEBUG" "Clean pattern: $cleanstring"
     echo "$cleanstring"
@@ -474,6 +476,11 @@ load_config() {
     local config_file="$1"
     declare -A original_values
 
+    if [ "$skip_config" = true ]; then
+        log_message "INFO" "Skipping config file loading."
+        return 0
+    fi
+
     if [[ -e "$config_file" ]]; then
 
         # Preserve the current values in temporary storage
@@ -481,7 +488,7 @@ load_config() {
             original_values["$var"]="${!var:-""}"
         done
 
-        # shellcheck disable=SC1090
+        # shellcheck source=/dev/null
         source "$config_file"
         # Quickly put debug level back to default or from th ecommand line it shoudl not change
         # to value from config file.
@@ -747,6 +754,7 @@ build_file_list() {
     fi
 
     # Passing back the array reference
+    # shellcheck disable=SC2034
     final_files_ref=("${files[@]}")
 }
 
@@ -915,6 +923,7 @@ process_files() {
 compress_output() {
     local output_filename="$1"
 
+    if [[ "$compress" = true ]]; then
         if ! command -v "$compression_tool" &>/dev/null; then
             log_message "WARNING" "Compression tool $compression_tool not found skipping compression"
             return 1
@@ -1239,7 +1248,8 @@ build_file_list final_files dir_excludes \
 
 # Debug: Show final files to be processed
 log_message "DEBUG2" "Final files to process:"
-if [ "$debug_level" -le "${message_class["DEBUG2"]}" ]; then
+if [ "$debug_level" -le "${message_class["DEBUG2"]:-27}" ]; then
+    # shellcheck disable=SC2154
     for f in "${final_files[@]}"; do
         printf "  \"%s\"" "$f" >&2
     done

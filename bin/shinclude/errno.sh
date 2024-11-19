@@ -137,7 +137,7 @@ errfind() {
 #  `errno_warn` - Prints a warning using the errno function to STDERR and returns the error number.
 # ## Description
 # - **Purpose**: 
-#   - Prints a warning message to STDERR using the `errno` function and sets the return code.
+#   - Prints a warning message to STDERR using the `errno` function and sets the return code. It will report the error without exiting the script.
 # - **Usage**: 
 #   - `errno_warn <errno_code>`
 # - **Input Parameters**: 
@@ -264,10 +264,11 @@ __VENV_INTERNAL_FUNCTIONS=(
 debug_level=${debug_level:-30}
 
 # Ensure util_funcs.sh is sourced for utility functions
-if declare -f "source_util_script" >/dev/null; then
+if declare -f "source_util_script" >/dev/null 2>&1; then
     source_util_script "util_funcs"
     log_message "INFO" "Sourced util_funcs.sh"
 else
+    # shellcheck source=/dev/null
     source "${__VENV_INCLUDE}/util_funcs.sh"
     log_message "INFO" "Sourced ${__VENV_INCLUDE}/util_funcs.sh"
 fi

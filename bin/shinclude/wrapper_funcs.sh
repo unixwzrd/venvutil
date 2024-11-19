@@ -59,6 +59,7 @@ get_function_hash() {
 export VENVUTIL_CONFIG="${VENVUTIL_CONFIG:-${HOME}/.venvutil}"
 # Create the directory recursively for the frozen VENV's for recovery.
 [[ -d ${VENVUTIL_CONFIG}/freeze ]] || mkdir -p "${VENVUTIL_CONFIG}/freeze"
+[[ -d ${VENVUTIL_CONFIG}/log ]] || mkdir -p "${VENVUTIL_CONFIG}/log"
 
 # # Function: do_wrapper
 # `do_wrapper` - General wrapper function for logging specific command actions.
@@ -103,12 +104,12 @@ do_wrapper() {
         local cmd_date=$(date '+%Y-%m-%d %H:%M:%S')
         local freeze_dir="${VENVUTIL_CONFIG}/freeze"
         local freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${freeze_date}.txt"
-        local hist_log="${VENVUTIL_CONFIG}/${CONDA_DEFAULT_ENV}.log"
+        local log_dir="${VENVUTIL_CONFIG}/log"
         # Freeze the state of the environment before a potentially destructive command is executed.
         command pip freeze > "${freeze_state}"
         if eval " ${env_vars} ${cmd} ${cmd_args} "; then
             # Logging the command invocation if it completed successfully.
-            local hist_log="${VENVUTIL_CONFIG}/${CONDA_DEFAULT_ENV}.log"
+            local hist_log="${log_dir}/${CONDA_DEFAULT_ENV}.log"
             local venvutil_log="${VENVUTIL_CONFIG}/venvutil.log"
             {
                 echo "# ${cmd_date}: ${user_line}"
@@ -117,8 +118,8 @@ do_wrapper() {
             } >> "${hist_log}"
             echo "# ${cmd_date} - ${CONDA_DEFAULT_ENV}: ${user_line}" >> "${venvutil_log}"
             # Freeze it again to get the current state, after any potentially destructive command is executed.
-            # Update the new date and time sleep 1 second to ensure the filename is unique.
-            sleep 1
+            # Update the new date and time sleep 2 second to ensure the filename is unique.
+            sleep 2
             freeze_date=$(date "+%Y%m%d%H%M%S")
             freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${freeze_date}.txt"
             command pip freeze > "${freeze_state}"
@@ -127,7 +128,7 @@ do_wrapper() {
         fi
     else
         # Execute the command without logging.
-        ${cmd} ${cmd_args}
+        ${cmd} "${cmd_args}"
     fi
 }
 

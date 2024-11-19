@@ -1,0 +1,28 @@
+# Package Configuration File for venvutil
+
+# Define variables
+prefix=$HOME/local/venvutil
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+bindir=${exec_prefix}/bin
+datadir=${prefix}/share
+sysconfdir=${prefix}/etc
+
+# Package metadata
+Name: venvutil
+Description: Virtual Environment Utilities
+Version: 1.0
+URL: https://github.com/unixwzrd/venvutil
+
+# Dependencies (if any)
+Requires: python >= 3.10
+Requires: bash >= 4.0
+Requires: Conda >= 22.11
+Requires: macOS
+Requires: Linux
+Conflicts:
+
+# Compiler and linker flags (if applicable)
+# Cflags: -I${includedir}
+# Libs: -L${libdir} -lvenvutil
