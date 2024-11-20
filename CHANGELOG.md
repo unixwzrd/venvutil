@@ -1,5 +1,10 @@
 # Changelog
 
+## 2024-11-20 - Successful Testing and Installation
+- Completed testing and installation of the project.
+- Verified that `generate_manifest.sh` and the installer work as expected.
+- Rollback/remove functionality for the installer is pending as a low priority task.
+
 ## 2024-11-18 - Refactored Installer Script and Documentation Updates
 
 - Refactored `vsetup.sh` for modularity and error handling.

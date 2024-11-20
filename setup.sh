@@ -55,11 +55,11 @@ MY_NAME="$(basename "${THIS_SCRIPT}")"
 MY_PATH="$(dirname "${THIS_SCRIPT}")"
 
 # Default values
-PKG_NAME=""
+PKG_NAME="venvutil"
 PKG_VERSION=""
 INSTALL_BASE=""
-INSTALL_CONFIG=""
-INSTALL_MANIFEST=""
+INSTALL_CONFIG="$HOME/.${PKG_NAME}"
+INSTALL_MANIFEST="manifest.lst"
 ACTION=""
 VERBOSE=false
 
@@ -113,12 +113,15 @@ display_help() {
 # Load package configuration from .cf file
 load_pkg_config() {
   log_message "INFO" "Loading package configuration..."
-  local config_file="$MY_PATH/${PKG_NAME}.cf"
+  local config_file="$MY_PATH/setup.cf"
   if [ -f "$config_file" ]; then
     while IFS= read -r line || [[ -n "$line" ]]; do
       [[ "$line" =~ ^#.*$ ]] && continue  # Skip comments
       [[ -z "$line" ]] && continue        # Skip blank lines
-      if [[ "$line" =~ ^[A-Za-z_]+=.*$ ]]; then
+      if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
+        IFS=':' read -r key value <<< "$line"
+        eval "$key=\"\$(echo \$value | xargs)\""
+      elif [[ "$line" =~ ^[A-Za-z_]+=.*$ ]]; then
         eval "$line"
       fi
     done < "$config_file"
@@ -131,7 +134,7 @@ load_pkg_config() {
 # Parse manifest metadata
 parse_manifest_metadata() {
   local manifest_file="$INSTALL_MANIFEST"
-  while IFS= read -r line || [[ -n "$line" ]]; do
+  while IFS='| ' read -r line || [[ -n "$line" ]]; do
     [[ "$line" =~ ^#.*$ ]] && continue  # Skip comments
     [[ -z "$line" ]] && break           # Stop at first blank line (end of metadata)
     if [[ "$line" =~ ^[A-Za-z_]+=.*$ ]]; then
@@ -142,26 +145,29 @@ parse_manifest_metadata() {
 
 # Initialization
 initialization() {
+
+  # Load package configuration
+  mkdir -p "$INSTALL_CONFIG"
+  mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze"
+
   log_message "INFO" "Initialization..."
 
-  # Set default manifest path
-  INSTALL_MANIFEST="$MY_PATH/manifest.dat"
-
-  # Parse manifest metadata
-  parse_manifest_metadata
+  load_pkg_config
 
   # Set PKG_NAME early to load config
   PKG_NAME=${PKG_NAME:-$Name}
-
-  # Load package configuration
-  load_pkg_config
 
   # Set default values if not already set
   PKG_VERSION=${PKG_VERSION:-$Version}
   INSTALL_BASE=${INSTALL_BASE:-$prefix}
   INSTALL_CONFIG=${INSTALL_CONFIG:-"$HOME/.${PKG_NAME}"}
 
-  mkdir -p "$INSTALL_CONFIG"
+  # Set default manifest path
+  INSTALL_MANIFEST="$MY_PATH/manifest.lst"
+
+  # Parse manifest metadata
+  parse_manifest_metadata
+
 }
 
 # Parse command-line arguments
@@ -177,12 +183,12 @@ parse_arguments() {
   done
   shift $((OPTIND -1))
 
-  if [ $# -eq 0 ]; then
-    echo "No action specified. Use install, remove, or rollback."
-    display_help "Usage: $MY_NAME [options] {install|remove|rollback}"
+  # Ensure at least one action is specified
+  ACTION="${1:-}"
+  if [ -z "$ACTION" ]; then
+    display_help "Usage: $MY_NAME [options] {install|remove|rollback}" 
+    exit 1
   fi
-
-  ACTION="$1"
 }
 
 # Dependency checks
@@ -273,14 +279,15 @@ install_assets() {
       continue
     fi
 
-    IFS=$'\t' read -r type destination source name permissions owner group size checksum <<< "$line"
+    IFS=$'| ' read -r type destination source name permissions owner group size checksum <<< "$line"
 
     # Set default owner and group if not specified
     owner=${owner:-$(id -u)}
     group=${group:-$(id -g)}
 
     destination="${INSTALL_BASE}/${destination}"
-    source_path="${MY_PATH}/${source}/${name}"
+    source_location="${source}"
+    source_path="${MY_PATH}/${source_location}/${name}"
     dest_path="${destination}/${name}"
 
     mkdir -p "$destination"
@@ -297,7 +304,9 @@ install_assets() {
         chmod "$permissions" "$dest_path"
         ;;
       l) # Create symbolic link
-        ln -sf "$source_path" "$dest_path"
+        cd "$destination"
+        ln -sf "$source" "$name"
+        cd -
         ;;
       *)
         log_message "ERROR" "Unknown asset type: $type"
@@ -334,7 +343,6 @@ update_bashrc() {
 
 post_install() {
   log_message "INFO" "Post-installation tasks..."
-  mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze"
   install_python_packages
   # Example: Update .bashrc if necessary
   update_bashrc
