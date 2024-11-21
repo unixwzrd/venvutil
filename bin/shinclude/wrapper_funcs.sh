@@ -128,7 +128,7 @@ do_wrapper() {
         fi
     else
         # Execute the command without logging.
-        ${cmd} "${cmd_args}"
+        ${cmd} ${cmd_args}
     fi
 }
 

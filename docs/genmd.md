@@ -329,6 +329,28 @@ The `-n` or `--dry-run` option allows you to simulate the actions of the script 
 - **Custom Configurations:**
   - When using the `-o` option to specify an output file, a corresponding `.grc` configuration file will be created or used in the `GENMD_BASE/utils/etc` directory, matching the output filename.
 
+- **Example .grc Configuration File:**
+  
+This will preserve the existing settings and merged settings from the command line. It will be written to the utils/etc directory
+
+```bash
+export GENMD_DIR_EXCLUDES=".git utils _includes _site conf docs _data _posts js collaborates projects"
+export GENMD_FILE_EXCLUDES="*impression* professional.md *.png"
+export GENMD_FILE_INCLUDES=".sh genmd filettree"
+export GENMD_PATTERN_EXCLUDES=""
+export GENMD_BASE="."
+output_filename="./utils/output/yet-another-test.md"
+settings_modes="info md cfg env"
+dry_run=false
+debug_level=40
+verbose=false
+use_gitignore=true
+remove_blanks=false
+add_line_numbers=false
+compress=false
+compression_tool=gzip
+```
+
 ---
 
 ## Dependencies
