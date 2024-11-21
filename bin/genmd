@@ -863,7 +863,6 @@ process_files() {
     # Iterate over files and generate markdown
     which file
     for file in "${files_ref[@]}"; do
-        set -x
         # Determine file type based on extension
         local file_type
         local file_description
@@ -907,7 +906,6 @@ process_files() {
             continue
         fi
         log_message DEBUG2 "File description: $file_description Converts to: $file_type" 
-        set +x
         generate_markdown "$file" "$file_type"
     done
 }
