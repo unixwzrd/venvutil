@@ -19,7 +19,7 @@ set_args
 for app_code in ${MY_ARGS}
 do
     echo "${MY_NAME}: Purging code: ${app_code}"
-    for venv in $(lenv | sort | grep -E "^${app_code}" | cut -d " " -f 1)
+    for venv in $(lenv | sort | grep -E "^${app_code}" | cut -d " " -f 2)
     do
         echo "${MY_NAME}: Purging VEBV: ${venv}"
         denv "${venv}"
