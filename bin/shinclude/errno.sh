@@ -192,6 +192,28 @@ errno_exit() {
 #   - `message`: The message to print if the log level is greater than or equal to the current debug level.
 # - **Output**: 
 #   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
+declare -A message_class=(
+    ["SILENT"]=0
+    ["TRACE"]=10
+    ["DEBUG8"]=22
+    ["DEBUG7"]=22
+    ["DEBUG6"]=23
+    ["DEBUG5"]=24
+    ["DEBUG4"]=25
+    ["DEBUG3"]=26
+    ["DEBUG2"]=27
+    ["DEBUG1"]=28
+    ["DEBUG0"]=29
+    ["DEBUG"]=29
+    ["INFO"]=30
+    ["WARNING"]=40
+    ["WARN"]=40
+    ["WARNING"]=40
+    ["ERROR"]=50
+    ["CRITICAL"]=60
+    ["SILENT"]=99
+)
+
 log_message() {
     local message_level="$1"; shift
     local message_out="$*"

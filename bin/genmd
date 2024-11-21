@@ -189,7 +189,7 @@ PAGER="${PAGER:-less -R}"
 declare -a dir_excludes=(${GENMD_DIR_EXCLUDES:-".git" "tmp" "log" "__pycache__" ".vscode"})
 # File_excludes appears unused. Verify use (or export if used externally).
 # shellcheck disable=SC2206,SC2034
-declare -a file_excludes=(${GENMD_FILE_EXCLUDES:-"*.ico" "*.svg" "*.png" "*.pdf" "*.jpg" "*.htaccess" "*.webp" "*.jekyll" ".DS_Store" "*.JPG"})
+declare -a file_excludes=(${GENMD_FILE_EXCLUDES:-"*.ico" "*.svg" "*.png" "*.pdf" "*.jpg" "*.htaccess" "*.webp" "*.jekyll" ".DS_Store" "*.JPG" "*.pdf"})
 # shellcheck disable=SC2206
 declare -a pattern_excludes=(${GENMD_PATTERN_EXCLUDES:-""})
 # shellcheck disable=SC2206
@@ -227,6 +227,7 @@ config_variables=(
     "add_line_numbers"
     "compress"
     "compression_tool"
+    "count_tokens"
 )
 
 # Define a list of actions for each config variable based on whether to
@@ -249,6 +250,7 @@ declare -A config_variable_action=(
     ["add_line_numbers"]="set"    # Command line overrides all settings and preserved
     ["compress"]="set"            # Command line overrides all settings and preserved
     ["compression_tool"]="set"    # Command line overrides all settings and preserved
+    ["count_tokens"]="set"        # Command line overrides all settings and preserved
 )
 
 # Set default values for command line options.
@@ -260,6 +262,7 @@ remove_blanks=false
 add_line_numbers=false
 compress=false
 compression_tool="gzip"
+count_tokens=false
 
 # Define file defaults.
 default_filename="combined_source"        # Default output filename
