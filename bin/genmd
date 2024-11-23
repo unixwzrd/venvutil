@@ -13,21 +13,21 @@
 # 
 # Options:
 #     -d, --debug [level]       Set debug level (0-60)
-#                                   0:  SILENT
-#                                   10: TRACE
-#                                   21: DEBUG8
-#                                   22: DEBUG7
-#                                   23: DEBUG6
-#                                   24: DEBUG5
-#                                   25: DEBUG4
-#                                   26: DEBUG3
-#                                   27: DEBUG2
-#                                   28: DEBUG1
-#                                   29: DEBUG0/DEBUG
-#                                   30: INFO
-#                                   40: WARN/WARNING
-#                                   50: ERROR
-#                                   60: CRITICAL
+#                                   1:  DEBUG9
+#                                   2:  DEBUG8
+#                                   3:  DEBUG7
+#                                   4:  DEBUG6
+#                                   5:  DEBUG5
+#                                   6:  DEBUG4
+#                                   7:  DEBUG3
+#                                   8:  DEBUG2
+#                                   9:  DEBUG1
+#                                   10: DEBUG
+#                                   20: INFO
+#                                   30: WARNING
+#                                   40: ERROR
+#                                   50: CRITICAL
+#                                   99: SILENT
 #
 #     -h, --help                Show this help message
 # 
@@ -213,6 +213,7 @@ declare -A option_variable=(
 
 # Define a list of variables to save in the configuration file
 config_variables=(
+    "create_date"
     "dir_excludes"
     "file_excludes"
     "pattern_excludes"
@@ -251,6 +252,7 @@ declare -A config_variable_action=(
     ["compress"]="set"            # Command line overrides all settings and preserved
     ["compression_tool"]="set"    # Command line overrides all settings and preserved
     ["count_tokens"]="set"        # Command line overrides all settings and preserved
+    ["create_date"]="set"        # Command line overrides all settings and preserved
 )
 
 # Set default values for command line options.
@@ -263,6 +265,8 @@ add_line_numbers=false
 compress=false
 compression_tool="gzip"
 count_tokens=false
+# shellcheck disable=SC2034
+date_created=$(date '+%Y-%m-%d %H:%M:%S')
 
 # Define file defaults.
 default_filename="combined_source"        # Default output filename
@@ -331,7 +335,7 @@ check_directory() {
 sanitize_patterns() {
     local input="$1"
     # Retain only alphanumerics, underscores, dots, dashes, and spaces
-    cleanstring=${input//[^a-zA-Z0-9_.* ]/}
+    cleanstring=${input//[^a-zA-Z0-9-_.* ]/}
     # cleanstring=$(echo "$input" | sed 's/[^a-zA-Z0-9_.* ]//g')
     log_message "DEBUG" "Dirty pattern: $input"
     log_message "DEBUG" "Clean pattern: $cleanstring"
@@ -822,7 +826,17 @@ generate_markdown() {
 generate_filetree() {
     local output_filename="$1"
     shift
-    local exclude_list=("$@")
+    local include_list=()
+    local exclude_list=()
+
+    # Extract the first element as the include list
+    include_list=($1)
+    shift
+
+    # Treat the remaining elements as the exclude list
+    exclude_list=($@)
+
+    include_string=$(sanitize_patterns "${include_list[@]}")
     exclude_string=$(sanitize_patterns "${exclude_list[@]}")
 
     if ! command -v filetree >/dev/null 2>&1; then
@@ -833,17 +847,18 @@ generate_filetree() {
 
     if [[ "$dry_run" = true ]]; then
         log_message "INFO" "Dry run: Generating directory and file structure."
-        filetree -e tmp .git "${exclude_string}"
+        filetree -l $debug_level  -i "${include_string[@]}" -e tmp .git "${exclude_string[@]}"
         return
     fi
 
-    log_message "INFO" "Generating directory and file structure, excluding: ${exclude_string}"
+    log_message "INFO" "Generating directory and file structure, including: ${include_string}, excluding: ${exclude_string}"
 
     {
         printf "\n\n## Project filesystem directory structure\n\`\`\`text\n"
         # Double quote to prevent globbing and word splitting.shellcheckSC2086
         # shellcheck disable=SC2086
-        filetree -e tmp .git ${exclude_string}
+        echo "filetree -l $debug_level -i ${include_string[@]} -e tmp .git ${exclude_string[@]}"
+        filetree -l $debug_level -i "${include_string[@]}" -e tmp .git "${exclude_string[@]}"
         printf "\n\`\`\`\n"
     } >> "$output_filename"
 }
@@ -861,7 +876,6 @@ process_files() {
     local output_filename="$1"
     local -n files_ref="$2"
     # Iterate over files and generate markdown
-    which file
     for file in "${files_ref[@]}"; do
         # Determine file type based on extension
         local file_type
@@ -1063,7 +1077,7 @@ while getopts ":d:he:f:i:p:o:c:s:nvgCbltz:-:" opt; do
         d)
             if [[ "$OPTARG" -ge 1 && "$OPTARG" -le 99 ]]; then
                 debug_level="$OPTARG"
-                if [[ "$debug_level" -eq 10 ]]; then
+                if [[ "$debug_level" -eq 1 ]]; then
                     set -x
                 fi
             else
@@ -1120,7 +1134,7 @@ while getopts ":d:he:f:i:p:o:c:s:nvgCbltz:-:" opt; do
                 debug=*)
                     if [[ "$OPTARG" -ge 1 && "0$OPTARG" -le 99 ]]; then
                         debug_level="$OPTARG"
-                        if [[ "$debug_level" -eq 10 ]]; then
+                        if [[ "$debug_level" -eq 1 ]]; then
                             set -x
                         fi
                     else
@@ -1239,7 +1253,7 @@ log_message "DEBUG1" "Final directory exclusions: ${dir_excludes[*]}"
 # Generate file tree markdown
 # Argument mixes string and array. Use * or separate argument.
 # shellcheck disable=SC2145
-generate_filetree "$output_filename" "${dir_excludes[@]} ${pattern_excludes[@]} ${file_includes[@]}"
+generate_filetree "$output_filename" "${file_includes[@]}" "${dir_excludes[@]}" "${pattern_excludes[@]}" "${file_includes[@]}"
 
 # Build the file list
 build_file_list final_files dir_excludes \
@@ -1249,7 +1263,7 @@ build_file_list final_files dir_excludes \
 
 # Debug: Show final files to be processed
 log_message "DEBUG2" "Final files to process:"
-if [ "$debug_level" -le "${message_class["DEBUG2"]:-27}" ]; then
+if [ "$debug_level" -le "${message_class["DEBUG2"]:-7}" ]; then
     # shellcheck disable=SC2154
     for f in "${final_files[@]}"; do
         printf "  \"%s\"" "$f" >&2

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2024-11-20 - Codebase Enhancements and Logging Improvements
+
+- Refactored the `log_message` function in `errno.sh` to adjust logging levels in the `message_class` associative array for better log categorization.
+- Enhanced the `ptree` function in `util_funcs.sh` for better terminal output handling by dynamically calculating effective width.
+- Updated `filetree.py` to add logging functionality with a new command-line argument to set logging levels.
+- Modified `genmd` to introduce a `create_date` configuration variable and improve pattern sanitization and filetree generation logic.
+
 ## 2024-11-20 - Successful Testing and Installation
 - Completed testing and installation of the project.
 - Verified that `generate_manifest.sh` and the installer work as expected.

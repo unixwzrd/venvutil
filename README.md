@@ -79,7 +79,13 @@ Thanks for using Venvutil!
   - A script for breaking large files into smaller, manageable chunks for easier processing.
 - **genmd**: [Detailed Documentation](#)
   - A script that generates markdown documentation from project files, facilitating easy sharing and collaboration.
-
+- **filetree**: [Detailed Documentation](#)
+  - will produce file hierarchy structure based on file and directories to exclude and include..
+- **core functions provided by init_env.sh**: [Detailed Documentation](#)
+  - Provides a number of useful shell functions for managing aVirtual Environments along with some utility function, such as `ptree`
+  - **compile wrappers for C++, G++, and LD**: [Detailed Documentation](#)
+    - To help compile many things in the macOS Environment which incorrectly pass the linker the --version flag.
+  
 ## Additional Resources
 
 - Explore additional projects and tools that complement Venvutil.

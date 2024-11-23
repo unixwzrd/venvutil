@@ -333,15 +333,21 @@ to_upper() {
 #
 ptree() {
     local pid="$1"
-    local indent="${2:-""}"
+    local indent="${2:-" "}"
     
-    # Display the current process
-    ps -o pid,ppid,cmd --no-headers --pid "$pid"
-    
+    # Get terminal width
+    local term_width=$(tput cols)
+
+    # Calculate effective width for command output
+    local effective_width=$((term_width - ${#indent} - 14))
+
+    # Display the current process with indentation and truncate command based on effective width
+    ps -o pid,ppid,command -p "$pid" | awk -v indent="$indent" -v width="$effective_width" 'NR>1 {printf "%s%s %s %s\n", indent, $1, $2, substr($0, index($0,$3), width)}'
+
     # Get child processes
     local children
     children=$(pgrep -P "$pid")
-    
+
     # Recurse for each child process
     for child in $children; do
         ptree "$child" "  $indent"

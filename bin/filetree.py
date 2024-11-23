@@ -15,6 +15,7 @@ Options:
     -i, --include [patterns]    Include only files matching the given patterns.
                                 Multiple patterns can be separated by '|' or spaces.
     -h, --help                  Show this help message and exit.
+    -l, --log-level             Set the logging level (10=DEBUG, 20=INFO, 30=WARNING, 40=ERROR, 50=CRITICAL)
 
 Environment Variables:
     GENMD_DIR_EXCLUDES          Default list of directory patterns to exclude.
@@ -65,6 +66,7 @@ import argparse
 import fnmatch
 from rich.console import Console
 from rich.tree import Tree
+import logging
 
 def is_ignored(item_name, exclude_patterns):
     """
@@ -76,17 +78,21 @@ def is_ignored(item_name, exclude_patterns):
     """
     # Always ignore hidden files/directories
     if item_name.startswith('.'):
+        logging.debug(f"Ignoring hidden item: {item_name}")
         return True
     # Check against exclusion patterns
     for pattern in exclude_patterns:
         if pattern.endswith('/'):
             # Directory pattern
             if item_name + '/' == pattern:
+                logging.debug(f"Ignoring directory based on pattern: {item_name}")
                 return True
         else:
             # File pattern
             if item_name == pattern or fnmatch.fnmatch(item_name, pattern):
+                logging.debug(f"Ignoring file based on pattern: {item_name}")
                 return True
+    logging.debug(f"Including item: {item_name}")
     return False
 
 def is_included(item_name, include_patterns):
@@ -117,14 +123,13 @@ def add_items(root_dir, parent_tree, exclude_patterns, include_patterns):
     try:
         for item_name in sorted(os.listdir(root_dir)):
             item_path = os.path.join(root_dir, item_name)
-            if is_ignored(item_name, exclude_patterns):
-                continue
             if os.path.isdir(item_path):
-                # Add directory and recurse
-                dir_branch = parent_tree.add(f"{item_name}/")
-                add_items(item_path, dir_branch, exclude_patterns, include_patterns)
+                if is_included(item_name, include_patterns) and not is_ignored(item_name, exclude_patterns):
+                    # Add directory and recurse
+                    dir_branch = parent_tree.add(f"{item_name}/")
+                    add_items(item_path, dir_branch, exclude_patterns, include_patterns)
             elif os.path.isfile(item_path):
-                if is_included(item_name, include_patterns):
+                if is_included(item_name, include_patterns) and not is_ignored(item_name, exclude_patterns):
                     # Add file
                     parent_tree.add(item_name)
     except PermissionError:
@@ -171,7 +176,15 @@ def main():
         default=[],
         help="Include only files matching the given patterns. Use '|' or spaces as separators."
     )
+    parser.add_argument('-l', '--log-level', type=int, default=logging.INFO,
+                        help='Set the logging level (10=DEBUG, 20=INFO, 30=WARNING, 40=ERROR, 50=CRITICAL)')
+
+    # Parse arguments
     args = parser.parse_args()
+
+    # Calculate the logging level by rounding down to the nearest multiple of 10
+    logging_level = (args.log_level // 10) * 10
+    logging.basicConfig(level=logging_level, format='%(message)s')
 
     # Load exclude patterns from environment variables
     env_dir_excludes = load_patterns_from_env('GENMD_DIR_EXCLUDES')

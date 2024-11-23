@@ -1,6 +1,7 @@
 # `genmd` - Combined Source Code Markdown Generator
 
 ## Table of Contents
+
 - [`genmd` - Combined Source Code Markdown Generator](#genmd---combined-source-code-markdown-generator)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
@@ -12,8 +13,10 @@
   - [Examples](#examples)
   - [Environment Variables](#environment-variables)
   - [Configuration Files](#configuration-files)
+    - [Configuration Variables](#configuration-variables)
     - [Using .gitignore with genmd](#using-gitignore-with-genmd)
   - [Settings Modes](#settings-modes)
+  - [Logging Improvements](#logging-improvements)
   - [Dry Run](#dry-run)
   - [Verbose and Debug Levels](#verbose-and-debug-levels)
   - [Files and Directories](#files-and-directories)
@@ -36,18 +39,25 @@ By saving the configuration and settings of any particular run of the command, y
 ## Installation
 
 1. **Clone the Repository:**
+
    ```bash
    git clone https://github.com/unixwzrd/venvutil.git
    ```
+
 2. **Navigate to the Script Directory:**
+
    ```bash
    cd genmd
    ```
+
 3. **Make the Script Executable:**
+
    ```bash
    chmod +x genmd
    ```
+
 4. **Move the Script to a Directory in Your PATH (Optional):**
+
    ```bash
    sudo mv genmd /usr/local/bin/
    ```
@@ -73,21 +83,21 @@ genmd [options]
 - `-d [level]`: **Set Debug Level**
   - **Description:** Sets the debug level for the script's output.
   - **Levels:**
-  - `0`: SILENT
-  - `10`: TRACE
-  - `21`: DEBUG8
-  - `22`: DEBUG7
-  - `23`: DEBUG6
-  - `24`: DEBUG5
-  - `25`: DEBUG4
-  - `26`: DEBUG3
-  - `27`: DEBUG2
-  - `28`: DEBUG1
-  - `29`: DEBUG0/DEBUG
-  - `30`: INFO
-  - `40`: WARN/WARNING
-  - `50`: ERROR
-  - `60`: CRITICAL
+  - `1`: DEBUG9
+  - `2`: DEBUG8
+  - `3`: DEBUG7
+  - `4`: DEBUG6
+  - `5`: DEBUG5
+  - `6`: DEBUG4
+  - `7`: DEBUG3
+  - `8`: DEBUG2
+  - `9`: DEBUG1
+  - `10`: DEBUG
+  - `20`: INFO
+  - `30`: WARNING
+  - `40`: ERROR
+  - `50`: CRITICAL
+  - `99`: SILENT
 
 - `-h`: **Show Help**
   - **Description:** Displays the help message with usage instructions.
@@ -141,6 +151,7 @@ genmd [options]
   - **Note:** The compressed file will be named as `output.md.<extension>` where extension is the default extension for the compression tool.
 
 ### Long Options
+
 All short options have corresponding long options with double dashes (`--`):
 
 - `--debug [level]`
@@ -164,18 +175,25 @@ All short options have corresponding long options with double dashes (`--`):
 ## Examples
 
 1. **Basic Usage with Exclusions and Inclusions:**
+
    ```bash
    genmd -e "node_modules|dist" -f "*.log *.tmp" -i "*css *.js" -s "info,md" -o project_overview.md
    ```
+
 2. **Using Long Options and Dry Run:**
+
    ```bash
    genmd --exclude "node_modules|dist" --file "*.log *.tmp" --include "info" --dry-run
    ```
+
 3. **Setting Multiple Modes and Debug Level:**
+
    ```bash
    genmd -s info,md -d 25
    ```
+
 4. **Generate Markdown with Default Settings (Using .grc and .gitignore):**
+
    ```bash
    genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
          -f "*impression* professional.md *.png" \
@@ -183,7 +201,9 @@ All short options have corresponding long options with double dashes (`--`):
          -s all \
          -o my_test_file
    ```
+
 5. **Generate Markdown Without Sourcing .grc Configuration (Using Only .gitignore and Command-Line Options):**
+
    ```bash
    genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
          -f "*impression* professional.md *.png" \
@@ -194,6 +214,7 @@ All short options have corresponding long options with double dashes (`--`):
    ```
 
 6. **Generate Markdown Without Using .gitignore (Using Only .grc Configuration and Command-Line Options):**
+
    ```bash
    genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
          -f "*impression* professional.md *.png" \
@@ -204,6 +225,7 @@ All short options have corresponding long options with double dashes (`--`):
    ```
 
 7. **Generate Markdown Using Only Command-Line Options (Ignoring Both .grc and .gitignore):**
+
    ```bash
    genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
          -f "*impression* professional.md *.png" \
@@ -217,6 +239,7 @@ All short options have corresponding long options with double dashes (`--`):
 ---
 
 ## Environment Variables
+
 `genmd` utilizes several environment variables to set default patterns and directories:
 
 - `GENMD_BASE`: **Base Directory**
@@ -246,18 +269,25 @@ All short options have corresponding long options with double dashes (`--`):
 ---
 
 ## Configuration Files
+
 `genmd` supports loading configurations from `.grc` files, allowing you to save and reuse your settings:
 
 - **Loading a Configuration File:**
+
   ```bash
   genmd -c myconfig
   ```
+
   - If `myconfig` does not end with `.grc`, `.grc` will be appended automatically.
   - The configuration file should reside in the `GENMD_BASE/utils/etc` directory.
 
 - **Saving Configuration:**
   - Use the `cfg` mode with the `-s` option to save current settings to a configuration file, output will be written to `STDOUT`.
-  - When using the `-o` option to specify an output file, a corresponding `.grc` file will be created in the `GENMD_BASE/utils/etc` directory, matching the output filename.
+  - When using the `-o` option to specify an output file, a corresponding `.grc` configuration file will be created in the `GENMD_BASE/utils/etc` directory, matching the output filename.
+
+### Configuration Variables
+
+- **create_date**: Stores the creation date of the configuration, formatted as `YYYY-MM-DD HH:MM:SS`. This variable is automatically generated and saved in the configuration file.
 
 ### Using .gitignore with genmd
 
@@ -266,6 +296,7 @@ With the integration of `.gitignore` patterns by default, `genmd` simplifies exc
 To integrate your project's `.gitignore` patterns into the markdown generation process, use the `--no-gitignore` flag. This allows `genmd` to automatically exclude files and directories as specified in `.gitignore`, reducing the need to duplicate exclusion patterns in your `.grc` files.
 
 - **Example Command:**
+
    ```bash
   genmd -d 4 -e "utils _includes _data _posts js collaborates projects" -f "*impression* professional.md *.png" -i "css liquid" -s all -o my_test_file --no-gitignore
   ```
@@ -282,16 +313,25 @@ The `-s` or `--settings` option allows you to manage how settings are displayed 
   - `all`: Performs `info`, `md`, and `env` actions simultaneously.
 
 - **Example:**
+
   ```bash
   genmd -s all
   ```
 
 ---
 
+## Logging Improvements
+
+- Enhanced logging capabilities to allow adjustable verbosity levels, providing more control over the output detail.
+
+---
+
 ## Dry Run
+
 The `-n` or `--dry-run` option allows you to simulate the actions of the script without making any changes. It will display the files that would be processed and the actions that would be taken.
 
 - **Example:**
+
   ```bash
   genmd --dry-run -e "node_modules|dist" --file "*.log *.tmp" --include "info"
   ```
@@ -299,9 +339,11 @@ The `-n` or `--dry-run` option allows you to simulate the actions of the script 
 ---
 
 ## Verbose and Debug Levels
+
 - **Verbose Output (`-v` or `--verbose`):**
   - **Description:** Enables detailed output messages to help you understand what the script is doing.
   - **Usage:**
+
     ```bash
     genmd -v
     ```
@@ -309,8 +351,25 @@ The `-n` or `--dry-run` option allows you to simulate the actions of the script 
 - **Debug Levels (`-d` or `--debug`):**
   - **Description:** Sets the level of debugging information.
   - **Default:** `30`
-  - **Levels:** `0` (SILENT) to `60` (CRITICAL)
-  - **Usage:**
+  - **Levels:**
+  - `1`: DEBUG9
+  - `2`: DEBUG8
+  - `3`: DEBUG7
+  - `4`: DEBUG6
+  - `5`: DEBUG5
+  - `6`: DEBUG4
+  - `7`: DEBUG3
+  - `8`: DEBUG2
+  - `9`: DEBUG1
+  - `10`: DEBUG
+  - `20`: INFO
+  - `30`: WARNING
+  - `40`: ERROR
+  - `50`: CRITICAL
+  - `99`: SILENT
+
+- **Usage:**
+
     ```bash
     genmd -d 29
     ```
@@ -318,7 +377,9 @@ The `-n` or `--dry-run` option allows you to simulate the actions of the script 
 ---
 
 ## Files and Directories
+
 `genmd` organizes its files and directories within the `GENMD_BASE` directory. The default structure includes:
+
 - **Configuration Files:**
   - `utils/etc/genmd.grc`: Default configuration file.
   - `utils/etc`: Default directory for configuration files.
@@ -349,6 +410,7 @@ remove_blanks=false
 add_line_numbers=false
 compress=false
 compression_tool=gzip
+create_date="2023-02-20 14:30:00"
 ```
 
 ---
@@ -364,7 +426,7 @@ compression_tool=gzip
   - **Location:** Included in this repository.
   - **Repository:** [https://github.com/unixwzrd/venvutil](https://github.com/unixwzrd/venvutil)
   - Requires the Rich Python library to be installed.
- 
+
 - **Included Scripts:**
   - **errno.sh** and **util_funcs.sh** are required scripts included in this repository.
   

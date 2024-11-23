@@ -102,7 +102,7 @@ process_and_generate_manifest() {
 
 # Specify the files and directories to include
 include_files=("README.md" "LICENSE" "setup.sh" "setup.cf" "manifest.lst")
-include_dirs=("bin" "docs")
+include_dirs=("bin" "docs" "conf")
 
 # Initialize arrays
 hidden_include_dirs=()

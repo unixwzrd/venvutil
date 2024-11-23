@@ -191,24 +191,22 @@ errno_exit() {
 # - **Output**: 
 #   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
 declare -A message_class=(
-    ["SILENT"]=0
-    ["TRACE"]=10
-    ["DEBUG8"]=22
-    ["DEBUG7"]=22
-    ["DEBUG6"]=23
-    ["DEBUG5"]=24
-    ["DEBUG4"]=25
-    ["DEBUG3"]=26
-    ["DEBUG2"]=27
-    ["DEBUG1"]=28
-    ["DEBUG0"]=29
-    ["DEBUG"]=29
-    ["INFO"]=30
-    ["WARNING"]=40
-    ["WARN"]=40
-    ["WARNING"]=40
-    ["ERROR"]=50
-    ["CRITICAL"]=60
+    ["DEBUG9"]=1
+    ["DEBUG8"]=2
+    ["DEBUG7"]=2
+    ["DEBUG6"]=3
+    ["DEBUG5"]=4
+    ["DEBUG4"]=5
+    ["DEBUG3"]=6
+    ["DEBUG2"]=7
+    ["DEBUG1"]=8
+    ["DEBUG0"]=9
+    ["DEBUG"]=10
+    ["INFO"]=20
+    ["WARNING"]=30
+    ["WARN"]=30
+    ["ERROR"]=40
+    ["CRITICAL"]=50
     ["SILENT"]=99
 )
 
@@ -217,24 +215,22 @@ log_message() {
     local message_out="$*"
 
     declare -A message_class=(
-        ["SILENT"]=0
-        ["TRACE"]=10
-        ["DEBUG8"]=22
-        ["DEBUG7"]=22
-        ["DEBUG6"]=23
-        ["DEBUG5"]=24
-        ["DEBUG4"]=25
-        ["DEBUG3"]=26
-        ["DEBUG2"]=27
-        ["DEBUG1"]=28
-        ["DEBUG0"]=29
-        ["DEBUG"]=29
-        ["INFO"]=30
-        ["WARNING"]=40
-        ["WARN"]=40
-        ["WARNING"]=40
-        ["ERROR"]=50
-        ["CRITICAL"]=60
+        ["DEBUG9"]=1
+        ["DEBUG8"]=2
+        ["DEBUG7"]=3
+        ["DEBUG6"]=4
+        ["DEBUG5"]=5
+        ["DEBUG4"]=6
+        ["DEBUG3"]=7
+        ["DEBUG2"]=8
+        ["DEBUG1"]=9
+        ["DEBUG0"]=10
+        ["DEBUG"]=10
+        ["INFO"]=20
+        ["WARNING"]=30
+        ["WARN"]=30
+        ["ERROR"]=40
+        ["CRITICAL"]=50
         ["SILENT"]=99
     )
     # Define an associative array for message classes with standard logging levels
