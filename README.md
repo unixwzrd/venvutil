@@ -56,14 +56,12 @@ Venvutil is a versatile toolset designed to simplify the management of Python vi
 ### Running the installer
 
 ```bash
-git clone https://github.com/unixwzrd/venvutil.git
+git clone https://github.com/unixwzrd/venvutil.git venvutil
 cd venvutil
-./setup.sh install
+bash ./setup.sh install
 ```
 
 By default this installs in $HOME/local/venvutil. You can override this with the -d flag. To any location you wish. The installer will download and update Conda if necessary, along with the python packages listed above. NLTK needs data and that will be downloaded into your home directory into the nltk_data directory.
-
-I'm just finishing up the installer, making it a general purpose installer and have built a supporting generate_manifest.sh script which will generate a manifest for the installer. There is still much to test and document. If you have any issues, please let me know by filing a PR.
 
 More updates will come in the next few days.
 
