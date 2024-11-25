@@ -1,4 +1,0 @@
-# errno.sh
-
-## Description
-

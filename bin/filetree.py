@@ -16,6 +16,7 @@ Options:
                                 Multiple patterns can be separated by '|' or spaces.
     -h, --help                  Show this help message and exit.
     -l, --log-level             Set the logging level (10=DEBUG, 20=INFO, 30=WARNING, 40=ERROR, 50=CRITICAL)
+    -a, --all                   Display the entire file tree without any filters
 
 Environment Variables:
     GENMD_DIR_EXCLUDES          Default list of directory patterns to exclude.
@@ -62,56 +63,67 @@ License:
 """
 
 import os
+import sys
 import argparse
-import fnmatch
+import re 
+from pathlib import Path
+import logging
 from rich.console import Console
 from rich.tree import Tree
-import logging
 
-def is_ignored(item_name, exclude_patterns):
+# Get the program name dynamically
+program_name = os.path.basename(sys.argv[0])
+
+# Configure logging to include the program name
+def configure_logging():
+    logging.basicConfig(
+        format=f'{program_name} %(levelname)s(%(levelno)s): %(message)s',
+        level=logging.INFO
+    )
+
+# Call the logging configuration function
+configure_logging()
+
+def is_ignored(item_relative_path, exclude_patterns, show_all=False):
     """
     Check if the item should be ignored based on the exclusion patterns.
 
-    :param item_name: The name of the item to check.
+    :param item_relative_path: The relative path of the item to check.
     :param exclude_patterns: List of patterns to exclude.
+    :param show_all: If True, do not ignore any items.
     :return: True if the item should be ignored, False otherwise.
     """
-    # Always ignore hidden files/directories
-    if item_name.startswith('.'):
-        logging.debug(f"Ignoring hidden item: {item_name}")
+    if show_all:
+        return False
+    # Explicitly ignore .git directory and its contents
+    if item_relative_path == '.git' or item_relative_path.startswith('.git/'):
+        logging.debug("Ignoring .git directory: %s", item_relative_path)
         return True
-    # Check against exclusion patterns
+    path_obj = Path(item_relative_path)
     for pattern in exclude_patterns:
-        if pattern.endswith('/'):
-            # Directory pattern
-            if item_name + '/' == pattern:
-                logging.debug(f"Ignoring directory based on pattern: {item_name}")
-                return True
-        else:
-            # File pattern
-            if item_name == pattern or fnmatch.fnmatch(item_name, pattern):
-                logging.debug(f"Ignoring file based on pattern: {item_name}")
-                return True
-    logging.debug(f"Including item: {item_name}")
-    return False
-
-def is_included(item_name, include_patterns):
-    """
-    Check if the item should be included based on the inclusion patterns.
-
-    :param item_name: The name of the item to check.
-    :param include_patterns: List of patterns to include.
-    :return: True if the item should be included, False otherwise.
-    """
-    # If no include patterns are specified, include all
-    if not include_patterns:
-        return True
-    for pattern in include_patterns:
-        if fnmatch.fnmatch(item_name, pattern):
+        if path_obj.match(pattern):
+            logging.debug("Ignoring item based on pattern '%s': %s", pattern, item_relative_path)
             return True
     return False
 
-def add_items(root_dir, parent_tree, exclude_patterns, include_patterns):
+def is_included(item_relative_path, include_patterns, show_all=False):
+    """
+    Check if the item should be included based on the inclusion patterns.
+
+    :param item_relative_path: The relative path of the item to check.
+    :param include_patterns: List of patterns to include.
+    :param show_all: If True, include all items.
+    :return: True if the item should be included, False otherwise.
+    """
+    if show_all or not include_patterns:
+        return True
+    path_obj = Path(item_relative_path)
+    for pattern in include_patterns:
+        if path_obj.match(pattern):
+            return True
+    return False
+
+def add_items(root_dir, parent_tree, exclude_patterns, include_patterns, show_all=False, relative_path=""):
     """
     Recursively add items in the file system to the tree structure.
 
@@ -119,32 +131,51 @@ def add_items(root_dir, parent_tree, exclude_patterns, include_patterns):
     :param parent_tree: The parent tree node to add items to.
     :param exclude_patterns: List of patterns to exclude.
     :param include_patterns: List of patterns to include.
+    :param show_all: If True, include all items without filtering.
+    :param relative_path: The relative path from the root directory.
+    :return: True if any items were added to the tree, False otherwise.
     """
+    has_included_items = False  # Flag to check if current directory has any included items
     try:
         for item_name in sorted(os.listdir(root_dir)):
             item_path = os.path.join(root_dir, item_name)
+            item_relative_path = os.path.join(relative_path, item_name) if relative_path else item_name
+            if is_ignored(item_relative_path, exclude_patterns, show_all):
+                continue
             if os.path.isdir(item_path):
-                if is_included(item_name, include_patterns) and not is_ignored(item_name, exclude_patterns):
-                    # Add directory and recurse
-                    dir_branch = parent_tree.add(f"{item_name}/")
-                    add_items(item_path, dir_branch, exclude_patterns, include_patterns)
+                # Recursively add subdirectories
+                dir_branch = Tree(f"{item_name}/")
+                dir_has_items = add_items(
+                    item_path,
+                    dir_branch,
+                    exclude_patterns,
+                    include_patterns,
+                    show_all,
+                    item_relative_path
+                )
+                if dir_has_items:
+                    parent_tree.add(dir_branch)
+                    has_included_items = True
             elif os.path.isfile(item_path):
-                if is_included(item_name, include_patterns) and not is_ignored(item_name, exclude_patterns):
-                    # Add file
+                if is_included(item_relative_path, include_patterns, show_all):
                     parent_tree.add(item_name)
+                    has_included_items = True
     except PermissionError:
         parent_tree.add("[red]Permission Denied[/red]")
+        has_included_items = True
+    return has_included_items
 
-def generate_tree(exclude_patterns, include_patterns):
+def generate_tree(exclude_patterns, include_patterns, show_all=False):
     """
     Generate a tree structure of the current directory excluding and including specific directories/files.
 
     :param exclude_patterns: List of patterns to exclude.
     :param include_patterns: List of patterns to include.
+    :param show_all: If True, display the entire file tree without any filters.
     """
     console = Console()
     tree = Tree("Root Directory")
-    add_items(".", tree, exclude_patterns, include_patterns)
+    add_items(".", tree, exclude_patterns, include_patterns, show_all)
     console.print(tree)
 
 def load_patterns_from_env(var_name):
@@ -157,6 +188,19 @@ def load_patterns_from_env(var_name):
     patterns = os.getenv(var_name, "")
     return patterns.split() if patterns else []
 
+def load_exclusions_from_file(config_file):
+    """
+    Load exclusion patterns from a configuration file.
+    :param config_file: Path to the configuration file.
+    :return: A list of exclusion patterns.
+    """
+    try:
+        with open(config_file, 'r', encoding='utf-8' ) as file:
+            return [line.strip() for line in file if line.strip() and not line.startswith('#')]
+    except FileNotFoundError:
+        logging.warning("Configuration file not found: %s", config_file)
+        return []
+
 def main():
     """
     Main function to parse arguments and generate the directory tree.
@@ -166,41 +210,84 @@ def main():
     )
     parser.add_argument(
         '-e', '--exclude',
-        nargs='+',
+        nargs='*',
         default=[],
         help="Exclude directories/files matching the given patterns. Use '|' or spaces as separators."
     )
     parser.add_argument(
         '-i', '--include',
-        nargs='+',
+        nargs='*',
         default=[],
         help="Include only files matching the given patterns. Use '|' or spaces as separators."
     )
     parser.add_argument('-l', '--log-level', type=int, default=logging.INFO,
                         help='Set the logging level (10=DEBUG, 20=INFO, 30=WARNING, 40=ERROR, 50=CRITICAL)')
+    parser.add_argument('-a', '--all', action='store_true', help='Display the entire file tree without any filters')
 
     # Parse arguments
     args = parser.parse_args()
 
-    # Calculate the logging level by rounding down to the nearest multiple of 10
+    # Calculate the logging level
     logging_level = (args.log_level // 10) * 10
-    logging.basicConfig(level=logging_level, format='%(message)s')
+    logging.basicConfig(level=logging_level, format=f'{program_name} %(message)s')
+
+    # Process exclude patterns
+    exclude_patterns = []
+    for pattern in args.exclude:
+        exclude_patterns.extend(re.split(r'[| ]+', pattern.strip()))
 
     # Load exclude patterns from environment variables
     env_dir_excludes = load_patterns_from_env('GENMD_DIR_EXCLUDES')
     env_file_excludes = load_patterns_from_env('GENMD_FILE_EXCLUDES')
-    exclude_patterns = env_dir_excludes + env_file_excludes + args.exclude
+    exclude_patterns += env_dir_excludes + env_file_excludes
+
+    # Built-in default exclusion patterns
+    DEFAULT_EXCLUDES = ['.git', '.git/', '.jekyll-cache', '.DS_Store']
+
+    # Load exclusion patterns from a configuration file
+    config_excludes = load_exclusions_from_file('.exclusions.cfg')
+    exclude_patterns.extend(DEFAULT_EXCLUDES + config_excludes)
+
+    # Ensure no duplicates in the exclusion patterns
+    exclude_patterns = list(set(exclude_patterns))
+    logging.debug("Exclusion patterns before adjustment: %s", exclude_patterns)
+
+    # Adjust patterns to include both the pattern and '**/' + pattern
+    adjusted_exclude_patterns = []
+    for pattern in exclude_patterns:
+        adjusted_exclude_patterns.append(pattern)
+        if not pattern.startswith('**/'):
+            adjusted_exclude_patterns.append('**/%s' % pattern)
+    exclude_patterns = list(set(adjusted_exclude_patterns))
+    logging.debug("Adjusted exclusion patterns: %s", exclude_patterns)
+
+    # Process include patterns
+    include_patterns = []
+    for pattern in args.include:
+        split_patterns = re.split(r'[| ]+', pattern.strip())
+        for pat in split_patterns:
+            if pat.startswith('.'):
+                # Assume it's a file extension
+                include_patterns.append('*%s' % pat)
+                include_patterns.append('**/*%s' % pat)
+            else:
+                include_patterns.append(pat)
+                if not pat.startswith('**/'):
+                    include_patterns.append('**/%s' % pat)
+    include_patterns = list(set(include_patterns))
+    logging.debug("Adjusted include patterns: %s", include_patterns)
 
     # Load include patterns from environment variables
     env_file_includes = load_patterns_from_env('GENMD_FILE_INCLUDES')
-    include_patterns = env_file_includes + args.include
+    include_patterns += env_file_includes
 
-    # Remove duplicates while preserving order
-    seen = set()
-    exclude_patterns = [x for x in exclude_patterns if not (x in seen or seen.add(x))]
-    include_patterns = [x for x in include_patterns if not (x in seen or seen.add(x))]
-
-    generate_tree(exclude_patterns, include_patterns)
+    if args.all:
+        logging.debug("Displaying the entire file tree without any filters")
+        exclude_patterns = []
+        include_patterns = []
+        generate_tree(exclude_patterns, include_patterns, show_all=True)
+    else:
+        generate_tree(exclude_patterns, include_patterns)
 
 if __name__ == "__main__":
     main()

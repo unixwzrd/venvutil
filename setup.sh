@@ -256,11 +256,22 @@ install_conda() {
   conda init "$(basename "${SHELL}")"
   echo "INFO ($MY_NAME): conda installed successfully, checking for updates..."
   conda update -n base -c defaults conda -y
+  # Because Red Hat Enterprise Linux defines, sets it, but doesn't export it BASHSOURCED...
+  export BASHSOURCED=Y
+  # So we con't recurse.
+  export PRE_INSTALL_COMPLETE=Y
+  # Wheeeeee!!!!!!
+  exec $SHELL -l -c "${THIS_SCRIPT} ${ACTION}; exec $SHELL -l"
   return 0
 }
 
 # Pre-installation tasks
 pre_install() {
+  # Check if pre-installation tasks have already been completed
+  # Stop recursion before it starts, this is re-entrant.
+  if [ "${PRE_INSTALL_COMPLETE:-""}" == "Y" ]; then
+    return 0
+  fi
   log_message "INFO" "Pre-installation tasks..."
   # Custom pre-install tasks can be added here
   check_deps
@@ -302,6 +313,11 @@ install_assets() {
         cp "$source_path" "$dest_path"
         chown "$owner":"$group" "$dest_path"
         chmod "$permissions" "$dest_path"
+        ;;
+      h) # Create hard link
+        cd "$destination"
+        ln "$source" "$name"
+        cd -
         ;;
       l) # Create symbolic link
         cd "$destination"
@@ -386,7 +402,7 @@ remove_assets() {
           rmdir "$dest_path"
         fi
         ;;
-      f|l) # Remove file or symbolic link
+      f|l|h) # Remove file or symbolic link
         rm -f "$dest_path"
         ;;
       *)

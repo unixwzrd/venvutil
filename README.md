@@ -9,6 +9,7 @@
   - [Installation Instructions](#installation-instructions)
     - [Prerequisites](#prerequisites)
     - [Running the installer](#running-the-installer)
+  - [Setup Script Enhancements](#setup-script-enhancements)
   - [Usage](#usage)
     - [Tools Overview](#tools-overview)
   - [Additional Resources](#additional-resources)
@@ -20,6 +21,8 @@
   - [NLTK Installation Guide](#nltk-installation-guide)
     - [Library Installation](#library-installation)
     - [Data Installation](#data-installation)
+  - [Recent Changes](#recent-changes)
+  - [Project Status](#project-status)
   - [Support My Work](#support-my-work)
   - [License](#license-1)
 
@@ -30,6 +33,8 @@ Venvutil is a versatile toolset designed to simplify the management of Python vi
 ### Key Features
 
 - **Enhanced VENV Management**: Provides tools to easily create, manage, and replicate Python virtual environments.
+- **Enhanced Logging**: Includes dynamic program names and lazy formatting for efficient logging.
+- **Robust Configuration Management**: Utilizes global variable declarations and improved handling of configuration variables.
 - **Conda and Pip Wrappers**: Includes wrapper scripts for Conda and Pip that log actions and freeze the state of environments for reproducibility.
 - **Cross-Platform Compatibility**: Designed to work seamlessly on macOS and Linux systems, with specific optimizations for Apple Silicon.
 - **Build and Installation Scripts**: Offers scripts to automate the setup of complex environments, including rebuilding NumPy with Apple Silicon optimizations.
@@ -66,6 +71,13 @@ By default this installs in $HOME/local/venvutil. You can override this with the
 More updates will come in the next few days.
 
 Thanks for using Venvutil!
+
+## Setup Script Enhancements
+
+- **Hard Link Creation**: Updated `setup.sh` to include functionality for creating hard links. This change addresses issues with C++/G++/ld symlink handling, ensuring that the correct executable is called.
+- **Manifest Update**: The installer manifest now supports a hard link type (`h`) in addition to symbolic links (`l`). This allows for the specification of hard links directly in the manifest file.
+- **Compatibility**: The hard link creation functionality has been tested on macOS and RedHat Linux, ensuring cross-platform compatibility.
+- **Usage**: Use the `-h` flag in `setup.sh` to create hard links. This feature is currently untested, so proceed with caution.
 
 ## Usage
 
@@ -132,7 +144,14 @@ conda install -n myenv nltk
 - Consider installing the data in `/usr/local/share` or the user's home directory for efficiency.
 - For detailed instructions, visit the [NLTK website](https://www.nltk.org/data.html).
 
-This README provides a comprehensive overview of the Venvutil project, its features, and usage instructions. For more detailed information, refer to the documentation files included in the project.
+## Recent Changes
+
+- **Logging Enhancements**: Improved logging with dynamic program names and lazy formatting.
+- **Configuration Management**: Introduced global variable declarations and robust configuration handling in `genmd`.
+
+## Project Status
+
+The project is actively maintained and continuously evolving with new features and improvements.
 
 ## Support My Work
 

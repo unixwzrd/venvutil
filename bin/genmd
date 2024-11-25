@@ -186,24 +186,20 @@ PAGER="${PAGER:-less -R}"
 # Declare arrays
 # Quote to prevent word splitting/globbing, or split robustly with mapfile or read -a. SC2206
 # shellcheck disable=SC2206
-declare -a dir_excludes=(${GENMD_DIR_EXCLUDES:-".git" "tmp" "log" "__pycache__" ".vscode"})
+declare -g -a dir_excludes=(${GENMD_DIR_EXCLUDES:-(".git" "tmp" "log" "__pycache__" ".vscode")})
 # File_excludes appears unused. Verify use (or export if used externally).
 # shellcheck disable=SC2206,SC2034
-declare -a file_excludes=(${GENMD_FILE_EXCLUDES:-"*.ico" "*.svg" "*.png" "*.pdf" "*.jpg" "*.htaccess" "*.webp" "*.jekyll" ".DS_Store" "*.JPG" "*.pdf"})
+declare -g -a file_excludes=(${GENMD_FILE_EXCLUDES:-("*.ico" "*.svg" "*.png" "*.pdf" "*.jpg" "*.htaccess" "*.webp" "*.jekyll" ".DS_Store" "*.JPG" "*.pdf")})
 # shellcheck disable=SC2206
-declare -a pattern_excludes=(${GENMD_PATTERN_EXCLUDES:-""})
-# shellcheck disable=SC2206
-declare -a file_includes=(${GENMD_FILE_INCLUDES:-""})
-declare -a gitignore_exclude=()
-declare -a gitignore_includes=()
-declare -a GENMD_DIR_EXCLUDES=()
-declare -a GENMD_FILE_EXCLUDES=()
-declare -a GENMD_PATTERN_EXCLUDES=()
-declare -a GENMD_FILE_INCLUDES=()
+declare -g -a pattern_excludes=(${GENMD_PATTERN_EXCLUDES:-""})
+# shellcheck disable=SC2206,SC2034
+declare -g -a file_includes=(${GENMD_FILE_INCLUDES:-""})
+declare -g -a gitignore_exclude=()
+declare -g -a gitignore_includes=()
 
 
 # Mapping of short options to their respective target arrays
-declare -A option_variable=(
+declare -g -A option_variable=(
     ["e"]="dir_excludes"
     ["f"]="file_excludes"
     ["i"]="file_includes"
@@ -212,7 +208,7 @@ declare -A option_variable=(
 )
 
 # Define a list of variables to save in the configuration file
-config_variables=(
+declare -g -a config_variables=(
     "create_date"
     "dir_excludes"
     "file_excludes"
@@ -236,7 +232,7 @@ config_variables=(
 # the precedent will be from teh command line for some and from the
 # config file for others, some may come from the environment variables
 # and some may come from the config file or the command line.
-declare -A config_variable_action=(
+declare -g -A config_variable_action=(
     ["dir_excludes"]="merge"      # Merge all sources.
     ["file_excludes"]="merge"     # Merge all sources.
     ["pattern_excludes"]="merge"  # Merge all sources.
@@ -252,30 +248,29 @@ declare -A config_variable_action=(
     ["compress"]="set"            # Command line overrides all settings and preserved
     ["compression_tool"]="set"    # Command line overrides all settings and preserved
     ["count_tokens"]="set"        # Command line overrides all settings and preserved
-    ["create_date"]="set"        # Command line overrides all settings and preserved
+    ["create_date"]="set"         # Command line overrides all settings and preserved
 )
 
 # Set default values for command line options.
-dry_run=false
-debug_level=20
-settings_modes=("md")
-use_gitignore=true  
-remove_blanks=false
-add_line_numbers=false
-compress=false
-compression_tool="gzip"
-count_tokens=false
-# shellcheck disable=SC2034
-date_created=$(date '+%Y-%m-%d %H:%M:%S')
+declare -g dry_run=false
+declare -g debug_level=20
+declare -g settings_modes=("md")
+declare -g use_gitignore=true  
+declare -g remove_blanks=false
+declare -g add_line_numbers=false
+declare -g compress=false
+declare -g compression_tool="gzip"
+declare -g count_tokens=false
+#  shellcheck disable=SC2034
+declare -g create_date=$(date '+%Y-%m-%d %H:%M:%S')
 
 # Define file defaults.
-default_filename="combined_source"        # Default output filename
-output_dir="$GENMD_BASE/utils/output"
-config_dir="$GENMD_BASE/utils/etc"
-specified_config=""
-specified_output=""
-skip_config=false                        # Set to true to skip loading config file
-
+declare -g default_filename="combined_source"        # Default output filename
+declare -g output_dir="$GENMD_BASE/utils/output"
+declare -g config_dir="$GENMD_BASE/utils/etc"
+declare -g specified_config=""
+declare -g specified_output=""
+declare -g skip_config=false                        # Set to true to skip loading config file
 
 # Function to handle pattern-based array options from command line.
 # Set the values of an array variable from a command line option.
@@ -297,7 +292,8 @@ set_option_value() {
     log_message "DEBUG3" "*** Setting command line options for $opt_name to \"$opt_value\""
     if [[ -n "$opt_value" && ! "$opt_value" =~ ^- ]]; then
         log_message "DEBUG1" "Load ${target_variable} with ${opt_name} values: ${opt_value}"
-        IFS='| ' readarray -t "${target_variable}" <  <( printf "%s" "$opt_value" )
+        handle_variable "${target_variable}" "$opt_value"
+        # IFS='| ' readarray -t "${target_variable}" <  <( printf "%s" "$opt_value" )
     else
         display_help "ERROR ($MY_NAME): -$opt_name requires a pattern string." 
     fi
@@ -333,7 +329,7 @@ check_directory() {
 #   The sanitized string.
 #
 sanitize_patterns() {
-    local input="$1"
+    local input="$*"
     # Retain only alphanumerics, underscores, dots, dashes, and spaces
     cleanstring=${input//[^a-zA-Z0-9-_.* ]/}
     # cleanstring=$(echo "$input" | sed 's/[^a-zA-Z0-9_.* ]//g')
@@ -361,7 +357,9 @@ remove_duplicates() {
     local unique=()
     log_message "DEBUG1" "Removing duplicates from array '$1': '${array_ref[*]}'"
     
-    for regex in "${array_ref[@]}"; do
+    # Double quote array expansions to avoid re-splitting elements.
+    # shellcheck disable=SC2068
+    for regex in ${array_ref[@]}; do
         # Skip empty patterns
         [[ -n "$regex" ]] || continue
         log_message "DEBUG2" "remove_duplicates input regex: $regex"
@@ -427,6 +425,63 @@ parse_gitignore() {
     fi
 }
 
+
+# handle_variable - Manage the assignment of variable values based on configuration actions.
+#
+# Description:
+#   This function handles the assignment of variable values based on the specified
+#   action defined in the `config_variable_action` associative array. It can merge,
+#   set, configure, or discard values for a given variable.
+#
+# Parameters:
+#   $1: The name of the variable to manage.
+#   $2: The value to assign to the variable (if applicable).
+#
+# Actions:
+#   - "merge": Merges the current value with the new value.
+#   - "set": Sets the variable to the current value or a default.
+#   - "config": Sets the variable from the config file.
+#   - "discard": Preserves the current value without changes.
+#
+# Returns:
+#   None
+#
+# Exit Codes:
+#   2: Unknown action specified for variable.
+#
+handle_variable() {
+    local var_name="$1"
+    shift
+    local var_value="$*"
+
+    local current_value="${!var_name:-""}"
+
+    case "${config_variable_action["$var_name"]}" in
+        "merge")
+            # Merge the current value with the value from the config file
+            local -a mergevalue
+            mergevalue=${current_value:-""}
+            set_variable "$var_name" "${mergevalue[*]} ${var_value}"
+            ;;
+        "set")
+            # Set the variable from the command line or defaults
+            set_variable "$var_name" "${current_value:-""}"
+            ;;
+        "config")
+            # Set the variable from the config file setting
+            set_variable "$var_name" "${!var_name:-""}"
+            ;;
+        "discard")
+            # Preserve the current value
+            set_variable "$var_name" "${current_value:-""}"
+            ;;
+        *)
+            log_message "ERROR" "Unknown config_variable_action for variable \"$var_name\": ${config_variable_action["$var_name"]}"
+            exit 2  # (ENOENT: 2): No such file or directory
+            ;;
+    esac
+}
+
 # assign_variable - Function to assign values to variables based on their names and type.
 #
 # Description:
@@ -439,9 +494,10 @@ parse_gitignore() {
 #   $1: The name of the variable to assign.
 #   $2: The value to assign.
 #
-assign_variable() {
+set_variable() {
     local var_name="$1"
-    local value="$2"
+    shift
+    local value="$*"
 
     # Declare and assign separately to avoid masking return values. SC2155
     # shellcheck disable=SC2155
@@ -454,13 +510,13 @@ assign_variable() {
             IFS=' ' readarray -t "$var_name" <  <( printf "%s" "$value" )
             ;;
         "associative")
-            IFS=' ' mapfile -t "$var_name" <  <( printf "%s" "$value" )
+            IFS=' ' mapfile -g -t "$var_name" <  <( printf "%s" "$value" )
             ;;
         "scalar")
-            declare "$var_name"="$value"
+            declare -g "$var_name"="$value"
             ;;
         *)
-            declare "$var_name"="$value"
+            declare -g "$var_name"="$value"
             ;;
     esac
 }
@@ -481,7 +537,6 @@ assign_variable() {
 #
 load_config() {
     local config_file="$1"
-    declare -A original_values
 
     if [ "$skip_config" = true ]; then
         log_message "INFO" "Skipping config file loading."
@@ -490,53 +545,29 @@ load_config() {
 
     if [[ -e "$config_file" ]]; then
 
+        declare -A original_values
+        declare -A config_values
         # Preserve the current values in temporary storage
-        for var in "${config_variables[@]}"; do
-            original_values["$var"]="${!var:-""}"
+        for var_name in "${config_variables[@]}"; do
+            original_values["$var_name"]="${!var_name:-""}"
         done
-
         # shellcheck source=/dev/null
         source "$config_file"
         # Quickly put debug level back to default or from th ecommand line it shoudl not change
         # to value from config file.
         debug_level=${original_values["debug_level"]}
+        # Set the new config file values and restore the original values
+        for var_name in "${config_variables[@]}"; do
+            config_values["$var_name"]="${!var_name:-""}"
+            declare -g "$var_name"="${original_values["$var_name"]:-""}"
+        done
 
         log_message "INFO" "Configuration loaded from \"$config_file\""
-
-        # Iterate over config_variables and assign values accordingly
-        for var in "${config_variables[@]}"; do
-            # Use indirect parameter expansion to get the value of the variable from the config
-            log_message "DEBUG2" "Assigning variable: \"$var\" using  \"${!var:-""}\" original value: \"${original_values["$var"]}\""
-
-            case "${config_variable_action["$var"]}" in
-                "merge")
-                    # Merge the current value with the value from the config file
-                    local mergevalue
-                    mergevalue=${original_values["$var"]}
-                    # Quote to prevent word splitting/globbing, or split robustly with mapfile or read -a. SC2206
-                    # shellcheck disable=SC2206
-                    mergevalue+=(${!var:-""})
-                    assign_variable "$var" "${mergevalue[@]}"
-                    #assign_variable "mergevalue" "${original_values["$var"]}"
-                    ;;
-                "set")
-                    # Set the variable from the command line or defaults
-                    assign_variable "$var" "${original_values["$var"]}"
-                    ;;
-                "config")
-                    # Set the variable from the config file setting
-                    assign_variable "$var" "${!var:-""}"
-                    ;;
-                "discard")
-                    # Preserve the current value
-                    assign_variable "$var" "${original_values["$var"]}"
-                    ;;
-                *)
-                    log_message "ERROR" "Unknown config_variable_action for variable \"$var\": ${config_variable_action["$var"]}"
-                    exit 2  # (ENOENT: 2): No such file or directory
-                    ;;
-            esac
-            log_message "DEBUG2" "Variable: \"$var\" updated value: \"${!var:-""}\""
+        # Iterate over config_variables and handle values accordingly
+        for var_name in "${config_variables[@]}"; do
+            # Determine whether variable is merged, set or discarded from the config file.
+            handle_variable "$var_name" "${config_values["$var_name"]:-""}"  
+            log_message "DEBUG2" "Final assignment variable: \"$var_name\" updated value: \"${!var_name:-""}\""
         done
     fi
 }
@@ -824,19 +855,14 @@ generate_markdown() {
 #   None
 #
 generate_filetree() {
-    local output_filename="$1"
-    shift
-    local include_list=()
-    local exclude_list=()
+    local output_filename=$1
+    local -n include_list_ref=$2
+    shift; shift
+    local exclude_list="$*"
 
-    # Extract the first element as the include list
-    include_list=($1)
-    shift
+    #local include_list="${include_list_ref[*]}"
 
-    # Treat the remaining elements as the exclude list
-    exclude_list=($@)
-
-    include_string=$(sanitize_patterns "${include_list[@]}")
+    include_string=$(sanitize_patterns "${include_list_ref[@]}")
     exclude_string=$(sanitize_patterns "${exclude_list[@]}")
 
     if ! command -v filetree >/dev/null 2>&1; then
@@ -847,7 +873,7 @@ generate_filetree() {
 
     if [[ "$dry_run" = true ]]; then
         log_message "INFO" "Dry run: Generating directory and file structure."
-        filetree -l $debug_level  -i "${include_string[@]}" -e tmp .git "${exclude_string[@]}"
+        filetree -l $debug_level  -i "${include_string}" -e tmp .git "${exclude_string[@]}"
         return
     fi
 
@@ -857,8 +883,8 @@ generate_filetree() {
         printf "\n\n## Project filesystem directory structure\n\`\`\`text\n"
         # Double quote to prevent globbing and word splitting.shellcheckSC2086
         # shellcheck disable=SC2086
-        echo "filetree -l $debug_level -i ${include_string[@]} -e tmp .git ${exclude_string[@]}"
-        filetree -l $debug_level -i "${include_string[@]}" -e tmp .git "${exclude_string[@]}"
+        echo filetree -l $debug_level -i "${include_string}" -e tmp .git "${exclude_string}"
+        filetree -l $debug_level -i "${include_string}" -e tmp .git "${exclude_string}"
         printf "\n\`\`\`\n"
     } >> "$output_filename"
 }
@@ -977,8 +1003,9 @@ save_config() {
     check_directory "$(dirname "$config_file")"
 
     {
+        log_message "INFO" "Saving configuration to $config_file"
         for var in "${config_variables[@]}"; do
-            log_message "INFO" "Saving $var to $config_file variables type:$(declare -p "$var" &>/dev/null)"
+            log_message "INFO" "Saving $var type: $(var_type "$var") value: \"${!var:-""}\""
             case "$var" in
                 GENMD_DIR_EXCLUDES|GENMD_FILE_EXCLUDES|GENMD_PATTERN_EXCLUDES|GENMD_FILE_INCLUDES)
                     echo "export $var=\"${!var:-""}\""
@@ -1045,7 +1072,7 @@ display_settings() {
                 } >> "$output_filename"
                 ;;
             cfg)
-                save_config
+                #save_config
                 ;;
             env)
                 {
@@ -1253,7 +1280,7 @@ log_message "DEBUG1" "Final directory exclusions: ${dir_excludes[*]}"
 # Generate file tree markdown
 # Argument mixes string and array. Use * or separate argument.
 # shellcheck disable=SC2145
-generate_filetree "$output_filename" "${file_includes[@]}" "${dir_excludes[@]}" "${pattern_excludes[@]}" "${file_includes[@]}"
+generate_filetree "$output_filename" file_includes "${dir_excludes[@]}" "${pattern_excludes[@]}" "${file_excludes[@]}"
 
 # Build the file list
 build_file_list final_files dir_excludes \
@@ -1263,7 +1290,7 @@ build_file_list final_files dir_excludes \
 
 # Debug: Show final files to be processed
 log_message "DEBUG2" "Final files to process:"
-if [ "$debug_level" -le "${message_class["DEBUG2"]:-7}" ]; then
+if [ "$debug_level" -le "${message_class["DEBUG2"]:-99}" ]; then
     # shellcheck disable=SC2154
     for f in "${final_files[@]}"; do
         printf "  \"%s\"" "$f" >&2
@@ -1274,7 +1301,7 @@ fi
 # Process the files and generate markdown
 process_files "$output_filename" final_files
 
-# PRovide token count if requested
+# Provide token count if requested
 if [[ "$count_tokens" = true ]]; then
      tokencount -f "${output_filename}"
 fi

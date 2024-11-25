@@ -1,5 +1,13 @@
 # Changelog
 
+## 2024-11-24 - Debugging and Stabilization
+
+- Implemented global variable declarations in `genmd` for configuration and settings management.
+- Introduced `handle_variable` function for robust variable handling in `genmd`.
+- Enhanced logging in `filetree.py` to include program names and lazy formatting.
+- Refactored functions in `genmd` for improved readability and maintainability.
+- Conducted comprehensive testing to ensure stability and correctness of recent changes.
+
 ## 2024-11-20 - Codebase Enhancements and Logging Improvements
 
 - Refactored the `log_message` function in `errno.sh` to adjust logging levels in the `message_class` associative array for better log categorization.
@@ -8,6 +16,7 @@
 - Modified `genmd` to introduce a `create_date` configuration variable and improve pattern sanitization and filetree generation logic.
 
 ## 2024-11-20 - Successful Testing and Installation
+
 - Completed testing and installation of the project.
 - Verified that `generate_manifest.sh` and the installer work as expected.
 - Rollback/remove functionality for the installer is pending as a low priority task.
@@ -67,10 +76,16 @@ The script scans a project directory and creates a markdown document with specif
 
 All functions are working properly, though cleanup and documentation updates are still needed. The wrapper functions for conda and pip are functioning as intended.
 
+## 2024-11-24 - Setup Script Update
+
+- **Setup Script Update**: Added functionality to create hard links in `setup.sh` to address issues with C++/G++/ld symlink handling.
+- **Manifest Update**: Added support for hard link type in the installer manifest.
+- **Compatibility Note**: Hard link creation feature tested on macOS and RedHat Linux.
+
 ## Misc Items from the old oobabooga-macOS repository
 
 This collection includes build scripts, benchmarking tools, and regression testing tools for various venv builds primarily focused on AI performance.
 
 If you find any of my work here helpful, please reach out. I would like to have a dialog with anyone else interested.
 
-Watch this spot, more to come, and you can always buy me a coffee.
+Watch this spot, more to come, and you can always [buy me a coffee.](https://www.buymeacoffee.com/venvutil)
