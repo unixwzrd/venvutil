@@ -18,13 +18,12 @@
   - [C++, G++, and LD Pass-Throughs](#c-g-and-ld-pass-throughs)
     - [Purpose](#purpose)
     - [Explanation](#explanation)
-  - [NLTK Installation Guide](#nltk-installation-guide)
-    - [Library Installation](#library-installation)
-    - [Data Installation](#data-installation)
+  - [NLTK and Token Count](#nltk-and-token-count)
   - [Recent Changes](#recent-changes)
   - [Project Status](#project-status)
   - [Support My Work](#support-my-work)
   - [License](#license-1)
+  - [Future Improvements](#future-improvements)
 
 ## Project Overview
 
@@ -95,7 +94,7 @@ Thanks for using Venvutil!
   - Provides a number of useful shell functions for managing aVirtual Environments along with some utility function, such as `ptree`
   - **compile wrappers for C++, G++, and LD**: [Detailed Documentation](#)
     - To help compile many things in the macOS Environment which incorrectly pass the linker the --version flag.
-  
+
 ## Additional Resources
 
 - Explore additional projects and tools that complement Venvutil.
@@ -128,21 +127,10 @@ That will build and install NumPy 1.26 into your Python virtual environment.
 
 - By wrapping these tools, Venvutil provides a seamless integration with your existing toolchain, ensuring compatibility and security.
 
-## NLTK Installation Guide
+## NLTK and Token Count
 
-### Library Installation
-
-- Install the NLTK library within a Python virtual environment using Conda:
-
-```bash
-conda install -n myenv nltk
-```
-
-### Data Installation
-
-- The NLTK data can be installed separately and shared across different library versions.
-- Consider installing the data in `/usr/local/share` or the user's home directory for efficiency.
-- For detailed instructions, visit the [NLTK website](https://www.nltk.org/data.html).
+- **NLTK Installation**: The `venvutil` installation process includes the NLTK packages and `nltk_data`, which are necessary for the `tokencount` program.
+- **Token Count**: The `tokencount` program can be invoked by `genmd` using the `-t` option to provide a token count of the markdown bundle.
 
 ## Recent Changes
 
@@ -181,3 +169,8 @@ This project is licensed under the Apache License
 ```
 
 [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
+## Future Improvements
+
+- **Chunktext Program**: Consider enhancing the `chunktext` program to set chunk limits and boundaries.
+- **Overall Enhancements**: Additional improvements and documentation are needed, but focus is shifting to other projects for now.

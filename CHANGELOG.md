@@ -1,5 +1,11 @@
 # Changelog
 
+## 2024-11-25 - Documentation Completion
+
+- Completed Markdown documentation for all functions in `venv_funcs.sh`.
+- Updated the checklist in `.project-planning/doc-tasks/venv_funcs.md` to mark all functions as documented.
+- Enhanced documentation process guidelines in `documentation_tasks.md` for better tracking and management.
+
 ## 2024-11-24 - Debugging and Stabilization
 
 - Implemented global variable declarations in `genmd` for configuration and settings management.
@@ -7,6 +13,12 @@
 - Enhanced logging in `filetree.py` to include program names and lazy formatting.
 - Refactored functions in `genmd` for improved readability and maintainability.
 - Conducted comprehensive testing to ensure stability and correctness of recent changes.
+
+## 2024-11-24 - Setup Script Update
+
+- **Setup Script Update**: Added functionality to create hard links in `setup.sh` to address issues with C++/G++/ld symlink handling.
+- **Manifest Update**: Added support for hard link type in the installer manifest.
+- **Compatibility Note**: Hard link creation feature tested on macOS and RedHat Linux.
 
 ## 2024-11-20 - Codebase Enhancements and Logging Improvements
 
@@ -75,12 +87,6 @@ The script scans a project directory and creates a markdown document with specif
 ## 2024-07-09 - Fixed recursion bug in pip wrapper
 
 All functions are working properly, though cleanup and documentation updates are still needed. The wrapper functions for conda and pip are functioning as intended.
-
-## 2024-11-24 - Setup Script Update
-
-- **Setup Script Update**: Added functionality to create hard links in `setup.sh` to address issues with C++/G++/ld symlink handling.
-- **Manifest Update**: Added support for hard link type in the installer manifest.
-- **Compatibility Note**: Hard link creation feature tested on macOS and RedHat Linux.
 
 ## Misc Items from the old oobabooga-macOS repository
 
