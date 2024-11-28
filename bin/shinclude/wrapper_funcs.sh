@@ -82,9 +82,12 @@ do_wrapper() {
     local action="$1"
     local actions_to_log=("install" "uninstall" "remove" "rename" "update" "upgrade" "create" "clean" "config" "clone")
     local actions_to_exclude=("--help" "-h" "--dry-run")
-    local cmd_args="$@"
+    local cmd_args="$*"
     local env_vars
     env_vars=$( env | sed -E '/^SHELL=/,$d' | sed -E 's/^([A-Za-z_]+)=(.*)$/\1="\2"/' | tr '\n' ' ' )
+
+    # Put the function back to "conda" our PROMPT_COMMAND will put it back after the command
+    eval "conda() $(declare -f __venv_conda| sed '1d')"
 
     # Make the command be how the user invoked it rather than with the wrappers.
     local user_cmd=$(echo "${cmd}" "${cmd_args}" | sed 's/__venv_//g')
@@ -96,10 +99,10 @@ do_wrapper() {
     fi
 
     # local cmd_line="${env_vars} ${cmd} ${cmd_args}"
-    local user_line="${env_vars} ${user_cmd} ${cmd_args}"
+    local user_line="${env_vars} ${user_cmd}"
 
     # Check if the action is potentially destructive and should be logged.
-    if [[ " ${actions_to_log[*]} " =~ "${action}" ]] && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
+    if [[ " ${actions_to_log[*]} " =~ ${action} ]] && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
         local freeze_date=$(date "+%Y%m%d%H%M%S")
         local cmd_date=$(date '+%Y-%m-%d %H:%M:%S')
         local freeze_dir="${VENVUTIL_CONFIG}/freeze"

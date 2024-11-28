@@ -1,5 +1,18 @@
 # Changelog
 
+## 2024-11-27 - Refactor and Update
+
+- Refactored `wrapper_funcs.sh` to improve command argument handling and logging.
+- Enhanced `setup.sh` with better comments, debug mode activation, and default package name changes.
+- Updated `setup.sh` to set `PKG_NAME` with a default value of "DEFAULT" if not provided.
+- Adjusted `INSTALL_CONFIG` assignment for consistency.
+
+## 2024-11-26 - Setup Script and Manifest Updates
+
+- Addressed issues in `setup.sh` script identified during testing on macOS and Linux.
+- Improved logging verbosity and error handling in `setup.sh`.
+- Updated `manifest.lst` to align with the latest setup configuration changes.
+
 ## 2024-11-25 - Documentation Completion
 
 - Completed Markdown documentation for all functions in `venv_funcs.sh`.

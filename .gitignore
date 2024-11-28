@@ -181,3 +181,4 @@ data/
 # Symlink to data collected by venvutil functions
 .venvutil
 utils
+.codeiumignore
