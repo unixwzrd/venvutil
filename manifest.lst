@@ -37,11 +37,9 @@ f |  |  | manifest.lst | 644 |  |  | 10292 | 5d12b656d28f6d176b7b3c6cb60344120a8
 f |  |  | setup.cf | 644 |  |  | 616 | e3d855f510f1a51a7f5d7a1b969e0056fed0179c
 f |  |  | setup.sh | 755 |  |  | 15146 | 3463c4c821318bfa4dee8f7ed3638f92076709fa
 f | bin | bin | buildvenvs | 751 |  |  | 14987 | 91d2cd9d330da0d02a25ddc54b1356b7f1799a07
-f | bin | bin | c++ | 755 |  |  | 1702 | 402e3c125f417ae03fc1a28450f289f3a40ab310
 f | bin | bin | chunktext | 755 |  |  | 727 | 15008b400683f944c6211a8ab75ab778598eb1c8
 f | bin | bin | filetree.py | 755 |  |  | 11317 | 9d49e69bbe62a9e66a363a8df7fc8f496c61ce38
 f | bin | bin | filter-vm_stat | 751 |  |  | 2606 | 7eccba1613a50f1be68e3bb026328766a349ef61
-f | bin | bin | g++ | 755 |  |  | 1702 | 402e3c125f417ae03fc1a28450f289f3a40ab310
 f | bin | bin | generate_manifest.sh | 755 |  |  | 5029 | 6b8ba0f04d2ec6f9d74fc72649c3bb8c09c92fe2
 f | bin | bin | genmd | 755 |  |  | 48549 | cfb08f14261e6fb9203edbb701db84b6b0759816
 f | bin | bin | ld | 755 |  |  | 1702 | 402e3c125f417ae03fc1a28450f289f3a40ab310
@@ -103,5 +101,7 @@ f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | ve
 f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | venvdiff.md | 644 |  |  | 513 | 99e6b30a49147ae315b4822d4b9e436e80370fe2
 f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | vnum.md | 644 |  |  | 333 | 29eb5645ee186cfb9ae37209e590df2b1501f486
 f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | vpfx.md | 644 |  |  | 313 | c61b78cd3a3ca5e8c835151f366b391a43814511
+h | bin | ld | c++ | 755 |  |  | 1702 | 402e3c125f417ae03fc1a28450f289f3a40ab310
+h | bin | ld | g++ | 755 |  |  | 1702 | 402e3c125f417ae03fc1a28450f289f3a40ab310
 l | bin | filetree.py | filetree | 755 |  |  | 11 | 
 l | bin | tokencount.py | tokencount | 755 |  |  | 13 | 
