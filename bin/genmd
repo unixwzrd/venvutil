@@ -189,10 +189,10 @@ PAGER="${PAGER:-less -R}"
 # Declare arrays
 # Quote to prevent word splitting/globbing, or split robustly with mapfile or read -a. SC2206
 # shellcheck disable=SC2206
-declare -g -a dir_excludes=(${GENMD_DIR_EXCLUDES:-(".git" "tmp" "log" "__pycache__" ".vscode")})
+declare -g -a dir_excludes=(${GENMD_DIR_EXCLUDES:-( ".git" "tmp" "log" "__pycache__" ".vscode")})
 # File_excludes appears unused. Verify use (or export if used externally).
 # shellcheck disable=SC2206,SC2034
-declare -g -a file_excludes=(${GENMD_FILE_EXCLUDES:-("*.ico" "*.svg" "*.png" "*.pdf" "*.jpg" "*.htaccess" "*.webp" "*.jekyll" ".DS_Store" "*.JPG" "*.pdf")})
+declare -g -a file_excludes=(${GENMD_FILE_EXCLUDES:-( "*.ico" "*.svg" "*.png" "*.pdf" "*.jpg" "*.htaccess" "*.webp" "*.jekyll" ".DS_Store" "*.JPG" "*.pdf" )})
 # shellcheck disable=SC2206
 declare -g -a pattern_excludes=(${GENMD_PATTERN_EXCLUDES:-""})
 # shellcheck disable=SC2206,SC2034
@@ -273,7 +273,7 @@ declare -g dry_run=false
 declare -g follow_links=""
 declare -g output_dir="$GENMD_BASE/utils/output"
 declare -g remove_blanks=false
-declare -g settings_modes=("md")
+declare -g settings_modes=( "md" "cfg" )
 declare -g skip_config=false                        # Set to true to skip loading config file
 declare -g specified_config=""
 declare -g specified_output=""
@@ -1013,7 +1013,8 @@ save_config() {
 
     {
         log_message "INFO" "Saving configuration to $config_file"
-        for var in "${config_variables[@]}"; do
+        # shellcheck disable=SC2068
+        for var in ${config_variables[@]}; do
             log_message "INFO" "Saving $var type: $(var_type "$var") value: \"${!var:-""}\""
             case "$var" in
                 GENMD_DIR_EXCLUDES|GENMD_FILE_EXCLUDES|GENMD_PATTERN_EXCLUDES|GENMD_FILE_INCLUDES)
@@ -1081,7 +1082,7 @@ display_settings() {
                 } >> "$output_filename"
                 ;;
             cfg)
-                #save_config
+                save_config
                 ;;
             env)
                 {
