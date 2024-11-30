@@ -45,6 +45,9 @@
 # 
 #     -o, --output [filename]   Output file (default: combined_source.md)
 # 
+#     -L, --follow-links        Follow symbolic links when scanning directories.
+#                               By default, genmd does not follow symbolic links.
+# 
 #     -c, --config [filename]   Load configuration from a .grc file.
 #                               If the filename does not end with .grc, it will be
 #                               appended.
@@ -208,6 +211,8 @@ declare -g -A option_variable=(
 )
 
 # Define a list of variables to save in the configuration file
+# This is also the order in which they will appear in the config file
+# and the order in which they will appear in the md file output.
 declare -g -a config_variables=(
     "create_date"
     "dir_excludes"
@@ -220,6 +225,7 @@ declare -g -a config_variables=(
     "dry_run"
     "debug_level"
     "use_gitignore"
+    "follow_links"
     "remove_blanks"
     "add_line_numbers"
     "compress"
@@ -233,44 +239,45 @@ declare -g -a config_variables=(
 # config file for others, some may come from the environment variables
 # and some may come from the config file or the command line.
 declare -g -A config_variable_action=(
-    ["dir_excludes"]="merge"      # Merge all sources.
-    ["file_excludes"]="merge"     # Merge all sources.
-    ["pattern_excludes"]="merge"  # Merge all sources.
-    ["file_includes"]="merge"     # Merge all sources.
     ["GENMD_BASE"]="config"       # Set config file will override the environment variable
-    ["output_filename"]="set"     # Command line overrides all settings
-    ["settings_modes"]="set"      # Command line overrides all settings
-    ["dry_run"]="discard"         # Command not preserved, but set from command line
-    ["debug_level"]="set"         # Command line overrides all settings and preserved
-    ["use_gitignore"]="set"       # Command line overrides all settings and preserved
-    ["remove_blanks"]="set"       # Command line overrides all settings and preserved
     ["add_line_numbers"]="set"    # Command line overrides all settings and preserved
     ["compress"]="set"            # Command line overrides all settings and preserved
     ["compression_tool"]="set"    # Command line overrides all settings and preserved
     ["count_tokens"]="set"        # Command line overrides all settings and preserved
     ["create_date"]="set"         # Command line overrides all settings and preserved
+    ["debug_level"]="set"         # Command line overrides all settings and preserved
+    ["dir_excludes"]="merge"      # Merge all sources.
+    ["dry_run"]="discard"         # Command not preserved, but set from command line
+    ["file_excludes"]="merge"     # Merge all sources.
+    ["file_includes"]="merge"     # Merge all sources.
+    ["follow_links"]="set"        # Command line overrides all settings and preserved
+    ["output_filename"]="set"     # Command line overrides all settings
+    ["pattern_excludes"]="merge"  # Merge all sources.
+    ["remove_blanks"]="set"       # Command line overrides all settings and preserved
+    ["settings_modes"]="set"      # Command line overrides all settings
+    ["use_gitignore"]="set"       # Command line overrides all settings and preserved
 )
 
 # Set default values for command line options.
-declare -g dry_run=false
-declare -g debug_level=20
-declare -g settings_modes=("md")
-declare -g use_gitignore=true  
-declare -g remove_blanks=false
+# Define file defaults.
 declare -g add_line_numbers=false
 declare -g compress=false
 declare -g compression_tool="gzip"
-declare -g count_tokens=false
-#  shellcheck disable=SC2034
-declare -g create_date=$(date '+%Y-%m-%d %H:%M:%S')
-
-# Define file defaults.
-declare -g default_filename="combined_source"        # Default output filename
-declare -g output_dir="$GENMD_BASE/utils/output"
 declare -g config_dir="$GENMD_BASE/utils/etc"
+declare -g count_tokens=false
+#  shellcheck disable=SC2034,SC2155
+declare -g create_date=$(date '+%Y-%m-%d %H:%M:%S')
+declare -g debug_level=20
+declare -g default_filename="combined_source"        # Default output filename
+declare -g dry_run=false
+declare -g follow_links=""
+declare -g output_dir="$GENMD_BASE/utils/output"
+declare -g remove_blanks=false
+declare -g settings_modes=("md")
+declare -g skip_config=false                        # Set to true to skip loading config file
 declare -g specified_config=""
 declare -g specified_output=""
-declare -g skip_config=false                        # Set to true to skip loading config file
+declare -g use_gitignore=true  
 
 # Function to handle pattern-based array options from command line.
 # Set the values of an array variable from a command line option.
@@ -745,7 +752,7 @@ build_file_list() {
 
     # Change to GENMD_BASE and perform find
     cd "$GENMD_BASE"
-    readarray -t files < <(find . -type f | sort )
+    readarray -t files < <(find . ${follow_links:-} -type f | sort )
 
     # Exclude directories in the exclude directory list
     if [[ ${#dir_excludes_ref[@]} -gt 0 ]]; then
@@ -873,18 +880,20 @@ generate_filetree() {
 
     if [[ "$dry_run" = true ]]; then
         log_message "INFO" "Dry run: Generating directory and file structure."
-        filetree -l $debug_level  -i "${include_string}" -e tmp .git "${exclude_string[@]}"
+        filetree -l $debug_level ${follow_links:-} -i "${include_string}" -e tmp .git "${exclude_string[@]}"
         return
     fi
 
-    log_message "INFO" "Generating directory and file structure, including: ${include_string}, excluding: ${exclude_string}"
+    log_message "INFO" "Generating directory and file structure, including: ${follow_links:-} 
+    ${include_string}, excluding: ${exclude_string}"
 
     {
         printf "\n\n## Project filesystem directory structure\n\`\`\`text\n"
         # Double quote to prevent globbing and word splitting.shellcheckSC2086
         # shellcheck disable=SC2086
-        echo filetree -l $debug_level -i "${include_string}" -e tmp .git "${exclude_string}"
-        filetree -l $debug_level -i "${include_string}" -e tmp .git "${exclude_string}"
+        echo filetree -l $debug_level ${follow_links:-}  -i "${include_string}" -e tmp .git "${exclude_string}"
+        echo ""
+        filetree -l $debug_level ${follow_links:-}  -i "${include_string}" -e tmp .git "${exclude_string}"
         printf "\n\`\`\`\n"
     } >> "$output_filename"
 }
@@ -1098,7 +1107,7 @@ display_settings() {
 # Process command-line options using getopts
 # Reset OPTIND in case getopts has been used previously
 OPTIND=1
-while getopts ":d:he:f:i:p:o:c:s:nvgCbltz:-:" opt; do
+while getopts ":d:he:f:i:p:o:c:s:nvgCbLltz:-:" opt; do
     case "$opt" in
         # Short options
         d)
@@ -1128,8 +1137,11 @@ while getopts ":d:he:f:i:p:o:c:s:nvgCbltz:-:" opt; do
         g)
             use_gitignore=false  # Disable gitignore integration
             ;;
+        L)
+            follow_links="-L"    # Follow symlinks
+            ;;
         C)
-            skip_config=true  # New option to skip config files
+            skip_config=true     # New option to skip config files
             ;;
         b)
             remove_blanks=true
@@ -1196,6 +1208,9 @@ while getopts ":d:he:f:i:p:o:c:s:nvgCbltz:-:" opt; do
                     ;;
                 no-gitignore)
                     use_gitignore=false
+                    ;;
+                follow-links)
+                    follow_links="-L"
                     ;;
                 no-config)
                     skip_config=true
@@ -1289,14 +1304,14 @@ build_file_list final_files dir_excludes \
                 file_includes
 
 # Debug: Show final files to be processed
-log_message "DEBUG2" "Final files to process:"
-if [ "$debug_level" -le "${message_class["DEBUG2"]:-99}" ]; then
-    # shellcheck disable=SC2154
-    for f in "${final_files[@]}"; do
-        printf "  \"%s\"" "$f" >&2
+{
+    printf "## Files included in final output\n"
+    # shellcheck disable=SC2154,SC2068
+    for f in ${final_files[@]}; do
+        printf -- "- %s\n" "$f"
     done
-    printf "\n" >&2
-fi
+    printf "\n---\n"
+} >> "$output_filename"
 
 # Process the files and generate markdown
 process_files "$output_filename" final_files

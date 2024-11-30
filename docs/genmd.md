@@ -123,6 +123,9 @@ genmd [options]
   - **Default:** `combined_source.md`
   - **Note:** If specified, a corresponding `.grc` configuration file will be used or created in the `GENMD_BASE/utils/etc` directory.
 
+- `-L **Follow Symlinks**`
+  - **Description:** Follow symlinks when scanning directories.
+
 - `-c [filename]`: **Load Configuration**
   - **Description:** Loads configuration from a `.grc` file.
   - **Note:** If the filename does not end with `.grc`, `.grc` will be appended automatically. The configuration file should reside in the `GENMD_BASE/utils/etc` directory.
@@ -163,6 +166,7 @@ All short options have corresponding long options with double dashes (`--`):
 - `--output [filename]`
 - `--config [filename]`
 - `--no-gitignore`
+- `--follow-links`
 - `--no-config`
 - `--settings [modes]`
 - `--dry-run`

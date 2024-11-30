@@ -37,7 +37,7 @@ Venvutil is a versatile toolset designed to simplify the management of Python vi
 - **Conda and Pip Wrappers**: Includes wrapper scripts for Conda and Pip that log actions and freeze the state of environments for reproducibility.
 - **Cross-Platform Compatibility**: Designed to work seamlessly on macOS and Linux systems, with specific optimizations for Apple Silicon.
 - **Build and Installation Scripts**: Offers scripts to automate the setup of complex environments, including rebuilding NumPy with Apple Silicon optimizations.
-- **Comprehensive Documentation**: Includes detailed instructions and changelogs to help users get started and stay updated with the latest features.
+- **Comprehensive Documentation**: Includes detailed instructions and [CHANGELOG](CHANGELOG.md) to help users get started and stay updated with the latest features.
 
 ### Why Use Venvutil?
 
@@ -82,17 +82,17 @@ Thanks for using Venvutil!
 
 ### Tools Overview
 
-- **tokencount**: [Detailed Documentation](#)
+- **tokencount**: [Detailed Documentation](docs/tokencount.md)
   - A tool designed to count tokens in text files, useful for analyzing text data and preparing it for processing with language models.
-- **chunkfile**: [Detailed Documentation](#)
+- **chunkfile**: [Detailed Documentation](docs/chunkfile.md)
   - A script for breaking large files into smaller, manageable chunks for easier processing.
-- **genmd**: [Detailed Documentation](#)
+- **genmd**: [Detailed Documentation](docs/genmd.md)
   - A script that generates markdown documentation from project files, facilitating easy sharing and collaboration.
-- **filetree**: [Detailed Documentation](#)
+- **filetree**: [Detailed Documentation](docs/filetree.md)
   - will produce file hierarchy structure based on file and directories to exclude and include..
-- **core functions provided by init_env.sh**: [Detailed Documentation](#)
+- **core functions provided by init_env.sh**: [Detailed Documentation](docs/init_env.sh)
   - Provides a number of useful shell functions for managing aVirtual Environments along with some utility function, such as `ptree`
-  - **compile wrappers for C++, G++, and LD**: [Detailed Documentation](#)
+  - **compile wrappers for C++, G++, and LD**: [Detailed Documentation](docs/compile_wrappers.md)
     - To help compile many things in the macOS Environment which incorrectly pass the linker the --version flag.
 
 ## Additional Resources

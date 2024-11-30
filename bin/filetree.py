@@ -15,6 +15,7 @@ Options:
     -i, --include [patterns]    Include only files matching the given patterns.
                                 Multiple patterns can be separated by '|' or spaces.
     -h, --help                  Show this help message and exit.
+    -L, --follow-links          Follow symlinks when scanning directories.
     -l, --log-level             Set the logging level (10=DEBUG, 20=INFO, 30=WARNING, 40=ERROR, 50=CRITICAL)
     -a, --all                   Display the entire file tree without any filters
 
@@ -123,7 +124,7 @@ def is_included(item_relative_path, include_patterns, show_all=False):
             return True
     return False
 
-def add_items(root_dir, parent_tree, exclude_patterns, include_patterns, show_all=False, relative_path=""):
+def add_items(root_dir, parent_tree, exclude_patterns, include_patterns, show_all=False, relative_path="", follow_links=False):
     """
     Recursively add items in the file system to the tree structure.
 
@@ -133,6 +134,7 @@ def add_items(root_dir, parent_tree, exclude_patterns, include_patterns, show_al
     :param include_patterns: List of patterns to include.
     :param show_all: If True, include all items without filtering.
     :param relative_path: The relative path from the root directory.
+    :param follow_links: If True, follow symbolic links.
     :return: True if any items were added to the tree, False otherwise.
     """
     has_included_items = False  # Flag to check if current directory has any included items
@@ -142,7 +144,7 @@ def add_items(root_dir, parent_tree, exclude_patterns, include_patterns, show_al
             item_relative_path = os.path.join(relative_path, item_name) if relative_path else item_name
             if is_ignored(item_relative_path, exclude_patterns, show_all):
                 continue
-            if os.path.isdir(item_path):
+            if os.path.isdir(item_path) and (follow_links or not os.path.islink(item_path)):
                 # Recursively add subdirectories
                 dir_branch = Tree(f"{item_name}/")
                 dir_has_items = add_items(
@@ -151,7 +153,8 @@ def add_items(root_dir, parent_tree, exclude_patterns, include_patterns, show_al
                     exclude_patterns,
                     include_patterns,
                     show_all,
-                    item_relative_path
+                    item_relative_path,
+                    follow_links
                 )
                 if dir_has_items:
                     parent_tree.add(dir_branch)
@@ -165,17 +168,18 @@ def add_items(root_dir, parent_tree, exclude_patterns, include_patterns, show_al
         has_included_items = True
     return has_included_items
 
-def generate_tree(exclude_patterns, include_patterns, show_all=False):
+def generate_tree(exclude_patterns, include_patterns, show_all=False, follow_links=False):
     """
     Generate a tree structure of the current directory excluding and including specific directories/files.
 
     :param exclude_patterns: List of patterns to exclude.
     :param include_patterns: List of patterns to include.
     :param show_all: If True, display the entire file tree without any filters.
+    :param follow_links: If True, follow symbolic links.
     """
     console = Console()
     tree = Tree("Root Directory")
-    add_items(".", tree, exclude_patterns, include_patterns, show_all)
+    add_items(".", tree, exclude_patterns, include_patterns, show_all, follow_links=follow_links)
     console.print(tree)
 
 def load_patterns_from_env(var_name):
@@ -220,6 +224,7 @@ def main():
         default=[],
         help="Include only files matching the given patterns. Use '|' or spaces as separators."
     )
+    parser.add_argument('-L', '--follow-links', action='store_true', help='Follow symbolic links when scanning directories.')
     parser.add_argument('-l', '--log-level', type=int, default=logging.INFO,
                         help='Set the logging level (10=DEBUG, 20=INFO, 30=WARNING, 40=ERROR, 50=CRITICAL)')
     parser.add_argument('-a', '--all', action='store_true', help='Display the entire file tree without any filters')
@@ -281,13 +286,16 @@ def main():
     env_file_includes = load_patterns_from_env('GENMD_FILE_INCLUDES')
     include_patterns += env_file_includes
 
+    # Process follow_links argument
+    follow_links = args.follow_links
+
     if args.all:
         logging.debug("Displaying the entire file tree without any filters")
         exclude_patterns = []
         include_patterns = []
-        generate_tree(exclude_patterns, include_patterns, show_all=True)
+        generate_tree(exclude_patterns, include_patterns, show_all=True, follow_links=follow_links)
     else:
-        generate_tree(exclude_patterns, include_patterns)
+        generate_tree(exclude_patterns, include_patterns, show_all=args.all, follow_links=follow_links)
 
 if __name__ == "__main__":
     main()
