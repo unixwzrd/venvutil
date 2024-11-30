@@ -1,7 +1,7 @@
 # Manifest file for venvutil project
 # This file uses pipe-separated fields
 
-d |  |  | bin | 750 |  |  | 960 | 
+d |  |  | bin | 750 |  |  | 992 | 
 d |  |  | conf | 750 |  |  | 352 | 
 d |  |  | docs | 755 |  |  | 384 | 
 d | bin | bin | shinclude | 755 |  |  | 256 | 
@@ -32,16 +32,16 @@ d | docs/shdoc/docs/shdoc/venv_funcs.sh | docs/shdoc/docs/shdoc/venv_funcs.sh | 
 d | docs/shdoc/docs/shdoc/wrapper_funcs.sh | docs/shdoc/docs/shdoc/wrapper_funcs.sh | functions | 755 |  |  | 64 | 
 d | docs/shdoc/docs/shdoc/wrapper_funcs.sh | docs/shdoc/docs/shdoc/wrapper_funcs.sh | scripts | 755 |  |  | 64 | 
 f |  |  | LICENSE | 644 |  |  | 11362 | fbb090d446bc51f5b8611e8c59bddf5447f155e2
-f |  |  | README.md | 640 |  |  | 9492 | bfff18ac78cbe359069832f449b17a8afb7b87c2
-f |  |  | manifest.lst | 644 |  |  | 10292 | 5d12b656d28f6d176b7b3c6cb60344120a8e94a9
+f |  |  | README.md | 640 |  |  | 9605 | 72c2ba7e06ddf8913cf0812f282c8af081d05a76
+f |  |  | manifest.lst | 644 |  |  | 10292 | 889c3d88a9a02d090729da96c1f70c29efb4ab7e
 f |  |  | setup.cf | 644 |  |  | 616 | e3d855f510f1a51a7f5d7a1b969e0056fed0179c
 f |  |  | setup.sh | 755 |  |  | 15146 | 3463c4c821318bfa4dee8f7ed3638f92076709fa
 f | bin | bin | buildvenvs | 751 |  |  | 14987 | 91d2cd9d330da0d02a25ddc54b1356b7f1799a07
 f | bin | bin | chunktext | 755 |  |  | 727 | 15008b400683f944c6211a8ab75ab778598eb1c8
-f | bin | bin | filetree.py | 755 |  |  | 11317 | 9d49e69bbe62a9e66a363a8df7fc8f496c61ce38
+f | bin | bin | filetree.py | 755 |  |  | 11932 | 1a8f25500ace23b8723f5b7186ed6898ad01f42f
 f | bin | bin | filter-vm_stat | 751 |  |  | 2606 | 7eccba1613a50f1be68e3bb026328766a349ef61
 f | bin | bin | generate_manifest.sh | 755 |  |  | 5029 | 6b8ba0f04d2ec6f9d74fc72649c3bb8c09c92fe2
-f | bin | bin | genmd | 755 |  |  | 48549 | cfb08f14261e6fb9203edbb701db84b6b0759816
+f | bin | bin | genmd | 755 |  |  | 49280 | 261648fe80067da4002114ba44e7a0b38b03fc6b
 f | bin | bin | ld | 755 |  |  | 1702 | 402e3c125f417ae03fc1a28450f289f3a40ab310
 f | bin | bin | numpybench | 755 |  |  | 3041 | 6af0269e75643904867f37e0c83323d57eef0d97
 f | bin | bin | numpyprof | 751 |  |  | 1579 | fe821ae6a607ff116a9ae9f9abc8483125cdfcac
@@ -79,7 +79,7 @@ f | docs | docs | README.md | 644 |  |  | 616 | 30fa51dbdf87a18b6b08b589ea53088f
 f | docs | docs | Script_Doc_Templ.md | 644 |  |  | 3185 | 623eabdfb544a4f8cc00201d3939353df5961bf8
 f | docs | docs | Standards.md | 644 |  |  | 2360 | 02f72dbe8d3ac5dd0ed8e9c7bcc77b72d3b67c4d
 f | docs | docs | filetree.md | 644 |  |  | 4364 | fdc6d9038d544d847bc7d860426bb5127ac1e161
-f | docs | docs | genmd.md | 644 |  |  | 15271 | a0c59f2732fffa0b4ad7a14d6bf1bc79c99038ff
+f | docs | docs | genmd.md | 644 |  |  | 15382 | 9eb7c70833c683113b02fe175e12421b88e2b97b
 f | docs/shdoc | docs/shdoc | AUTO_GENERATED_DO_NOT_MODIFY_OR_PLACE_FILES_HERE | 644 |  |  | 0 | da39a3ee5e6b4b0d3255bfef95601890afd80709
 f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | venv_funcs.md | 644 |  |  | 1136 | 653b54d457e16e7b080ebf86b27d32c1a9076b8e
 f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | __set_venv_vars.md | 644 |  |  | 364 | b98aaab7891b582270d2d4d8f5412c6a00b53e67
