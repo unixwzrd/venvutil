@@ -752,7 +752,7 @@ build_file_list() {
 
     # Change to GENMD_BASE and perform find
     cd "$GENMD_BASE"
-    readarray -t files < <(find . ${follow_links:-} -type f | sort )
+    readarray -t files < <(find ${follow_links:-} . -type f | sort )
 
     # Exclude directories in the exclude directory list
     if [[ ${#dir_excludes_ref[@]} -gt 0 ]]; then
