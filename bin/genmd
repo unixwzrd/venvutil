@@ -1062,7 +1062,7 @@ display_settings() {
         case "$mode" in
             info)
                 log_message "INFO" "genmd current settings:"
-                for var in "${config_variables[@]}"; do
+                for var in ${config_variables[@]}; do
                     log_message "INFO" "$var: ${!var:-""}"
                 done
                 ;;
@@ -1072,11 +1072,11 @@ display_settings() {
                     echo ""
                     echo "| Variable               | Value                                                                 |"
                     echo "|------------------------|-----------------------------------------------------------------------|"
-                    for var in "${config_variables[@]}"; do
-                        local value="${!var:-""}"
+                    for var in ${config_variables[@]}; do
+                        local value=${!var:-""}
                         # Escape or pattern match characters
-                        value="${value//|/\\|}"
-                        printf "| %s | %s |\n" "$var" "$value"
+                        value=${value//|/\\|}
+                        printf "| %s | %s |\n" "$var" ${value}
                     done
                     echo ""
                 } >> "$output_filename"
@@ -1089,7 +1089,7 @@ display_settings() {
                     echo ""
                     echo "## genmd Environment Variables"
                     echo ""
-                    for var in "${config_variables[@]}"; do
+                    for var in ${config_variables[@]}; do
                         printf "export %s=\"%s\"\n" "$var" "${!var:-""}"
                     done
                     echo ""
@@ -1326,3 +1326,6 @@ fi
 if [[ "$compress" = true ]]; then
     compress_output "${output_filename}"
 fi
+
+log_message "INFO" "       Output file: $output_filename"
+log_message "INFO" "Configuration file: $config_filename_out"
