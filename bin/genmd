@@ -880,20 +880,18 @@ generate_filetree() {
 
     if [[ "$dry_run" = true ]]; then
         log_message "INFO" "Dry run: Generating directory and file structure."
-        filetree -l $debug_level ${follow_links:-} -i "${include_string}" -e tmp .git "${exclude_string[@]}"
+        filetree -l $debug_level  -i "${include_string}" -e tmp .git "${exclude_string[@]}"
         return
     fi
 
-    log_message "INFO" "Generating directory and file structure, including: ${follow_links:-} 
-    ${include_string}, excluding: ${exclude_string}"
+    log_message "INFO" "Generating directory and file structure, including: ${include_string}, excluding: ${exclude_string}"
 
     {
         printf "\n\n## Project filesystem directory structure\n\`\`\`text\n"
         # Double quote to prevent globbing and word splitting.shellcheckSC2086
         # shellcheck disable=SC2086
-        echo filetree -l $debug_level ${follow_links:-}  -i "${include_string}" -e tmp .git "${exclude_string}"
-        echo ""
-        filetree -l $debug_level ${follow_links:-}  -i "${include_string}" -e tmp .git "${exclude_string}"
+        echo filetree -l $debug_level -i "${include_string}" -e tmp .git "${exclude_string}"
+        filetree -l $debug_level -i "${include_string}" -e tmp .git "${exclude_string}"
         printf "\n\`\`\`\n"
     } >> "$output_filename"
 }
@@ -1008,6 +1006,7 @@ compress_output() {
 # Logs:
 #     INFO messages indicating the saving process and the final output file location.
 save_config() {
+    #echo "CALLING save_config"
     local config_file="${config_filename_out}"
     check_directory "$(dirname "$config_file")"
 
@@ -1089,7 +1088,7 @@ display_settings() {
                     echo ""
                     echo "## genmd Environment Variables"
                     echo ""
-                    for var in ${config_variables[@]}; do
+                    for var in "${config_variables[@]}"; do
                         printf "export %s=\"%s\"\n" "$var" "${!var:-""}"
                     done
                     echo ""

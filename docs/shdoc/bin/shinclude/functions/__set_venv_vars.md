@@ -1,20 +1,15 @@
+## __set_venv_vars
 # Function: __set_venv_vars
-
 `__set_venv_vars` - Sets internal VENV variables.
-
 ## Description
+- **Purpose**: 
+  - Sets internal variables related to virtual environment management.
+- **Usage**: 
+  - `__set_venv_vars`
+- **Input Parameters**: 
+  - None
+- **Output**: 
+  - Initializes internal VENV variables.
+- **Exceptions**: 
+  - None
 
-- **Purpose**: Initializes and sets internal variables used for managing virtual environments.
-- **Usage**: Call this function to set up initial environment variables before performing other operations.
-
-## Parameters
-
-- None
-
-## Output
-
-- None
-
-## Exceptions
-
-- None

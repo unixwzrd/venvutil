@@ -1,20 +1,15 @@
+## vpfx
 # Function: vpfx
-
 `vpfx` - Return the current VENV prefix.
-
 ## Description
+- **Purpose**: 
+  - Returns the prefix of the current virtual environment.
+- **Usage**: 
+  - `vpfx`
+- **Input Parameters**: 
+  - None
+- **Output**: 
+  - The prefix of the current VENV.
+- **Exceptions**: 
+  - None
 
-- **Purpose**: Retrieves the prefix associated with the current virtual environment.
-- **Usage**: Call this function to obtain the VENV prefix.
-
-## Parameters
-
-- None
-
-## Output
-
-- Returns the current VENV prefix.
-
-## Exceptions
-
-- None

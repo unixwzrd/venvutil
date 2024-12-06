@@ -1,20 +1,15 @@
+## denv
 # Function: denv
-
 `denv` - Delete a Virtual Environment.
-
 ## Description
+- **Purpose**: 
+  - Deletes the specified virtual environment.
+- **Usage**: 
+  - `denv [env_name]`
+- **Input Parameters**: 
+  - `env_name` (string) - The name of the environment to delete.
+- **Output**: 
+  - Deletes the specified environment.
+- **Exceptions**: 
+  - Errors if the environment does not exist.
 
-- **Purpose**: Deletes a specified virtual environment from the system.
-- **Usage**: Call this function with the name of the environment to delete it.
-
-## Parameters
-
-- `env_name`: The name of the virtual environment to be deleted.
-
-## Output
-
-- None
-
-## Exceptions
-
-- Prints an error message if the environment cannot be found or deleted.

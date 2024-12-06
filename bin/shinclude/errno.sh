@@ -21,6 +21,8 @@
 #
 # ## Dependencies
 # - `util_funcs.sh` (for utility functions like `to_upper`)
+
+
 # # Function: errno
 #  `errno` - Provides POSIX errno codes and values for use in scripts or lookup of error codes on the command line.
 # ## Description

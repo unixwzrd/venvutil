@@ -1,20 +1,16 @@
+## nenv
 # Function: nenv
-
 `nenv` - Create a New Virtual Environment in a Series.
-
 ## Description
+- **Purpose**: 
+  - Creates a new conda virtual environment in a series identified by a prefix as a clone of the current venv.
+- **Usage**: 
+  - `nenv PREFIX [EXTRA_OPTIONS]`
+- **Input Parameters**: 
+  - `PREFIX` (string) - The prefix to identify the series of environments.
+  - `EXTRA_OPTIONS` (string, optional) - Additional options to pass to the environment creation.
+- **Output**: 
+  - Creates and activates the new environment with sequence number "00".
+- **Exceptions**: 
+  - Errors during environment creation are handled by conda.
 
-- **Purpose**: Creates a new virtual environment as part of a series, with settings inherited from a base environment.
-- **Usage**: Call this function to create a new environment in a series.
-
-## Parameters
-
-- None
-
-## Output
-
-- None
-
-## Exceptions
-
-- Prints an error message if the environment creation fails.

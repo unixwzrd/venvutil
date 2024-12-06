@@ -1,5 +1,15 @@
 # Changelog
 
+## 2024-12-06 - Latest Updates
+
+- Refactored `genmd` script to streamline file tree generation and improve handling of debug levels.
+- Added symlink following along with token counting for makedown bundles.
+- Still minor config file issues to work out.
+- Improved logging in `genmd` and `help_sys.sh` for better debugging and information tracking.
+- Enhanced documentation for functions in markdown files, providing detailed descriptions, usage, input parameters, output, and exceptions.
+- Deleted outdated markdown files: `venv.md` and `venv_funcs.md`.
+- Added new markdown files for function documentation, such as `__venv_conda_check.md`, `create_readme.md`, etc.
+
 ## 2024-11-27 - Refactor and Update
 
 - Refactored `wrapper_funcs.sh` to improve command argument handling and logging.

@@ -1,21 +1,16 @@
+## ccln
 # Function: ccln
-
-`ccln` - Clone Virtual Environment.
-
+`ccln` - Clone a Conda Environment.
 ## Description
+- **Purpose**: 
+  - Clones an existing conda environment.
+- **Usage**: 
+  - `ccln [source_env] [target_env]`
+- **Input Parameters**: 
+  - `source_env` (string) - The name of the environment to clone.
+  - `target_env` (string) - The name of the new cloned environment.
+- **Output**: 
+  - Creates a clone of the specified environment.
+- **Exceptions**: 
+  - Errors if the source environment does not exist.
 
-- **Purpose**: Clones an existing conda environment to a new environment.
-- **Usage**: Call this function with the source environment and target environment names.
-
-## Parameters
-
-- `source_env`: The name of the environment to clone.
-- `target_env`: The name of the new environment to create.
-
-## Output
-
-- None
-
-## Exceptions
-
-- Prints an error message if the cloning process fails.

@@ -1,20 +1,15 @@
+## renv
 # Function: renv
-
-`renv` - Remove an Existing Virtual Environment.
-
+`renv` - Revert to Previous Virtual Environment.
 ## Description
+- **Purpose**: 
+  - Deactivates the current active environment, deletes it, and then re-activates the previously active environment.
+- **Usage**: 
+  - `renv`
+- **Input Parameters**: 
+  - None
+- **Output**: 
+  - Removes the current environment and reverts to the previous one.
+- **Exceptions**: 
+  - Errors during deactivation or deletion are handled by conda.
 
-- **Purpose**: Removes an existing virtual environment from the system.
-- **Usage**: Call this function with the name of the environment to remove it.
-
-## Parameters
-
-- `env_name`: The name of the virtual environment to be removed.
-
-## Output
-
-- None
-
-## Exceptions
-
-- Prints an error message if the environment cannot be found or removed.

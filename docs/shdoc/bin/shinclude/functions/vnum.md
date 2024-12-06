@@ -1,20 +1,15 @@
+## vnum
 # Function: vnum
-
 `vnum` - Return the current VENV sequence number.
-
 ## Description
+- **Purpose**: 
+  - Returns the sequence number of the current virtual environment.
+- **Usage**: 
+  - `vnum`
+- **Input Parameters**: 
+  - None
+- **Output**: 
+  - The sequence number of the current VENV.
+- **Exceptions**: 
+  - None
 
-- **Purpose**: Retrieves the sequence number of the current virtual environment.
-- **Usage**: Call this function to get the VENV sequence number.
-
-## Parameters
-
-- None
-
-## Output
-
-- Returns the current VENV sequence number.
-
-## Exceptions
-
-- None
