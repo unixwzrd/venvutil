@@ -98,13 +98,13 @@ Thanks for using Venvutil!
 
 ### Shell Functions
 
-- **venvutil Tools**: [Detailed Documentation](docs/shdocs/README.md)
+- **venvutil Tools**: [Detailed Documentation](docs/shdoc/README.md)
   - A collection of shell functions and scripts for managing Python virtual environments and LLMs.
-- **vhelp**: [Detailed Documentation](docs/shdocs/bin/shinclude/functions/vhelp.md)
+- **vhelp**: [Detailed Documentation](docs/shdoc/bin/shinclude/functions/vhelp.md)
   - Integrated help for scripts and functions. `vhelp` is the main entry point for the help system.
-- **ptree**: [Detailed Documentation](docs/shdocs/bin/shinclude/functions/ptree.md)
+- **ptree**: [Detailed Documentation](docs/shdoc/bin/shinclude/functions/ptree.md)
   - A shell function that displays a file tree structure of a directory, highlighting directories that contain certain files.
-- **lenv**: [Detailed Documentation](docs/shdocs/bin/shinclude/functions/lenv.md)
+- **lenv**: [Detailed Documentation](docs/shdoc/bin/shinclude/functions/lenv.md)
   Provides a listing of all Pip and Conda managed environments, versions and date last updated.
 
   ```bash
@@ -117,7 +117,7 @@ Thanks for using Venvutil!
   2024-12-05    pa1.00.case-analytics               ~/miniconda3/envs/pa1.00.case-analytics
    ```
 
-- **errfind and errno**: [Detailed Documentation](docs/shdocs/bin/shinclude/errno_sh.md)
+- **errfind and errno**: [Detailed Documentation](docs/shdoc/bin/shinclude/errno_sh.md)
   - For locating POSIX return codes and messages and also looking up return code values. Helping you find the best error return code for any condition, no more using `return 1` or other random number.
 
    ```bash
