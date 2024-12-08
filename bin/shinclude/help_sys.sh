@@ -505,7 +505,7 @@ generate_markdown() {
         for script_path in "${script_files[@]}"; do
             local script_name
             script_name=$(basename "$script_path")
-            local script_index_file="${doc_dir}/${script_name//./_}.md"
+            local script_index_file="${dir_name}/${script_name//./_}.md"
             
             log_message "INFO" "Generating markdown for script: $script_name"
 
