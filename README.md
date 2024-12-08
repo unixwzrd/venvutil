@@ -98,7 +98,7 @@ Thanks for using Venvutil!
 
 ### Shell Functions
 
-- **venvutil Tools**: [Detailed Documentation](docs/shdoc/README.md)
+- **venvutil Tools**: [Detailed Documentation](docs/README.md)
   - A collection of shell functions and scripts for managing Python virtual environments and LLMs.
 - **vhelp**: [Detailed Documentation](docs/shdoc/bin/shinclude/functions/vhelp.md)
   - Integrated help for scripts and functions. `vhelp` is the main entry point for the help system.
