@@ -276,7 +276,7 @@ write_readme_entry() {
     local script_doc_file="${script_doc_path}/${script_doc_name}"
 
     printf "<tr><td><a href=\"%s\">%s</a></td><td>%s</td></tr>\n" \
-        "/${script_doc_file}" "${script_name}" \
+        "${script_doc_file}" "${script_name}" \
         "$(script_description "$script_name")" >> "${readme_file}"
 }
 
@@ -305,7 +305,7 @@ write_script_index_header() {
         echo -e ""
         echo -e "### [${script_name}](/${script_doc_file}) - $(script_description "$script_name")"
         echo -e ""
-        echo -e "## List of functions in script: [${script_name}](/${script_doc_file})"
+        echo -e "## List of functions in script: [${script_name}](${script_doc_file})"
         echo -e ""
         printf "<pre><table>\n"
     } > "${script_index_file}"
@@ -333,7 +333,7 @@ write_script_function_entry() {
     local script_markdown_path="${__VENV_FUNCTIONS[$function_name]}"
 
     printf "<tr><td><a href=\"%s\">%s</a></td><td>%s</td></tr>\n" \
-        "/${script_markdown_path}" "${function_name}" \
+        "${script_markdown_path}" "${function_name}" \
         "$(function_description "$function_name")" >> "${script_index_file}"
 }
 

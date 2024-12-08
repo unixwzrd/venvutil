@@ -4,13 +4,13 @@ Ok, we have a lot of problems,
 
 - that change did not fix parsing which is now very broken.
 - the directories written to should be:
-  - BASE_DOR/docs/shdoc/bin
+  - BASE_DORdocs/shdoc/bin
      Contains the head/top markdown documentation for each script in the bin directory. 
-  - BASE_DOR/docs/shdoc/bin/[scriptname]
+  - BASE_DORdocs/shdoc/bin/[scriptname]
      Contains the function markdown documentation for the functions in that script.
-  - BASE_DOR/docs/shdoc/bin/shinclude/
+  - BASE_DORdocs/shdoc/bin/shinclude/
      Contains the head/top markdown documentation foe the scripts in the  bin/shinclude directory
-  - BASE_DOR/docs/shdoc/bin/shinclude/[scriptname]
+  - BASE_DORdocs/shdoc/bin/shinclude/[scriptname]
      ONtains the function documentation for the functions in the script.
 
 Script documentation begins at the first `#` after the `#!` until the first blank line or non-comment `#` line.
