@@ -1,5 +1,25 @@
 # Changelog
 
+## 2024-12-08 - Documentation and Script Enhancements
+
+- **General Updates**:
+  - Updated script headers and descriptions across multiple scripts for consistency and clarity.
+  - Improved logging and error handling in `errno.sh` and `help_sys.sh`.
+  - Enhanced documentation for shell functions, ensuring detailed descriptions, usage, and examples.
+
+- **Specific Changes**:
+  - `venv_funcs.sh`: Enhanced virtual environment management functions with additional examples and usage scenarios.
+  - `wrapper_funcs.sh`: Enhanced functionality for managing Python package commands by wrapping `pip` and `conda`.
+    - Improved error checking and logging for `pip` and `conda` operations.
+    - Added robust logging to track changes in virtual environments for rollback, auditing, and future use in `venvdiff`.
+  - `util_funcs.sh`: Updated utility functions to streamline common tasks in Bash scripting.
+  - `help_sys.sh`: Refined help system functions for better integration and user experience.
+  - `errno.sh`: Improved POSIX errno codes and utilities with better error message formatting.
+
+- **Markdown Documentation**:
+  - Added new markdown files for function documentation, such as `errno.md`, `errfind.md`, and more.
+  - Updated links in markdown files to use absolute paths for better navigation.
+
 ## 2024-12-06 - Latest Updates
 
 - Refactored `genmd` script to streamline file tree generation and improve handling of debug levels.

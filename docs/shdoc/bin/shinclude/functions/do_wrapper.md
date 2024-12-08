@@ -13,4 +13,9 @@
   - None
 - **Exceptions**: 
   - None
+## Definition
+* [wrapper_funcs.sh](/docs/shdoc/bin/shinclude/wrapper_funcs_sh.md)
 
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:13

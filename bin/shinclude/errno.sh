@@ -173,26 +173,8 @@ errno_exit() {
     exit "${__rc__}"
 }
 
-#  `log_message` - Prints a message to STDERR based on the provided log level.
-# ## Description
-# - **Purpose**: 
-#   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
-# - **Usage**: 
-#   - `log_message <log_level> <message>`
-# - **Input Parameters**: 
-#   - `log_level`: The log level to check against the debug level. Supported log levels are:
-#     - `TRACE`
-#     - `DEBUG8`-`DEBUG0`
-#     - `DEBUG`
-#     - `INFO`
-#     - `WARNING`
-#     - `ERROR`
-#     - `CRITICAL`
-#     - `SILENT`
-#   - `message`: The message to print if the log level is greater than or equal to the current debug level.
-# - **Output**: 
-#   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
-declare -A message_class=(
+
+declare -g -A message_class=(
     ["DEBUG9"]=1
     ["DEBUG8"]=2
     ["DEBUG7"]=2
@@ -212,30 +194,50 @@ declare -A message_class=(
     ["SILENT"]=99
 )
 
+
+#  `log_message` - Prints a message to STDERR based on the provided log level.
+# ## Description
+# - **Purpose**: 
+#   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
+# - **Usage**: 
+#   - `log_message <log_level> <message>`
+# - **Input Parameters**: 
+#   - `log_level`: The log level to check against the debug level. Supported log levels are:
+#     - `TRACE`
+#     - `DEBUG8`-`DEBUG0`
+#     - `DEBUG`
+#     - `INFO`
+#     - `WARNING`
+#     - `ERROR`
+#     - `CRITICAL`
+#     - `SILENT`
+#   - `message`: The message to print if the log level is greater than or equal to the current debug level.
+# - **Output**: 
+#   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
 log_message() {
     local message_level="$1"; shift
     local message_out="$*"
 
-    declare -A message_class=(
-        ["DEBUG9"]=1
-        ["DEBUG8"]=2
-        ["DEBUG7"]=3
-        ["DEBUG6"]=4
-        ["DEBUG5"]=5
-        ["DEBUG4"]=6
-        ["DEBUG3"]=7
-        ["DEBUG2"]=8
-        ["DEBUG1"]=9
-        ["DEBUG0"]=10
-        ["DEBUG"]=10
-        ["INFO"]=20
-        ["WARNING"]=30
-        ["WARN"]=30
-        ["ERROR"]=40
-        ["CRITICAL"]=50
-        ["SILENT"]=99
-    )
-    # Define an associative array for message classes with standard logging levels
+#     declare -A message_class=(
+#         ["DEBUG9"]=1
+#         ["DEBUG8"]=2
+#         ["DEBUG7"]=3
+#         ["DEBUG6"]=4
+#         ["DEBUG5"]=5
+#         ["DEBUG4"]=6
+#         ["DEBUG3"]=7
+#         ["DEBUG2"]=8
+#         ["DEBUG1"]=9
+#         ["DEBUG0"]=10
+#         ["DEBUG"]=10
+#         ["INFO"]=20
+#         ["WARNING"]=30
+#         ["WARN"]=30
+#         ["ERROR"]=40
+#         ["CRITICAL"]=50
+#         ["SILENT"]=99
+#     )
+     # Define an associative array for message classes with standard logging levels
 
 
     # Check if the provided message level exists in the message_class array

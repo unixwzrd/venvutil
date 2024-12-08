@@ -12,4 +12,9 @@
   - A new string with whitespaces removed from both ends.
 - **Exceptions**: 
   - None.
+## Definition
+* [util_funcs.sh](/docs/shdoc/bin/shinclude/util_funcs_sh.md)
 
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:13

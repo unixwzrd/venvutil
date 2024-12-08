@@ -12,6 +12,7 @@
   - [Setup Script Enhancements](#setup-script-enhancements)
   - [Usage](#usage)
     - [Tools Overview](#tools-overview)
+    - [Shell Functions](#shell-functions)
   - [Additional Resources](#additional-resources)
   - [Support and Contribution](#support-and-contribution)
   - [License](#license)
@@ -95,6 +96,49 @@ Thanks for using Venvutil!
   - **compile wrappers for C++, G++, and LD**: [Detailed Documentation](docs/compile_wrappers.md)
     - To help compile many things in the macOS Environment which incorrectly pass the linker the --version flag.
 
+### Shell Functions
+
+- **venvutil Tools**: [Detailed Documentation](/docs/shhdocs/README.md)
+  - A collection of shell functions and scripts for managing Python virtual environments and LLMs.
+- **vhelp**: [Detailed Documentation](/docs/shhdocs/bin/shinclude/functions/vhelp.md)
+  - Integrated help for scripts and functions. `vhelp` is the main entry point for the help system.
+- **ptree**: [Detailed Documentation](/docs/shhdocs/bin/shinclude/functions/ptree.md)
+  - A shell function that displays a file tree structure of a directory, highlighting directories that contain certain files.
+- **lenv**: [Detailed Documentation](docs/shhdocs/bin/shinclude/functions/lenv.md)
+  Provides a listing of all Pip and Conda managed environments, versions and date last updated.
+
+  ```bash
+  (base) [unixwzrd@xanax: ~]$ lenv | sort
+  2024-10-16    seq311..base                        ~/miniconda3/envs/seq311..base
+  2024-11-16  * base                                ~/miniconda3
+  2024-11-30    pa1                                 ~/miniconda3/envs/pa1
+  2024-11-30    pa1..base-3-10                      ~/miniconda3/envs/pa1..base-3-10
+  2024-11-30    seq311.00.case-analitics            ~/miniconda3/envs/seq311.00.case-analitics
+  2024-12-05    pa1.00.case-analytics               ~/miniconda3/envs/pa1.00.case-analytics
+   ```
+
+- **errfind and errno**: [Detailed Documentation](/docs/shhdocs/bin/shinclude/errno_sh.md)
+  - For locating POSIX return codes and messages and also looking up return code values. Helping you find the best error return code for any condition, no more using `return 1` or other random number.
+
+   ```bash
+   (base) [unixwzrd@xanax: ~]$ errfind invalid
+  (EINVAL: 22): Invalid argument
+  (base) [unixwzrd@xanax: ~]$ errfind file
+  (ENOENT: 2): No such file or directory
+  (EBADF: 9): Bad file descriptor
+
+  (base) [unixwzrd@xanax: ~]$ sudo
+  usage: sudo -h | -K | -k | -V
+  usage: sudo -v [-ABkNnS] [-g group] [-h host] [-p prompt] [-u user]
+  usage: sudo -l [-ABkNnS] [-g group] [-h host] [-p prompt] [-U user] [-u user] [command [arg ...]]
+  usage: sudo [-ABbEHkNnPS] [-C num] [-D directory] [-g group] [-h host] [-p prompt] [-R directory] [-T timeout] [-u user] [VAR=value] [-i | -s] [command [arg ...]]
+  usage: sudo -e [-ABkNnS] [-C num] [-D directory] [-g group] [-h host] [-p prompt] [-R directory] [-T timeout] [-u user] file ...
+  (base) [unixwzrd@xanax: ~]$ errno $?
+  (EPERM: 1): Operation not permitted
+   ```
+
+There are many more functions available, check out the documentation for more.
+
 ## Additional Resources
 
 - Explore additional projects and tools that complement Venvutil.
@@ -116,6 +160,8 @@ briefly, here are the instructions for building NumPy with the optimizations tur
 ```bash
 CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework -Wl,Accelerate -framework Accelerate" pip install numpy==1.26.* --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true
 ```
+
+- **NOTE** Something changed in the Meson build with pip install and compile, I'm tracking this down.
 
 That will build and install NumPy 1.26 into your Python virtual environment.
 

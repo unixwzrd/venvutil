@@ -13,4 +13,9 @@
   - Creates and activates the new environment with sequence number "00".
 - **Exceptions**: 
   - Errors during environment creation are handled by conda.
+## Definition
+* [venv_funcs.sh](/docs/shdoc/bin/shinclude/venv_funcs_sh.md)
 
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:13

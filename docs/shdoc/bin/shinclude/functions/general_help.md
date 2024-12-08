@@ -14,4 +14,9 @@
   - Lists the general help commands available.
 - **Exceptions**: 
   - None
+## Definition
+* [help_sys.sh](/docs/shdoc/bin/shinclude/help_sys_sh.md)
 
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:13

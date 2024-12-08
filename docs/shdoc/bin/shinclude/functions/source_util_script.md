@@ -12,4 +12,9 @@
   - Sources the specified script if found. Otherwise, outputs an error message and returns with an exit code of 1.
 - **Exceptions**: 
   - Returns with exit code 1 if the specified script is not found in the directory `__VENV_INCLUDE`.
+## Definition
+* [init_env.sh](/docs/shdoc/bin/shinclude/init_env_sh.md)
 
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:13

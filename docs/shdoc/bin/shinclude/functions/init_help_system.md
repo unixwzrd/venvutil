@@ -1,6 +1,6 @@
 ## init_help_system
-# functiontion: init_help_system
- `init_help_system` - Initialize the help system by populating functiontion and script documentation.
+# function: init_help_system
+ `init_help_system` - Initialize the help system by populating function and script documentation.
 ## Description
 - **Purpose**:
   - Initializes the help system by populating the `__VENV_FUNCTIONS` with function names and their documentation.
@@ -15,4 +15,9 @@
   - Sorts `__VENV_FUNCTIONS` based on function names.
 - **Exceptions**: 
   - None
+## Definition
+* [help_sys.sh](/docs/shdoc/bin/shinclude/help_sys_sh.md)
 
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:12

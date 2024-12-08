@@ -1,14 +1,13 @@
-# venv_funcs.sh
-## Description
-## venv_funcs.sh - Virtual Environment Management Functions for Bash Scripts
+# Script: venv_funcs.sh
+ venv_funcs.sh - Virtual Environment Management Functions for Bash Scripts
+ ## Description
+ - **Purpose**: 
+   - This script provides a collection of functions to manage conda virtual environments.
+   - Functions include creating, deleting, switching, and cloning environments, among others.
 #
-- **Purpose**: 
-  - This script provides a collection of functions to manage conda virtual environments.
-  - Functions include creating, deleting, switching, and cloning environments, among others.
-#
-- **Usage**: 
-  - Source this script in other bash scripts to import the virtual environment management functions.
-  - For example, in another script: `source venv_funcs.sh`.
+ ## Usage
+ - Source this script in other bash scripts to import the virtual environment management functions.
+ - For example, in another script: `source venv_funcs.sh`.
 #
 - **Input Parameters**: 
   - None. All input is handled by the individual functions.
@@ -63,3 +62,7 @@
 - **Version**: [Version Number]
 #
 
+
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:13

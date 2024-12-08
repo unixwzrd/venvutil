@@ -1,5 +1,3 @@
-# init_env.sh
-## Description
 # Script: init_env.sh
 `init_env.sh` - Initialize Environment and Source Utility Scripts
 ## Description
@@ -26,3 +24,7 @@
   - `wrapper_funcs.sh`
 - Conda environment
 
+
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:13

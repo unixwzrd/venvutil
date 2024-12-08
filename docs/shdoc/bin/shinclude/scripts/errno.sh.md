@@ -1,5 +1,3 @@
-# errno.sh
-## Description
 # Script: errno.sh
 `errno.sh` - Provides POSIX errno codes and utilities for Bash scripts
 ## Description
@@ -22,3 +20,7 @@
 ## Dependencies
 - `util_funcs.sh` (for utility functions like `to_upper`)
 
+
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:12

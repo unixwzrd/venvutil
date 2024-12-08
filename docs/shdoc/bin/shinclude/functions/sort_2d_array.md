@@ -12,4 +12,9 @@
   - The original array sorted based on the specified criteria.
 - **Exceptions**: 
   - Handles exceptions or errors that may arise during the sorting process (to be detailed based on function's implementation).
+## Definition
+* [util_funcs.sh](/docs/shdoc/bin/shinclude/util_funcs_sh.md)
 
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:13

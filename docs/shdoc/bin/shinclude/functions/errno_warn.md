@@ -12,4 +12,9 @@
   - Outputs a warning message to STDERR.
 - **Exceptions**: 
   - Returns the error number associated with the provided errno code.
+## Definition
+* [errno.sh](/docs/shdoc/bin/shinclude/errno_sh.md)
 
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:12

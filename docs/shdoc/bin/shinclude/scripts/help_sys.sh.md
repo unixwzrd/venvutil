@@ -1,5 +1,3 @@
-# help_sys.sh
-## Description
 # Script: help_sys.sh
 `help_sys.sh` - Help System Functions for Bash Scripts
 ## Description
@@ -22,3 +20,7 @@
 - **Environment**:
   - **MD_PROCESSOR**: Set to the markdown processor of your choice. If `glow` is in your path, it will use that.
 
+
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:12

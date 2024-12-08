@@ -6,32 +6,40 @@
 # consistent behavior when passing arguments, especially in scripts that 
 # may need to work with various executables that follow different syntax.
 
+# Directory to store logs
+LOG_DIR="${HOME}/.venvutil"
+mkdir -p "$LOG_DIR"
+
+LOG_FILE="$LOG_DIR/$(basename "${BASH_SOURCE[0]}").log"
+
+# Function to filter PATH and remove the script directory
+filter_path() {
+    local script_dir
+    script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    local filtered_path=""
+    local IFS=':'
+    for dir in $PATH; do
+        if [[ "$dir" != "$script_dir" ]]; then
+            if [[ -z "$filtered_path" ]]; then
+                filtered_path="$dir"
+            else
+                filtered_path="$filtered_path:$dir"
+            fi
+        fi
+    done
+    echo "$filtered_path"
+}
+
 # Function to find the real executable
 find_executable() {
     local exec_name="$1"
-    local script_dir=$(dirname "${BASH_SOURCE[0]}")
-
-    # Remove the script's directory from PATH
-    local path_dirs=(${PATH//:/ })
-    local filtered_path=()
-    for dir in "${path_dirs[@]}"; do
-        if [[ "$dir" != "$script_dir" ]]; then
-            filtered_path+=("$dir")
-        fi
-    done
-
-    # Search for the executable in the filtered PATH
-    for path in "${filtered_path[@]}"; do
-        if [[ -x "$path/$exec_name" ]]; then
-            echo "$path/$exec_name"
-            return
-        fi
-    done
-    echo "$0 not found in PATH" >&2
-    return 2
+    PATH=$(filter_path) which "$exec_name" 2>/dev/null
 }
 
-# Initialize an array to hold modified arguments
+# Log the invocation
+echo "[$(date)] Invoked: $(basename "${BASH_SOURCE[0]}") $*" >> "$LOG_FILE"
+
+# Remove --version or -Wl,--version from arguments and modify them
 modified_args=()
 
 # Iterate over all arguments and perform substitution
@@ -45,6 +53,17 @@ for arg in "$@"; do
     modified_args+=("$modified_arg")
 done
 
-# Find and execute the real executable with modified arguments
+# Log modified arguments
+echo "[$(date)] Modified arguments: ${modified_args[*]}" >> "$LOG_FILE"
+
+# Find and execute the real binary
 real_exec=$(find_executable "$(basename "${BASH_SOURCE[0]}")")
-exec "$real_exec" "${modified_args[@]}"
+if [[ -x "$real_exec" ]]; then
+    # Log the execution of the real binary
+    echo "[$(date)] Executing: $real_exec ${modified_args[*]}" >> "$LOG_FILE"
+    PATH=$(filter_path) exec "$real_exec" "${modified_args[@]}"
+else
+    echo "Error: Unable to locate real executable for $(basename "${BASH_SOURCE[0]}")" >&2
+    echo "[$(date)] Error: Unable to locate real executable" >> "$LOG_FILE"
+    exit 1
+fi

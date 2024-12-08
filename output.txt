@@ -1,0 +1,69 @@
+/Users/mps/projects/AI-PROJECTS/venv-build-checker
+/Users/mps/projects/AI-PROJECTS/venv-build-checker
+Starting markdown generation...
+venv_funcs.sh WARNING(30): Invalid line type found: declare -A message_class=(
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_SOURCED_LIST=${__VENV_SOURCED_LIST:-""}
+venv_funcs.sh WARNING(30): Invalid line type found: echo "Sourcing: ${THIS_SCRIPT}"
+venv_funcs.sh WARNING(30): Invalid line type found: MY_NAME=$(basename "${THIS_SCRIPT}")
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_BASE=$(dirname "${__VENV_BIN}")
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_ARGS=$*
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_INTERNAL_FUNCTIONS=(
+venv_funcs.sh WARNING(30): Invalid line type found: debug_level=${debug_level:-30}
+venv_funcs.sh WARNING(30): Invalid line type found: if declare -f "source_util_script" >/dev/null 2>&1; then
+venv_funcs.sh WARNING(30): Invalid line type found: else
+venv_funcs.sh WARNING(30): Invalid line type found: fi
+venv_funcs.sh WARNING(30): Invalid line type found: __rc__=0
+venv_funcs.sh WARNING(30): Invalid line type found: echo "Sourcing: ${THIS_SCRIPT}"
+venv_funcs.sh WARNING(30): Invalid line type found: declare -g __VENV_BIN
+venv_funcs.sh WARNING(30): Invalid line type found: declare -g __VENV_BASE
+venv_funcs.sh WARNING(30): Invalid line type found: declare -g __VENV_ARGS=$*
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_BASE=$(dirname "${__VENV_BIN}")
+venv_funcs.sh WARNING(30): Invalid line type found: declare -g MD_PROCESSOR=${MD_PROCESSOR:-"glow"}
+venv_funcs.sh WARNING(30): Invalid line type found: declare -g -a __VENV_INTERNAL_FUNCTIONS=(
+venv_funcs.sh WARNING(30): Invalid line type found: declare -g -A __VENV_FUNCTIONS
+venv_funcs.sh WARNING(30): Invalid line type found: declare -g -A __VENV_SCRIPTS
+venv_funcs.sh WARNING(30): Invalid line type found: declare -g -a sorted_function_names
+venv_funcs.sh WARNING(30): Invalid line type found: declare -g -a sorted_script_names
+venv_funcs.sh WARNING(30): Invalid line type found: declare -g longest_script_name=0
+venv_funcs.sh WARNING(30): Invalid line type found: declare -g longest_function_name=0
+venv_funcs.sh WARNING(30): Invalid line type found: echo "Sourcing: ${THIS_SCRIPT}"
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_BASE=$(dirname "${__VENV_BIN}")
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_ARGS=$*
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_INTERNAL_FUNCTIONS=(
+venv_funcs.sh WARNING(30): Invalid line type found: __rc__=0
+venv_funcs.sh WARNING(30): Invalid line type found: __conda_setup="$('${HOME}/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+venv_funcs.sh WARNING(30): Invalid line type found: if [ $? -eq 0 ]; then
+venv_funcs.sh WARNING(30): Invalid line type found: else
+venv_funcs.sh WARNING(30): Invalid line type found: fi
+venv_funcs.sh WARNING(30): Invalid line type found: unset __conda_setup
+venv_funcs.sh WARNING(30): Invalid line type found: source_util_script "util_funcs"
+venv_funcs.sh WARNING(30): Invalid line type found: source_util_script "errno"
+venv_funcs.sh WARNING(30): Invalid line type found: source_util_script "help_sys"
+venv_funcs.sh WARNING(30): Invalid line type found: source_util_script "wrapper_funcs"
+venv_funcs.sh WARNING(30): Invalid line type found: source_util_script "venv_funcs"
+venv_funcs.sh WARNING(30): Invalid line type found: echo "Sourcing: ${THIS_SCRIPT}"
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_INTERNAL_FUNCTIONS=(
+venv_funcs.sh WARNING(30): Invalid line type found: echo "Sourcing: ${THIS_SCRIPT}"
+venv_funcs.sh WARNING(30): Invalid line type found: MY_NAME=$(basename ${THIS_SCRIPT})
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_BASE=$(dirname "${__VENV_BIN}")
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_ARGS=$*
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_INTERNAL_FUNCTIONS=(
+venv_funcs.sh WARNING(30): Invalid line type found: __rc__=0
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_STACK=()
+venv_funcs.sh WARNING(30): Invalid line type found: THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}")
+venv_funcs.sh WARNING(30): Invalid line type found: echo "Sourcing: ${THIS_SCRIPT}"
+venv_funcs.sh WARNING(30): Invalid line type found: __VENV_INTERNAL_FUNCTIONS=(
+venv_funcs.sh WARNING(30): Invalid line type found: export VENVUTIL_CONFIG="${VENVUTIL_CONFIG:-${HOME}/.venvutil}"
+venv_funcs.sh WARNING(30): Invalid line type found: __venv_conda_check
+venv_funcs.sh WARNING(30): Invalid line type found: __venv_conda_hash=$(get_function_hash conda)
+venv_funcs.sh WARNING(30): Invalid line type found: __venv_prompt_command="${PROMPT_COMMAND}"
+venv_funcs.sh WARNING(30): Invalid line type found: PROMPT_COMMAND="__venv_conda_check; ${PROMPT_COMMAND}"
+bash: write_index_footer: command not found
+Markdown generation complete.

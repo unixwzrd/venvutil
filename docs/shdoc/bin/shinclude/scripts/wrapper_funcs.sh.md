@@ -1,7 +1,6 @@
-# wrapper_funcs.sh
+# Script: wrapper_funcs.sh
+`wrapper_funcs.sh` - Python Package Manager Wrapper Functions
 ## Description
-## wrapper_funcs.sh - Python Package Manager Wrapper Functions
-#
 - **Purpose**: 
   - Provides enhanced functionality for managing Python package commands by wrapping pip and conda.
   - Intercepts and logs changes to virtual environments for rollback, auditing, and future use in venvdiff or vdiff.
@@ -18,3 +17,7 @@
   - Some functions may return specific error codes or print error messages to STDERR.
   - Refer to individual function documentation for details.
 
+
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:13

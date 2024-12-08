@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# ## wrapper_funcs.sh - Python Package Manager Wrapper Functions
-#
+# # Script: wrapper_funcs.sh
+# `wrapper_funcs.sh` - Python Package Manager Wrapper Functions
+# ## Description
 # - **Purpose**: 
 #   - Provides enhanced functionality for managing Python package commands by wrapping pip and conda.
 #   - Intercepts and logs changes to virtual environments for rollback, auditing, and future use in venvdiff or vdiff.
@@ -80,7 +81,9 @@ export VENVUTIL_CONFIG="${VENVUTIL_CONFIG:-${HOME}/.venvutil}"
 do_wrapper() {
     local cmd="$1"; shift
     local action="$1"
-    local actions_to_log=("install" "uninstall" "remove" "rename" "update" "upgrade" "create" "clean" "config" "clone")
+    local actions_to_log=("install" "uninstall" "remove"
+                          "rename" "update" "upgrade"
+                          "create" "clean" "config" "clone")
     local actions_to_exclude=("--help" "-h" "--dry-run")
     local cmd_args="$*"
     local env_vars
@@ -101,38 +104,61 @@ do_wrapper() {
     # local cmd_line="${env_vars} ${cmd} ${cmd_args}"
     local user_line="${env_vars} ${user_cmd}"
 
-    # Check if the action is potentially destructive and should be logged.
-    if [[ " ${actions_to_log[*]} " =~ ${action} ]] && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
+    # Check if the action is potentially destructive and should be logged. Don't log
+    # --help, -h, or --dry-run.
+    if [[ " ${actions_to_log[*]} " =~ ${action} ]] \
+                && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
+        local log_date=$(date '+%Y-%m-%d %H:%M:%S')
+        local venv_log_dir="${VENVUTIL_CONFIG}/log"
+        local venvutil_log="${VENVUTIL_CONFIG}/venvutil.log"
+        local venv_history_log="${venv_log_dir}/${CONDA_DEFAULT_ENV}.log"
         local freeze_date=$(date "+%Y%m%d%H%M%S")
-        local cmd_date=$(date '+%Y-%m-%d %H:%M:%S')
         local freeze_dir="${VENVUTIL_CONFIG}/freeze"
         local freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${freeze_date}.txt"
-        local log_dir="${VENVUTIL_CONFIG}/log"
         # Freeze the state of the environment before a potentially destructive command is executed.
         command pip freeze > "${freeze_state}"
         if eval " ${env_vars} ${cmd} ${cmd_args} "; then
             # Logging the command invocation if it completed successfully.
-            local hist_log="${log_dir}/${CONDA_DEFAULT_ENV}.log"
-            local venvutil_log="${VENVUTIL_CONFIG}/venvutil.log"
             {
-                echo "# ${cmd_date}: ${user_line}"
-                echo "# ${cmd_date}: Current working directory: ${PWD}"
-                echo "# ${cmd_date}: $(${cmd} --version)"
-            } >> "${hist_log}"
-            echo "# ${cmd_date} - ${CONDA_DEFAULT_ENV}: ${user_line}" >> "${venvutil_log}"
-            # Freeze it again to get the current state, after any potentially destructive command is executed.
-            # Update the new date and time sleep 2 second to ensure the filename is unique.
+                echo "# ${log_date}: Success - prefreeze state: ${freeze_state}"
+                echo "# ${log_date}: ${user_line}"
+                echo "# ${log_date}: Current working directory: ${PWD}"
+                echo "# ${log_date}: $(${cmd} --version)"
+            } >> "${venv_history_log}"
+            echo "# ${log_date} - ${CONDA_DEFAULT_ENV}: ${user_line}" >> "${venvutil_log}"
+            # Freeze it again to get the current state, after any potentially destructive command
+            # is executed. Sleep 2 second to ensure the filename is unique.
             sleep 2
             freeze_date=$(date "+%Y%m%d%H%M%S")
             freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${freeze_date}.txt"
             command pip freeze > "${freeze_state}"
+            echo "# ${log_date}: Success - post-freeze state: ${freeze_state}" >> \
+                    "${venv_history_log}"
             # Make a symlink so the currecnt state is allways up-to-date.
             ln -sf "${freeze_state}" "${freeze_dir}/${CONDA_DEFAULT_ENV}.current.txt"
+        else
+            # Cleanup and log the failure and presrve the return code
+            __rc__="$?"
+            {
+                echo "# ${log_date}: Command failure: $(errno ${__rc__})"
+                echo "# ${log_date}: ${user_line}"
+                echo "# ${log_date}: Current working directory: ${PWD}"
+                echo "# ${log_date}: $(${cmd} --version)"
+            } >> "${venv_history_log}"
+            echo "# ${log_date} - ${CONDA_DEFAULT_ENV}: ${user_line}" >> "${venvutil_log}"
+            echo "# ${log_date}: Command failed with return code $(errno ${__rc__})" >> \
+                    "${venv_history_log}"
+            rm "${freeze_state}"
+
         fi
     else
         # Execute the command without logging.
+        # shellcheck disable=SC2086
         ${cmd} ${cmd_args}
+        __rc__="$?"
     fi
+
+    return "${__rc__}"
 }
 
 # # Function: pip
@@ -140,7 +166,8 @@ do_wrapper() {
 #
 # ## Description
 # - **Purpose**: 
-#   - Wraps pip commands to ensure environment variables are preserved.
+#   - Wraps pip commands to ensure environment variables are preserved. provides logging
+#     for pip commands and the virtual environment affected
 # - **Usage**: 
 #   - `pip [arguments]`
 # - **Input Parameters**: 
@@ -159,7 +186,8 @@ pip() {
 #
 # ## Description
 # - **Purpose**: 
-#   - Checks if the conda function definition has changed and re-hooks if necessary.
+#   - Checks if the conda function definition has changed and re-hooks if necessary. Replaces
+#     the conda function with a wrapper that logs the command and environment affected.
 # - **Usage**: 
 #   - `__venv_conda_check`
 # - **Input Parameters**: 

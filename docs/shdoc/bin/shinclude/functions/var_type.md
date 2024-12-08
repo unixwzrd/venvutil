@@ -12,4 +12,9 @@
   - The type of the variable as a string. Can be one of `array`, `associative`, `scalar`, or `unknown`.
 - **Exceptions**: 
   - None.
+## Definition
+* [util_funcs.sh](/docs/shdoc/bin/shinclude/util_funcs_sh.md)
 
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:13

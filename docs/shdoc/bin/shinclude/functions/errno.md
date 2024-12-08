@@ -13,4 +13,9 @@
 - **Exceptions**: 
   - 2: Could not find system errno.h
   - 22: Invalid errno name
+## Definition
+* [errno.sh](/docs/shdoc/bin/shinclude/errno_sh.md)
 
+---
+Generated Markdown Documentation
+Generated on:Generated: 2024 12 08 at 06:13:12

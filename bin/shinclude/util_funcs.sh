@@ -1,7 +1,7 @@
 #!/bin/bash
-#
-# # util_funcs.sh - Utility Functions for Bash Scripts
-#
+
+# # Script: util_funcs.sh
+# `util_funcs.sh` - Utility Functions for Bash Scripts
 # ## Description
 # - **Purpose**:
 #   - Provides a collection of utility functions to assist in various common tasks within Bash scripting. These functions offer streamlined solutions for string manipulation, number padding, and stack operations, enhancing the efficiency and readability of Bash scripts that incorporate them.
