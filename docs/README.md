@@ -1,5 +1,5 @@
 # Script Documentation
-## The for more details of the project, see [README.md](README.md)
+## The for more details of the project, see [README.md](/README.md)
 
 # List of scripts in project
 
@@ -15,3 +15,4 @@
 ---
 Generated Markdown Documentation
 Generated on:Generated: 2024 12 08 at 06:34:46
+
