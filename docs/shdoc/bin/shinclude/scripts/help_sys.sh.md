@@ -21,6 +21,14 @@
   - **MD_PROCESSOR**: Set to the markdown processor of your choice. If `glow` is in your path, it will use that.
 
 
+
+## Function Defniitions
+
+* [help_sys.sh](/bin/shinclude/help_sys_sh.md)
+
+
 ---
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:45
+
+Generated on:Generated: 2024 12 09 at 18:36:57

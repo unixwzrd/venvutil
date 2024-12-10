@@ -18,9 +18,14 @@
   - `message`: The message to print if the log level is greater than or equal to the current debug level.
 - **Output**: 
   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
-## Definition
-* [errno.sh](/docs/shdoc/bin/shinclude/errno_sh.md)
+
+## Defniition 
+
+* [errno.sh](/bin/shinclude/errno.sh/errno_sh.md)
+
 
 ---
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:45
+
+Generated on:Generated: 2024 12 09 at 18:36:57

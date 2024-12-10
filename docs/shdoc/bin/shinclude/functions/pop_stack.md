@@ -12,9 +12,14 @@
   - Removes and returns the top element from the named stack.
 - **Exceptions**: 
   - Returns an error message and error code 1 if the stack is empty.
-## Definition
-* [util_funcs.sh](/docs/shdoc/bin/shinclude/util_funcs_sh.md)
+
+## Defniition 
+
+* [util_funcs.sh](/bin/shinclude/util_funcs.sh/util_funcs_sh.md)
+
 
 ---
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+
+Generated on:Generated: 2024 12 09 at 18:36:57

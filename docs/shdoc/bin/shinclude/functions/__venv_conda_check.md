@@ -13,9 +13,14 @@
   - Ensures the conda function is wrapped correctly.
 - **Exceptions**: 
   - None
-## Definition
-* [wrapper_funcs.sh](/docs/shdoc/bin/shinclude/wrapper_funcs_sh.md)
+
+## Defniition 
+
+* [wrapper_funcs.sh](/bin/shinclude/wrapper_funcs.sh/wrapper_funcs_sh.md)
+
 
 ---
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+
+Generated on:Generated: 2024 12 09 at 18:36:58

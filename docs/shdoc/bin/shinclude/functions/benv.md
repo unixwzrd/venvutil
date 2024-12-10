@@ -13,9 +13,14 @@
   - Creates and activates the new environment.
 - **Exceptions**: 
   - Errors during environment creation are handled by conda.
-## Definition
-* [venv_funcs.sh](/docs/shdoc/bin/shinclude/venv_funcs_sh.md)
+
+## Defniition 
+
+* [venv_funcs.sh](/bin/shinclude/venv_funcs.sh/venv_funcs_sh.md)
+
 
 ---
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+
+Generated on:Generated: 2024 12 09 at 18:36:58

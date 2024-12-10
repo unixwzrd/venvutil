@@ -15,9 +15,14 @@
   - Sorts `__VENV_FUNCTIONS` based on function names.
 - **Exceptions**: 
   - None
-## Definition
-* [help_sys.sh](/docs/shdoc/bin/shinclude/help_sys_sh.md)
+
+## Defniition 
+
+* [help_sys.sh](/bin/shinclude/help_sys.sh/help_sys_sh.md)
+
 
 ---
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+
+Generated on:Generated: 2024 12 09 at 18:36:57

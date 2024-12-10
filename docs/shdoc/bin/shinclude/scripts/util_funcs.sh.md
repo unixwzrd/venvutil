@@ -19,6 +19,14 @@
 - None explicitly stated. The script is designed to be self-contained, relying only on standard Bash features.
 
 
+
+## Function Defniitions
+
+* [util_funcs.sh](/bin/shinclude/util_funcs_sh.md)
+
+
 ---
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+
+Generated on:Generated: 2024 12 09 at 18:36:57

@@ -21,6 +21,14 @@
 - `util_funcs.sh` (for utility functions like `to_upper`)
 
 
+
+## Function Defniitions
+
+* [errno.sh](/bin/shinclude/errno_sh.md)
+
+
 ---
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:45
+
+Generated on:Generated: 2024 12 09 at 18:36:57

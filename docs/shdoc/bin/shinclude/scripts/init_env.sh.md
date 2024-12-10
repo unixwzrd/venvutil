@@ -25,6 +25,14 @@
 - Conda environment
 
 
+
+## Function Defniitions
+
+* [init_env.sh](/bin/shinclude/init_env_sh.md)
+
+
 ---
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+
+Generated on:Generated: 2024 12 09 at 18:36:57

@@ -13,9 +13,14 @@
   - A hierarchical display of processes starting from the specified PID.
 - **Exceptions**: 
   - None.
-## Definition
-* [util_funcs.sh](/docs/shdoc/bin/shinclude/util_funcs_sh.md)
+
+## Defniition 
+
+* [util_funcs.sh](/bin/shinclude/util_funcs.sh/util_funcs_sh.md)
+
 
 ---
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+
+Generated on:Generated: 2024 12 09 at 18:36:58

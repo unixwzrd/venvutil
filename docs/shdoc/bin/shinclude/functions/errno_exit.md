@@ -12,9 +12,14 @@
   - Outputs an error message to STDERR and exits the script.
 - **Exceptions**: 
   - Exits the script with the provided error number.
-## Definition
-* [errno.sh](/docs/shdoc/bin/shinclude/errno_sh.md)
+
+## Defniition 
+
+* [errno.sh](/bin/shinclude/errno.sh/errno_sh.md)
+
 
 ---
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:45
+
+Generated on:Generated: 2024 12 09 at 18:36:57
