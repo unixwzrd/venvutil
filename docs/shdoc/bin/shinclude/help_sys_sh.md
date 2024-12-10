@@ -1,19 +1,27 @@
-# List of functions in script: help_sys.sh
+# Functions Defined in Script: help_sys.sh
 
-### [help_sys.sh](/scripts/help_sys.sh.md) - Help System Functions for Bash Scripts
 
-## List of functions in script: [help_sys.sh](scripts/help_sys.sh.md)
+
+### [help_sys.sh](/docs/shdoc/bin/shinclude/scripts/help_sys.sh.md) - Help System Functions for Bash Scripts
+
+
+
+## List of Functions Defined:
+
+
 
 <pre><table>
 <tr><td><a href="functions/process_scripts.md">process_scripts</a></td><td>Process scripts in a given directory.</td></tr>
 <tr><td><a href="functions/init_help_system.md">init_help_system</a></td><td>Initialize the help system by populating function and script documentation.</td></tr>
 <tr><td><a href="functions/script_description.md">script_description</a></td><td>Get the description of a script.</td></tr>
 <tr><td><a href="functions/function_description.md">function_description</a></td><td>Get the description of a function.</td></tr>
-<tr><td><a href="functions/write_index_header.md">write_index_header</a></td><td>Writes the header section of the README.</td></tr>
-<tr><td><a href="functions/generate_nbsp_padding.md">generate_nbsp_padding</a></td><td>* [help_sys.sh](/help_sys_sh.md)</td></tr>
-<tr><td><a href="functions/write_readme_entry.md">write_readme_entry</a></td><td>Creates an entry in the README for a script or function.</td></tr>
-<tr><td><a href="functions/write_script_index_header.md">write_script_index_header</a></td><td>Write the description of the script and the functions contained in it</td></tr>
-<tr><td><a href="functions/write_script_function_entry.md">write_script_function_entry</a></td><td>Write a function entry in the documentation.</td></tr>
+<tr><td><a href="functions/docs_base_path.md">docs_base_path</a></td><td>Get the base path for documentation files.</td></tr>
+<tr><td><a href="functions/get_system_readme_file.md">get_system_readme_file</a></td><td>Get the path to the README file for scripts.</td></tr>
+<tr><td><a href="functions/get_script_readme_file.md">get_script_readme_file</a></td><td>Get the path to the README file for a script.</td></tr>
+<tr><td><a href="functions/write_system_readme_header.md">write_system_readme_header</a></td><td>Writes the header section of the README.</td></tr>
+<tr><td><a href="functions/write_system_readme_entry.md">write_system_readme_entry</a></td><td>Creates an entry in the README for a script or function.</td></tr>
+<tr><td><a href="functions/write_script_readme_header.md">write_script_readme_header</a></td><td>Write the description of the script and the functions contained in it</td></tr>
+<tr><td><a href="functions/write_script_function_entry.md">write_script_function_entry</a></td><td>Write a function entry in the script documentation.</td></tr>
 <tr><td><a href="functions/write_script_doc.md">write_script_doc</a></td><td>Write the documentation for a script.</td></tr>
 <tr><td><a href="functions/write_function_doc.md">write_function_doc</a></td><td>Write the documentation for a function.</td></tr>
 <tr><td><a href="functions/write_table_footer.md">write_table_footer</a></td><td>Write the footer section of the README.</td></tr>
@@ -28,5 +36,9 @@
 </table></pre>
 
 ---
+Website: [unixwzrd.ai](https://unixwzrd.ai)
+Copyright (c) 2024 Michael Sullivan
+Apache License, Version 2.0
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+Generated on: Generated: 2024 12 10 at 02:01:12

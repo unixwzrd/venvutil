@@ -1,15 +1,15 @@
-## write_table_footer
-# Function: write_table_footer
- `write_table_footer` - Write the footer section of the README.
+## write_system_readme_header
+# Function: write_system_readme_header
+ `write_system_readme_header` - Writes the header section of the README.
 ## Description
 - **Purpose**:
-  - Creates the footer content for the README documentation.
+  - Creates the initial header content for the README documentation.
 - **Usage**: 
-  - `write_table_footer <file_path>`
+  - `write_system_readme_header <file_path>`
 - **Input Parameters**: 
   - `file_path`: The path to the README file.
 - **Output**: 
-  - Writes the footer content to the specified README file.
+  - Writes the header content to the specified README file.
 - **Exceptions**: 
   - None
 

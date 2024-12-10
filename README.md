@@ -13,17 +13,15 @@
   - [Usage](#usage)
     - [Tools Overview](#tools-overview)
     - [Shell Functions](#shell-functions)
-  - [Additional Resources](#additional-resources)
-  - [Support and Contribution](#support-and-contribution)
-  - [License](#license)
-  - [C++, G++, and LD Pass-Throughs](#c-g-and-ld-pass-throughs)
+  - [Conda and Pip Logging](#conda-and-pip-logging)
+  - [C++, G++, and LD Pass-Throughs *TODO* - Meson issues again](#c-g-and-ld-pass-throughs-todo---meson-issues-again)
     - [Purpose](#purpose)
     - [Explanation](#explanation)
   - [NLTK and Token Count](#nltk-and-token-count)
   - [Recent Changes](#recent-changes)
   - [Project Status](#project-status)
   - [Support My Work](#support-my-work)
-  - [License](#license-1)
+  - [License](#license)
   - [Future Improvements](#future-improvements)
 
 ## Project Overview
@@ -83,22 +81,22 @@ Thanks for using Venvutil!
 
 ### Tools Overview
 
-- **tokencount**: [Detailed Documentation](docs/tokencount.md)
+- **tokencount**: [Detailed Documentation](docs/tokencount.md) *TODO*
   - A tool designed to count tokens in text files, useful for analyzing text data and preparing it for processing with language models.
-- **chunkfile**: [Detailed Documentation](docs/chunkfile.md)
+- **chunkfile**: [Detailed Documentation](docs/chunkfile.md) *TODO*
   - A script for breaking large files into smaller, manageable chunks for easier processing.
 - **genmd**: [Detailed Documentation](docs/genmd.md)
   - A script that generates markdown documentation from project files, facilitating easy sharing and collaboration.
 - **filetree**: [Detailed Documentation](docs/filetree.md)
   - will produce file hierarchy structure based on file and directories to exclude and include..
-- **core functions provided by init_env.sh**: [Detailed Documentation](docs/init_env.sh)
+- **core functions provided by init_env.sh**: [Detailed Documentation](docs/shdoc/README.md)
   - Provides a number of useful shell functions for managing aVirtual Environments along with some utility function, such as `ptree`
   - **compile wrappers for C++, G++, and LD**: [Detailed Documentation](docs/compile_wrappers.md)
     - To help compile many things in the macOS Environment which incorrectly pass the linker the --version flag.
 
 ### Shell Functions
 
-- **venvutil Tools**: [Detailed Documentation](docs/README.md)
+- **venvutil Tools**: [Detailed Documentation](docs/shdoc/README.md)
   - A collection of shell functions and scripts for managing Python virtual environments and LLMs.
 - **vhelp**: [Detailed Documentation](docs/shdoc/bin/shinclude/functions/vhelp.md)
   - Integrated help for scripts and functions. `vhelp` is the main entry point for the help system.
@@ -139,23 +137,19 @@ Thanks for using Venvutil!
 
 There are many more functions available, check out the documentation for more.
 
-## Additional Resources
+## Conda and Pip Logging
 
-- Explore additional projects and tools that complement Venvutil.
+Any potential *destructive* operations on a virtual environment swill be logged, along with the exact command used. Logs are done for the venvutil tools globally, as well as for the virtual environments themselves. A `pip freeze` is done before and after the operation to ensure that the virtual environment is frozen.
 
-## Support and Contribution
+This logging combined with the frozen environments can be used to ensure that your virtual environments are consistent and reproducible as well as tracking changes and rolling back to a previous state. There are numerous commands which will work with Conda created and using either Pip or Conda for package management. I would like to add support for other package managers which may be used in a compatible virtual environments. Two useful commands are `lenv` which not only lists the environments, but also their last update date. The `ccln` command will clone the current venv and switch you to the cloned environment. There are many other useful commands and functions available, check out the [venv_functs.sh](docs/shdoc/bin/shinclude/venv_funcs_sh.md) file for more information.
 
-- Information on how to support the ongoing development of Venvutil.
+Configuration options, logs and freezes are found in the `$HOME
 
-## License
-
-- Licensing information for the project.
-
-## C++, G++, and LD Pass-Throughs
+## C++, G++, and LD Pass-Throughs *TODO* - Meson issues again
 
 These are specific wrappers for C++, G++, and LD that ensure compatibility without compromising security or functionality, but are necessary work-arounds on macOS  in order to take advantage of Apple Silicon optimizations for NumPy and other packages. This will allow them to take advantage of the GPU and NEON optimizations. This was necessary due to the Meson integration into the Pip recompile.
 
-briefly, here are the instructions for building NumPy with the optimizations turned on.
+Briefly, here are the instructions for building NumPy with the optimizations turned on.
 
 ```bash
 CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework -Wl,Accelerate -framework Accelerate" pip install numpy==1.26.* --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true
@@ -219,4 +213,7 @@ This project is licensed under the Apache License
 ## Future Improvements
 
 - **Chunktext Program**: Consider enhancing the `chunktext` program to set chunk limits and boundaries.
+- **More Virtual Environment Tools**: Continue to expand the collection of tools for managing virtual environments.
+  - High on the list is `vinfo` and `venvdiff`
+- **Additional Documentation**: Expand the documentation to include more examples and examples of using the tools.
 - **Overall Enhancements**: Additional improvements and documentation are needed, but focus is shifting to other projects for now.

@@ -21,6 +21,15 @@
 - `util_funcs.sh` (for utility functions like `to_upper`)
 
 
+
+## Defined in Script
+
+* [errno.sh](../errno_sh.md)
+
 ---
+Website: [unixwzrd.ai](https://unixwzrd.ai)
+Copyright (c) 2024 Michael Sullivan
+Apache License, Version 2.0
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:45
+Generated on: Generated: 2024 12 10 at 02:01:11
