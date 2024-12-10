@@ -117,7 +117,7 @@ process_scripts() {
     cd -
 }
 
-# # function: init_help_system
+# # Function: init_help_system
 #  `init_help_system` - Initialize the help system by populating function and script documentation.
 # ## Description
 # - **Purpose**:
@@ -151,7 +151,7 @@ init_help_system() {
 }
 
 
-# # function: script_descruption
+# # Function: script_descruption
 #  `script_description` - Get the description of a script.
 # ## Description
 # - **Purpose**:
@@ -209,23 +209,42 @@ function_description() {
 }
 
 
-# # Function: get_scripts_readme_file
-#  `get_scripts_readme_file` - Get the path to the README file for scripts.
+# # Function: docs_base_path
+#  `docs_base_path` - Get the base path for documentation files.
+# ## Description
+# - **Purpose**:
+#   - Retrieves the base path for documentation files.
+# - **Usage**: 
+#   - `docs_base_path`
+# - **Input Parameters**: 
+#   - None
+# - **Output**: 
+#   - Returns the base path for documentation files as a string.
+# - **Exceptions**: 
+#   - None
+#
+docs_base_path() {
+    echo "docs/shdoc"
+}
+
+
+# # Function: get_system_readme_file
+#  `get_system_readme_file` - Get the path to the README file for scripts.
 # ## Description
 # - **Purpose**:
 #   - Retrieves the path to the README file for scripts.
 # - **Usage**: 
-#   - `get_scripts_readme_file`
+#   - `get_system_readme_file <readme_dir>`
 # - **Input Parameters**: 
-#   - None
+#   - `readme_dir`: Optional directory path to search for the README file.
 # - **Output**: 
 #   - Returns the path to the README file for scripts as a string.
 # - **Exceptions**: 
 #   - None
 #
-get_scripts_readme_file() {
+get_system_readme_file() {
     local readme_dir="$1"
-    local scripts_readme_file="${readme_dir:-"docs/shdoc"}/README.md"
+    local scripts_readme_file="${readme_dir:-""}/README.md"
     echo "${scripts_readme_file}"
 }
 
@@ -254,13 +273,14 @@ get_script_readme_file() {
     echo "${script_readme_file}"
 }
 
-# # function: write_scripts_readme_header
-#  `write_scripts_readme_header` - Writes the header section of the README.
+
+# # Function: write_system_readme_header
+#  `write_system_readme_header` - Writes the header section of the README.
 # ## Description
 # - **Purpose**:
 #   - Creates the initial header content for the README documentation.
 # - **Usage**: 
-#   - `write_scripts_readme_header <file_path>`
+#   - `write_system_readme_header <file_path>`
 # - **Input Parameters**: 
 #   - `file_path`: The path to the README file.
 # - **Output**: 
@@ -268,7 +288,11 @@ get_script_readme_file() {
 # - **Exceptions**: 
 #   - None
 #
-write_scripts_readme_header() {
+write_system_readme_header() {
+
+    local system_readme_file
+    system_readme_file="$(docs_base_path)/$(get_system_readme_file "")"
+
     {
         echo -e "# System Script Documentation"
         echo -e "## The for more details of the project, see [README.md](/README.md)"
@@ -276,17 +300,17 @@ write_scripts_readme_header() {
         echo -e "# List of scripts in project"
         echo -e ""
         printf "<pre><table>\n"
-    } > "$(get_scripts_readme_file "")"
+    } > "${system_readme_file}"
 }
 
 
-# # function: write_scripts_readme_entry
-#  `write_scripts_readme_entry` - Creates an entry in the README for a script or function.
+# # Function: write_system_readme_entry
+#  `write_system_readme_entry` - Creates an entry in the README for a script or function.
 # ## Description
 # - **Purpose**:
 #   - Adds a Markdown link to the README file for the given script or function.
 # - **Usage**: 
-#   - `write_scripts_readme_entry <script_name> <scripts_readme_file>`
+#   - `write_system_readme_entry <script_name> <scripts_readme_file>`
 # - **Input Parameters**: 
 #   - `script_name`: The name of the script or function.
 #   - `scripts_readme_file`: Path to the README file.
@@ -295,17 +319,19 @@ write_scripts_readme_header() {
 # - **Exceptions**: 
 #   - None
 #
-write_scripts_readme_entry() {
+write_system_readme_entry() {
     local script_name="$1"
     local script_dir="$2"
 
     local script_readme_file
+    script_readme_file="$(get_script_readme_file "$script_name" "$script_dir")"
 
-    script_readme_file="$(script_readme_file "$script_name" "$script_dir")"
+    local system_readme_file
+    system_readme_file="$(docs_base_path)/$(get_system_readme_file "")"
 
     printf "<tr><td><a href=\"%s\">%s</a></td><td>%s</td></tr>\n" \
         "${script_readme_file}" "${script_name}" \
-        "$(script_description "$script_name")" >> "$(get_scripts_readme_file "")"
+        "$(script_description "${script_name}")" >> "${system_readme_file}"
 }
 
 
@@ -331,8 +357,10 @@ write_script_readme_header() {
     local script_doc_file="${__VENV_SCRIPTS[$script_name]}"
 
     local script_readme_file
-
     script_readme_file="$(get_script_readme_file "$script_name" "$script_dir")"
+
+    local script_readme_location
+    script_readme_location="$(docs_base_path)/${script_readme_file}"
 
     {
         echo -e "# Functions Defined in Script: ${script_name}\n"
@@ -342,7 +370,7 @@ write_script_readme_header() {
         echo -e "## List of Functions Defined:\n"
         echo -e "\n"
         printf "<pre><table>\n"
-    } > "${script_readme_file}"
+    } > "${script_readme_location}"
 }
 
 
@@ -366,13 +394,18 @@ write_script_function_entry() {
     local script_name="$2"
     local script_dir="$3"
 
-    local script_readme_file="${script_dir}/${script_name//./_}.md"
+    local script_readme_file
+    script_readme_file="$(get_script_readme_file "$script_name" "$script_dir")"
+
+    local script_readme_location
+    script_readme_location="$(docs_base_path)/${script_readme_file}"
 
     local function_markdown_path="${__VENV_FUNCTIONS[$function_name]}"
+    function_markdown_path="functions/$(basename "$function_markdown_path")"
 
     printf "<tr><td><a href=\"%s\">%s</a></td><td>%s</td></tr>\n" \
-        "${function_name}" "${function_markdown_path}" \
-        "$(function_description "$function_name")" >> "${script_readme_file}"
+        "${function_markdown_path}" "${function_name}" \
+        "$(function_description "$function_name")" >> "${script_readme_location}"
 }
 
 
@@ -382,11 +415,11 @@ write_script_function_entry() {
 # - **Purpose**:
 #   - Generate Markdown documentation for a specific script.
 # - **Usage**: 
-#   - `write_script_doc <script_name> <script_dir> <scripts_readme_file> <script_markdown>`
+#   - `write_script_doc <script_name> <script_dir> <script_markdown>`
 # - **Input Parameters**: 
 #   - `script_name`: The name of the script to generate documentation for.
 #   - `script_dir`: The directory where the script is located.
-#   - `scripts_readme_file`: The path to the script function index file.
+#   - `script_markdown`: The path to the script markdown file.
 # - **Output**: 
 #   - Writes the documentation for the specified script to a file.
 # - **Exceptions**: 
@@ -397,21 +430,22 @@ write_script_doc() {
     local script_dir="$1"; shift
     local script_markdown="$*"
 
-    local markdown_file_name="${__VENV_SCRIPTS[$script_name]}"
+    local script_markdown_file="${__VENV_SCRIPTS[$script_name]}"
 
-    local script_readme_file="${script_dir}/${script_name//./_}.md"
+    local script_readme_file
+    script_readme_file="$(get_script_readme_file "$script_name" "..")"
 
     {
         echo -e "$script_markdown"
         echo -e "\n"
-        echo -e "## Function Defniitions\n"
-        echo -e "* [${script_name}](/${script_readme_file})"
-    } > "${markdown_file_name}"
-    write_page_footer "${markdown_file_name}"
+        echo -e "## Defined in Script\n"
+        echo -e "* [${script_name}](${script_readme_file})"
+    } > "${script_markdown_file}"
+    write_page_footer "${script_markdown_file}"
 
     write_script_readme_header "${script_name}" "${script_dir}"
 
-    write_scripts_readme_entry "${script_name}" "${script_dir}"
+    write_system_readme_entry "${script_name}" "${script_dir}"
 }
 
 
@@ -435,14 +469,15 @@ write_function_doc() {
     local script_dir="$1"; shift
     local function_markdown="$*"
 
-    local script_readme_file="${script_name//./_}.md"
+    local script_readme_file
+    script_readme_file="$(get_script_readme_file "$script_name" "..")"
 
     local function_markdown_file="${__VENV_FUNCTIONS[$function_name]}"
     {
         echo -e "## ${function_name}"
         echo -e "$function_markdown"
         echo -e "## Defniition \n"
-        echo -e "* [${script_name}](/${script_dir}/${script_readme_file})"
+        echo -e "* [${script_name}](${script_readme_file})"
     } > "${function_markdown_file}"
     write_page_footer "$function_markdown_file"
 
@@ -493,10 +528,16 @@ write_page_footer() {
     date_mark=$(date "+Generated: %Y %m %d at %H:%M:%S")
 
     {
-        echo -e "\n"
-        echo -e "---\n"
-        echo -e "Generated Markdown Documentation\n"
-        echo -e "Generated on:${date_mark}"
+        echo ""
+        echo "---"
+        echo ""
+        echo "Website: [unixwzrd.ai](https://unixwzrd.ai)"
+        echo "Github Repo: [venvutils](https://github.com/unixwzrd/venvutils)"
+        echo "Copyright (c) 2024 Michael Sullivan"
+        echo "Apache License, Version 2.0"
+        echo ""
+        echo "Generated Markdown Documentation"
+        echo "Generated on: ${date_mark}"
         # Add other footer content here
     } >> "${file_path}"
 }
@@ -519,19 +560,19 @@ write_page_footer() {
 #   - None
 #
 generate_markdown() {
-    set -x
     cd "${__VENV_BASE}"  || errno_exit ENOENT
 
     local conf_file="conf/help_sys.conf"
-    local shdoc_base="docs/shdoc"
+    local shdoc_base="$(docs_base_path)"
     [ -d "${shdoc_base}" ] || mkdir -p "${shdoc_base}"
 
     local in_progress_timestamp="${shdoc_base}/.in-progress"
     local completed_timestamp="${shdoc_base}/AUTO_GENERATED_DO_NOT_MODIFY_OR_PLACE_FILES_HERE"
     touch "${in_progress_timestamp}"
 
-    local scripts_readme_file="${shdoc_base}/README.md"
-    write_scripts_readme_header "${scripts_readme_file}"
+    local system_readme_file
+    system_readme_file="$(docs_base_path)/$(get_system_readme_file "")"
+    write_system_readme_header
 
     local search_dirs
     readarray -t search_dirs < <(grep -v '^#' "$conf_file" | sed '/^$/d')
@@ -545,14 +586,16 @@ generate_markdown() {
         [ -d "${script_docs_path}" ] || mkdir -p "${script_docs_path}"
         local script_files
         readarray -t script_files < <(file "${script_dir}"/* | grep "shell script" | cut -d":" -f1)
-        # script_files=($(file "${script_dir}"/* | grep "shell script" | cut -d":" -f1))
 
         # Iterate over sorted script names
         local script_path
         for script_path in "${script_files[@]}"; do
             local script_name
             script_name=$(basename "$script_path")
-            local script_readme_file="${script_dir}/${script_name//./_}.md"
+            local script_readme_file
+            script_readme_file="$(get_script_readme_file "$script_name" "$script_dir")"
+            local script_readme_location
+            script_readme_location="$(docs_base_path)/${script_readme_file}"
             
             log_message "INFO" "Generating markdown for script: $script_name"
 
@@ -637,7 +680,7 @@ generate_markdown() {
                 if [[ "${line}" =~ ^(function[[:space:]]+)?[a-zA-Z_][a-zA-Z0-9_]*\(\)[[:space:]]*\{ ]]; then
                     function_name="${line%%(*}"
                     function_name="${function_name/#function /}"
-                    write_function_doc "${function_name}" "${script_name}" "${script_path}" \
+                    write_function_doc "${function_name}" "${script_name}" "${script_dir}" \
                                         "${extracted_markdown}"
                     extracted_markdown=""
                     in_function_doc=false
@@ -657,18 +700,16 @@ generate_markdown() {
             done < "$script_path"
 
             # Write the extracted documentation to the markdown file
-            write_table_footer "${script_readme_file}"
+            write_table_footer "${script_readme_location}"
         done
     done
 
-    write_table_footer "${scripts_readme_file}"
+    write_table_footer "${system_readme_file}"
 
     # After documentation generation is complete
     mv "${in_progress_timestamp}" "${completed_timestamp}"
     # Now find and delete old markdown files
     find "${shdoc_base}" -type f -name '*.md' ! -newer "${completed_timestamp}" -exec rm {} \;
-
-    set +x
 }
 
 # # Function: general_help
