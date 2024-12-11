@@ -61,7 +61,9 @@ THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}")
 MY_NAME="$(basename "${THIS_SCRIPT}")"
 MY_PATH="$(dirname "${THIS_SCRIPT}")"
 
-[[ "${BASH_VERSINFO[0]}' -ge 4 ]] || echo '($MY_NAME) ERROR: This script requires Bash version 4 or higher." >&2 && exit 75
+[[ "${BASH_VERSINFO[0]}" -lt 4 ]] \
+    && echo "($MY_NAME) ERROR: This script requires Bash version 4 or higher." >&2 \
+    && exit 75 
 
 # Default values
 PKG_NAME="DEFAULT"
