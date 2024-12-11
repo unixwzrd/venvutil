@@ -70,7 +70,7 @@ INSTALL_MANIFEST="manifest.lst"
 ACTION=""
 VERBOSE=false
 
-declare -g -a pkg_config_vars=()
+[[ "${BASH_VERSINFO[0]}" -ge 4 ]] && declare -g -a pkg_config_vars=()
 
 # Logging function
 log_message() {

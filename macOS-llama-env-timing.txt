@@ -1,0 +1,81 @@
+2024-12-10 08:02:31 Producing information for VENV ----> macOS-llama-env
+2024-12-10 08:02:31 Build Dependencies:
+2024-12-10 08:02:31   blas:
+2024-12-10 08:02:31     detection method: system
+2024-12-10 08:02:31     found: true
+2024-12-10 08:02:31     include directory: unknown
+2024-12-10 08:02:31     lib directory: unknown
+2024-12-10 08:02:31     name: accelerate
+2024-12-10 08:02:31     openblas configuration: unknown
+2024-12-10 08:02:31     pc file directory: unknown
+2024-12-10 08:02:31     version: unknown
+2024-12-10 08:02:31   lapack:
+2024-12-10 08:02:31     detection method: internal
+2024-12-10 08:02:31     found: true
+2024-12-10 08:02:31     include directory: unknown
+2024-12-10 08:02:31     lib directory: unknown
+2024-12-10 08:02:31     name: dep4355755168
+2024-12-10 08:02:31     openblas configuration: unknown
+2024-12-10 08:02:31     pc file directory: unknown
+2024-12-10 08:02:31     version: 1.26.4
+2024-12-10 08:02:31 Compilers:
+2024-12-10 08:02:31   c:
+2024-12-10 08:02:31     args: -I/System/Library/Frameworks/vecLib.framework/Headers, -Wl,-framework, -Wl,Accelerate,
+2024-12-10 08:02:31       -framework, Accelerate
+2024-12-10 08:02:31     commands: cc
+2024-12-10 08:02:31     linker: ld64
+2024-12-10 08:02:31     linker args: -I/System/Library/Frameworks/vecLib.framework/Headers, -Wl,-framework,
+2024-12-10 08:02:31       -Wl,Accelerate, -framework, Accelerate
+2024-12-10 08:02:31     name: clang
+2024-12-10 08:02:31     version: 16.0.0
+2024-12-10 08:02:31   c++:
+2024-12-10 08:02:31     commands: c++
+2024-12-10 08:02:31     linker: ld64
+2024-12-10 08:02:31     name: clang
+2024-12-10 08:02:31     version: 16.0.0
+2024-12-10 08:02:31   cython:
+2024-12-10 08:02:31     commands: cython
+2024-12-10 08:02:31     linker: cython
+2024-12-10 08:02:31     name: cython
+2024-12-10 08:02:31     version: 3.0.11
+2024-12-10 08:02:31 Machine Information:
+2024-12-10 08:02:31   build:
+2024-12-10 08:02:31     cpu: aarch64
+2024-12-10 08:02:31     endian: little
+2024-12-10 08:02:31     family: aarch64
+2024-12-10 08:02:31     system: darwin
+2024-12-10 08:02:31   host:
+2024-12-10 08:02:31     cpu: aarch64
+2024-12-10 08:02:31     endian: little
+2024-12-10 08:02:31     family: aarch64
+2024-12-10 08:02:31     system: darwin
+2024-12-10 08:02:31 Python Information:
+2024-12-10 08:02:31   path: /Users/unixwzrd/miniconda3/envs/macOS-llama-env/bin/python
+2024-12-10 08:02:31   version: '3.10'
+2024-12-10 08:02:31 SIMD Extensions:
+2024-12-10 08:02:31   baseline:
+2024-12-10 08:02:31   - NEON
+2024-12-10 08:02:31   - NEON_FP16
+2024-12-10 08:02:31   - NEON_VFPV4
+2024-12-10 08:02:31   - ASIMD
+2024-12-10 08:02:31   found:
+2024-12-10 08:02:31   - ASIMDHP
+2024-12-10 08:02:31   not found:
+2024-12-10 08:02:31   - ASIMDFHM
+2024-12-10 08:02:31 
+2024-12-10 08:02:31 
+2024-12-10 08:02:31 BEGIN TEST: Matrix multiplication
+2024-12-10 08:02:32 Time for matrix multiplication: 0.0639 seconds
+2024-12-10 08:02:32 END TEST / BEGIN NEXT TEST
+2024-12-10 08:02:32 BEGIN TEST: Matrix transposition
+2024-12-10 08:02:32 Time for matrix transposition: 0.0000 seconds
+2024-12-10 08:02:32 END TEST / BEGIN NEXT TEST
+2024-12-10 08:02:32 BEGIN TEST: Eigenvalue computation
+2024-12-10 08:02:34 Time for eigenvalue computation: 2.7276 seconds
+2024-12-10 08:02:34 END TEST / BEGIN NEXT TEST
+2024-12-10 08:02:34 BEGIN TEST: Fourier transformation
+2024-12-10 08:02:34 Time for fourier transformation: 0.0396 seconds
+2024-12-10 08:02:34 END TEST / BEGIN NEXT TEST
+2024-12-10 08:02:34 BEGIN TEST: Summation
+2024-12-10 08:02:34 Time for summation: 0.0012 seconds
+2024-12-10 08:02:34 END TEST / BEGIN NEXT TEST
