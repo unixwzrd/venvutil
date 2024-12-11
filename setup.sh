@@ -53,6 +53,8 @@
 #     Apache License, Version 2.0
 #
 
+[[ "${BASH_VERSINFO[0]}" -ge 4 ]] || echo "($MY_NAME) ERROR: This script requires Bash version 4 or higher." >&2 && exit 75
+
 [ "${DEBUG_SETUP:-""}" = "ON" ] && set -x
 set -euo pipefail
 
@@ -70,8 +72,7 @@ INSTALL_MANIFEST="manifest.lst"
 ACTION=""
 VERBOSE=false
 
-pkg_config_vars=()
-[[ "${BASH_VERSINFO[0]}" -ge 4 ]] && declare -g -a pkg_config_vars=()
+declare -g-a pkg_config_vars=()
 
 # Logging function
 log_message() {
