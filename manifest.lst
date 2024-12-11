@@ -1,7 +1,7 @@
 # Manifest file for venvutil project
 # This file uses pipe-separated fields
 
-d |  |  | bin | 755 |  |  | 928 | 
+d |  |  | bin | 755 |  |  | 1024 | 
 d |  |  | conf | 755 |  |  | 352 | 
 d |  |  | docs | 755 |  |  | 352 | 
 d | bin | bin | shinclude | 755 |  |  | 256 | 
@@ -12,9 +12,9 @@ d | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | functions | 755 |  |  
 d | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | scripts | 755 |  |  | 256 | 
 f |  |  | LICENSE | 644 |  |  | 11362 | fbb090d446bc51f5b8611e8c59bddf5447f155e2
 f |  |  | README.md | 644 |  |  | 13509 | ccfa937e2a582f1c8cd1a49b5e65f2c8e1f5b5f0
-f |  |  | manifest.lst | 644 |  |  | 16551 | 666acf67b03f8900d78804b6617f0dad944ea04a
+f |  |  | manifest.lst | 644 |  |  | 16816 | 352996fe107e57acf664ee906131704ddb3cffb4
 f |  |  | setup.cf | 644 |  |  | 616 | e3d855f510f1a51a7f5d7a1b969e0056fed0179c
-f |  |  | setup.sh | 755 |  |  | 15146 | 3463c4c821318bfa4dee8f7ed3638f92076709fa
+f |  |  | setup.sh | 755 |  |  | 15183 | ea9614ed83f32e7232d51aabcd4638a01147d824
 f | bin | bin | buildvenvs | 755 |  |  | 14987 | 91d2cd9d330da0d02a25ddc54b1356b7f1799a07
 f | bin | bin | chunktext | 755 |  |  | 727 | 15008b400683f944c6211a8ab75ab778598eb1c8
 f | bin | bin | filetree.py | 755 |  |  | 11932 | 1a8f25500ace23b8723f5b7186ed6898ad01f42f
@@ -36,6 +36,7 @@ f | bin | bin | torchbench | 755 |  |  | 1435 | a9e03bb113953edb49d424c1f627ed87
 f | bin | bin | torchprof | 755 |  |  | 1544 | 0e1d1482cd52f587fc0e8d92082ad17e077479bd
 f | bin | bin | torchtime | 755 |  |  | 1389 | 54a4dcdd6ac16189f2be61f8d71ed46ab3fdd312
 f | bin | bin | vinfo | 755 |  |  | 4789 | 9997bdc1649925c2ee46d15235d504d7bba64a03
+f | bin | bin | warehouse.sh | 755 |  |  | 1582 | 70a00b9010bddc788ed897518ba417226deeed95
 f | bin/shinclude | bin/shinclude | errno.sh | 755 |  |  | 10178 | f96cb4e3417ecbf30c720da3c3b0f1011e849e12
 f | bin/shinclude | bin/shinclude | help_sys.sh | 755 |  |  | 31679 | 06eed58195399ef9039816a4f5e36056f5db4284
 f | bin/shinclude | bin/shinclude | init_env.sh | 755 |  |  | 3742 | e8696a3c429e1e6e4a6f399ce56bed3e64b891ce
@@ -133,7 +134,9 @@ f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | init_e
 f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | util_funcs.sh.md | 644 |  |  | 1374 | fa60541f05c9dcc0d2e0296863fbbf8a0321ee1d
 f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | venv_funcs.sh.md | 644 |  |  | 2769 | 411bd2468c201bfbbaec2083aad7c10d2d6dc043
 f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | wrapper_funcs.sh.md | 644 |  |  | 1301 | de4a0b9954abee81ee23baeb4f4a348f5b4ab62f
-h | bin | ld | c++ | 755 |  |  | 2360 | cf621d6ec994443988304134c4b7b4b77a1b2ba0
+h | bin | ld | c++ | 755 |  |  | 2525 | 0205d67801e57bb4dd33039125c59c3e405b68c9
 h | bin | ld | g++ | 755 |  |  | 2360 | cf621d6ec994443988304134c4b7b4b77a1b2ba0
+h | bin | warehouse.sh | recall | 755 |  |  | 1582 | 70a00b9010bddc788ed897518ba417226deeed95
+h | bin | warehouse.sh | warehouse | 755 |  |  | 1582 | 70a00b9010bddc788ed897518ba417226deeed95
 l | bin | filetree.py | filetree | 755 |  |  | 11 | 
 l | bin | tokencount.py | tokencount | 755 |  |  | 13 | 
