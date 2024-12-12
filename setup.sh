@@ -62,7 +62,7 @@ MY_NAME="$(basename "${THIS_SCRIPT}")"
 MY_PATH="$(dirname "${THIS_SCRIPT}")"
 
 [[ "${BASH_VERSINFO[0]}" -lt 4 ]] \
-    && echo "($MY_NAME) ERROR: This script requires Bash version 4 or higher." >&2 \
+    && echo "($MY_NAME) ERROR: This script requires Bash version 4.0 or higher." >&2 \
     && exit 75 
 
 # Default values
