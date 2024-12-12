@@ -1,8 +1,14 @@
-# List of functions in script: util_funcs.sh
+# Functions Defined in Script: util_funcs.sh
 
-### [util_funcs.sh](/scripts/util_funcs.sh.md) - Utility Functions for Bash Scripts
 
-## List of functions in script: [util_funcs.sh](scripts/util_funcs.sh.md)
+
+### [util_funcs.sh](/docs/shdoc/bin/shinclude/scripts/util_funcs.sh.md) - Utility Functions for Bash Scripts
+
+
+
+## List of Functions Defined:
+
+
 
 <pre><table>
 <tr><td><a href="functions/strip_space.md">strip_space</a></td><td>Remove Leading and Trailing Whitespaces</td></tr>
@@ -19,5 +25,9 @@
 </table></pre>
 
 ---
+Website: [unixwzrd.ai](https://unixwzrd.ai)
+Copyright (c) 2024 Michael Sullivan
+Apache License, Version 2.0
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+Generated on: Generated: 2024 12 10 at 02:01:12

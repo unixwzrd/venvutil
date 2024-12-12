@@ -63,6 +63,15 @@
 #
 
 
+
+## Defined in Script
+
+* [venv_funcs.sh](../venv_funcs_sh.md)
+
 ---
+Website: [unixwzrd.ai](https://unixwzrd.ai)
+Copyright (c) 2024 Michael Sullivan
+Apache License, Version 2.0
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+Generated on: Generated: 2024 12 10 at 02:01:12

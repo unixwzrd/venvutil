@@ -1,17 +1,15 @@
-## help_scripts
-# Function: help_scripts
- `help_scripts` - List sourced scripts and their purpose.
+## docs_base_path
+# Function: docs_base_path
+ `docs_base_path` - Get the base path for documentation files.
 ## Description
 - **Purpose**:
-  - Display a list of sourced scripts.
+  - Retrieves the base path for documentation files.
 - **Usage**: 
-  - `help_scripts`
-- **Scope**:
-  - Global
+  - `docs_base_path`
 - **Input Parameters**: 
   - None
 - **Output**: 
-  - Lists the names of the sourced scripts.
+  - Returns the base path for documentation files as a string.
 - **Exceptions**: 
   - None
 
@@ -25,4 +23,4 @@ Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 10 at 02:01:12
+Generated on: Generated: 2024 12 10 at 02:01:11

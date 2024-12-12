@@ -1,5 +1,24 @@
 # Changelog
 
+## 2024-12-10 - Function Name Changes and New Functions
+
+### ***help_sys.sh*** Tested and working as expected
+
+- **Function Name Changes**:
+  - Updated function names to follow a consistent naming convention.
+
+- **New Functions**:
+  - Added `docs_base_path`: Retrieves the base path for documentation files.
+
+- **Function Modifications**:
+  - `get_system_readme_file`: Updated to accept an optional directory path for the README file.
+  - `write_system_readme_header`: Writes the header section of the README for system scripts.
+  - `write_system_readme_entry`: Creates an entry in the README for a script or function.
+
+- **Code Improvements**:
+  - Improved the handling of file paths and added more descriptive comments for better clarity.
+  - Adjusted echo statements for better formatting and consistency.
+
 ## 2024-12-08 - Documentation and Script Enhancements
 
 - **General Updates**:

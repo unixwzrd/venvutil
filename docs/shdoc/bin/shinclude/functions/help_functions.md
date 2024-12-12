@@ -14,9 +14,15 @@
   - Lists available functions and how to get more information about them.
 - **Exceptions**: 
   - None. However, it skips functions listed in `__VENV_INTERNAL_FUNCTIONS` and those already in `__VENV_FUNCTIONS`.
-## Definition
-* [help_sys.sh](/docs/shdoc/bin/shinclude/help_sys_sh.md)
+
+## Defniition 
+
+* [help_sys.sh](../help_sys_sh.md)
 
 ---
+Website: [unixwzrd.ai](https://unixwzrd.ai)
+Copyright (c) 2024 Michael Sullivan
+Apache License, Version 2.0
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+Generated on: Generated: 2024 12 10 at 02:01:12

@@ -5,16 +5,24 @@
 - **Purpose**:
   - Generate Markdown documentation for a specific script.
 - **Usage**: 
-  - `write_script_doc <script_name> <script_index_file> <readme_file> <script_markdown>`
+  - `write_script_doc <script_name> <script_dir> <script_markdown>`
 - **Input Parameters**: 
   - `script_name`: The name of the script to generate documentation for.
+  - `script_dir`: The directory where the script is located.
+  - `script_markdown`: The path to the script markdown file.
 - **Output**: 
   - Writes the documentation for the specified script to a file.
 - **Exceptions**: 
   - None
-## Definition
-* [help_sys.sh](/docs/shdoc/bin/shinclude/help_sys_sh.md)
+
+## Defniition 
+
+* [help_sys.sh](../help_sys_sh.md)
 
 ---
+Website: [unixwzrd.ai](https://unixwzrd.ai)
+Copyright (c) 2024 Michael Sullivan
+Apache License, Version 2.0
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+Generated on: Generated: 2024 12 10 at 02:01:12

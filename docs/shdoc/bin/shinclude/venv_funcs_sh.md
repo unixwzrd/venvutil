@@ -1,8 +1,14 @@
-# List of functions in script: venv_funcs.sh
+# Functions Defined in Script: venv_funcs.sh
 
-### [venv_funcs.sh](/scripts/venv_funcs.sh.md) - Virtual Environment Management Functions for Bash Scripts
 
-## List of functions in script: [venv_funcs.sh](scripts/venv_funcs.sh.md)
+
+### [venv_funcs.sh](/docs/shdoc/bin/shinclude/scripts/venv_funcs.sh.md) - Virtual Environment Management Functions for Bash Scripts
+
+
+
+## List of Functions Defined:
+
+
 
 <pre><table>
 <tr><td><a href="functions/push_venv.md">push_venv</a></td><td>Specialized push the default VENV onto the stack.</td></tr>
@@ -26,5 +32,9 @@
 </table></pre>
 
 ---
+Website: [unixwzrd.ai](https://unixwzrd.ai)
+Copyright (c) 2024 Michael Sullivan
+Apache License, Version 2.0
+
 Generated Markdown Documentation
-Generated on:Generated: 2024 12 08 at 06:34:46
+Generated on: Generated: 2024 12 10 at 02:01:13
