@@ -148,6 +148,7 @@ load_pkg_config() {
             key="${BASH_REMATCH[1]}"
             value="${BASH_REMATCH[2]}"
             # Set shell variable
+            eval "${line}"
             declare -g "$key"="$value"
             # Append or initialize array entry
             if [[ -z "${pkg_config_values[$key]:-}" ]]; then
