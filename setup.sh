@@ -150,7 +150,7 @@ load_pkg_config() {
             # Set shell variable
             declare -g "$key"="$value"
             # Append or initialize array entry
-            if [[ -n "${pkg_config_values[$key]}" ]]; then
+            if [[ -n "${pkg_config_values[$key]:-}" ]]; then
                 pkg_config_values[$key]+=$'\n'"$value"
             else
                 pkg_config_values[$key]="$value"
@@ -165,9 +165,8 @@ load_pkg_config() {
             value="${BASH_REMATCH[2]}"
             # Set shell variable
             declare -g "$key"="$value"
-            echo "KEY: $key, VALUE: $value"
             # Append or initialize array entry
-            if [[ -n "${pkg_config_values[$key]}" ]]; then
+            if [[ -n "${pkg_config_values[$key]:-}" ]]; then
                 pkg_config_values[$key]+=$'\n'"$value"
             else
                 pkg_config_values[$key]="$value"
