@@ -601,19 +601,21 @@ Verify() {
 main() {
     parse_arguments "$@"
     initialization
-    pkg_info
 
     case "$ACTION" in
         install)
             install
             ;;
         remove)
+            echo "Not implemented at this time." && exit 1
             remove
             ;;
         rollback)
+            echo "Not implemented at this time." && exit 1
             rollback
             ;;
         verify)
+            echo "Not implemented at this time." && exit 1
             verify
             ;;
         *)
