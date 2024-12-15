@@ -128,8 +128,8 @@ display_help() {
 expand_variables() {
     local input="$1"
 
-    # Validate the input: Allow only valid variable references and values
-    if [[ ! "$input" =~ ^[A-Za-z0-9_]+([[:space:]]*[-+*/]?[[:space:]]*[A-Za-z0-9_]+)*$ ]]; then
+    # Validate the input: Allow variable references and valid values
+    if [[ ! "$input" =~ ^[A-Za-z0-9_\$]+([[:space:]]*[-+*/]?[[:space:]]*[A-Za-z0-9_\$]+)*$ ]]; then
         return 1
     fi
 
