@@ -159,25 +159,6 @@ load_pkg_config() {
         [[ -z "$line" ]] && continue
         [[ "$line" =~ ^# ]] && continue
 
-        # Check for Key: Value pattern
-        if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
-            key="${BASH_REMATCH[1]}"
-            if ! value=$(expand_variables "${BASH_REMATCH[2]}"); then
-                echo "($MY_NAME) WARNING: Invalid variable assignment: '$line' - skipping." >&2
-                continue
-            fi
-            # Set shell variable
-            declare -g "$key"="$value"
-            # Append or initialize array entry
-            if [[ -z "${pkg_config_values[$key]:-}" ]]; then
-                pkg_config_values[$key]="$value"
-                pkg_config_desc_vars+=("$key")
-            else
-                pkg_config_values[$key]+=$'\n'"$value"
-            fi
-            continue
-        fi
-
         # Check for Key=Value pattern
         if [[ "$line" =~ ^([A-Za-z_]+)=(.*)$ ]]; then
             key="${BASH_REMATCH[1]}"
@@ -197,6 +178,21 @@ load_pkg_config() {
             continue
         fi
 
+        # Check for Key: Value pattern
+        if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
+            key="${BASH_REMATCH[1]}"
+            # Set shell variable
+            declare -g "$key"="$value"
+            # Append or initialize array entry
+            if [[ -z "${pkg_config_values[$key]:-}" ]]; then
+                pkg_config_values[$key]="$value"
+                pkg_config_desc_vars+=("$key")
+            else
+                pkg_config_values[$key]+=$'\n'"$value"
+            fi
+            continue
+        fi
+  
         # If a line doesn't match either pattern, assume it’s an additional value for the last key
         # If no previous key is known, just ignore.
         if [[ -n "$key" ]]; then
