@@ -133,6 +133,8 @@ load_pkg_config() {
         exit 2
     fi
 
+    local key=""
+    local value=""
     while IFS= read -r line || [[ -n "$line" ]]; do
         # Trim leading and trailing whitespace
         line="$(sed 's/^[[:space:]]*//; s/[[:space:]]*$//' <<< "$line")"
