@@ -188,9 +188,9 @@ load_pkg_config() {
 # Create package configuration directory
 create_pkg_config_dir() {
     if [ ! -d "${INSTALL_CONFIG}" ]; then
-        log_message "INFO" "Creating ${INSTALL_CONFIG} directory..."
         mkdir -p "${INSTALL_CONFIG}"
         mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze" 
+        log_message "INFO" "Created ${INSTALL_CONFIG} directories..."
     fi
     # Create application configuration directory
     return 0
