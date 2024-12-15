@@ -17,7 +17,7 @@ Repository: https://github.com/unixwzrd/venvutil
 License: Apache License, Version 2.0
 Support: https://github.com/unixwzrd/venvutil/issues
 Contribute: https://patreon.com/unixwzrd
-Contribute: https://www.ko-fi.com/unixwzrd
+            https://www.ko-fi.com/unixwzrd
 
 # Dependencies (if any)
 Requires: python >= 3.10

@@ -128,37 +128,59 @@ display_help() {
 load_pkg_config() {
     set -x
     local config_file="$MY_PATH/setup.cf"
-    if [ -f "$config_file" ]; then
-        while IFS= read -r line || [[ -n "$line" ]]; do
-            [[ "$line" =~ ^#.*$ ]] && continue    # Skip comments
-            [[ -z "$line" ]] && continue          # Skip blank lines
-            if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
-                IFS=':' read -r key value <<< "$line"
-                # Split value by newlines and trim whitespace
-                IFS='\n' read -r -a value_array <<< "$(echo "$value" | xargs)"
-                for val in "${value_array[@]}"; do
-                    # Check if the key already exists in the array
-                    if [[ -n "${pkg_config_values[$key]}" ]]; then
-                        pkg_config_values[$key]+="\n$val" # Append value to existing key
-                    else
-                        pkg_config_values[$key]="$val" # Initialize key with first value
-                    fi
-                done
-                pkg_config_vars+=("$key")         # Add variable to pkg_config_vars
-            elif [[ "$line" =~ ^[A-Za-z_]+=.*$ ]]; then
-                eval "$line"
-                pkg_config_vars+=("${line%%=*}")   # Add variable to pkg_config_vars
-                if [[ -n "${pkg_config_values[${line%%=*}]}" ]]; then
-                    pkg_config_values[${line%%=*}]+="\n$line" # Append value to existing key
-                else
-                    pkg_config_values[${line%%=*}]="$line" # Initialize key with first value
-                fi
-            fi
-        done < "$config_file"
-    else
+    if [ ! -f "$config_file" ]; then
         echo "ERROR: Configuration file $config_file not found." >&2
         exit 2
     fi
+
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Trim leading and trailing whitespace
+        line="$(sed 's/^[[:space:]]*//; s/[[:space:]]*$//' <<< "$line")"
+
+        # Skip comments and blank lines
+        [[ -z "$line" ]] && continue
+        [[ "$line" =~ ^# ]] && continue
+
+        # Check for Key: Value pattern
+        if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
+            key="${BASH_REMATCH[1]}"
+            value="${BASH_REMATCH[2]}"
+            # Set shell variable
+            declare -g "$key"="$value"
+            # Append or initialize array entry
+            if [[ -n "${pkg_config_values[$key]}" ]]; then
+                pkg_config_values[$key]+=$'\n'"$value"
+            else
+                pkg_config_values[$key]="$value"
+                pkg_config_vars+=("$key")
+            fi
+            continue
+        fi
+
+        # Check for Key=Value pattern
+        if [[ "$line" =~ ^([A-Za-z_]+)=(.*)$ ]]; then
+            key="${BASH_REMATCH[1]}"
+            value="${BASH_REMATCH[2]}"
+            # Set shell variable
+            declare -g "$key"="$value"
+            # Append or initialize array entry
+            if [[ -n "${pkg_config_values[$key]}" ]]; then
+                pkg_config_values[$key]+=$'\n'"$value"
+            else
+                pkg_config_values[$key]="$value"
+                pkg_config_vars+=("$key")
+            fi
+            continue
+        fi
+
+        # If a line doesn't match either pattern, assume it’s an additional value for the last key
+        # If no previous key is known, just ignore.
+        if [[ -n "$key" ]]; then
+            # Treat as another line for the current key
+            declare -g "$key"="${!key:-}\n${line}"
+            pkg_config_values[$key]+=$'\n'"$line"
+        fi
+    done < "$config_file"
     set +x
 }
 
