@@ -74,7 +74,8 @@ INSTALL_MANIFEST="manifest.lst"
 ACTION=""
 VERBOSE=false
 
-declare -g-a pkg_config_vars=()
+declare -g -A pkg_config_values=()
+declare -g -a pkg_config_vars=()
 
 # Logging function
 log_message() {
@@ -125,6 +126,7 @@ display_help() {
 
 # Load package configuration from .cf file
 load_pkg_config() {
+    set -x
     local config_file="$MY_PATH/setup.cf"
     if [ -f "$config_file" ]; then
         while IFS= read -r line || [[ -n "$line" ]]; do
@@ -132,17 +134,32 @@ load_pkg_config() {
             [[ -z "$line" ]] && continue          # Skip blank lines
             if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
                 IFS=':' read -r key value <<< "$line"
-                eval "$key=\"\$(echo \$value | xargs)\""
+                # Split value by newlines and trim whitespace
+                IFS='\n' read -r -a value_array <<< "$(echo "$value" | xargs)"
+                for val in "${value_array[@]}"; do
+                    # Check if the key already exists in the array
+                    if [[ -n "${pkg_config_values[$key]}" ]]; then
+                        pkg_config_values[$key]+="\n$val" # Append value to existing key
+                    else
+                        pkg_config_values[$key]="$val" # Initialize key with first value
+                    fi
+                done
                 pkg_config_vars+=("$key")         # Add variable to pkg_config_vars
             elif [[ "$line" =~ ^[A-Za-z_]+=.*$ ]]; then
                 eval "$line"
                 pkg_config_vars+=("${line%%=*}")   # Add variable to pkg_config_vars
+                if [[ -n "${pkg_config_values[${line%%=*}]}" ]]; then
+                    pkg_config_values[${line%%=*}]+="\n$line" # Append value to existing key
+                else
+                    pkg_config_values[${line%%=*}]="$line" # Initialize key with first value
+                fi
             fi
         done < "$config_file"
     else
         echo "ERROR: Configuration file $config_file not found." >&2
         exit 2
     fi
+    set +x
 }
 
 # Parse manifest metadata
@@ -168,7 +185,6 @@ initialization() {
 
     load_pkg_config
 
-
     # Set PKG_NAME early to load config
     PKG_NAME=${Name:-${PKG_NAME:-"DEFAULT"}}
     # Set default values if not already set
@@ -179,11 +195,7 @@ initialization() {
     # Set default manifest path
     INSTALL_MANIFEST="$MY_PATH/manifest.lst"
 
-    # Create application configuration directory
-    mkdir -p "$INSTALL_CONFIG"
-    mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze"
-
-    log_message "INFO" "Configuring $PKG_NAME for initializated..."
+    log_message "INFO" "Configuring $PKG_NAME for initialization..."
 
     # Parse manifest metadata
     parse_manifest_metadata
@@ -246,6 +258,17 @@ check_deps() {
     return 0
 }
 
+# Create package configuration directory
+create_pklg_config() {
+    if [ ! -d "${INSTALL_CONFIG}" ]; then
+        log_message "INFO" "Creating ${INSTALL_CONFIG} directory..."
+        mkdir -p "${INSTALL_CONFIG}"
+        mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze" 
+    fi
+    # Create application configuration directory
+    return 0
+}
+
 # Package information
 pkg_info() {
     PKG_DATE=$(date '+%Y-%m-%d %H:%M:%S')
@@ -288,7 +311,7 @@ install_conda() {
     export PRE_INSTALL_COMPLETE=Y
     SHELL=$(which "$(basename "$SHELL")")
     # Wheeeeee!!!!!!
-    exec "$SHELL" -l -c "${THIS_SCRIPT} ${ACTION}; exec ${SHELL} -l"
+    exec "$SHELL" -l -c "${THIS_SCRIPT} ${ACTION}"
     return 0
 }
 
@@ -302,12 +325,18 @@ pre_install() {
     log_message "INFO" "Pre-installation tasks..."
     # Custom pre-install tasks can be added here
     check_deps
+    create_pklg_config
     install_conda
+    unset PRE_INSTALL_COMPLETE
 }
 
 install_assets() {
     # Implement package installation logic here
     log_message "INFO" "Installing packages..."
+
+    # Set default owner and group if not specified
+    owner=${owner:-$(id -u)}
+    group=${group:-$(id -g)}
 
     readarray -t lines < <(grep -v '^#' "$INSTALL_MANIFEST" | grep -v '^\s*$')
     for line in "${lines[@]}"; do
@@ -317,20 +346,15 @@ install_assets() {
             continue
         fi
 
-        IFS=$'| ' read -r type destination source name permissions owner group size checksum <<< "$line"
-
-        # Set default owner and group if not specified
-        owner=${owner:-$(id -u)}
-        group=${group:-$(id -g)}
+        IFS=$'| ' read -r asset_type destination source name permissions owner group size checksum <<< "$line"
 
         destination="${INSTALL_BASE}/${destination}"
-        source_location="${source}"
-        source_path="${MY_PATH}/${source_location}/${name}"
+        source_path="${MY_PATH}/${source}/${name}"
         dest_path="${destination}/${name}"
 
         mkdir -p "$destination"
 
-        case "$type" in
+        case "$asset_type" in
             d) # Create directory
                 mkdir -p "$dest_path"
                 chown "$owner":"$group" "$dest_path"
@@ -352,7 +376,7 @@ install_assets() {
                 cd -
                 ;;
             *)
-                log_message "ERROR" "Unknown asset type: $type"
+                log_message "ERROR" "Unknown asset type: $asset_type"
                 ;;
         esac
     done
@@ -393,12 +417,52 @@ write_pkg_config() {
     return 0
 }
 
+post_install_user_message() {
+    log_message "INFO" "Provide user instructions..."
+    # Custom post-install message can be added here
+    cat <<_EOT_
+    The package $PKG_NAME has been installed to $INSTALL_BASE.
+    To use the package, the following line was added to your .bashrc file:
+
+    if [[ ! "\$PATH" =~ "$INSTALL_BASE/bin:" ]]; then export PATH="$INSTALL_BASE/bin:\$PATH"; fi
+
+    If you wish to use it in the current shell, run the following command:
+
+    exec $SHELL -l
+
+    or exit the terminal and start a new one. To verify the installation files
+    for correct location and file integrity run the following command:
+
+    $MY_NAME verify (not implemented yet)
+
+    If you wish to uninstall the packages associated with $PKG_NAME, run the
+    following command:
+
+    $MY_NAME uninstall (not implemented yet)
+
+    This will only remove the files associated with the package, not the
+    Conda installation, its installed packages or any other dependencies. If
+    you wish to uninstall everything associated with the package, run the
+    following command:
+
+    $MY_NAME remove_all (not implemented yet)
+
+    The documentation may be found in the $INSTALL_BASE/README.md file. Please
+    contact $PKG_AUTHOR for any issues or feature requests or file them on
+    GitHub: ${Support:-https://github.com/unixwzrd/venvutil/issues}
+    Please help sponsor my projects on Patreon: ${Contribute:-https://patreon.com/unixwzrd}
+
+_EOT_
+    return 0
+}
+
 post_install() {
     log_message "INFO" "Post-installation tasks..."
     install_python_packages
     # Example: Update .bashrc if necessary
     update_bashrc
     write_pkg_config
+    post_install_user_message
     log_message "INFO" "Installation for $PKG_NAME complete."
     return 0
 }
@@ -488,6 +552,13 @@ remove() {
     return 0
 }
 
+
+Verify() {
+    log_message "INFO" "Verifying package: $PKG_NAME tasks..."
+    # Implement verification logic here
+    return 0
+}
+
 # Main function
 main() {
     parse_arguments "$@"
@@ -504,6 +575,9 @@ main() {
         rollback)
             rollback
             ;;
+        verify)
+            verify
+            ;;
         *)
             echo "Invalid action: $ACTION"
             display_help "Usage: $MY_NAME [options] {install|remove|rollback}"
@@ -512,4 +586,3 @@ main() {
 }
 
 main "$@"
-set -x

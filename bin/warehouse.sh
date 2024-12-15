@@ -7,8 +7,8 @@ MY_NAME="$(basename "${THIS_SCRIPT}")"
 
 # Check for the correct number of arguments
 if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 directory_name"
-  exit 1
+    echo "Usage: $0 directory_name"
+    exit 1
 fi
 
 # Define Warehouse path
