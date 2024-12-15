@@ -486,7 +486,7 @@ post_install_user_message() {
     $MY_NAME remove_all (not implemented yet)
 
     The documentation may be found in the $INSTALL_BASE/README.md file. Please
-    contact $PKG_AUTHOR for any issues or feature requests or file them on
+    contact the package maintainers for any issues or feature requests or file them on
     GitHub: ${Support:-https://github.com/unixwzrd/venvutil/issues}
     Please help sponsor my projects on Patreon: ${Contribute:-https://patreon.com/unixwzrd}
 
