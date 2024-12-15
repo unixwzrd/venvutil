@@ -135,10 +135,10 @@ expand_variables() {
 
     # Sanitize the input by escaping special characters if necessary
     # For example, you might want to escape quotes or backslashes
-    sanitized_input=$(echo "$input" | sed 's/[&;|<>\*{}\$]/\\&/g')
+    sanitized_input=$(echo "$input" | sed 's/[&;|<>\*{}]/\\&/g')
 
     # Use eval to expand variables safely
-    eval "echo \"$sanitized_input\""
+    eval "echo $sanitized_input"
 }
 
 # Load package configuration from .cf file
