@@ -181,6 +181,7 @@ load_pkg_config() {
         # Check for Key: Value pattern
         if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
             key="${BASH_REMATCH[1]}"
+            value="${BASH_REMATCH[2]}"
             # Set shell variable
             declare -g "$key"="$value"
             # Append or initialize array entry
@@ -192,7 +193,7 @@ load_pkg_config() {
             fi
             continue
         fi
-  
+
         # If a line doesn't match either pattern, assume it’s an additional value for the last key
         # If no previous key is known, just ignore.
         if [[ -n "$key" ]]; then
