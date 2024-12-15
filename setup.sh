@@ -332,7 +332,7 @@ install_conda() {
     # Download and install conda
     log_message "INFO" "Downloading and installing Conda..."
     local INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-${OS}-${ARCH}.sh"
-    curl -O "$INSTALLER_URL"
+    curl -k -O "$INSTALLER_URL"
     # do a non-destructive install
     bash "Miniconda3-latest-${OS}-${ARCH}.sh" -b -u
     rm "Miniconda3-latest-${OS}-${ARCH}.sh"
