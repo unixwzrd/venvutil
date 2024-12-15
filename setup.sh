@@ -125,6 +125,22 @@ display_help() {
     exit 0
 }
 
+expand_variables() {
+    local input="$1"
+
+    # Validate the input: Allow only valid variable names and values
+    if [[ ! "$input" =~ ^[A-Za-z_][A-Za-z0-9_]*=.* ]]; then
+        return 1
+    fi
+
+    # Sanitize the input by escaping special characters if necessary
+    # For example, you might want to escape quotes or backslashes
+    sanitized_input=$(echo "$input" | sed 's/[&;|<>\*]/\\&/g')
+
+    # Use eval to expand variables safely
+    eval "echo \"$sanitized_input\""
+}
+
 # Load package configuration from .cf file
 load_pkg_config() {
     local config_file="$MY_PATH/setup.cf"
@@ -146,7 +162,10 @@ load_pkg_config() {
         # Check for Key: Value pattern
         if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
             key="${BASH_REMATCH[1]}"
-            value="${BASH_REMATCH[2]}"
+            if ! value=$(expand_variables "${BASH_REMATCH[2]}"); then
+                log_message "ERROR" "ERROR: Invalid variable assignment: '$input' - skipping."
+                continue
+            fi
             # Set shell variable
             declare -g "$key"="$value"
             # Append or initialize array entry
@@ -162,8 +181,10 @@ load_pkg_config() {
         # Check for Key=Value pattern
         if [[ "$line" =~ ^([A-Za-z_]+)=(.*)$ ]]; then
             key="${BASH_REMATCH[1]}"
-            value="${BASH_REMATCH[2]}"
-            eval "${line}"
+            if ! value=$(expand_variables "${BASH_REMATCH[2]}"); then
+                log_message "ERROR" "ERROR: Invalid variable assignment: '$input' - skipping."
+                continue
+            fi
             # Set shell variable
             declare -g "$key"="$value"
             # Append or initialize array entry
