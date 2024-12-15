@@ -163,7 +163,7 @@ load_pkg_config() {
         if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
             key="${BASH_REMATCH[1]}"
             if ! value=$(expand_variables "${BASH_REMATCH[2]}"); then
-                log_message "ERROR" "ERROR: Invalid variable assignment: '$line' - skipping."
+                echo "($MY_NAME) WARNING: Invalid variable assignment: '$line' - skipping." >&2
                 continue
             fi
             # Set shell variable
@@ -182,7 +182,7 @@ load_pkg_config() {
         if [[ "$line" =~ ^([A-Za-z_]+)=(.*)$ ]]; then
             key="${BASH_REMATCH[1]}"
             if ! value=$(expand_variables "${BASH_REMATCH[2]}"); then
-                log_message "ERROR" "ERROR: Invalid variable assignment: '$line' - skipping."
+                echo "($MY_NAME) WARNING: Invalid variable assignment: '$line' - skipping." >&2
                 continue
             fi
             # Set shell variable
