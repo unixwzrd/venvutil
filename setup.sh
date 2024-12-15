@@ -75,7 +75,8 @@ ACTION=""
 VERBOSE=false
 
 declare -g -A pkg_config_values=()
-declare -g -a pkg_config_vars=()
+declare -g -a pkg_config_set_vars=()
+declare -g -a pkg_config_desc_vars=()
 
 # Logging function
 log_message() {
@@ -149,11 +150,11 @@ load_pkg_config() {
             # Set shell variable
             declare -g "$key"="$value"
             # Append or initialize array entry
-            if [[ -n "${pkg_config_values[$key]:-}" ]]; then
-                pkg_config_values[$key]+=$'\n'"$value"
-            else
+            if [[ -z "${pkg_config_values[$key]:-}" ]]; then
                 pkg_config_values[$key]="$value"
-                pkg_config_vars+=("$key")
+                pkg_config_desc_vars+=("$key")
+            else
+                pkg_config_values[$key]+=$'\n'"$value"
             fi
             continue
         fi
@@ -165,11 +166,11 @@ load_pkg_config() {
             # Set shell variable
             declare -g "$key"="$value"
             # Append or initialize array entry
-            if [[ -n "${pkg_config_values[$key]:-}" ]]; then
-                pkg_config_values[$key]+=$'\n'"$value"
-            else
+            if [[ -z "${pkg_config_values[$key]:-}" ]]; then
                 pkg_config_values[$key]="$value"
-                pkg_config_vars+=("$key")
+                pkg_config_set_vars+=("$key")
+            else
+                pkg_config_values[$key]+=$'\n'"$value"
             fi
             continue
         fi
@@ -182,6 +183,17 @@ load_pkg_config() {
             pkg_config_values[$key]+=$'\n'"$line"
         fi
     done < "$config_file"
+}
+
+# Create package configuration directory
+create_pkg_config_dir() {
+    if [ ! -d "${INSTALL_CONFIG}" ]; then
+        log_message "INFO" "Creating ${INSTALL_CONFIG} directory..."
+        mkdir -p "${INSTALL_CONFIG}"
+        mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze" 
+    fi
+    # Create application configuration directory
+    return 0
 }
 
 # Parse manifest metadata
@@ -213,6 +225,8 @@ initialization() {
     PKG_VERSION=${PKG_VERSION:-$Version}
     INSTALL_BASE=${INSTALL_BASE:-$prefix}
     INSTALL_CONFIG="$HOME/.${PKG_NAME}"
+
+    create_pkg_config_dir
 
     # Set default manifest path
     INSTALL_MANIFEST="$MY_PATH/manifest.lst"
@@ -280,21 +294,23 @@ check_deps() {
     return 0
 }
 
-# Create package configuration directory
-create_pklg_config() {
-    if [ ! -d "${INSTALL_CONFIG}" ]; then
-        log_message "INFO" "Creating ${INSTALL_CONFIG} directory..."
-        mkdir -p "${INSTALL_CONFIG}"
-        mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze" 
-    fi
-    # Create application configuration directory
-    return 0
-}
-
 # Package information
-pkg_info() {
-    PKG_DATE=$(date '+%Y-%m-%d %H:%M:%S')
-    log_message "INFO" "Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$PKG_DATE"
+write_pkg_info() {
+    install_log="${INSTALL_CONFIG}/${PKG_NAME}.pc"
+    INSTALL_DATE=$(date '+%Y-%m-%d %H:%M:%S')
+    log_message "INFO" "Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE"
+    echo "# Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE" > "${install_log}"
+
+    # shellcheck disable=SC2068
+    for key in ${pkg_config_set_vars[@]}; do
+        echo "$key=${pkg_config_values[$key]}" >> "${install_log}"
+    done
+    # shellcheck disable=SC2068
+    for key in ${pkg_config_desc_vars[@]}; do
+        echo "$key: ${pkg_config_values[$key]}" >> "${install_log}"
+    done
+
+    return 0
 }
 
 install_conda() {
@@ -347,7 +363,7 @@ pre_install() {
     log_message "INFO" "Pre-installation tasks..."
     # Custom pre-install tasks can be added here
     check_deps
-    create_pklg_config
+    write_pkg_info
     install_conda
     unset PRE_INSTALL_COMPLETE
 }
