@@ -126,7 +126,6 @@ display_help() {
 
 # Load package configuration from .cf file
 load_pkg_config() {
-    set -x
     local config_file="$MY_PATH/setup.cf"
     if [ ! -f "$config_file" ]; then
         echo "ERROR: Configuration file $config_file not found." >&2
@@ -183,7 +182,6 @@ load_pkg_config() {
             pkg_config_values[$key]+=$'\n'"$line"
         fi
     done < "$config_file"
-    set +x
 }
 
 # Parse manifest metadata
