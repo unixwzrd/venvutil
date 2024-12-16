@@ -1,5 +1,36 @@
 # Changelog
 
+## [Unreleased]
+
+### Changes
+
+- Updated error message to specify that the script requires Bash version 4.0 or higher.
+
+### Enhancements
+
+- **Error Handling**: Add more detailed error handling for different scenarios (e.g., missing dependencies).
+- **User Feedback**: Implement informative user feedback during installation (e.g., progress indicators).
+- **Configuration Options**: Allow users to specify installation options via command-line arguments.
+- **Logging**: Introduce logging functionality to capture execution details for debugging.
+
+## 2024-12-15 - Updates
+
+- **warehouse**: Added functionality to move directories to a warehouse location with symlink creation.
+- **recall**: Implemented retrieval of directories from the warehouse.
+- **genmd**: Updated to include new features for grouping related files in markdown, including logging moved to a separate file for error reporting and additional logging levels, removal of the -v/--verbose option in favor of -d/--debug, options to remove blank lines or lines containing only whitespace, and an option to add line numbers to each file.
+
+## 2024-12-12 - Setup Script Updates and Enhancements
+
+- **Setup Script Update**: Updated `setup.sh` to include recent changes and proposed enhancements.
+- **Error Handling**: Improved error handling for different scenarios (e.g., missing dependencies).
+- **User Feedback**: Implemented informative user feedback during installation (e.g., progress indicators).
+- **Configuration Options**: Allowed users to specify installation options via command-line arguments.
+- **Logging**: Introduced logging functionality to capture execution details for debugging.
+
+## 2024-12-12 - Minor Fixes
+
+- **Setup Script Fix**: Minor change in `setup.sh` to address issues found during testing.
+
 ## 2024-12-10 - Function Name Changes and New Functions
 
 ### ***help_sys.sh*** Tested and working as expected

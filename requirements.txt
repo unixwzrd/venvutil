@@ -1,2 +1,15 @@
 rich
 nltk
+tiktoken
+
+pip
+
+exceptiongroup
+packaging
+ninja
+cmake
+pathspec
+tomli
+Cython
+meson
+meson-python

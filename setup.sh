@@ -62,7 +62,7 @@ MY_NAME="$(basename "${THIS_SCRIPT}")"
 MY_PATH="$(dirname "${THIS_SCRIPT}")"
 
 [[ "${BASH_VERSINFO[0]}" -lt 4 ]] \
-    && echo "($MY_NAME) ERROR: This script requires Bash version 4.0 or higher." >&2 \
+    && echo "($MY_NAME) ERROR: This script requires Bash version 4 or higher." >&2 \
     && exit 75 
 
 # Default values
@@ -74,7 +74,9 @@ INSTALL_MANIFEST="manifest.lst"
 ACTION=""
 VERBOSE=false
 
-declare -g -a pkg_config_vars=()
+declare -g -A pkg_config_values=()
+declare -g -a pkg_config_set_vars=()
+declare -g -a pkg_config_desc_vars=()
 
 # Logging function
 log_message() {
@@ -123,26 +125,94 @@ display_help() {
     exit 0
 }
 
+expand_variables() {
+    local input="$1"
+
+    # Validate the input: Allow variable references and valid values
+    if [[ ! "$input" =~ ^[A-Za-z0-9_\$]+([[:space:]]*[-+*/]?[[:space:]]*[A-Za-z0-9_\$]+)*$ ]]; then
+        return 1
+    fi
+
+    # Sanitize the input by escaping special characters if necessary
+    # For example, you might want to escape quotes or backslashes
+    sanitized_input=$(echo "$input" | sed 's/[&;|<>\*{}]/\\&/g')
+
+    # Use eval to expand variables safely
+    eval "echo $sanitized_input"
+}
+
 # Load package configuration from .cf file
 load_pkg_config() {
     local config_file="$MY_PATH/setup.cf"
-    if [ -f "$config_file" ]; then
-        while IFS= read -r line || [[ -n "$line" ]]; do
-            [[ "$line" =~ ^#.*$ ]] && continue    # Skip comments
-            [[ -z "$line" ]] && continue          # Skip blank lines
-            if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
-                IFS=':' read -r key value <<< "$line"
-                eval "$key=\"\$(echo \$value | xargs)\""
-                pkg_config_vars+=("$key")         # Add variable to pkg_config_vars
-            elif [[ "$line" =~ ^[A-Za-z_]+=.*$ ]]; then
-                eval "$line"
-                pkg_config_vars+=("${line%%=*}")   # Add variable to pkg_config_vars
-            fi
-        done < "$config_file"
-    else
+    if [ ! -f "$config_file" ]; then
         echo "ERROR: Configuration file $config_file not found." >&2
         exit 2
     fi
+
+    local key=""
+    local value=""
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Trim leading and trailing whitespace
+        line="$(sed 's/^[[:space:]]*//; s/[[:space:]]*$//' <<< "$line")"
+
+        # Skip comments and blank lines
+        [[ -z "$line" ]] && continue
+        [[ "$line" =~ ^# ]] && continue
+
+        # Check for Key=Value pattern
+        if [[ "$line" =~ ^([A-Za-z_]+)=(.*)$ ]]; then
+            key="${BASH_REMATCH[1]}"
+            if ! value=$(expand_variables "${BASH_REMATCH[2]}"); then
+                echo "($MY_NAME) WARNING: Invalid variable assignment: '$line' - skipping." >&2
+                continue
+            fi
+            # Set shell variable
+            declare -g "$key"="$value"
+            # Append or initialize array entry
+            if [[ -z "${pkg_config_values[$key]:-}" ]]; then
+                pkg_config_values[$key]="$value"
+                pkg_config_set_vars+=("$key")
+            else
+                pkg_config_values[$key]+=$'\n'"$value"
+            fi
+            continue
+        fi
+
+        # Check for Key: Value pattern
+        if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
+            key="${BASH_REMATCH[1]}"
+            value="${BASH_REMATCH[2]}"
+            # Set shell variable
+            declare -g "$key"="$value"
+            # Append or initialize array entry
+            if [[ -z "${pkg_config_values[$key]:-}" ]]; then
+                pkg_config_values[$key]="$value"
+                pkg_config_desc_vars+=("$key")
+            else
+                pkg_config_values[$key]+=$'\n'"$value"
+            fi
+            continue
+        fi
+
+        # If a line doesn't match either pattern, assume it’s an additional value for the last key
+        # If no previous key is known, just ignore.
+        if [[ -n "$key" ]]; then
+            # Treat as another line for the current key
+            declare -g "$key"="${!key:-}\n${line}"
+            pkg_config_values[$key]+=$'\n'"$line"
+        fi
+    done < "$config_file"
+}
+
+# Create package configuration directory
+create_pkg_config_dir() {
+    if [ ! -d "${INSTALL_CONFIG}" ]; then
+        mkdir -p "${INSTALL_CONFIG}"
+        mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze" 
+        log_message "INFO" "Created ${INSTALL_CONFIG} directories..."
+    fi
+    # Create application configuration directory
+    return 0
 }
 
 # Parse manifest metadata
@@ -168,7 +238,6 @@ initialization() {
 
     load_pkg_config
 
-
     # Set PKG_NAME early to load config
     PKG_NAME=${Name:-${PKG_NAME:-"DEFAULT"}}
     # Set default values if not already set
@@ -176,14 +245,12 @@ initialization() {
     INSTALL_BASE=${INSTALL_BASE:-$prefix}
     INSTALL_CONFIG="$HOME/.${PKG_NAME}"
 
+    create_pkg_config_dir
+
     # Set default manifest path
     INSTALL_MANIFEST="$MY_PATH/manifest.lst"
 
-    # Create application configuration directory
-    mkdir -p "$INSTALL_CONFIG"
-    mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze"
-
-    log_message "INFO" "Configuring $PKG_NAME for initializated..."
+    log_message "INFO" "Configuring $PKG_NAME for initialization..."
 
     # Parse manifest metadata
     parse_manifest_metadata
@@ -247,9 +314,22 @@ check_deps() {
 }
 
 # Package information
-pkg_info() {
-    PKG_DATE=$(date '+%Y-%m-%d %H:%M:%S')
-    log_message "INFO" "Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$PKG_DATE"
+write_pkg_info() {
+    install_log="${INSTALL_CONFIG}/${PKG_NAME}.pc"
+    INSTALL_DATE=$(date '+%Y-%m-%d %H:%M:%S')
+    log_message "INFO" "Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE"
+    echo "# Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE" > "${install_log}"
+
+    # shellcheck disable=SC2068
+    for key in ${pkg_config_set_vars[@]}; do
+        echo "$key=${pkg_config_values[$key]}" >> "${install_log}"
+    done
+    # shellcheck disable=SC2068
+    for key in ${pkg_config_desc_vars[@]}; do
+        echo "$key: ${pkg_config_values[$key]}" >> "${install_log}"
+    done
+
+    return 0
 }
 
 install_conda() {
@@ -271,7 +351,7 @@ install_conda() {
     # Download and install conda
     log_message "INFO" "Downloading and installing Conda..."
     local INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-${OS}-${ARCH}.sh"
-    curl -O "$INSTALLER_URL"
+    curl -k -O "$INSTALLER_URL"
     # do a non-destructive install
     bash "Miniconda3-latest-${OS}-${ARCH}.sh" -b -u
     rm "Miniconda3-latest-${OS}-${ARCH}.sh"
@@ -288,7 +368,7 @@ install_conda() {
     export PRE_INSTALL_COMPLETE=Y
     SHELL=$(which "$(basename "$SHELL")")
     # Wheeeeee!!!!!!
-    exec "$SHELL" -l -c "${THIS_SCRIPT} ${ACTION}; exec ${SHELL} -l"
+    exec "$SHELL" -l -c "${THIS_SCRIPT} ${ACTION}"
     return 0
 }
 
@@ -302,12 +382,18 @@ pre_install() {
     log_message "INFO" "Pre-installation tasks..."
     # Custom pre-install tasks can be added here
     check_deps
+    write_pkg_info
     install_conda
+    unset PRE_INSTALL_COMPLETE
 }
 
 install_assets() {
     # Implement package installation logic here
     log_message "INFO" "Installing packages..."
+
+    # Set default owner and group if not specified
+    owner=${owner:-$(id -u)}
+    group=${group:-$(id -g)}
 
     readarray -t lines < <(grep -v '^#' "$INSTALL_MANIFEST" | grep -v '^\s*$')
     for line in "${lines[@]}"; do
@@ -317,20 +403,15 @@ install_assets() {
             continue
         fi
 
-        IFS=$'| ' read -r type destination source name permissions owner group size checksum <<< "$line"
-
-        # Set default owner and group if not specified
-        owner=${owner:-$(id -u)}
-        group=${group:-$(id -g)}
+        IFS=$'| ' read -r asset_type destination source name permissions owner group size checksum <<< "$line"
 
         destination="${INSTALL_BASE}/${destination}"
-        source_location="${source}"
-        source_path="${MY_PATH}/${source_location}/${name}"
+        source_path="${MY_PATH}/${source}/${name}"
         dest_path="${destination}/${name}"
 
         mkdir -p "$destination"
 
-        case "$type" in
+        case "$asset_type" in
             d) # Create directory
                 mkdir -p "$dest_path"
                 chown "$owner":"$group" "$dest_path"
@@ -352,7 +433,7 @@ install_assets() {
                 cd -
                 ;;
             *)
-                log_message "ERROR" "Unknown asset type: $type"
+                log_message "ERROR" "Unknown asset type: $asset_type"
                 ;;
         esac
     done
@@ -393,12 +474,52 @@ write_pkg_config() {
     return 0
 }
 
+post_install_user_message() {
+    log_message "INFO" "Provide user instructions..."
+    # Custom post-install message can be added here
+    cat <<_EOT_
+    The package $PKG_NAME has been installed to $INSTALL_BASE.
+    To use the package, the following line was added to your .bashrc file:
+
+    if [[ ! "\$PATH" =~ "$INSTALL_BASE/bin:" ]]; then export PATH="$INSTALL_BASE/bin:\$PATH"; fi
+
+    If you wish to use it in the current shell, run the following command:
+
+    exec $SHELL -l
+
+    or exit the terminal and start a new one. To verify the installation files
+    for correct location and file integrity run the following command:
+
+    $MY_NAME verify (not implemented yet)
+
+    If you wish to uninstall the packages associated with $PKG_NAME, run the
+    following command:
+
+    $MY_NAME uninstall (not implemented yet)
+
+    This will only remove the files associated with the package, not the
+    Conda installation, its installed packages or any other dependencies. If
+    you wish to uninstall everything associated with the package, run the
+    following command:
+
+    $MY_NAME remove_all (not implemented yet)
+
+    The documentation may be found in the $INSTALL_BASE/README.md file. Please
+    contact the package maintainers for any issues or feature requests or file them on
+    GitHub: ${Support:-https://github.com/unixwzrd/venvutil/issues}
+    Please help sponsor my projects on Patreon: ${Contribute:-https://patreon.com/unixwzrd}
+
+_EOT_
+    return 0
+}
+
 post_install() {
     log_message "INFO" "Post-installation tasks..."
     install_python_packages
     # Example: Update .bashrc if necessary
     update_bashrc
     write_pkg_config
+    post_install_user_message
     log_message "INFO" "Installation for $PKG_NAME complete."
     return 0
 }
@@ -488,21 +609,33 @@ remove() {
     return 0
 }
 
+
+Verify() {
+    log_message "INFO" "Verifying package: $PKG_NAME tasks..."
+    # Implement verification logic here
+    return 0
+}
+
 # Main function
 main() {
     parse_arguments "$@"
     initialization
-    pkg_info
 
     case "$ACTION" in
         install)
             install
             ;;
         remove)
+            echo "Not implemented at this time." && exit 1
             remove
             ;;
         rollback)
+            echo "Not implemented at this time." && exit 1
             rollback
+            ;;
+        verify)
+            echo "Not implemented at this time." && exit 1
+            verify
             ;;
         *)
             echo "Invalid action: $ACTION"
@@ -512,4 +645,3 @@ main() {
 }
 
 main "$@"
-set -x

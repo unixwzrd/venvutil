@@ -78,7 +78,7 @@
 #                               compression utility (e.g., gzip, xz, bzip2). The compressed file
 #                               will be named as 'output.md.<extension>'.
 #
-#     -t, --tokens              Gove a roken count for the output.
+#     -t, --tokens              Give a token count for the output.
 # 
 # Description:
 #       The genmd script generates markdown from the files in the specified directory,
@@ -138,7 +138,7 @@
 [ -L "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}") || THIS_SCRIPT="${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}"
 MY_NAME="$(basename "${THIS_SCRIPT}")"
 MY_PATH="$(dirname "${THIS_SCRIPT}")"
-#Make sure our associated uutilities are in the path
+#Make sure our associated utilities are in the path
 export PATH="${MY_PATH}:${PATH}"
 # Check for Bash version 4+
 if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
@@ -150,7 +150,7 @@ fi
 set -euo pipefail
 
 # Try to locate the SHINCLUDE directory which contains included scripts and functions in a "standard"
-# fashion. places we chouel look are, in this order:
+# fashion. places we could look are, in this order:
 #   - $(dirname "${THIS_SCRIPT}")
 #   - $(dirname "${THIS_SCRIPT}")/shinclude
 #   - $HOME/shinclude
@@ -560,7 +560,7 @@ load_config() {
         done
         # shellcheck source=/dev/null
         source "$config_file"
-        # Quickly put debug level back to default or from th ecommand line it shoudl not change
+        # Quickly put debug level back to default or from the command line it should not change
         # to value from config file.
         debug_level=${original_values["debug_level"]}
         # Set the new config file values and restore the original values
@@ -636,7 +636,7 @@ load_config_file() {
         if [[ -e "$config_filename_in" ]]; then
             load_config "$config_filename_in"
         else
-            log_message "WARN" "No configuration or output file specified. Ising default \"$output_filename\" and config \"$config_filename_out\""
+            log_message "WARN" "No configuration or output file specified. Using default \"$output_filename\" and config \"$config_filename_out\""
         fi
     fi
 }
@@ -880,6 +880,7 @@ generate_filetree() {
 
     if [[ "$dry_run" = true ]]; then
         log_message "INFO" "Dry run: Generating directory and file structure."
+        # shellcheck disable=SC2086
         filetree -l $debug_level  -i "${include_string}" -e tmp .git "${exclude_string[@]}"
         return
     fi
@@ -891,6 +892,7 @@ generate_filetree() {
         # Double quote to prevent globbing and word splitting.shellcheckSC2086
         # shellcheck disable=SC2086
         echo filetree -l $debug_level -i "${include_string}" -e tmp .git "${exclude_string}"
+        # shellcheck disable=SC2086
         filetree -l $debug_level -i "${include_string}" -e tmp .git "${exclude_string}"
         printf "\n\`\`\`\n"
     } >> "$output_filename"
@@ -1061,6 +1063,7 @@ display_settings() {
         case "$mode" in
             info)
                 log_message "INFO" "genmd current settings:"
+                # shellcheck disable=SC2068
                 for var in ${config_variables[@]}; do
                     log_message "INFO" "$var: ${!var:-""}"
                 done
@@ -1071,10 +1074,12 @@ display_settings() {
                     echo ""
                     echo "| Variable               | Value                                                                 |"
                     echo "|------------------------|-----------------------------------------------------------------------|"
+                    # shellcheck disable=SC2068
                     for var in ${config_variables[@]}; do
                         local value=${!var:-""}
                         # Escape or pattern match characters
                         value=${value//|/\\|}
+                        # shellcheck disable=SC2086
                         printf "| %s | %s |\n" "$var" ${value}
                     done
                     echo ""
@@ -1318,7 +1323,7 @@ process_files "$output_filename" final_files
 
 # Provide token count if requested
 if [[ "$count_tokens" = true ]]; then
-     tokencount -f "${output_filename}"
+    tokencount -f "${output_filename}"
 fi
 
 # Compress the final output if compression is enabled
