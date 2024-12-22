@@ -97,8 +97,33 @@ process_and_generate_manifest() {
 
 }
 
+# Function to get deleted files from git status
+get_deleted_files() {
+    if ! command -v git >/dev/null 2>&1; then
+        echo "Warning: git not found, skipping deleted files check" >&2
+        return
+    fi
+    
+    if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        echo "Warning: not in a git repository, skipping deleted files check" >&2
+        return
+    fi
+    
+    git status --porcelain | grep '^ D\|^D ' | sed 's/^ D //;s/^D //'
+}
+
 # Start fresh
-> "$OUTPUT_FILE"
+# Add a header to the manifest file
+echo "# This file uses pipe-separated fields" > "$OUTPUT_FILE"
+
+# Add deleted files as cancel entries
+while read -r deleted_file; do
+    if [ -n "$deleted_file" ]; then
+        dir=$(dirname "$deleted_file")
+        name=$(basename "$deleted_file")
+        echo "c | $dir | | $name | | | | |" >> "$OUTPUT_FILE"
+    fi
+done < <(get_deleted_files)
 
 # Specify the files and directories to include
 include_files=("README.md" "LICENSE" "setup.sh" "setup.cf" "manifest.lst")
@@ -171,12 +196,6 @@ find "${find_args[@]}" | while read -r asset; do
 done
 
 # Sort the manifest file
-sort -o "$OUTPUT_FILE" "$OUTPUT_FILE"
-
-# Add a header to the manifest file
-{
-    echo "# Manifest file for venvutil project"
-    echo "# This file uses pipe-separated fields"
-    echo
-    cat "$OUTPUT_FILE"
-} > temp && mv temp "$OUTPUT_FILE"
+mv "$OUTPUT_FILE" "$$OUTPUT_FILE"
+sort -o "$OUTPUT_FILE" "$$OUTPUT_FILE"
+rm "$$OUTPUT_FILE"

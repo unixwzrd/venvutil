@@ -14,7 +14,7 @@
     - [Tools Overview](#tools-overview)
     - [Shell Functions](#shell-functions)
   - [Conda and Pip Logging](#conda-and-pip-logging)
-  - [C++, G++, and LD Pass-Throughs *TODO* - Meson issues again](#c-g-and-ld-pass-throughs-todo---meson-issues-again)
+  - [~~C++, G++, and~~ LD Pass-Through](#c-g-and-ld-pass-through)
     - [Purpose](#purpose)
     - [Explanation](#explanation)
   - [NLTK and Token Count](#nltk-and-token-count)
@@ -30,19 +30,22 @@ Venvutil is a versatile toolset designed to simplify the management of Python vi
 
 ### Key Features
 
-- **Enhanced VENV Management**: Provides tools to easily create, manage, and replicate Python virtual environments.
-- **Enhanced Logging**: Includes dynamic program names and lazy formatting for efficient logging.
-- **Robust Configuration Management**: Utilizes global variable declarations and improved handling of configuration variables.
-- **Conda and Pip Wrappers**: Includes wrapper scripts for Conda and Pip that log actions and freeze the state of environments for reproducibility.
+- **Enhanced VENV Management**: Provides tools to easily create, manage, and replicate Python virtual environments and a few other tools.
+- **Conda and Pip Logging**: Utilizes logging to track changes to VENV's and freeze the state of environments for reproducibility.
+- **Enhanced Logging**: Maintains a log on any potentially destructive operations to VENV's when using Pip or Conda to make changes to the VENV.
+- **Robust Configuration Management**:All configuration changes are logged and a `pip freeze` is done before and after the operation to ensure that the virtual environment is frozen.
+- **Rollback and Recovery**: Offers tools to rollback changes to VENV's, restoring the state of the environment to a previous state using the freeze log.
 - **Cross-Platform Compatibility**: Designed to work seamlessly on macOS and Linux systems, with specific optimizations for Apple Silicon.
+- **Additional Tools**: Provides additional tools like `genmd`, `filetree`, including some simple test scripts to check if your GPU is being utilized - specifically for Apple Silicon.
 - **Build and Installation Scripts**: Offers scripts to automate the setup of complex environments, including rebuilding NumPy with Apple Silicon optimizations.
 - **Comprehensive Documentation**: Includes detailed instructions and [CHANGELOG](CHANGELOG.md) to help users get started and stay updated with the latest features.
 
 ### Why Use Venvutil?
 
-- **Simplify Environment Management**: Automate the tedious tasks of setting up and maintaining Python environments, saving time and reducing errors.
+- **Simplify Environment Management**: Most common tasks are simplified with this toolset, such as creating, deleting, switching, and cloning environments.
+- **Enhanced Logging**: Provides a record of changes to VENV's, making it easy to track and recover from potential issues.
 - **Ensure Reproducibility**: By freezing the state of environments, Venvutil helps ensure that your setups are consistent across different machines and setups.
-- **Transparent Tool Wrapping**: Provides pass-through wrappers for C++, G++, and LD to ensure compatibility without compromising security or functionality.
+- **Transparent Tool Wrapping**: Provides pass-through wrappers Pip, Conda, and LD to ensure compatibility without compromising security or functionality.
 
 ## Installation Instructions
 
@@ -83,8 +86,17 @@ Thanks for using Venvutil!
 
 - **tokencount**: [Detailed Documentation](docs/tokencount.md) *TODO*
   - A tool designed to count tokens in text files, useful for analyzing text data and preparing it for processing with language models.
-- **chunkfile**: [Detailed Documentation](docs/chunkfile.md) *TODO*
-  - A script for breaking large files into smaller, manageable chunks for easier processing.
+- **chunkfile**: [Detailed Documentation](docs/chunkfile.md)
+  - A versatile tool for splitting files into chunks with configurable overlap:
+    - Split by number of files, lines or size in bytes.
+    - Support for overlapping content between chunks (-o)
+- **warehouse** and **recall**: [Detailed Documentation](docs/warehouse.md)
+  - Tools for managing offline storage:
+    - Move files/directories to external storage while maintaining symlinks
+    - Support custom storage locations
+- **numpybench**: [Detailed Documentation](docs/numpybench.md)
+  - A benchmarking tool for testing NumPy performance:
+    - Tests/validates GPU and Neural Engine acceleration on Apple Silicon with NumPy
 - **genmd**: [Detailed Documentation](docs/genmd.md)
   - A script that generates markdown documentation from project files, facilitating easy sharing and collaboration.
 - **filetree**: [Detailed Documentation](docs/filetree.md)
@@ -95,6 +107,8 @@ Thanks for using Venvutil!
     - To help compile many things in the macOS Environment which incorrectly pass the linker the --version flag.
 
 ### Shell Functions
+
+These are a few of the shell functions provided by venvutil which I find useful.  There is more documentation on the functions in the README of the [venvutil Tools](docs/shdoc/README.md). 
 
 - **venvutil Tools**: [Detailed Documentation](docs/shdoc/README.md)
   - A collection of shell functions and scripts for managing Python virtual environments and LLMs.
@@ -118,8 +132,8 @@ Thanks for using Venvutil!
 - **errfind and errno**: [Detailed Documentation](docs/shdoc/bin/shinclude/errno_sh.md)
   - For locating POSIX return codes and messages and also looking up return code values. Helping you find the best error return code for any condition, no more using `return 1` or other random number.
 
-   ```bash
-   (base) [unixwzrd@xanax: ~]$ errfind invalid
+  ```bash
+  (base) [unixwzrd@xanax: ~]$ errfind invalid
   (EINVAL: 22): Invalid argument
   (base) [unixwzrd@xanax: ~]$ errfind file
   (ENOENT: 2): No such file or directory
@@ -133,7 +147,7 @@ Thanks for using Venvutil!
   usage: sudo -e [-ABkNnS] [-C num] [-D directory] [-g group] [-h host] [-p prompt] [-R directory] [-T timeout] [-u user] file ...
   (base) [unixwzrd@xanax: ~]$ errno $?
   (EPERM: 1): Operation not permitted
-   ```
+  ```
 
 There are many more functions available, check out the documentation for more.
 
@@ -143,21 +157,17 @@ Any potential *destructive* operations on a virtual environment swill be logged,
 
 This logging combined with the frozen environments can be used to ensure that your virtual environments are consistent and reproducible as well as tracking changes and rolling back to a previous state. There are numerous commands which will work with Conda created and using either Pip or Conda for package management. I would like to add support for other package managers which may be used in a compatible virtual environments. Two useful commands are `lenv` which not only lists the environments, but also their last update date. The `ccln` command will clone the current venv and switch you to the cloned environment. There are many other useful commands and functions available, check out the [venv_functs.sh](docs/shdoc/bin/shinclude/venv_funcs_sh.md) file for more information.
 
-Configuration options, logs and freezes are found in the `$HOME
+Configuration options, logs and freezes are found in the `$HOME`
 
-## C++, G++, and LD Pass-Throughs *TODO* - Meson issues again
+## ~~C++, G++, and~~ LD Pass-Through
 
-These are specific wrappers for C++, G++, and LD that ensure compatibility without compromising security or functionality, but are necessary work-arounds on macOS  in order to take advantage of Apple Silicon optimizations for NumPy and other packages. This will allow them to take advantage of the GPU and NEON optimizations. This was necessary due to the Meson integration into the Pip recompile.
-
-Briefly, here are the instructions for building NumPy with the optimizations turned on.
+Meson was fixed which gave me troubles tracking this down, so I am removing the hard links for c++ and g++, but leaving in the ld script pass-through just in case something else tries to invoke it using the wrong flag for `--version` when it needs to be `-v`, here are the instructions for building NumPy with the optimizations turned on. It also seems that after I built GCC, it conflicted with the Xcode c++ compiler, installing another c++ in /usr/local/bin which was simply a herd link to g++.
 
 ```bash
 CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework -Wl,Accelerate -framework Accelerate" pip install numpy==1.26.* --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true
 ```
 
-- **NOTE** Something changed in the Meson build with pip install and compile, I'm tracking this down.
-
-That will build and install NumPy 1.26 into your Python virtual environment.
+This will build and install NumPy 1.26 into your Python virtual environment. With the Accelerate Framework optimizations on, you can now use NumPy with Apple Silicon.
 
 ### Purpose
 
@@ -212,8 +222,12 @@ This project is licensed under the Apache License
 
 ## Future Improvements
 
-- **Chunktext Program**: Consider enhancing the `chunktext` program to set chunk limits and boundaries.
-- **More Virtual Environment Tools**: Continue to expand the collection of tools for managing virtual environments.
+- **Chunkfile Enhancements**: 
+  - Add support for custom chunk naming patterns
+  - Add compression support for output chunks
+  - Add support for automatic chunk size calculation based on available memory
+  - Add support for paries.
+- **l processing of chunks Virtual Environment Tools**: Continue to expand the collection of tools for managing virtual environments.
   - High on the list is `vinfo` and `venvdiff`
 - **Additional Documentation**: Expand the documentation to include more examples and examples of using the tools.
 - **Overall Enhancements**: Additional improvements and documentation are needed, but focus is shifting to other projects for now.

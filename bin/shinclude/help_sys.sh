@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # # Script: help_sys.sh
 # `help_sys.sh` - Help System Functions for Bash Scripts
@@ -43,12 +43,31 @@ declare -g MD_PROCESSOR=${MD_PROCESSOR:-"glow"}
 # Define an array of internal functions to exclude from help and documentation
 declare -g -a __VENV_INTERNAL_FUNCTIONS=(
     ${__VENV_INTERNAL_FUNCTIONS[@]}
-    "init_help_system"
-    "general_help"
-    "specific_script_help"
-    "specific_function_help"
-    "help_functions"
     "do_help"
+    "docs_base_path"
+    "function_description"
+    "general_help"
+    "general_help"
+    "generate_markdown"
+    "get_script_readme_file"
+    "get_system_readme_file"
+    "help_functions"
+    "init_help_system"
+    "init_help_system"
+    "process_scripts"
+    "script_description"
+    "specific_function_help"
+    "specific_function_help"
+    "specific_script_help"
+    "specific_script_help"
+    "write_function_doc"
+    "write_page_footer"
+    "write_script_doc"
+    "write_script_function_entry"
+    "write_script_readme_header"
+    "write_system_readme_entry"
+    "write_system_readme_header"
+    "write_table_footer"
 )
 
 # Initialize associative arrays to store function names and their corresponding documentation
@@ -114,7 +133,7 @@ process_scripts() {
     readarray -t sorted_script_names < <(printf "%s\n" "${sorted_script_names[@]}" | sort)
     readarray -t sorted_function_names < <(printf "%s\n" "${sorted_function_names[@]}" | sort)
     
-    cd -
+    cd - > /dev/null
 }
 
 # # Function: init_help_system
@@ -147,7 +166,7 @@ init_help_system() {
     readarray -t sorted_function_names < <(printf "%s\n" "${!__VENV_FUNCTIONS[@]}" | sort)
     readarray -t sorted_script_names < <(printf "%s\n" "${!__VENV_SCRIPTS[@]}" | sort)
     
-    cd -
+    cd - > /dev/null
 }
 
 

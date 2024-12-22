@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # # Script: wrapper_funcs.sh
 # `wrapper_funcs.sh` - Python Package Manager Wrapper Functions
@@ -25,6 +25,7 @@
 # Determine the real path of the script
 THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}")
 # Don't source this script if it's already been sourced.
+# shellcheck disable=SC2076
 [[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
 echo "Sourcing: ${THIS_SCRIPT}"
 
@@ -120,7 +121,7 @@ do_wrapper() {
         if eval " ${env_vars} ${cmd} ${cmd_args} "; then
             # Logging the command invocation if it completed successfully.
             {
-                echo "# ${log_date}: Success - prefreeze state: ${freeze_state}"
+                echo "# ${log_date}: Success - preference state: ${freeze_state}"
                 echo "# ${log_date}: ${user_line}"
                 echo "# ${log_date}: Current working directory: ${PWD}"
                 echo "# ${log_date}: $(${cmd} --version)"
@@ -134,10 +135,10 @@ do_wrapper() {
             command pip freeze > "${freeze_state}"
             echo "# ${log_date}: Success - post-freeze state: ${freeze_state}" >> \
                     "${venv_history_log}"
-            # Make a symlink so the currecnt state is allways up-to-date.
+            # Make a symlink so the current state is always up-to-date.
             ln -sf "${freeze_state}" "${freeze_dir}/${CONDA_DEFAULT_ENV}.current.txt"
         else
-            # Cleanup and log the failure and presrve the return code
+            # Cleanup and log the failure and preserve the return code
             __rc__="$?"
             {
                 echo "# ${log_date}: Command failure: $(errno ${__rc__})"

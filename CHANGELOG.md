@@ -1,5 +1,70 @@
 # Changelog
 
+## 2024-12 22 - Documentation Updates
+
+### Added Git Integration
+- Enhanced `generate_manifest` script to automatically detect deleted files using `git status --porcelain`
+- Added automatic creation of cancel entries for files deleted from git
+- Updated documentation to reflect new git integration features
+
+### Documentation Updates
+- Added comprehensive documentation for the `generate_manifest` script.
+- Documented manifest file format and handling of deprecated files.
+- Clarified the use of `c` (cancel) type entries for file removal.
+- Added cross-references to related documentation.
+- Improved documentation for handling deprecated files
+- Added examples of both automatic and manual cancel entries
+- Updated implementation details section with git status integration
+- Added git as an optional dependency
+
+## 2024-12-20 - Major Updates and Tool Improvements
+
+### Tool Changes and Renames
+
+- Renamed `chunktext` to `chunkfile` for better clarity
+- Removed `c++` and `g++` pass-through scripts (no longer needed after Meson fix)
+- Modified `numpybench` to use `-o/--output` instead of `-d/--datafile`
+- Updated `warehouse.sh` with improved functionality
+
+### New Tools and Scripts
+
+- Added `generate_manifest` utility
+- Created `numpy-1.26-reinst.sh` for optimized NumPy installation
+- Added `chunkfile.py` implementation
+
+### Documentation Improvements
+
+- Created new documentation files:
+  - `docs/chunk-offsets.md`: Visual guide for chunk operations
+  - `docs/chunkfile.md`: Documentation for the renamed chunk utility
+  - `docs/numpybench.md`: Comprehensive guide for NumPy benchmarking
+  - `docs/warehouse.md`: Documentation for storage management utilities
+- Updated all function documentation in `docs/shdoc/`
+- Enhanced core documentation files for better clarity
+
+### Core Script Updates
+
+- Modified `bin/buildvenvs` for better environment handling
+- Enhanced `bin/filetree.py` with improved functionality
+- Updated `bin/genmd` for better document generation
+- Improved `bin/numpybench` with cleaner output options
+
+### Shell Include Files
+
+- Updated all shell include files with improved functionality:
+  - `errno.sh`: Enhanced error handling
+  - `help_sys.sh`: Improved help system
+  - `init_env.sh`: Better initialization
+  - `util_funcs.sh`: Additional utility functions
+  - `venv_funcs.sh`: Enhanced venv management
+  - `wrapper_funcs.sh`: Updated wrapper functionality
+
+### Configuration and Requirements
+
+- Removed `build-requirements.txt` in favor of `requirements-build.txt`
+- Updated `requirements.txt` with current dependencies
+- Modified `manifest.lst` to reflect current file structure
+
 ## 2024-12-10 - Function Name Changes and New Functions
 
 ### ***help_sys.sh*** Tested and working as expected

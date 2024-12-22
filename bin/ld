@@ -1,10 +1,14 @@
 #!/bin/bash
-# Wrapper script for c++, g++, and ld to replace --version with -v in all arguments
-# This is necessary because  the macOS linker `ld` uses different 
+# Wrapper script for ld to replace --version with -v in all arguments
+# This is necessary because the macOS linker `ld` uses different 
 # conventions for version flag representation. Using -v instead of 
 # --version ensures compatibility with those tools. This helps maintain 
 # consistent behavior when passing arguments, especially in scripts that 
 # may need to work with various executables that follow different syntax.
+# 
+# Note: This script is specifically designed for the `ld` linker and does not 
+# handle `c++` or `g++` commands. It modifies the `--version` flag to `-v` 
+# for the Apple linker only.
 
 # Directory to store logs
 LOG_DIR="${HOME}/.venvutil"

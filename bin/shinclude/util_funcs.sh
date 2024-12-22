@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # # Script: util_funcs.sh
 # `util_funcs.sh` - Utility Functions for Bash Scripts

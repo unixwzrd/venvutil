@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # # Script: venv_funcs.sh
 #  venv_funcs.sh - Virtual Environment Management Functions for Bash Scripts

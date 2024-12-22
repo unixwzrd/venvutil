@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # # Script: init_env.sh
 # `init_env.sh` - Initialize Environment and Source Utility Scripts

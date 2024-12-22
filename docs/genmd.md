@@ -40,27 +40,27 @@ By saving the configuration and settings of any particular run of the command, y
 
 1. **Clone the Repository:**
 
-   ```bash
-   git clone https://github.com/unixwzrd/venvutil.git
-   ```
+    ```bash
+    git clone https://github.com/unixwzrd/venvutil.git
+    ```
 
 2. **Navigate to the Script Directory:**
 
-   ```bash
-   cd genmd
-   ```
+    ```bash
+    cd genmd
+    ```
 
 3. **Make the Script Executable:**
 
-   ```bash
-   chmod +x genmd
-   ```
+    ```bash
+    chmod +x genmd
+    ```
 
 4. **Move the Script to a Directory in Your PATH (Optional):**
 
-   ```bash
-   sudo mv genmd /usr/local/bin/
-   ```
+    ```bash
+    sudo mv genmd /usr/local/bin/
+    ```
 
 ---
 
@@ -68,9 +68,9 @@ You may want to find a location and just make symlinks to the utilities in the b
 
 ## Usage
 
-```bash
-genmd [options]
-```
+  ```bash
+  genmd [options]
+  ```
 
 `genmd` scans the specified directory (default is the current directory) and generates a Markdown file containing the source code and directory structure based on the provided options.
 
@@ -180,65 +180,65 @@ All short options have corresponding long options with double dashes (`--`):
 
 1. **Basic Usage with Exclusions and Inclusions:**
 
-   ```bash
-   genmd -e "node_modules|dist" -f "*.log *.tmp" -i "*css *.js" -s "info,md" -o project_overview.md
-   ```
+    ```bash
+    genmd -e "node_modules|dist" -f "*.log *.tmp" -i "*css *.js" -s "info,md" -o project_overview.md
+    ```
 
 2. **Using Long Options and Dry Run:**
 
-   ```bash
-   genmd --exclude "node_modules|dist" --file "*.log *.tmp" --include "info" --dry-run
-   ```
+    ```bash
+    genmd --exclude "node_modules|dist" --file "*.log *.tmp" --include "info" --dry-run
+    ```
 
 3. **Setting Multiple Modes and Debug Level:**
 
-   ```bash
-   genmd -s info,md -d 25
-   ```
+    ```bash
+    genmd -s info,md -d 25
+    ```
 
 4. **Generate Markdown with Default Settings (Using .grc and .gitignore):**
 
-   ```bash
-   genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
-         -f "*impression* professional.md *.png" \
-         -i "css liquid" \
-         -s all \
-         -o my_test_file
-   ```
+    ```bash
+    genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
+          -f "*impression* professional.md *.png" \
+          -i "css liquid" \
+          -s all \
+          -o my_test_file
+    ```
 
 5. **Generate Markdown Without Sourcing .grc Configuration (Using Only .gitignore and Command-Line Options):**
 
-   ```bash
-   genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
-         -f "*impression* professional.md *.png" \
-         -i "css liquid" \
-         -s all \
-         -o my_test_file \
-         --no-config
-   ```
+    ```bash
+    genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
+          -f "*impression* professional.md *.png" \
+          -i "css liquid" \
+          -s all \
+          -o my_test_file \
+          --no-config
+    ```
 
 6. **Generate Markdown Without Using .gitignore (Using Only .grc Configuration and Command-Line Options):**
 
-   ```bash
-   genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
-         -f "*impression* professional.md *.png" \
-         -i "css liquid" \
-         -s all \
-         -o my_test_file \
-         --no-gitignore
-   ```
+    ```bash
+    genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
+          -f "*impression* professional.md *.png" \
+          -i "css liquid" \
+          -s all \
+          -o my_test_file \
+          --no-gitignore
+    ```
 
 7. **Generate Markdown Using Only Command-Line Options (Ignoring Both .grc and .gitignore):**
 
-   ```bash
-   genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
-         -f "*impression* professional.md *.png" \
-         -i "css liquid" \
-         -s all \
-         -o my_test_file \
-         --no-config \
-         --no-gitignore
-   ```
+    ```bash
+    genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
+          -f "*impression* professional.md *.png" \
+          -i "css liquid" \
+          -s all \
+          -o my_test_file \
+          --no-config \
+          --no-gitignore
+    ```
 
 ---
 
@@ -288,6 +288,12 @@ All short options have corresponding long options with double dashes (`--`):
 - **Saving Configuration:**
   - Use the `cfg` mode with the `-s` option to save current settings to a configuration file, output will be written to `STDOUT`.
   - When using the `-o` option to specify an output file, a corresponding `.grc` configuration file will be created in the `GENMD_BASE/utils/etc` directory, matching the output filename.
+  - The `-o` option will create a markdown report along with a configuration file with the same name. This is useful if you wish to run the same report multiple times. Additional command line switches are added to the configuration file. For instance if you wanted to get all the .html files in a project, you coudl do:
+  
+    ```bash
+    genmd -o htmlfiles -i "*.html" 
+    ```
+    This will create a file `htmlfiles.grc` with the configuration settings and the report file `htmlfiles.md`.
 
 ### Configuration Variables
 
@@ -301,7 +307,7 @@ To integrate your project's `.gitignore` patterns into the markdown generation p
 
 - **Example Command:**
 
-   ```bash
+  ```bash
   genmd -d 4 -e "utils _includes _data _posts js collaborates projects" -f "*impression* professional.md *.png" -i "css liquid" -s all -o my_test_file --no-gitignore
   ```
 

@@ -432,6 +432,11 @@ install_assets() {
                 ln -sf "$source" "$name"
                 cd -
                 ;;
+            r) # Remove the asset
+                cd "$destination"
+                rm -rf "$name"
+                cd -
+                ;;
             *)
                 log_message "ERROR" "Unknown asset type: $asset_type"
                 ;;
