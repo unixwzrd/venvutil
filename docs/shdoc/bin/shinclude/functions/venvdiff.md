@@ -5,7 +5,9 @@
 - **Purpose**: 
   - Compares two virtual environments and lists differences.
 - **Usage**: 
-  - `venvdiff [env1] [env2]`
+  - `venvdiff [-h] [env1] [env2]`
+- **Options**: 
+  - `-h`   Show this help message
 - **Input Parameters**: 
   - `env1` (string) - The first environment to compare.
   - `env2` (string) - The second environment to compare.
@@ -14,14 +16,15 @@
 - **Exceptions**: 
   - Errors if either environment does not exist.
 
-## Defniition 
+## Definition 
 
 * [venv_funcs.sh](../venv_funcs_sh.md)
-
 ---
+
 Website: [unixwzrd.ai](https://unixwzrd.ai)
+Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 10 at 02:01:13
+Generated on: Generated: 2024 12 24 at 05:26:21

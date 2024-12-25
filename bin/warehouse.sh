@@ -1,9 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
+        # shellcheck disable=SC2034
 [ -L "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}" ] \
         && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}")\
         || THIS_SCRIPT="${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}"
-MY_NAME="$(basename "${THIS_SCRIPT}")"
+MY_NAME="$(basename "$0")"
 
 # Check for the correct number of arguments
 if [ "$#" -ne 1 ]; then
@@ -12,18 +13,26 @@ if [ "$#" -ne 1 ]; then
 fi
 
 # Define Warehouse path
-WAREHOUSE_LOCATION="/Volumes/ExtraSpace00/Warehouse"
+WAREHOUSE_LOCATION="${ARCHIVE:-/Volumes/ExtraSpace00/Warehouse}"
 
 object=$1
 # Get the full path of the directory
-object_location=$(realpath "${object}")
+current_directory=$(pwd)
+object_location="$(dirname "${object}")"
+# Handle special cases for current directory
+if [ "${object_location}" = "/." ] || [ "${object_location}" = "./" ] || [ "${object_location}" = "." ]; then
+    object_location="${current_directory}"
+else
+    # Set the object location relative to the current directory
+    object_location="${object_location:-"${current_directory}"}"
+fi
 # Get the directory name
 object_name=$(basename "${object}")
-# Get the current directory
-# current_directory=$(pwd)
+
+object_type="Directory"
 
 # Define the new Warehouse directory path
-warehouse_location="${WAREHOUSE_LOCATION}/${object_location#*"${HOME}"}"
+warehouse_location="${WAREHOUSE_LOCATION}"
 
 case ${MY_NAME} in
     "warehouse")
@@ -42,13 +51,41 @@ case ${MY_NAME} in
         ;;
 esac
 
+# `recall` is just the reverse operation as `warehouse`.We need to check to see the source object 
+# is not a link, and the destination object. is not a link. If they are we are in a pathological situation.
+if [ -L "${destination_directory}/${object_name}" ] && [ -L "${source_directory}/${object_name}" ]; then
+    echo "Error \`${object_name}\` is a link in the source and destination. You probably ned to restore from a backup."
+    exit 1
+fi
 
-echo "mkdir -p ${destination_directory}"
+if [ -L "${destination_directory}/${object_name}" ]; then
+    rm -f "${destination_directory}/${object_name}"
+    object_type="Link"
+    unlinked=true
+fi
 
-# Move the directory to Warehouse
-echo "(cd ${source_directory}; tar cvf - $object_name ) | ( cd ${destination_directory}; tar xvf - )"
+# Move the directory to Warehouse with error checking
+(cd "${source_directory}" && tar cf - "${object_name}") | \
+    (cd "${destination_directory}" && tar xf -) 
+# shellcheck disable=SC2206
+tar_exit=(${PIPESTATUS[*]})
+echo "Status ${tar_exit[*]}"
 
-echo "rm -rf ${source_directory}/${object_name}"
-echo "ln -s ${destination_directory}/${object_name} ${source_directory}/${object_name}"
+if [ "${tar_exit[0]}" -ne 0  ] || [ "${tar_exit[1]}" -ne 0 ]; then
+    echo "Error: tar operation failed (exit codes: ${tar_exit[0]}, ${tar_exit[1]})"
+    echo "Source tar exit code: ${tar_exit[0]}"
+    echo "Destination tar exit code: ${tar_exit[1]}"
+    if [ "${unlinked}" = true ]; then
+        ln -sf "${destination_directory}/${object_name}" "${object_name}"
+        echo "symlink restored, files not moved."
+    else
+        echo "No symlink, files not moved."
+    fi
+    exit 2
+fi
 
-echo "Directory \`${object_name}\` moved ${direction} Warehouse and symlink created."
+# Only proceed with removal and symlink if tar was successful
+rm -rf "${source_directory:?}/${object_name}"
+ln -s "${destination_directory:?}/${object_name}" "${source_directory:?}/${object_name}"
+
+echo "${object_type} '${object_name}' moved ${direction} to ${destination_directory} and symlink created."

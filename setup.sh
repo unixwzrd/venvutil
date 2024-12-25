@@ -40,6 +40,9 @@
 # Environment Variables:
 #     DEBUG_SETUP: If set to "ON", enables debug mode for the script.
 #
+# NOTE: Yeah I do know this looks a bit like a Python script... just changing styles a bit
+# to try a different way of structuring things.
+#
 # Dependencies:
 # - bash 4.0 or higher
 # - Python 3.10 or higher
@@ -101,7 +104,7 @@ log_message() {
 }
 
 # Function to display help extracted from the script
-display_help() {
+display_help_and_exit() {
     # Initialize a variable to hold the help text
     local message=$1
     local help_text=""
@@ -125,20 +128,68 @@ display_help() {
     exit 0
 }
 
+# Parse command-line arguments
+parse_arguments() {
+    while getopts ":d:vh" opt; do
+        case $opt in
+            d) INSTALL_BASE="$OPTARG" ;;
+            v) VERBOSE=true ;;
+            h) display_help_and_exit "Usage: $MY_NAME [options] {install|remove|rollback}" ;;
+            \?) echo "Invalid option -$OPTARG" >&2; exit 1 ;;
+            :) echo "Option -$OPTARG requires an argument." >&2; exit 1 ;;
+        esac
+    done
+    shift $((OPTIND -1))
+
+    # Ensure at least one action is specified
+    ACTION="${1:-}"
+    if [ -z "$ACTION" ]; then
+        display_help_and_exit "Usage: $MY_NAME [options] {install|remove|rollback}" 
+    fi
+
+    return 0
+}
+
+# Initialization
+initialization() {
+
+    load_pkg_config
+
+    # Set PKG_NAME early to load config
+    PKG_NAME=${Name:-${PKG_NAME:-"DEFAULT"}}
+    # Set default values if not already set
+    PKG_VERSION=${PKG_VERSION:-$Version}
+    INSTALL_BASE=${INSTALL_BASE:-$prefix}
+    INSTALL_CONFIG="$HOME/.${PKG_NAME}"
+
+    create_pkg_config_dir
+
+    # Set default manifest path
+    INSTALL_MANIFEST="$MY_PATH/manifest.lst"
+
+    log_message "INFO" "Configuring $PKG_NAME for initialization..."
+
+    # Parse manifest metadata
+    parse_manifest_metadata
+
+    return 0
+
+}
+
 expand_variables() {
     local input="$1"
 
     # Validate the input: Allow variable references and valid values
-    if [[ ! "$input" =~ ^[A-Za-z0-9_\$]+([[:space:]]*[-+*/]?[[:space:]]*[A-Za-z0-9_\$]+)*$ ]]; then
+    if [[ ! "$input" =~ ^[A-Za-z0-9_\$\{\}]+([[:space:]]*[-+*/]?[[:space:]]*[A-Za-z0-9_\$\{\}]+)*$ ]]; then
         return 1
     fi
 
     # Sanitize the input by escaping special characters if necessary
     # For example, you might want to escape quotes or backslashes
-    sanitized_input=$(echo "$input" | sed 's/[&;|<>\*{}]/\\&/g')
+    sanitized_input=$(echo "$input" | sed 's/[&;|<>]/\\&/g')
 
-    # Use eval to expand variables safely
-    eval "echo $sanitized_input"
+    # Use eval to expand variables safely, handling both ${var} and $var notation
+    eval "echo \"$sanitized_input\""
 }
 
 # Load package configuration from .cf file
@@ -233,105 +284,6 @@ parse_manifest_metadata() {
     return 0
 }
 
-# Initialization
-initialization() {
-
-    load_pkg_config
-
-    # Set PKG_NAME early to load config
-    PKG_NAME=${Name:-${PKG_NAME:-"DEFAULT"}}
-    # Set default values if not already set
-    PKG_VERSION=${PKG_VERSION:-$Version}
-    INSTALL_BASE=${INSTALL_BASE:-$prefix}
-    INSTALL_CONFIG="$HOME/.${PKG_NAME}"
-
-    create_pkg_config_dir
-
-    # Set default manifest path
-    INSTALL_MANIFEST="$MY_PATH/manifest.lst"
-
-    log_message "INFO" "Configuring $PKG_NAME for initialization..."
-
-    # Parse manifest metadata
-    parse_manifest_metadata
-
-    return 0
-
-}
-
-# Parse command-line arguments
-parse_arguments() {
-    while getopts ":d:vh" opt; do
-        case $opt in
-            d) INSTALL_BASE="$OPTARG" ;;
-            v) VERBOSE=true ;;
-            h) display_help "Usage: $MY_NAME [options] {install|remove|rollback}" ;;
-            \?) echo "Invalid option -$OPTARG" >&2; exit 1 ;;
-            :) echo "Option -$OPTARG requires an argument." >&2; exit 1 ;;
-        esac
-    done
-    shift $((OPTIND -1))
-
-    # Ensure at least one action is specified
-    ACTION="${1:-}"
-    if [ -z "$ACTION" ]; then
-        display_help "Usage: $MY_NAME [options] {install|remove|rollback}" 
-        exit 1
-    fi
-
-    return 0
-}
-
-# Dependency checks
-check_deps() {
-    # Check for Bash version 4+
-    if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
-        log_message "ERROR" "$MY_NAME requires Bash version 4 or higher."
-        exit 75
-    fi
-
-    # Check Operating System (Linux or macOS)
-    if [ "$(uname -s)" != "Darwin" ] && [ "$(uname -s)" != "Linux" ]; then
-        log_message "ERROR" "$MY_NAME is only supported on macOS and Linux."
-        exit 75
-    fi
-
-    # Check for essential commands
-    for cmd in curl tar gzip; do
-        if ! command -v $cmd &> /dev/null; then
-            log_message "ERROR" "$cmd is not installed. Please install $cmd."
-            exit 2
-        fi
-    done
-
-    # Check if manifest file exists
-    if [ ! -f "${INSTALL_MANIFEST}" ]; then
-        log_message "ERROR" "Manifest file not found at ${INSTALL_MANIFEST}"
-        exit 2
-    fi
-
-    return 0
-}
-
-# Package information
-write_pkg_info() {
-    install_log="${INSTALL_CONFIG}/${PKG_NAME}.pc"
-    INSTALL_DATE=$(date '+%Y-%m-%d %H:%M:%S')
-    log_message "INFO" "Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE"
-    echo "# Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE" > "${install_log}"
-
-    # shellcheck disable=SC2068
-    for key in ${pkg_config_set_vars[@]}; do
-        echo "$key=${pkg_config_values[$key]}" >> "${install_log}"
-    done
-    # shellcheck disable=SC2068
-    for key in ${pkg_config_desc_vars[@]}; do
-        echo "$key: ${pkg_config_values[$key]}" >> "${install_log}"
-    done
-
-    return 0
-}
-
 install_conda() {
     log_message "INFO" "Installing conda..."
     # Check if conda is already installed
@@ -363,12 +315,63 @@ install_conda() {
     log_message "INFO" "Conda installed successfully, checking for updates..."
     conda update -n base -c defaults conda -y
     # Because Red Hat Enterprise Linux defines, sets it, but doesn't export it BASHSOURCED...
+    # Prevents /etc/bashrc from being sourced again on Red Hat Enterprise Linux.
     export BASHSOURCED=Y
-    # So we con't recurse.
-    export PRE_INSTALL_COMPLETE=Y
+    # So we don't recurse.
+    export CONDA_INSTALL_COMPLETE=Y
     SHELL=$(which "$(basename "$SHELL")")
     # Wheeeeee!!!!!!
     exec "$SHELL" -l -c "${THIS_SCRIPT} ${ACTION}"
+    return 0
+}
+
+# Write package information
+write_pkg_info() {
+    install_log="${INSTALL_CONFIG}/${PKG_NAME}.pc"
+    INSTALL_DATE=$(date '+%Y-%m-%d %H:%M:%S')
+    log_message "INFO" "Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE"
+    echo "# Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE" > "${install_log}"
+
+    # shellcheck disable=SC2068
+    for key in ${pkg_config_set_vars[@]}; do
+        echo "$key=${pkg_config_values[$key]}" >> "${install_log}"
+    done
+    # shellcheck disable=SC2068
+    for key in ${pkg_config_desc_vars[@]}; do
+        echo "$key: ${pkg_config_values[$key]}" >> "${install_log}"
+    done
+
+    return 0
+}
+
+# Check dependencies
+check_deps() {
+    # Check for Bash version 4+
+    if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+        log_message "ERROR" "$MY_NAME requires Bash version 4 or higher."
+        exit 75
+    fi
+
+    # Check Operating System (Linux or macOS)
+    if [ "$(uname -s)" != "Darwin" ] && [ "$(uname -s)" != "Linux" ]; then
+        log_message "ERROR" "$MY_NAME is only supported on macOS and Linux."
+        exit 75
+    fi
+
+    # Check for essential commands
+    for cmd in curl tar gzip; do
+        if ! command -v $cmd &> /dev/null; then
+            log_message "ERROR" "$cmd is not installed. Please install $cmd."
+            exit 2
+        fi
+    done
+
+    # Check if manifest file exists
+    if [ ! -f "${INSTALL_MANIFEST}" ]; then
+        log_message "ERROR" "Manifest file not found at ${INSTALL_MANIFEST}"
+        exit 2
+    fi
+
     return 0
 }
 
@@ -376,15 +379,16 @@ install_conda() {
 pre_install() {
     # Check if pre-installation tasks have already been completed
     # Stop recursion before it starts, this is re-entrant.
-    if [ "${PRE_INSTALL_COMPLETE:-""}" == "Y" ]; then
+    if [ "${CONDA_INSTALL_COMPLETE:-""}" == "Y" ]; then
         return 0
     fi
     log_message "INFO" "Pre-installation tasks..."
     # Custom pre-install tasks can be added here
     check_deps
+    # This may be used for verification or rollback/removal later.
     write_pkg_info
     install_conda
-    unset PRE_INSTALL_COMPLETE
+    unset CONDA_INSTALL_COMPLETE
 }
 
 install_assets() {
@@ -425,53 +429,23 @@ install_assets() {
             h) # Create hard link
                 cd "$destination"
                 ln "$source" "$name"
-                cd -
+                cd - > /dev/null
                 ;;
             l) # Create symbolic link
                 cd "$destination"
                 ln -sf "$source" "$name"
-                cd -
+                cd - > /dev/null
+                ;;
+            c) # Remove the asset
+                cd "$destination"
+                rm -rf "$name"
+                cd - > /dev/null
                 ;;
             *)
                 log_message "ERROR" "Unknown asset type: $asset_type"
                 ;;
         esac
     done
-}
-
-install_python_packages() {
-    log_message "INFO" "Installing NLTK data..."
-    pip install -r "$MY_PATH/requirements.txt" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
-    python <<_EOT_
-import nltk
-nltk.download('punkt')
-nltk.download('stopwords')
-_EOT_
-    log_message "INFO" "NLTK data installed successfully."
-}
-
-# Update .bashrc
-update_bashrc() {
-    log_message "INFO" "Updating .bashrc for package $PKG_NAME in PATH..."
-    local bashrc="$HOME/.bashrc"
-    # Expressions don't expand in single quotes, use double quotes for that.
-    # shellcheck disable=SC2016
-    local path_line="if [[ ! \"\$PATH\" =~ \"$INSTALL_BASE/bin:\" ]]; then export PATH=\"$INSTALL_BASE/bin:\$PATH\"; fi"
-
-    if ! grep -Fxq "$path_line" "$bashrc"; then
-        echo "$path_line" >> "$bashrc"
-        log_message "INFO" "Updated $bashrc added package $PKG_NAME bin directory."
-    fi
-    return 0
-}
-
-write_pkg_config() {
-    log_message "INFO" "Writing package configuration..."
-    echo "$PKG_NAME.pc.in" > "$INSTALL_CONFIG/$PKG_NAME.pc"
-    for var in "${pkg_config_vars[@]}"; do
-        echo "$var=\"${!var}\""
-    done >> "$INSTALL_CONFIG/$PKG_NAME.pc"
-    return 0
 }
 
 post_install_user_message() {
@@ -511,6 +485,45 @@ post_install_user_message() {
 
 _EOT_
     return 0
+}
+
+write_pkg_config() {
+    log_message "INFO" "Writing package configuration..."
+    echo "$PKG_NAME.pc.in" > "$INSTALL_CONFIG/$PKG_NAME.pc"
+    for var in "${pkg_config_set_vars[@]}"; do
+        echo "$var=\"${!var}\""
+    done >> "$INSTALL_CONFIG/$PKG_NAME.pc"
+    echo "" >> "$INSTALL_CONFIG/$PKG_NAME.pc"
+    for var in "${pkg_config_desc_vars[@]}"; do
+        echo "$var: ${!var}"
+    done >> "$INSTALL_CONFIG/$PKG_NAME.pc"
+    return 0
+}
+
+# Update .bashrc
+update_bashrc() {
+    log_message "INFO" "Updating .bashrc for package $PKG_NAME in PATH..."
+    local bashrc="$HOME/.bashrc"
+    # Expressions don't expand in single quotes, use double quotes for that.
+    # shellcheck disable=SC2016
+    local path_line="if [[ ! \"\$PATH\" =~ \"$INSTALL_BASE/bin:\" ]]; then export PATH=\"$INSTALL_BASE/bin:\$PATH\"; fi"
+
+    if ! grep -Fxq "$path_line" "$bashrc"; then
+        echo "$path_line" >> "$bashrc"
+        log_message "INFO" "Updated $bashrc added package $PKG_NAME bin directory."
+    fi
+    return 0
+}
+
+install_python_packages() {
+    log_message "INFO" "Installing NLTK data..."
+    pip install -r "$MY_PATH/requirements.txt" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
+    python <<_EOT_
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+_EOT_
+    log_message "INFO" "NLTK data installed successfully."
 }
 
 post_install() {
@@ -565,6 +578,10 @@ remove_assets() {
             f|l|h) # Remove file or symbolic link
                 rm -f "$dest_path"
                 ;;
+            c) # Asset should already be deleted, but to make sure...
+                [ -d "$dest_path" ] && rmdir "$dest_path"
+                [ -e "$dest_path" ] && rm -f "$dest_path"
+                ;;
             *)
                 log_message "ERROR" "Unknown type: $type"
                 ;;
@@ -610,7 +627,7 @@ remove() {
 }
 
 
-Verify() {
+verify() {
     log_message "INFO" "Verifying package: $PKG_NAME tasks..."
     # Implement verification logic here
     return 0
@@ -639,7 +656,7 @@ main() {
             ;;
         *)
             echo "Invalid action: $ACTION"
-            display_help "Usage: $MY_NAME [options] {install|remove|rollback}"
+            display_help_and_exit "Usage: $MY_NAME [options] {install|remove|rollback}"
             ;;
     esac
 }

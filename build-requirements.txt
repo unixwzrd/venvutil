@@ -1,7 +1,0 @@
-packaging
-ninja
-cmake
-pathspec
-tomli
-Cython>=0.29.34,<3.1
-meson-python>=0.15.0,<0.16.0

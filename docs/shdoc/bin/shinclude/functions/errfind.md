@@ -5,7 +5,9 @@
 - **Purpose**: 
   - Searches the POSIX errno.h file for a given string and returns any matching error codes and messages.
 - **Usage**: 
-  - `errfind <string>`
+  - `errfind [-h] <string>`
+- **Options**: 
+  - `-h`   Show this help message
 - **Input Parameters**: 
   - `string`: The string to search for within errno definitions.
 - **Output**: 
@@ -13,14 +15,15 @@
 - **Exceptions**: 
   - None.
 
-## Defniition 
+## Definition 
 
 * [errno.sh](../errno_sh.md)
-
 ---
+
 Website: [unixwzrd.ai](https://unixwzrd.ai)
+Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 10 at 02:01:11
+Generated on: Generated: 2024 12 24 at 05:26:20

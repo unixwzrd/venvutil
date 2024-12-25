@@ -1257,6 +1257,7 @@ while getopts ":d:he:f:i:p:o:c:s:nvgCbLltz:-:" opt; do
             ;;
     esac
 done
+
 # Shift off the options and optional --
 shift $((OPTIND -1))
 
@@ -1296,6 +1297,7 @@ fi
 
 # Debug: Show final directory exclusions
 log_message "DEBUG1" "Final directory exclusions: ${dir_excludes[*]}"
+
 
 # Generate file tree markdown
 # Argument mixes string and array. Use * or separate argument.

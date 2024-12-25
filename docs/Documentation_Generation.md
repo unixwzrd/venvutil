@@ -11,7 +11,7 @@ Ok, we have a lot of problems,
   - BASE_DIR/docs/shdoc/bin/shinclude/
      Contains the head/top markdown documentation foe the scripts in the  bin/shinclude directory
   - BASE_DIR/docs/shdoc/bin/shinclude/[scriptname]
-     ONtains the function documentation for the functions in the script.
+     Contains the function documentation for the functions in the script.
 
 Script documentation begins at the first `#` after the `#!` until the first blank line or non-comment `#` line.
 - example
@@ -33,15 +33,13 @@ Script documentation begins at the first `#` after the `#!` until the first blan
 Function documentation is from the end of the previous function to the continuous lines preceded by `#`  up to the function definition.
 - example
 ```bash
-    esac
-    echo "$(zero_pad ${sn})"
+   esac
+   echo "$(zero_pad ${sn})"
 }
-
 
 
 # # Function: sort_2d_array
 # `sort_2d_array` - Sort a Two-Dimensional Array
-#
 # ## Description
 # - **Purpose**:
 #   - Sorts a two-dimensional array in Bash. It's particularly useful for organizing data that is stored in a format of paired elements.

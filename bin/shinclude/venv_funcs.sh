@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # # Script: venv_funcs.sh
 #  venv_funcs.sh - Virtual Environment Management Functions for Bash Scripts
@@ -287,7 +287,9 @@ vdsc() {
 # - **Purpose**: 
 #   - Changes the active virtual environment to the specified one.
 # - **Usage**: 
-#   - `cact [env_name]`
+#   - `cact [-h] [env_name]`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - `env_name` (string) - The name of the environment to activate.
 # - **Output**: 
@@ -296,7 +298,18 @@ vdsc() {
 #   - Errors if the environment does not exist.
 #
 cact() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local new_env="$1"
+
     # Validate input
     if [ -z "$1" ]; then
         echo "Error: No VENV name provided." 1>&2
@@ -334,7 +347,9 @@ cact() {
 # - **Purpose**: 
 #   - Deactivates the current virtual environment.
 # - **Usage**: 
-#   - `dact`
+#   - `dact [-h]`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - None
 # - **Output**: 
@@ -343,6 +358,16 @@ cact() {
 #   - None
 #
 dact() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local stack_value
 
     if [ -z "${CONDA_DEFAULT_ENV}" ]; then
@@ -375,7 +400,9 @@ dact() {
 # - **Purpose**: 
 #   - Switches to the previous active virtual environment.
 # - **Usage**: 
-#   - `pact`
+#   - `pact [-h]`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - None
 # - **Output**: 
@@ -384,6 +411,17 @@ dact() {
 #   - Errors if no previous environment exists.
 #
 pact() {
+    local OPTIND=1
+
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     pop_venv
     local previous_env=${__sv__}
 
@@ -401,11 +439,17 @@ pact() {
 #
 # ## Description
 # - **Purpose**: 
-#   - Lists all the currently available conda virtual environments with their last modification date.
+#   - Lists all the currently available conda virtual environments in alphabetical order with
+#     their last modification date.
+#   - Options are available to sort by last update time from oldest to newest.
+#   - Options are available to reverse the sort order for either time or name.
 # - **Usage**: 
-#   - `lenv`
-# - **Input Parameters**: 
-#   - None
+#   - `lenv [[-l] [-t] [-r] [-h]]`
+# - **Options**: 
+#       - `-l`   Display last modification date and time
+#       - `-t`   Sort by last update time
+#       - `-r`   Reverse the sort order
+#       - `-h`   Show this help message
 # - **Output**: 
 #   - A list of all existing conda virtual environments with their last modification date.
 #   ```bash
@@ -418,45 +462,67 @@ pact() {
 #   - If no environments are available, the output from `conda info -e` will indicate this.
 #
 lenv() {
-    # Fetch environment information
+    local sort_by_time=false
+    local sort_opts=""
+    local time_opts=" "
+    local sort_key="2"
+    local OPTIND=1
+
+    # Parse options
+    while getopts "ltrh" opt; do
+        case $opt in
+            t) sort_by_time=true ;;
+            r) sort_opts="-r" ;;
+            l) time_opts="."; sort_key="3";;
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
+    # Get environment info excluding comments
     local envs_info
     envs_info=$(conda info --envs | grep -E -v '^#')
 
-    # Prepare a temporary file to store environment details
+    # Find max environment name length
+    local max_name_len=0
+    while IFS= read -r line; do
+        local name_len
+        name_len=$(echo "$line" | awk '{print $1}' | sed 's/\*//' | wc -c)
+        ((name_len > max_name_len)) && max_name_len=$name_len
+    done <<<"$envs_info"
+    max_name_len=$((max_name_len + 1))
+
+    # Create formatted output
     local temp_file
     temp_file=$(mktemp)
 
-    # Iterate over each environment and fetch creation date
     while IFS= read -r line; do
-        local env_name env_path creation_date active_marker
-        env_name=$(echo "$line" | awk '{print $1}')
-        env_path=$(echo "$line" | awk '{print $NF}')
-
-        # Fetch creation date using stat
-        if [ -d "$env_path" ]; then
-            creation_date=$(stat -c "%y" "$env_path" | cut -d' ' -f1)
-        else
-            creation_date="N/A"
-        fi
-
+        local env_name env_path creation_date marker
+        env_name=$(echo "$line" | awk '{print $1}' | sed 's/\*//')
+        env_path=$(echo "$line" | awk '{print $NF}' )
+        # Get creation date or N/A if path doesn't exist
+        creation_date="N/A"
+        [ -d "$env_path" ] && creation_date=$(stat -c "%y" "$env_path" | cut -d"${time_opts}" -f1)
         # Remove $HOME from the path
         env_path=${env_path/$HOME/\~}
 
-        # Handle active environment marker
-        if [[ "$line" == *\** ]]; then
-            active_marker="*"
-        else
-            active_marker=" "
-        fi
+        # Add active marker if environment is current
+        marker=" "
+        [[ "$line" == *\** ]] && marker="*"
 
-        # Write to temporary file
-        printf "%s\t%s %s\t%s\n" "$creation_date" "$active_marker" "$env_name" "$env_path" >> "$temp_file"
-    done <<< "$envs_info"
+        printf "%s  %-${max_name_len}s %s %s\n" \
+            "$creation_date" "$env_name" "$marker" "$env_path" >> "$temp_file"
 
-    # Display the results
-    column -t -s $'\t' < "$temp_file"
+    done <<<"$envs_info"
 
-    # Clean up
+    # Display sorted or unsorted output
+    if $sort_by_time; then
+        sort -n $sort_opts "$temp_file"
+    else
+        sort -k${sort_key} $sort_opts "$temp_file"
+    fi
+
     rm "$temp_file"
 }
 
@@ -488,16 +554,32 @@ lastenv() {
 # - **Purpose**: 
 #   - Creates a new base conda virtual environment and activates it.
 # - **Usage**: 
-#   - `benv ENV_NAME [EXTRA_OPTIONS]`
+#   - `benv [-h] ENV_NAME [EXTRA_OPTIONS]`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - `ENV_NAME` (string) - The name of the new environment to create.
 #   - `EXTRA_OPTIONS` (string, optional) - Additional options to pass to `conda create`.
+# - ** Examples**: 
+#   - `benv pa1`
+#   - `benv pa1 -c conda-forge`
+#   - `benv pa1 python=3.11`
 # - **Output**: 
 #   - Creates and activates the new environment.
 # - **Exceptions**: 
 #   - Errors during environment creation are handled by conda.
 #
 benv() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local env_name="$1"; shift
     local extra_options="$*"
 
@@ -519,7 +601,9 @@ benv() {
 # - **Purpose**: 
 #   - Creates a new conda virtual environment in a series identified by a prefix as a clone of the current venv.
 # - **Usage**: 
-#   - `nenv PREFIX [EXTRA_OPTIONS]`
+#   - `nenv [-h] PREFIX [EXTRA_OPTIONS]`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - `PREFIX` (string) - The prefix to identify the series of environments.
 #   - `EXTRA_OPTIONS` (string, optional) - Additional options to pass to the environment creation.
@@ -529,6 +613,16 @@ benv() {
 #   - Errors during environment creation are handled by conda.
 #
 nenv() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local prefix="$1"; shift
     local extra_options="$*"
 
@@ -553,7 +647,9 @@ nenv() {
 # - **Purpose**: 
 #   - Deletes the specified virtual environment.
 # - **Usage**: 
-#   - `denv [env_name]`
+#   - `denv [-h] [env_name]`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - `env_name` (string) - The name of the environment to delete.
 # - **Output**: 
@@ -562,6 +658,16 @@ nenv() {
 #   - Errors if the environment does not exist.
 #
 denv() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local env_to_delete="$1"
 
     if [ -z "${env_to_delete}" ]; then
@@ -581,7 +687,9 @@ denv() {
 # - **Purpose**: 
 #   - Deactivates the current active environment, deletes it, and then re-activates the previously active environment.
 # - **Usage**: 
-#   - `renv`
+#   - `renv [-h]`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - None
 # - **Output**: 
@@ -590,6 +698,16 @@ denv() {
 #   - Errors during deactivation or deletion are handled by conda.
 #
 renv() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local env_to_delete=${CONDA_DEFAULT_ENV}
     local previous_env=${__VENV_PREV}
 
@@ -609,38 +727,70 @@ renv() {
     cact ${previous_env}  # Reactivate the previous environment
 }
 
-# # Function: ccln
+# # Function: clan
 # `ccln` - Clone a Conda Environment.
 #
 # ## Description
 # - **Purpose**: 
-#   - Clones an existing conda environment.
+#   - Clones the current Virtual Environment to a new environment. It will
+#     increment the sequence number if it is not already set. If there is no
+#     sequence number, none will be added and the new environment will be named
+#     the new environment will have the specified name.
 # - **Usage**: 
-#   - `ccln [source_env] [target_env]`
+#   - `ccln [-h] [new_env_name]`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
-#   - `source_env` (string) - The name of the environment to clone.
-#   - `target_env` (string) - The name of the new cloned environment.
+#   - `new_env_name` (string) - The name of the new cloned environment.
 # - **Output**: 
 #   - Creates a clone of the specified environment.
 # - **Exceptions**: 
 #   - Errors if the source environment does not exist.
 #
 ccln() {
-    # If no description is provided, use the description of the current VENV
-    if [ -z "$1" ]; then
-        __VENV_DESC=$( vdsc )
-    else
-        __VENV_DESC=$1
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
+    # Check if current environment exists
+    if [ -z "${CONDA_DEFAULT_ENV}" ]; then
+        echo "Error: No active environment to clone" >&2
+        __rc__=1
+        return ${__rc__}
     fi
 
-    __VENV_NUM=$( next_step "$(vnum)" )
-    __VENV_NAME="${__VENV_PREFIX}.${__VENV_NUM}.${__VENV_DESC}"
+    # Require a name/description for the new environment
+    if [ -z "$1" ]; then
+        echo "Error: New environment name/description is required" >&2
+        __rc__=1
+        return ${__rc__}
+    fi
+
+    local new_name
+    local current_num
+    current_num=$(vnum)
+
+    if [ -n "${current_num}" ]; then
+        # Current env has a sequence number, maintain the pattern
+        __VENV_NUM=$(next_step "${current_num}")
+        __VENV_DESC="$1"
+        new_name="${__VENV_PREFIX}.${__VENV_NUM}.${__VENV_DESC}"
+    else
+        # No sequence number in current env, use plain name
+        new_name="$1"
+    fi
 
     # Clone the VENV
-    conda create --clone "${CONDA_DEFAULT_ENV}" -n "${__VENV_NAME}" -y || return $?
+    conda create --clone "${CONDA_DEFAULT_ENV}" -n "${new_name}" -y || return $?
 
     # Switch to the newly created VENV
-    cact "${__VENV_NAME}"
+    cact "${new_name}"
 }
 
 # # Function: venvdiff
@@ -650,7 +800,9 @@ ccln() {
 # - **Purpose**: 
 #   - Compares two virtual environments and lists differences.
 # - **Usage**: 
-#   - `venvdiff [env1] [env2]`
+#   - `venvdiff [-h] [env1] [env2]`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - `env1` (string) - The first environment to compare.
 #   - `env2` (string) - The second environment to compare.
@@ -660,9 +812,19 @@ ccln() {
 #   - Errors if either environment does not exist.
 #
 venvdiff() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     # Check that two arguments are provided
     if [ "$#" -ne 2 ]; then
-        echo "Usage: venvdiff env1 env2"
+        echo "Usage: venvdiff [-h] env1 env2" >&2
         __rc__=1
         return ${__rc__}
     fi

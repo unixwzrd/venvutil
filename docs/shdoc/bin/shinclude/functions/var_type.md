@@ -5,7 +5,12 @@
 - **Purpose**:
   - Retrieves the type of a variable.
 - **Usage**: 
-  - `var_type=$(var_type "var_name")`
+  - `var_type [-h] "var_name"`
+- **Options**: 
+  - `-h`   Show this help message
+- **Examples**: 
+  - `var_type "my_variable"`
+  - `var_type=$(var_type "my_variable")
 - **Input Parameters**: 
   - `var_name`: The name of the variable.
 - **Output**: 
@@ -13,14 +18,15 @@
 - **Exceptions**: 
   - None.
 
-## Defniition 
+## Definition 
 
 * [util_funcs.sh](../util_funcs_sh.md)
-
 ---
+
 Website: [unixwzrd.ai](https://unixwzrd.ai)
+Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 10 at 02:01:12
+Generated on: Generated: 2024 12 24 at 05:26:21

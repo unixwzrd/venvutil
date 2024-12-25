@@ -5,7 +5,9 @@
 - **Purpose**: 
   - This function takes an errno code or errno number and prints the corresponding error message to STDOUT. Sets the exit code to the errno value and returns, unless there is an internal error.
 - **Usage**: 
-  - `errno [errno_code|errno_number]`
+  - `errno [-h] [errno_code|errno_number]`
+- **Options**: 
+  - `-h`   Show this help message
 - **Input Parameters**: 
   - `errno_code|errno_number`: The errno code (e.g., EACCES) or number.
 - **Output**: 
@@ -14,14 +16,15 @@
   - 2: Could not find system errno.h
   - 22: Invalid errno name
 
-## Defniition 
+## Definition 
 
 * [errno.sh](../errno_sh.md)
-
 ---
+
 Website: [unixwzrd.ai](https://unixwzrd.ai)
+Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 10 at 02:01:11
+Generated on: Generated: 2024 12 24 at 05:26:20

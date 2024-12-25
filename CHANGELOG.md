@@ -1,35 +1,145 @@
 # Changelog
 
-## [Unreleased]
+## 2024-12-23 - Core Functionality Enhancements
 
-### Changes
+### Setup Script Improvements
 
-- Updated error message to specify that the script requires Bash version 4.0 or higher.
+- Enhanced error handling with proper exit codes
+- Added validation for critical operations
+- Improved package configuration management
+- Enhanced logging with descriptive messages
+- Added support for deprecated file removal
+- Improved manifest handling
+- Added rollback capability framework
 
-### Enhancements
+### Shell Function Include Files
 
-- **Error Handling**: Add more detailed error handling for different scenarios (e.g., missing dependencies).
-- **User Feedback**: Implement informative user feedback during installation (e.g., progress indicators).
-- **Configuration Options**: Allow users to specify installation options via command-line arguments.
-- **Logging**: Introduce logging functionality to capture execution details for debugging.
+- venv_funcs.sh:
+  - Enhanced virtual environment management
+    - `lenv` sorting VENV's by time or name in forward or reverse order
+    - Long format time with date and time also added
+    - `ccln` cloning of the current VENV may be done without sequence number
+  - Improved environment variable handling
+  - Added better error recovery
+  - Enhanced logging for venv operations
+- errno.sh:
+  - Improved POSIX errno codes handling
+  - Enhanced error message formatting
+  - Added better logging categorization
+  - Improved error context for debugging
+- help_sys.sh:
+  - Added new docs_base_path function
+  - Updated function naming convention
+  - Improved file path handling
+  - Enhanced help message formatting
 
-## 2024-12-15 - Updates
+### Warehouse Tool Improvements
 
-- **warehouse**: Added functionality to move directories to a warehouse location with symlink creation.
-- **recall**: Implemented retrieval of directories from the warehouse.
-- **genmd**: Updated to include new features for grouping related files in markdown, including logging moved to a separate file for error reporting and additional logging levels, removal of the -v/--verbose option in favor of -d/--debug, options to remove blank lines or lines containing only whitespace, and an option to add line numbers to each file.
+- Enhanced error handling in `warehouse.sh` with better symlink validation
+- Added protection against pathological symlink situations
+- Improved handling of source and destination path validation
+- Added detailed error reporting for tar operations
+- Enhanced directory path handling and normalization
 
-## 2024-12-12 - Setup Script Updates and Enhancements
+### Chunkfile Enhancements
 
-- **Setup Script Update**: Updated `setup.sh` to include recent changes and proposed enhancements.
-- **Error Handling**: Improved error handling for different scenarios (e.g., missing dependencies).
-- **User Feedback**: Implemented informative user feedback during installation (e.g., progress indicators).
-- **Configuration Options**: Allowed users to specify installation options via command-line arguments.
-- **Logging**: Introduced logging functionality to capture execution details for debugging.
+- Improved type hints and documentation in `chunkfile.py`
+- Enhanced error handling for edge cases in chunk processing
+- Added validation for chunk size and overlap parameters
+- Improved handling of partial reads and end-of-file conditions
+- Added support for proper UTF-8 handling in line mode
+- Enhanced progress reporting and file naming consistency
 
-## 2024-12-12 - Minor Fixes
+### Error Handling and Logging
 
-- **Setup Script Fix**: Minor change in `setup.sh` to address issues found during testing.
+- Enhanced error handling in shell scripts with proper exit codes
+- Improved logging with more descriptive error messages
+- Added validation for critical operations
+- Enhanced error recovery mechanisms
+- Added detailed error context for debugging
+
+### Documentation Updates
+
+- Added comprehensive documentation for warehouse functionality
+- Created detailed visual guide for chunk operations
+- Updated implementation details for all core functions
+- Added examples and use cases for each tool
+- Enhanced cross-referencing between related documentation
+
+### Core Script Improvements
+
+- Refactored shell functions for better modularity
+- Enhanced path handling and validation
+- Improved error recovery mechanisms
+- Added protection against common failure modes
+- Enhanced logging and debugging capabilities
+
+## 2024-12-22 - Documentation Updates
+
+### Added Git Integration
+
+- Enhanced `generate_manifest` script to automatically detect deleted files using `git status --porcelain`
+- Added automatic creation of cancel entries for files deleted from git
+- Updated documentation to reflect new git integration features
+
+### Documentation Updates
+
+- Added comprehensive documentation for the `generate_manifest` script.
+- Documented manifest file format and handling of deprecated files.
+- Clarified the use of `c` (cancel) type entries for file removal.
+- Added cross-references to related documentation.
+- Improved documentation for handling deprecated files
+- Added examples of both automatic and manual cancel entries
+- Updated implementation details section with git status integration
+- Added git as an optional dependency
+
+## 2024-12-20 - Major Updates and Tool Improvements
+
+### Tool Changes and Renames
+
+- Renamed `chunktext` to `chunkfile` for better clarity
+- Removed `c++` and `g++` pass-through scripts (no longer needed after Meson fix)
+- Modified `numpybench` to use `-o/--output` instead of `-d/--datafile`
+- Updated `warehouse.sh` with improved functionality
+
+### New Tools and Scripts
+
+- Added `generate_manifest` utility
+- Created `numpy-1.26-reinst.sh` for optimized NumPy installation
+- Added `chunkfile.py` implementation
+
+### Documentation Improvements
+
+- Created new documentation files:
+  - `docs/chunk-offsets.md`: Visual guide for chunk operations
+  - `docs/chunkfile.md`: Documentation for the renamed chunk utility
+  - `docs/numpybench.md`: Comprehensive guide for NumPy benchmarking
+  - `docs/warehouse.md`: Documentation for storage management utilities
+- Updated all function documentation in `docs/shdoc/`
+- Enhanced core documentation files for better clarity
+
+### Core Script Updates
+
+- Modified `bin/buildvenvs` for better environment handling
+- Enhanced `bin/filetree.py` with improved functionality
+- Updated `bin/genmd` for better document generation
+- Improved `bin/numpybench` with cleaner output options
+
+### Shell Include Files
+
+- Updated all shell include files with improved functionality:
+  - `errno.sh`: Enhanced error handling
+  - `help_sys.sh`: Improved help system
+  - `init_env.sh`: Better initialization
+  - `util_funcs.sh`: Additional utility functions
+  - `venv_funcs.sh`: Enhanced venv management
+  - `wrapper_funcs.sh`: Updated wrapper functionality
+
+### Configuration and Requirements
+
+- Removed `build-requirements.txt` in favor of `requirements-build.txt`
+- Updated `requirements.txt` with current dependencies
+- Modified `manifest.lst` to reflect current file structure
 
 ## 2024-12-10 - Function Name Changes and New Functions
 
@@ -73,7 +183,7 @@
 ## 2024-12-06 - Latest Updates
 
 - Refactored `genmd` script to streamline file tree generation and improve handling of debug levels.
-- Added symlink following along with token counting for makedown bundles.
+- Added symlink following along with token counting for markdown bundles.
 - Still minor config file issues to work out.
 - Improved logging in `genmd` and `help_sys.sh` for better debugging and information tracking.
 - Enhanced documentation for functions in markdown files, providing detailed descriptions, usage, input parameters, output, and exceptions.
@@ -128,7 +238,7 @@
 
 ## 2024-11-18 - Refactored Installer Script and Documentation Updates
 
-- Refactored `vsetup.sh` for modularity and error handling.
+- Refactored `setup.sh` for modularity and error handling.
 - Introduced `pkg_info` function to manage package metadata.
 - Added `check_return_code` function for error handling with rollback capability.
 - Enhanced logging with `log_message` function for consistent message formatting.
@@ -175,7 +285,7 @@ The script scans a project directory and creates a markdown document with specif
 
 - [filetree](docs/filetree.md): Generates a file hierarchy tree from the current directory based on specified patterns.
 - [genmd](docs/genmd.md): Groups related files wrapped in markdown for easy uploading to ChatGPT. Configurations may be saved for later use.
-- [chunktext](docs/chunktext.md): Splits a file into chunks of text for ingestion by a new GPT instance while maintaining context.
+- [chunkfile](docs/chunktext.md): Splits a file into chunks of text for ingestion by a new GPT instance while maintaining context.
 
 ## 2024-07-09 - Fixed recursion bug in pip wrapper
 

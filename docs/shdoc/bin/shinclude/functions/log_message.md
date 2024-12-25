@@ -1,15 +1,19 @@
 ## log_message
+## Function: log_message
  `log_message` - Prints a message to STDERR based on the provided log level.
 ## Description
 - **Purpose**: 
-  - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
+  - Prints a message to STDERR if the provided log level is greater than or equal to the current
+    debug level. The lower the level, the more verbose the messages will be. 
 - **Usage**: 
-  - `log_message <log_level> <message>`
+  - `log_message [-h] <log_level> <message>`
+- **Options**: 
+  - `-h`   Show this help message, though not usually used from the command line.
 - **Input Parameters**: 
   - `log_level`: The log level to check against the debug level. Supported log levels are:
     - `TRACE`
-    - `DEBUG8`-`DEBUG0`
-    - `DEBUG`
+    - `DEBUG10`-`DEBUG0`
+    - `DEBUG`  - used as a synonym for DEBUG10
     - `INFO`
     - `WARNING`
     - `ERROR`
@@ -19,14 +23,15 @@
 - **Output**: 
   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
 
-## Defniition 
+## Definition 
 
 * [errno.sh](../errno_sh.md)
-
 ---
+
 Website: [unixwzrd.ai](https://unixwzrd.ai)
+Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 10 at 02:01:11
+Generated on: Generated: 2024 12 24 at 05:26:20

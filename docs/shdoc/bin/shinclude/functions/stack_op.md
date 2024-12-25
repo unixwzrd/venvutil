@@ -5,7 +5,9 @@
 - **Purpose**:
   - Performs stack operations such as push, pop, and debug on a given stack.
 - **Usage**: 
-  - `stack_op <action> <stack_name> [value]`
+  - `stack_op [-h] <action> <stack_name> [value]`
+- **Options**: 
+  - `-h`   Show this help message
 - **Input Parameters**: 
   - `action`: The action to perform on the stack (`push`, `pop`, `debug`).
   - `stack_name`: The name of the stack array.
@@ -15,14 +17,15 @@
 - **Exceptions**: 
   - Returns an error if an invalid action is provided.
 
-## Defniition 
+## Definition 
 
 * [util_funcs.sh](../util_funcs_sh.md)
-
 ---
+
 Website: [unixwzrd.ai](https://unixwzrd.ai)
+Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 10 at 02:01:12
+Generated on: Generated: 2024 12 24 at 05:26:20
