@@ -184,3 +184,5 @@ utils
 .codeiumignore
 project-planning
 output.txt
+manifest.bak
+.spellignore

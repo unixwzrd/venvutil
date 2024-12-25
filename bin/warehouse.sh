@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+        # shellcheck disable=SC2034
 [ -L "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}" ] \
         && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}")\
         || THIS_SCRIPT="${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}"
@@ -17,7 +18,7 @@ WAREHOUSE_LOCATION="${ARCHIVE:-/Volumes/ExtraSpace00/Warehouse}"
 object=$1
 # Get the full path of the directory
 current_directory=$(pwd)
-object_location="$(dirname ${object})"
+object_location="$(dirname "${object}")"
 # Handle special cases for current directory
 if [ "${object_location}" = "/." ] || [ "${object_location}" = "./" ] || [ "${object_location}" = "." ]; then
     object_location="${current_directory}"
@@ -52,7 +53,7 @@ esac
 
 # `recall` is just the reverse operation as `warehouse`.We need to check to see the source object 
 # is not a link, and the destination object. is not a link. If they are we are in a pathological situation.
-if [ -L "${destination_directory}/${object_name}" -a -L "${source_directory}/${object_name}" ]; then
+if [ -L "${destination_directory}/${object_name}" ] && [ -L "${source_directory}/${object_name}" ]; then
     echo "Error \`${object_name}\` is a link in the source and destination. You probably ned to restore from a backup."
     exit 1
 fi
@@ -70,7 +71,7 @@ fi
 tar_exit=(${PIPESTATUS[*]})
 echo "Status ${tar_exit[*]}"
 
-if [ ${tar_exit[0]} -ne 0  ] || [ ${tar_exit[1]} -ne 0 ]; then
+if [ "${tar_exit[0]}" -ne 0  ] || [ "${tar_exit[1]}" -ne 0 ]; then
     echo "Error: tar operation failed (exit codes: ${tar_exit[0]}, ${tar_exit[1]})"
     echo "Source tar exit code: ${tar_exit[0]}"
     echo "Destination tar exit code: ${tar_exit[1]}"
@@ -84,7 +85,7 @@ if [ ${tar_exit[0]} -ne 0  ] || [ ${tar_exit[1]} -ne 0 ]; then
 fi
 
 # Only proceed with removal and symlink if tar was successful
-rm -rf "${source_directory}/${object_name}"
-ln -s "${destination_directory}/${object_name}" "${source_directory}/${object_name}"
+rm -rf "${source_directory:?}/${object_name}"
+ln -s "${destination_directory:?}/${object_name}" "${source_directory:?}/${object_name}"
 
 echo "${object_type} '${object_name}' moved ${direction} to ${destination_directory} and symlink created."

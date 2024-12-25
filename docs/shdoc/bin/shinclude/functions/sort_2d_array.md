@@ -3,9 +3,20 @@
 `sort_2d_array` - Sort a Two-Dimensional Array
 ## Description
 - **Purpose**:
-  - Sorts a two-dimensional array in Bash. It's particularly useful for organizing data that is stored in a format of paired elements.
+  - Sorts a two-dimensional array in Bash. It's useful for organizing data that
+    is stored in a format of paired elements. the first "column" or element is in element number
+    `n` and the second column is in element number `n+1`. This shows the one dimensional structure
+    of the array mapped to the two dimensions of the array.
+      n  |  n+1
+    ----------------------------
+     0  |  1
+     1  |  2
+     3  |  4
+  - The array will be sorted on the "first" column
 - **Usage**: 
-  - This function can be used to sort arrays where each element consists of a pair of values (e.g., key-value pairs). It's beneficial in scenarios where data needs to be sorted based on one of the dimensions.
+  - `sort_2d_array [-h] "array_name"`
+- **Options**: 
+  - `-h`   Show this help message
 - **Input Parameters**: 
   - `array_name`: The name of the array variable that needs to be sorted.
 - **Output**: 
@@ -13,16 +24,15 @@
 - **Exceptions**: 
   - Handles exceptions or errors that may arise during the sorting process (to be detailed based on function's implementation).
 
-## Defniition 
+## Definition 
 
 * [util_funcs.sh](../util_funcs_sh.md)
-
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
-Github Repo: [venvutils](https://github.com/unixwzrd/venvutils)
+Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 18 at 06:51:42
+Generated on: Generated: 2024 12 24 at 05:26:20

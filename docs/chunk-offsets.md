@@ -1,3 +1,6 @@
+# Chunk Offsets
+
+```pre
 --------------------    --------------------                                        -------------
 |                  |    |                  |
 |                  |    |                  |
@@ -73,6 +76,7 @@
 INPUT FILE          |                                               |
                     |                 CHUNK FILES                   |
                     |                   -n 4                        |
+```
 
 If you specify -n 4, the script will split the file into 4 chunks.
 

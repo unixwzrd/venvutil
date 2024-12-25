@@ -3,11 +3,17 @@
 `lenv` - List All Current VENVs with last modification date.
 ## Description
 - **Purpose**: 
-  - Lists all the currently available conda virtual environments with their last modification date.
+  - Lists all the currently available conda virtual environments in alphabetical order with
+    their last modification date.
+  - Options are available to sort by last update time from oldest to newest.
+  - Options are available to reverse the sort order for either time or name.
 - **Usage**: 
-  - `lenv`
-- **Input Parameters**: 
-  - None
+  - `lenv [[-l] [-t] [-r] [-h]]`
+- **Options**: 
+      - `-l`   Display last modification date and time
+      - `-t`   Sort by last update time
+      - `-r`   Reverse the sort order
+      - `-h`   Show this help message
 - **Output**: 
   - A list of all existing conda virtual environments with their last modification date.
   ```bash
@@ -19,16 +25,15 @@
 - **Exceptions**: 
   - If no environments are available, the output from `conda info -e` will indicate this.
 
-## Defniition 
+## Definition 
 
 * [venv_funcs.sh](../venv_funcs_sh.md)
-
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
-Github Repo: [venvutils](https://github.com/unixwzrd/venvutils)
+Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 18 at 06:51:42
+Generated on: Generated: 2024 12 24 at 05:26:21

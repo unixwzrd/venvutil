@@ -55,24 +55,31 @@ recall file_or_directory      # Retrieve from warehouse storage
 ## Examples
 
 1. Move a large project directory to warehouse:
+
    ```bash
    warehouse large-project
    ```
+
    This creates a symlink `large-project` pointing to `/Volumes/ExtraSpace00/Warehouse/large-project`
 
 2. Warehouse a large file:
+
    ```bash
    warehouse huge-dataset.csv
    ```
+
    This moves the file to the warehouse and creates a symlink in its place
 
 3. Recall a warehoused file:
+
    ```bash
    recall huge-dataset.csv
    ```
+
    This restores the file and removes the symlink
 
 4. Use custom warehouse location:
+
    ```bash
    ARCHIVE=/path/to/storage warehouse large-file.dat
    ```

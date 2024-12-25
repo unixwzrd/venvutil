@@ -5,7 +5,9 @@
 - **Purpose**: 
   - Deactivates the current virtual environment.
 - **Usage**: 
-  - `dact`
+  - `dact [-h]`
+- **Options**: 
+  - `-h`   Show this help message
 - **Input Parameters**: 
   - None
 - **Output**: 
@@ -13,16 +15,15 @@
 - **Exceptions**: 
   - None
 
-## Defniition 
+## Definition 
 
 * [venv_funcs.sh](../venv_funcs_sh.md)
-
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
-Github Repo: [venvutils](https://github.com/unixwzrd/venvutils)
+Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 18 at 06:51:42
+Generated on: Generated: 2024 12 24 at 05:26:21

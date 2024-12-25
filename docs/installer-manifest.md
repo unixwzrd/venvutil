@@ -6,13 +6,13 @@
 
 This described the manifest file for the installer. The types are
 
-- c - Cancel (cremate), remove a deprecated file.
+- c - Cancel (cremate), remove a deprecated file. Can be added manually or automatically detected from git status.
 - d - Directory, create a directory.
 - f - File, create a file.
 - h - Hard Link, create a hard link.
 - l - Symbolic Link, create a symbolic link.
 
-* Data Structure
+- Data Structure
 
     | field number |     name      | required/optional |     default      |                                    description                                    |
     | :----------: | :-----------: | :---------------: | :--------------: | :-------------------------------------------------------------------------------: |
@@ -26,7 +26,7 @@ This described the manifest file for the installer. The types are
     |      8       |    `size`     |     optional      |    no default    |                                Size of the object                                 |
     |      9       |  `checksum`   |     optional      |    no default    |                              Checksum of the object                               |
 
-* Layout
+- Layout
 
     | type  | destination |   source   |    name    | permissions | owner | group | size  |   checksum   |
     | :---: | :---------: | :--------: | :--------: | :---------: | :---: | :---: | :---: | :----------: |
@@ -35,7 +35,8 @@ This described the manifest file for the installer. The types are
     |   f   |             |            | README.md  |     644     | user  | staff |  30   | 3a2c0c5d7b5e |
     |   h   |     bin     | asset_name | link_name  |     755     | user  | staff |  30   | 3a2c0c5d7b5e |
     |   l   |     bin     |            | asset_name |             |       |       |       |              |
-* Example
+
+- Example
 
     ```data
     # This is a comment for the package manifest
@@ -51,6 +52,24 @@ This described the manifest file for the installer. The types are
 
 The manifest will be \t or tab separated values with # being a comment.
 Blank lines will also be ignored.
+
+### Cancel Entries
+
+Cancel entries (`c` type) can be created in two ways:
+
+1. **Automatically from Git**: When running `generate_manifest`, files that have been deleted from git (detected using `git diff --name-status main`) are automatically added as cancel entries.
+
+2. **Manually**: You can manually add cancel entries for files that should be removed during installation.
+
+Example of cancel entries:
+
+```config
+# Automatically added from git status
+c | bin | | deleted_script | | | | |
+
+# Manually added
+c | docs | | old_doc.md | | | | |
+```
 
 ## Installer Configuration File
 
@@ -68,7 +87,7 @@ For a non-privileged user, `pkg-config` data will be written to the user's $HOME
 
 To add a library to the set of packages pkg-config knows about, simply install a .pc file. You should install this file to `libdir/pkgconfig`.
 
-* Example pkg-config file
+- Example pkg-config file
 
 ```conf
 # This is a comment
@@ -92,5 +111,4 @@ You would normally generate the file using configure, so that the prefix, etc. a
 
 Files have two kinds of line: keyword lines start with a keyword plus a colon, and variable definitions start with an alphanumeric string plus an equals sign. Keywords are defined in advance and have special meaning to pkg-config; variables do not, you can have any variables that you wish (however, users may expect to retrieve the usual directory name variables).
 
-* **Note** that variable references are written `"${foo}"`; you can escape literal `"${"` as `"$${"`.
-
+- **Note** that variable references are written `"${foo}"`; you can escape literal `"${"` as `"$${"`.

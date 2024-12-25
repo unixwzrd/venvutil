@@ -1,29 +1,25 @@
 # Functions Defined in Script: errno.sh
 
-
-
 ### [errno.sh](/docs/shdoc/bin/shinclude/scripts/errno.sh.md) - Provides POSIX errno codes and utilities for Bash scripts
 
+## List of Functions Defined
 
+| Function | Description |
+|:--|:--|
+| [errno](functions/errno.md) | Provides POSIX errno codes and values for use in scripts or lookup of error codes on the command line. |
+| [errfind](functions/errfind.md) | Find the error code for a given string. |
+| [errno_warn](functions/errno_warn.md) | Prints a warning using the errno function to STDERR and returns the error number. |
+| [errno_exit](functions/errno_exit.md) | Prints an error to STDERR using the errno function and exits with the error number. |
+| [log_message](functions/log_message.md) | Prints a message to STDERR based on the provided log level. |
 
-## List of Functions Defined:
-
-
-
-<pre><table>
-<tr><td><a href="functions/errno.md">errno</a></td><td>Provides POSIX errno codes and values for use in scripts or lookup of error codes on the command line.</td></tr>
-<tr><td><a href="functions/errfind.md">errfind</a></td><td>Find the error code for a given string.</td></tr>
-<tr><td><a href="functions/errno_warn.md">errno_warn</a></td><td>Prints a warning using the errno function to STDERR and returns the error number.</td></tr>
-<tr><td><a href="functions/errno_exit.md">errno_exit</a></td><td>Prints an error to STDERR using the errno function and exits with the error number.</td></tr>
-<tr><td><a href="functions/log_message.md">log_message</a></td><td>Prints a message to STDERR based on the provided log level.</td></tr>
-</table></pre>
+---
 
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
-Github Repo: [venvutils](https://github.com/unixwzrd/venvutils)
+Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 18 at 06:51:41
+Generated on: Generated: 2024 12 24 at 05:26:20

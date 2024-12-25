@@ -8,11 +8,11 @@ The `generate_manifest` script is a utility that generates a manifest file for t
 
 - Generates a pipe-separated manifest file (`manifest.lst`)
 - Supports multiple file types:
-    - `c` - Cancel (cremate), remove a deprecated file
-    - `d` - Directory
-    - `f` - File
-    - `h` - Hard Link
-    - `l` - Symbolic Link
+  - `c` - Cancel (cremate), remove a deprecated file
+  - `d` - Directory
+  - `f` - File
+  - `h` - Hard Link
+  - `l` - Symbolic Link
 - Automatically detects deleted files from git status
 - Calculates file checksums using `shasum` or `sha1sum`
 - Handles both GNU and BSD `stat` commands (Linux and macOS compatibility)
@@ -45,7 +45,8 @@ Each entry in the manifest file follows this format:
 | checksum    | SHA1 checksum         | No       | abc123... |
 
 Example entries:
-```
+
+```config
 # Manifest file for venvutil project
 # This file uses pipe-separated fields
 
@@ -81,7 +82,8 @@ The script handles deprecated files in two ways:
 2. **Manual Cancel Entries**: Supports manually adding `c` (cancel) type entries for files that should be removed during installation.
 
 Example of cancel entries:
-```
+
+```config
 # Automatically added from git status
 c | bin | | deleted_script | | | | |
 
@@ -99,5 +101,5 @@ c | docs | | old_doc.md | | | | |
 
 ## See Also
 
-- [installer-manifest.md](installer-manifest.md) - Detailed manifest format specification
+- [installer-manifest](installer-manifest.md) - Detailed manifest format specification
 - [setup.sh](../setup.sh) - Installation script that uses the manifest

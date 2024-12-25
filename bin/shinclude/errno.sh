@@ -29,7 +29,9 @@
 # - **Purpose**: 
 #   - This function takes an errno code or errno number and prints the corresponding error message to STDOUT. Sets the exit code to the errno value and returns, unless there is an internal error.
 # - **Usage**: 
-#   - `errno [errno_code|errno_number]`
+#   - `errno [-h] [errno_code|errno_number]`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - `errno_code|errno_number`: The errno code (e.g., EACCES) or number.
 # - **Output**: 
@@ -39,9 +41,26 @@
 #   - 22: Invalid errno name
 #
 errno() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
+
     if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
         echo "Usage: errno [errno_code|errno_number]"
         echo "Example: errno EACCES"
+        __rc__=0
+        return ${__rc__}
+    fi
+
+    if [ $1 -eq 0 ]; then
+        echo "No error"
         __rc__=0
         return ${__rc__}
     fi
@@ -91,7 +110,9 @@ errno() {
 # - **Purpose**: 
 #   - Searches the POSIX errno.h file for a given string and returns any matching error codes and messages.
 # - **Usage**: 
-#   - `errfind <string>`
+#   - `errfind [-h] <string>`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - `string`: The string to search for within errno definitions.
 # - **Output**: 
@@ -100,6 +121,16 @@ errno() {
 #   - None.
 #
 errfind() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local errno_file
     if [ -f "/usr/include/sys/errno.h" ]; then
         errno_file="/usr/include/sys/errno.h"
@@ -209,7 +240,9 @@ declare -g -A message_class=(
 #   - Prints a message to STDERR if the provided log level is greater than or equal to the current
 #     debug level. The lower the level, the more verbose the messages will be. 
 # - **Usage**: 
-#   - `log_message <log_level> <message>`
+#   - `log_message [-h] <log_level> <message>`
+# - **Options**: 
+#   - `-h`   Show this help message, though not usually used from the command line.
 # - **Input Parameters**: 
 #   - `log_level`: The log level to check against the debug level. Supported log levels are:
 #     - `TRACE`
@@ -224,6 +257,16 @@ declare -g -A message_class=(
 # - **Output**: 
 #   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
 log_message() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local message_level="$1"; shift
     local message_out="$*"
 

@@ -25,13 +25,12 @@
 ## Defined in Script
 
 * [help_sys.sh](../help_sys_sh.md)
-
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
-Github Repo: [venvutils](https://github.com/unixwzrd/venvutils)
+Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 18 at 06:51:41
+Generated on: Generated: 2024 12 24 at 05:26:20

@@ -1,6 +1,6 @@
 # venvutil - Manage Conda and Pip VENV's with some simple functions and scripts
 
-(*Still under development*) This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLLM's.
+(*Still under development*) This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
 
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
   - [Project Overview](#project-overview)
@@ -23,6 +23,9 @@
   - [Support My Work](#support-my-work)
   - [License](#license)
   - [Future Improvements](#future-improvements)
+  - [Recent Improvements](#recent-improvements)
+    - [Setup Script Enhancements](#setup-script-enhancements-1)
+    - [Shell Function Improvements](#shell-function-improvements)
 
 ## Project Overview
 
@@ -33,7 +36,8 @@ Venvutil is a versatile toolset designed to simplify the management of Python vi
 - **Enhanced VENV Management**: Provides tools to easily create, manage, and replicate Python virtual environments and a few other tools.
 - **Conda and Pip Logging**: Utilizes logging to track changes to VENV's and freeze the state of environments for reproducibility.
 - **Enhanced Logging**: Maintains a log on any potentially destructive operations to VENV's when using Pip or Conda to make changes to the VENV.
-- **Robust Configuration Management**:All configuration changes are logged and a `pip freeze` is done before and after the operation to ensure that the virtual environment is frozen.
+- **Robust Configuration Management**: All configuration changes are logged and a `pip freeze` is done before and after the operation to ensure that the virtual environment is frozen.
+- **Git Integration**: Automatically detects deleted files from git status to manage deprecated files in installations.
 - **Rollback and Recovery**: Offers tools to rollback changes to VENV's, restoring the state of the environment to a previous state using the freeze log.
 - **Cross-Platform Compatibility**: Designed to work seamlessly on macOS and Linux systems, with specific optimizations for Apple Silicon.
 - **Additional Tools**: Provides additional tools like `genmd`, `filetree`, including some simple test scripts to check if your GPU is being utilized - specifically for Apple Silicon.
@@ -56,7 +60,7 @@ Venvutil is a versatile toolset designed to simplify the management of Python vi
 - Python 3.11 (Conda will handle this for you when it installs)
 - Conda latest version
 - Python packages
-  - Rich, ticktoken
+  - Rich, ticktoken, nltk
 - Ensure that your system meets the necessary requirements for running Python and Conda.
 
 ### Running the installer
@@ -108,7 +112,7 @@ Thanks for using Venvutil!
 
 ### Shell Functions
 
-These are a few of the shell functions provided by venvutil which I find useful.  There is more documentation on the functions in the README of the [venvutil Tools](docs/shdoc/README.md). 
+These are a few of the shell functions provided by venvutil which I find useful.  There is more documentation on the functions in the README of the [venvutil Tools](docs/shdoc/README.md).
 
 - **venvutil Tools**: [Detailed Documentation](docs/shdoc/README.md)
   - A collection of shell functions and scripts for managing Python virtual environments and LLMs.
@@ -125,12 +129,12 @@ These are a few of the shell functions provided by venvutil which I find useful.
   2024-11-16  * base                                ~/miniconda3
   2024-11-30    pa1                                 ~/miniconda3/envs/pa1
   2024-11-30    pa1..base-3-10                      ~/miniconda3/envs/pa1..base-3-10
-  2024-11-30    seq311.00.case-analitics            ~/miniconda3/envs/seq311.00.case-analitics
+  2024-11-30    seq311.00.case-analytics            ~/miniconda3/envs/seq311.00.case-analytics
   2024-12-05    pa1.00.case-analytics               ~/miniconda3/envs/pa1.00.case-analytics
-   ```
+  ```
 
-- **errfind and errno**: [Detailed Documentation](docs/shdoc/bin/shinclude/errno_sh.md)
-  - For locating POSIX return codes and messages and also looking up return code values. Helping you find the best error return code for any condition, no more using `return 1` or other random number.
+  - **errfind and errno**: [Detailed Documentation](docs/shdoc/bin/shinclude/errno_sh.md)
+    - For locating POSIX return codes and messages and also looking up return code values. Helping you find the best error return code for any condition, no more using `return 1` or other random number.
 
   ```bash
   (base) [unixwzrd@xanax: ~]$ errfind invalid
@@ -155,7 +159,7 @@ There are many more functions available, check out the documentation for more.
 
 Any potential *destructive* operations on a virtual environment swill be logged, along with the exact command used. Logs are done for the venvutil tools globally, as well as for the virtual environments themselves. A `pip freeze` is done before and after the operation to ensure that the virtual environment is frozen.
 
-This logging combined with the frozen environments can be used to ensure that your virtual environments are consistent and reproducible as well as tracking changes and rolling back to a previous state. There are numerous commands which will work with Conda created and using either Pip or Conda for package management. I would like to add support for other package managers which may be used in a compatible virtual environments. Two useful commands are `lenv` which not only lists the environments, but also their last update date. The `ccln` command will clone the current venv and switch you to the cloned environment. There are many other useful commands and functions available, check out the [venv_functs.sh](docs/shdoc/bin/shinclude/venv_funcs_sh.md) file for more information.
+This logging combined with the frozen environments can be used to ensure that your virtual environments are consistent and reproducible as well as tracking changes and rolling back to a previous state. There are numerous commands which will work with Conda created and using either Pip or Conda for package management. I would like to add support for other package managers which may be used in a compatible virtual environments. Two useful commands are `lenv` which not only lists the environments, but also their last update date. The `ccln` command will clone the current venv and switch you to the cloned environment. There are many other useful commands and functions available, check out the [venv_funcs.sh](docs/shdoc/bin/shinclude/venv_funcs_sh.md) file for more information.
 
 Configuration options, logs and freezes are found in the `$HOME`
 
@@ -222,12 +226,36 @@ This project is licensed under the Apache License
 
 ## Future Improvements
 
-- **Chunkfile Enhancements**: 
+- **Chunkfile Enhancements**:
   - Add support for custom chunk naming patterns
   - Add compression support for output chunks
-  - Add support for automatic chunk size calculation based on available memory
-  - Add support for paries.
+    - Add support for automatic chunk size calculation based on available memory
 - **l processing of chunks Virtual Environment Tools**: Continue to expand the collection of tools for managing virtual environments.
-  - High on the list is `vinfo` and `venvdiff`
+  - High on the list is `vinfo`, `venvdiff`, `vlog`
 - **Additional Documentation**: Expand the documentation to include more examples and examples of using the tools.
 - **Overall Enhancements**: Additional improvements and documentation are needed, but focus is shifting to other projects for now.
+
+## Recent Improvements
+
+### Setup Script Enhancements
+
+- **Error Handling**: Enhanced error handling with proper exit codes and validation
+- **Configuration**: Improved package configuration management and logging
+- **Hard Links**: Added support for hard link creation in manifest
+- **Rollback**: Added framework for installation rollback capability
+- **Manifest**: Enhanced manifest handling and validation
+
+### Shell Function Improvements
+
+- **Virtual Environment Management**:
+  - Enhanced environment variable handling
+  - Improved error recovery mechanisms
+  - Better logging for venv operations
+- **Error Handling**:
+  - Improved POSIX errno codes with better formatting
+  - Enhanced error message categorization
+  - Added detailed debugging context
+- **Help System**:
+  - Added new documentation path handling
+  - Updated function naming conventions
+  - Enhanced help message formatting

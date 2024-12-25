@@ -22,9 +22,6 @@ else
     SIZE_CMD="stat -f %z"
 fi
 
-# Assuming the script is run from the root of the project
-SCRIPT_DIR=$(pwd)
-
 # Function to process entries and generate the manifest
 process_and_generate_manifest() {
     local asset="$1"
@@ -109,7 +106,8 @@ get_deleted_files() {
         return
     fi
     
-    git status --porcelain | grep '^ D\|^D ' | sed 's/^ D //;s/^D //'
+    # Get deleted, renamed and untracked files compared to main branch
+    git diff --name-status main | grep -e '^D' | sed 's/D.[[:space:]]*//'
 }
 
 # Start fresh

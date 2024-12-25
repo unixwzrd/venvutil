@@ -1,29 +1,29 @@
 ## write_script_readme_header
-# Function: writee_script_header
- `write_script_index_header` - Write the description of the script and the functions contained in it
+# Function: write_script_readme_header
+ `write_script_readme_header` - Write the description of the script and the functions contained in it
 ## Description
 - **Purpose**:
-  - Write the script showt descrtiptionand the finctions with it. These will link to their
+  - Write the script should description and the functions with it. These will link to their
     individual documentation.
 - **Usage**: 
-  - `write_script_index <scripts_readme_file>`
+  - `write_script_readme_header <script_name> <script_dir>`
 - **Input Parameters**: 
-  - `scripts_readme_file`: The path to the script function index file.
+  - `script_name`: The name of the script.
+  - `script_dir`: The directory containing the script.
 - **Output**: 
   - Writes a list of scripts with links to script and function documentation.
 - **Exceptions**: 
   - None
 
-## Defniition 
+## Definition 
 
 * [help_sys.sh](../help_sys_sh.md)
-
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
-Github Repo: [venvutils](https://github.com/unixwzrd/venvutils)
+Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 18 at 06:51:41
+Generated on: Generated: 2024 12 24 at 05:26:20

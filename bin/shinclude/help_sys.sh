@@ -25,6 +25,7 @@
 # Determine the real path of the script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Don't source this script if it's already been sourced.
+# shellcheck disable=SC2076
 [[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
 echo "Sourcing: ${THIS_SCRIPT}"
 
@@ -41,6 +42,7 @@ __VENV_BASE=$(dirname "${__VENV_BIN}")
 declare -g MD_PROCESSOR=${MD_PROCESSOR:-"glow"}
 
 # Define an array of internal functions to exclude from help and documentation
+# shellcheck disable=SC2206
 declare -g -a __VENV_INTERNAL_FUNCTIONS=(
     ${__VENV_INTERNAL_FUNCTIONS[@]}
     "do_help"
@@ -97,7 +99,7 @@ declare -g longest_function_name=0
 #   - None
 #
 process_scripts() {
-    cd ${__VENV_BASE} || errno_exit ENOENT
+    cd "${__VENV_BASE}" || errno_exit ENOENT
     local dir_name="$1"
     local script_dir="${dir_name}"
     local scripts_docs_dir="docs/shdoc/${dir_name}"
@@ -133,6 +135,7 @@ process_scripts() {
     readarray -t sorted_script_names < <(printf "%s\n" "${sorted_script_names[@]}" | sort)
     readarray -t sorted_function_names < <(printf "%s\n" "${sorted_function_names[@]}" | sort)
     
+    # shellcheck disable=SC2164
     cd - > /dev/null
 }
 
@@ -166,11 +169,12 @@ init_help_system() {
     readarray -t sorted_function_names < <(printf "%s\n" "${!__VENV_FUNCTIONS[@]}" | sort)
     readarray -t sorted_script_names < <(printf "%s\n" "${!__VENV_SCRIPTS[@]}" | sort)
     
+    # shellcheck disable=SC2164
     cd - > /dev/null
 }
 
 
-# # Function: script_descruption
+# # Function: script_description
 #  `script_description` - Get the description of a script.
 # ## Description
 # - **Purpose**:
@@ -314,11 +318,13 @@ write_system_readme_header() {
 
     {
         echo -e "# System Script Documentation"
-        echo -e "## The for more details of the project, see [README.md](/README.md)"
+        echo -e ""
+        echo -e "## The for more details of the project, see [README](/README.md)"
         echo -e ""
         echo -e "# List of scripts in project"
         echo -e ""
-        printf "<pre><table>\n"
+        echo -e "| Script | Description |"
+        echo -e "|:--|:--|"
     } > "${system_readme_file}"
 }
 
@@ -348,22 +354,23 @@ write_system_readme_entry() {
     local system_readme_file
     system_readme_file="$(docs_base_path)/$(get_system_readme_file "")"
 
-    printf "<tr><td><a href=\"%s\">%s</a></td><td>%s</td></tr>\n" \
-        "${script_readme_file}" "${script_name}" \
+    printf "| [%s](%s) | %s |\n" \
+        "${script_name}" "${script_readme_file}" \
         "$(script_description "${script_name}")" >> "${system_readme_file}"
 }
 
 
-# # Function: writee_script_header
-#  `write_script_index_header` - Write the description of the script and the functions contained in it
+# # Function: write_script_readme_header
+#  `write_script_readme_header` - Write the description of the script and the functions contained in it
 # ## Description
 # - **Purpose**:
-#   - Write the script showt descrtiptionand the finctions with it. These will link to their
+#   - Write the script should description and the functions with it. These will link to their
 #     individual documentation.
 # - **Usage**: 
-#   - `write_script_index <scripts_readme_file>`
+#   - `write_script_readme_header <script_name> <script_dir>`
 # - **Input Parameters**: 
-#   - `scripts_readme_file`: The path to the script function index file.
+#   - `script_name`: The name of the script.
+#   - `script_dir`: The directory containing the script.
 # - **Output**: 
 #   - Writes a list of scripts with links to script and function documentation.
 # - **Exceptions**: 
@@ -383,12 +390,10 @@ write_script_readme_header() {
 
     {
         echo -e "# Functions Defined in Script: ${script_name}\n"
-        echo -e "\n"
         echo -e "### [${script_name}](/${script_doc_file}) - $(script_description "$script_name")\n"
-        echo -e "\n"
-        echo -e "## List of Functions Defined:\n"
-        echo -e "\n"
-        printf "<pre><table>\n"
+        echo -e "## List of Functions Defined\n"
+        echo -e "| Function | Description |"
+        echo -e "|:--|:--|"
     } > "${script_readme_location}"
 }
 
@@ -397,7 +402,7 @@ write_script_readme_header() {
 #  `write_script_function_entry` - Write a function entry in the script documentation.
 # ## Description
 # - **Purpose**:
-#   - Generate script entry for the script whch defines it.
+#   - Generate script entry for the script which defines it.
 # - **Usage**: 
 #   - `write_script_function_entry <function_name> <script_readme_file>`
 # - **Input Parameters**: 
@@ -422,8 +427,8 @@ write_script_function_entry() {
     local function_markdown_path="${__VENV_FUNCTIONS[$function_name]}"
     function_markdown_path="functions/$(basename "$function_markdown_path")"
 
-    printf "<tr><td><a href=\"%s\">%s</a></td><td>%s</td></tr>\n" \
-        "${function_markdown_path}" "${function_name}" \
+    printf "| [%s](%s) | %s |\n" \
+        "${function_name}" "${function_markdown_path}" \
         "$(function_description "$function_name")" >> "${script_readme_location}"
 }
 
@@ -495,7 +500,7 @@ write_function_doc() {
     {
         echo -e "## ${function_name}"
         echo -e "$function_markdown"
-        echo -e "## Defniition \n"
+        echo -e "## Definition \n"
         echo -e "* [${script_name}](${script_readme_file})"
     } > "${function_markdown_file}"
     write_page_footer "$function_markdown_file"
@@ -520,7 +525,7 @@ write_function_doc() {
 write_table_footer() {
     local file_path="$1"
     {
-        echo -e "</table></pre>"
+        echo -e "\n---\n"
     } >> "${file_path}"
     write_page_footer "${file_path}"
 }
@@ -547,11 +552,10 @@ write_page_footer() {
     date_mark=$(date "+Generated: %Y %m %d at %H:%M:%S")
 
     {
-        echo ""
         echo "---"
         echo ""
         echo "Website: [unixwzrd.ai](https://unixwzrd.ai)"
-        echo "Github Repo: [venvutils](https://github.com/unixwzrd/venvutils)"
+        echo "Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)"
         echo "Copyright (c) 2024 Michael Sullivan"
         echo "Apache License, Version 2.0"
         echo ""
@@ -582,7 +586,8 @@ generate_markdown() {
     cd "${__VENV_BASE}"  || errno_exit ENOENT
 
     local conf_file="conf/help_sys.conf"
-    local shdoc_base="$(docs_base_path)"
+    local shdoc_base
+    shdoc_base="$(docs_base_path)"
     [ -d "${shdoc_base}" ] || mkdir -p "${shdoc_base}"
 
     local in_progress_timestamp="${shdoc_base}/.in-progress"
@@ -627,6 +632,8 @@ generate_markdown() {
 
             # Open the script file for reading
             while IFS= read -r line || [[ -n "${line}" ]]; do
+                # Give the user something to look at while this is running.
+                printf "."
 
 
                 # Check for beginning of the script.
@@ -729,6 +736,7 @@ generate_markdown() {
     mv "${in_progress_timestamp}" "${completed_timestamp}"
     # Now find and delete old markdown files
     find "${shdoc_base}" -type f -name '*.md' ! -newer "${completed_timestamp}" -exec rm {} \;
+    printf "\n"
 }
 
 # # Function: general_help
@@ -837,6 +845,7 @@ specific_script_help() {
 specific_function_help() {
     local func=$1
 
+    # shellcheck disable=SC2199,SC2076
     if [[ " ${__VENV_INTERNAL_FUNCTIONS[@]} " =~ " ${func} " ]]; then
         echo "The function '${func}' is for internal use. Please refer to the system documentation."
         return
@@ -879,8 +888,10 @@ help_functions() {
 
     echo -e "\nAvailable functions and their brief descriptions:\n"
 
+    # shellcheck disable=SC2068
     for function in ${sorted_function_names[@]}; do
         # Skip internal functions
+        # shellcheck disable=SC2199,SC2076
         if [[ " ${__VENV_INTERNAL_FUNCTIONS[@]} " =~ " ${function} " ]]; then
             continue
         fi
@@ -918,9 +929,10 @@ vhelp() {
     fi
 
     # Use the markdown processor if available, otherwise default to 'cat'
-    command -v ${MD_PROCESSOR} > /dev/null 2>&1 && md_command="${MD_PROCESSOR}" || md_command="cat"
+    command -v "${MD_PROCESSOR}" > /dev/null 2>&1 && md_command="${MD_PROCESSOR}" || md_command="cat"
 
     # Check if the subcommand is a known script name (without the .sh extension)
+    # shellcheck disable=SC2068
     for script in ${__VENV_SOURCED_LIST[@]}; do
         if [[ "${script##*/}" == "${subcommand}" ]]; then
             is_script=1
@@ -930,7 +942,7 @@ vhelp() {
 
     case "${subcommand}" in
         "generate_markdown")
-            echo "Starting markdown generation..."
+            echo "Starting markdown generation"
             generate_markdown || errno_exit 1
             echo "Markdown generation complete."
             ;;

@@ -55,7 +55,7 @@ You must specify exactly one of: `-n`, `-s`, or `-l`.
 
 The script creates numbered chunks with the following naming pattern:
 
-```
+```python
 {original_name}_{number:02}{extension}
 ```
 

@@ -118,9 +118,20 @@ next_step() {
 #
 # ## Description
 # - **Purpose**:
-#   - Sorts a two-dimensional array in Bash. It's particularly useful for organizing data that is stored in a format of paired elements.
+#   - Sorts a two-dimensional array in Bash. It's useful for organizing data that
+#     is stored in a format of paired elements. the first "column" or element is in element number
+#     `n` and the second column is in element number `n+1`. This shows the one dimensional structure
+#     of the array mapped to the two dimensions of the array.
+#       n  |  n+1
+#     ----------------------------
+#      0  |  1
+#      1  |  2
+#      3  |  4
+#   - The array will be sorted on the "first" column
 # - **Usage**: 
-#   - This function can be used to sort arrays where each element consists of a pair of values (e.g., key-value pairs). It's beneficial in scenarios where data needs to be sorted based on one of the dimensions.
+#   - `sort_2d_array [-h] "array_name"`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - `array_name`: The name of the array variable that needs to be sorted.
 # - **Output**: 
@@ -129,6 +140,16 @@ next_step() {
 #   - Handles exceptions or errors that may arise during the sorting process (to be detailed based on function's implementation).
 #
 sort_2d_array() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local array_name="$1"
     local i j temp1 temp2 len temp_array
 
@@ -170,7 +191,9 @@ sort_2d_array() {
 # - **Purpose**:
 #   - Pushes a value onto a named stack (added to the end of the stack). 
 # - **Usage**: 
-#   - `push_stack "stack_name" "value"`
+#   - `push_stack [-h] "stack_name" "value"`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - `stack_name`: The name of the stack array.
 #   - `value`: The value to push onto the stack.
@@ -180,6 +203,16 @@ sort_2d_array() {
 #   - None.
 #
 push_stack() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local stack_name="$1"
     local stack_value="$2"
 
@@ -194,7 +227,9 @@ push_stack() {
 # - **Purpose**:
 #   - Pops a value from a named stack.
 # - **Usage**: 
-#   - `pop_stack "stack_name"`
+#   - `pop_stack [-h] "stack_name"`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - `stack_name`: The name of the stack array.
 # - **Output**: 
@@ -203,6 +238,16 @@ push_stack() {
 #   - Returns an error message and error code 1 if the stack is empty.
 #
 pop_stack() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local stack_name="$1"
     local popped_value
 
@@ -241,7 +286,9 @@ pop_stack() {
 # - **Purpose**:
 #   - Performs stack operations such as push, pop, and debug on a given stack.
 # - **Usage**: 
-#   - `stack_op <action> <stack_name> [value]`
+#   - `stack_op [-h] <action> <stack_name> [value]`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - `action`: The action to perform on the stack (`push`, `pop`, `debug`).
 #   - `stack_name`: The name of the stack array.
@@ -252,6 +299,16 @@ pop_stack() {
 #   - Returns an error if an invalid action is provided.
 #
 stack_op() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local action="$1"
     local stack_name="$2"
     local stack_value="$3"
@@ -322,7 +379,9 @@ to_upper() {
 # - **Purpose**:
 #   - Recursively displays the process tree starting from a given PID.
 # - **Usage**: 
-#   - `ptree 1234`
+#   - `ptree [-h] 1234`
+# - **Options**: 
+#   - `-h`   Show this help message
 # - **Input Parameters**: 
 #   - `pid`: The Process ID to start the tree from.
 #   - `indent` (optional): Indentation string for formatting.
@@ -332,6 +391,16 @@ to_upper() {
 #   - None.
 #
 ptree() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local pid="$1"
     local indent="${2:-" "}"
     
@@ -361,7 +430,12 @@ ptree() {
 # - **Purpose**:
 #   - Retrieves the type of a variable.
 # - **Usage**: 
-#   - `var_type=$(var_type "var_name")`
+#   - `var_type [-h] "var_name"`
+# - **Options**: 
+#   - `-h`   Show this help message
+# - **Examples**: 
+#   - `var_type "my_variable"`
+#   - `var_type=$(var_type "my_variable")
 # - **Input Parameters**: 
 #   - `var_name`: The name of the variable.
 # - **Output**: 
@@ -369,6 +443,16 @@ ptree() {
 # - **Exceptions**: 
 #   - None.
 var_type() {
+    local OPTIND=1
+    # Parse options
+    while getopts "h" opt; do
+        case $opt in
+            h) vhelp ${FUNCNAME[0]}; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
     local var_name="$1"
     local var_type=$(declare -p "$var_name" 2>/dev/null | cut -d ' ' -f 2) 
     case "$var_type" in

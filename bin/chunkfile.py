@@ -146,7 +146,6 @@ def process_byte_based_chunk(
         if total_read >= file_size:
             return actual, b"", total_read, False
         return None, prev_overlap, total_read - len(chunk), False
-
     current = actual[:chunk_size]
     next_overlap = actual[chunk_size - overlap : chunk_size]
     return current, next_overlap, total_read, False
@@ -170,7 +169,7 @@ def write_chunk(
     base = os.path.basename(name)
     out_file = f"{base}_{part_num:02}{ext}"
 
-    with open(out_file, "wb") as chunk_file:
+    with open(out_file, "wb", encoding="utf-8") as chunk_file:
         if is_lines:
             # For line mode, join lines and remove trailing newline
             data = b"".join(chunk)  # type: ignore
@@ -214,7 +213,7 @@ def split_file(
         total = file_size + (num_chunks - 1) * overlap
         chunk_size = total // num_chunks
 
-    with open(input_file, "rb") as file:
+    with open(input_file, "rb", encoding="utf-8") as file:
         part_num = 1
         prev_overlap = b""
         prev_lines: List[bytes] = []

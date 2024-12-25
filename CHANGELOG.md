@@ -1,13 +1,89 @@
 # Changelog
 
-## 2024-12 22 - Documentation Updates
+## 2024-12-23 - Core Functionality Enhancements
+
+### Setup Script Improvements
+
+- Enhanced error handling with proper exit codes
+- Added validation for critical operations
+- Improved package configuration management
+- Enhanced logging with descriptive messages
+- Added support for deprecated file removal
+- Improved manifest handling
+- Added rollback capability framework
+
+### Shell Function Include Files
+
+- venv_funcs.sh:
+  - Enhanced virtual environment management
+    - `lenv` sorting VENV's by time or name in forward or reverse order
+    - Long format time with date and time also added
+    - `ccln` cloning of the current VENV may be done without sequence number
+  - Improved environment variable handling
+  - Added better error recovery
+  - Enhanced logging for venv operations
+- errno.sh:
+  - Improved POSIX errno codes handling
+  - Enhanced error message formatting
+  - Added better logging categorization
+  - Improved error context for debugging
+- help_sys.sh:
+  - Added new docs_base_path function
+  - Updated function naming convention
+  - Improved file path handling
+  - Enhanced help message formatting
+
+### Warehouse Tool Improvements
+
+- Enhanced error handling in `warehouse.sh` with better symlink validation
+- Added protection against pathological symlink situations
+- Improved handling of source and destination path validation
+- Added detailed error reporting for tar operations
+- Enhanced directory path handling and normalization
+
+### Chunkfile Enhancements
+
+- Improved type hints and documentation in `chunkfile.py`
+- Enhanced error handling for edge cases in chunk processing
+- Added validation for chunk size and overlap parameters
+- Improved handling of partial reads and end-of-file conditions
+- Added support for proper UTF-8 handling in line mode
+- Enhanced progress reporting and file naming consistency
+
+### Error Handling and Logging
+
+- Enhanced error handling in shell scripts with proper exit codes
+- Improved logging with more descriptive error messages
+- Added validation for critical operations
+- Enhanced error recovery mechanisms
+- Added detailed error context for debugging
+
+### Documentation Updates
+
+- Added comprehensive documentation for warehouse functionality
+- Created detailed visual guide for chunk operations
+- Updated implementation details for all core functions
+- Added examples and use cases for each tool
+- Enhanced cross-referencing between related documentation
+
+### Core Script Improvements
+
+- Refactored shell functions for better modularity
+- Enhanced path handling and validation
+- Improved error recovery mechanisms
+- Added protection against common failure modes
+- Enhanced logging and debugging capabilities
+
+## 2024-12-22 - Documentation Updates
 
 ### Added Git Integration
+
 - Enhanced `generate_manifest` script to automatically detect deleted files using `git status --porcelain`
 - Added automatic creation of cancel entries for files deleted from git
 - Updated documentation to reflect new git integration features
 
 ### Documentation Updates
+
 - Added comprehensive documentation for the `generate_manifest` script.
 - Documented manifest file format and handling of deprecated files.
 - Clarified the use of `c` (cancel) type entries for file removal.
@@ -107,7 +183,7 @@
 ## 2024-12-06 - Latest Updates
 
 - Refactored `genmd` script to streamline file tree generation and improve handling of debug levels.
-- Added symlink following along with token counting for makedown bundles.
+- Added symlink following along with token counting for markdown bundles.
 - Still minor config file issues to work out.
 - Improved logging in `genmd` and `help_sys.sh` for better debugging and information tracking.
 - Enhanced documentation for functions in markdown files, providing detailed descriptions, usage, input parameters, output, and exceptions.
@@ -162,7 +238,7 @@
 
 ## 2024-11-18 - Refactored Installer Script and Documentation Updates
 
-- Refactored `vsetup.sh` for modularity and error handling.
+- Refactored `setup.sh` for modularity and error handling.
 - Introduced `pkg_info` function to manage package metadata.
 - Added `check_return_code` function for error handling with rollback capability.
 - Enhanced logging with `log_message` function for consistent message formatting.
@@ -209,7 +285,7 @@ The script scans a project directory and creates a markdown document with specif
 
 - [filetree](docs/filetree.md): Generates a file hierarchy tree from the current directory based on specified patterns.
 - [genmd](docs/genmd.md): Groups related files wrapped in markdown for easy uploading to ChatGPT. Configurations may be saved for later use.
-- [chunktext](docs/chunktext.md): Splits a file into chunks of text for ingestion by a new GPT instance while maintaining context.
+- [chunkfile](docs/chunktext.md): Splits a file into chunks of text for ingestion by a new GPT instance while maintaining context.
 
 ## 2024-07-09 - Fixed recursion bug in pip wrapper
 
