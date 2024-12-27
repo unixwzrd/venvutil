@@ -183,6 +183,9 @@ data/
 utils
 .codeiumignore
 project-planning
+master-planning
 output.txt
 manifest.bak
 .spellignore
+.project-planning
+.master-planning
