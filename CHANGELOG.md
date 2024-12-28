@@ -1,5 +1,9 @@
 # Changelog
 
+## 2024-12-28 - Warehouse Tool Improvements
+
+- handled if higher level directories don't exist at destination.
+
 ## 2024-12-23 - Core Functionality Enhancements
 
 ### Setup Script Improvements
