@@ -66,7 +66,7 @@ fi
 
 # Move the directory to Warehouse with error checking
 (cd "${source_directory}" && tar cf - "${object_name}") | \
-    (cd "${destination_directory}" && tar xf -) 
+    (mkdir -p "${destination_directory}" && cd "${destination_directory}" && tar xf -) 
 # shellcheck disable=SC2206
 tar_exit=(${PIPESTATUS[*]})
 echo "Status ${tar_exit[*]}"
