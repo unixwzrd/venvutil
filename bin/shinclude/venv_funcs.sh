@@ -67,19 +67,27 @@
 # Capture the fully qualified path of the sourced script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Don't source this script if it's already been sourced.
+# The RHS has to be in "" to match the array.
+# shellcheck disable=SC2076
 [[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
-echo "Sourcing: ${THIS_SCRIPT}"
+
 
 # Extract script name, directory, and arguments
-MY_NAME=$(basename ${THIS_SCRIPT})
+MY_NAME=$(basename "${THIS_SCRIPT}")
 __VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
 __VENV_BASE=$(dirname "${__VENV_BIN}")
 __VENV_ARGS=$*
 __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
-[ -f "${__VENV_INCLUDE}/util_funcs.sh" ] && . "${__VENV_INCLUDE}/util_funcs.sh" \
-    || ( echo "Could not find util_funcs.sh in INCLUDEDIR: ${__VENV_INCLUDE}" && exit 1 )
+if [ -f "${__VENV_INCLUDE}/util_funcs.sh" ]; then
+    # shellcheck source=./util_funcs.sh
+    . "${__VENV_INCLUDE}/util_funcs.sh"
+else
+    echo "Could not find util_funcs.sh in INCLUDEDIR: ${__VENV_INCLUDE}"
+    exit 1
+fi
 
+# shellcheck disable=SC2206
 __VENV_INTERNAL_FUNCTIONS=(
     ${__VENV_INTERNAL_FUNCTIONS[@]}
     "push_venv"
@@ -87,17 +95,17 @@ __VENV_INTERNAL_FUNCTIONS=(
     "__set_venv_vars"
 )
 
-# This is so we can pass a return code up through sub-shells since set values are lost in subshells.
+# This is so we can pass a return code up through sub-shells since set values are lost in sub-shells.
 # May or may not be a good ide, but we might want to pass get the return value of our function calls,
-# and not that o fthe last command that ren in the function call which may me 0 for an echo comamnd
-# when it's the last command in th efunction and we want the return code of the function.
-# This is something we would like where the echo sattement will return a value lik ethe last item
-# poped off the stack. So instead of a sub-shell, whcih will also not return a value, we can use
-# this to set the return code and exit the function passing thie to return or exit.  echo would be
+# and not that of the last command that ren in the function call which may me 0 for an echo command
+# when it's the last command in the function and we want the return code of the function.
+# This is something we would like where the echo statement will return a value like the last item
+# popped off the stack. So instead of a sub-shell, which will also not return a value, we can use
+# this to set the return code and exit the function passing the to return or exit.  echo would be
 # the last command in the function and we would get the return code of the function.
 #
-#__rc__ is internal aand is in a our function shell includes.
-# It woudl be nice to come up with a fairly "automatuc" way to do this.
+#__rc__ is internal and is in a our function shell includes.
+# It would be nice to come up with a fairly "automatic" way to do this.
 __rc__=0
 
 # Initialize the stack
@@ -141,7 +149,7 @@ pop_venv() {
     local stack_value
     pop_stack __VENV_STACK
     stack_value=${__sv__}
-    return ${__rc__}
+    return "${__rc__}"
 }
 
 # # Function: __set_venv_vars
@@ -302,8 +310,8 @@ cact() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -329,7 +337,7 @@ cact() {
 
     # Set variables
     __VENV_NAME=$1
-    __set_venv_vars ${__VENV_NAME}
+    __set_venv_vars "${__VENV_NAME}"
     __VENV_PARMS=$(echo "$*" | cut -d '.' -f 4-)
     # Push new environment to stack
     push_venv
@@ -362,8 +370,8 @@ dact() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -390,7 +398,7 @@ dact() {
     conda deactivate
     pop_venv
     stack_value="${__sv__}"
-    return ${__rc__}
+    return "${__rc__}"
 }
 
 # # Function: pact
@@ -416,14 +424,14 @@ pact() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
 
     pop_venv
-    local previous_env=${__sv__}
+    local previous_env="${__sv__}"
 
     # Change to previous VENV
     if [ $? -eq 0 ]; then
@@ -455,7 +463,7 @@ pact() {
 #   ```bash
 #   2024-11-30    pa1                                 ~/miniconda3/envs/pa1
 #   2024-11-30    pa1..base-3-10                      ~/miniconda3/envs/pa1..base-3-10
-#   2024-11-30    seq311.00.case-analitics            ~/miniconda3/envs/seq311.00.case-analitics
+#   2024-11-30    seq311.00.case-analytics            ~/miniconda3/envs/seq311.00.case-analytics
 #   2024-12-05    pa1.00.case-analytics               ~/miniconda3/envs/pa1.00.case-analytics
 #   ```
 # - **Exceptions**: 
@@ -474,8 +482,8 @@ lenv() {
             t) sort_by_time=true ;;
             r) sort_opts="-r" ;;
             l) time_opts="."; sort_key="3";;
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -543,7 +551,8 @@ lenv() {
 #
 lastenv() {
     local prefix="$1"
-    local last_env=$(lenv | grep -E "^${prefix}." | tail -1 | cut -d " " -f 1)
+    local last_env
+    last_env=$(lenv | grep -E "^${prefix}." | tail -1 | cut -d " " -f 1)
     echo "${last_env}"
 }
 
@@ -574,8 +583,8 @@ benv() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -584,10 +593,10 @@ benv() {
     local extra_options="$*"
 
     echo "Creating base virtual environment ${env_name} ${extra_options}"
-    conda create -n "${env_name}" ${extra_options} -y || {
+    conda create -n "${env_name}" "${extra_options}" -y || {
         echo "Error: Failed to create environment ${env_name}" >&2
         __rc__=1
-        return ${__rc__}
+        return "${__rc__}"
     }
 
     echo "Base environment created - activating ${env_name}"
@@ -617,8 +626,8 @@ nenv() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -662,8 +671,8 @@ denv() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -677,7 +686,7 @@ denv() {
     fi
 
     echo "Removing environment -> ${env_to_delete}"
-    conda remove --all -n ${env_to_delete} -y
+    conda remove --all -n "${env_to_delete}" -y
 }
 
 # # Function: renv
@@ -702,8 +711,8 @@ renv() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -723,8 +732,8 @@ renv() {
     fi
 
     dact  # Deactivate the current environment
-    denv ${env_to_delete}  # Delete the environment
-    cact ${previous_env}  # Reactivate the previous environment
+    denv "${env_to_delete}"  # Delete the environment
+    cact "${previous_env}"  # Reactivate the previous environment
 }
 
 # # Function: clan
@@ -752,8 +761,8 @@ ccln() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -816,8 +825,8 @@ venvdiff() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -833,12 +842,14 @@ venvdiff() {
     local env2=$2
 
     # Activate the first environment and get the list of packages
-    cact $env1 > /dev/null
-    local env1_packages=$(pip list | tail -n +1)
+    cact "${env1}" > /dev/null
+    local env1_packages
+    env1_packages=$(pip list | tail -n +1)
     dact > /dev/null
 
-    cact $env2 > /dev/null
-    local env2_packages=$(pip list | tail -n +1)
+    cact "${env2}" > /dev/null
+    local env2_packages
+    env2_packages=$(pip list | tail -n +1)
     dact > /dev/null
 
     echo "Comparing packages in $env1 and $env2:"
