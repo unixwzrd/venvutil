@@ -22,6 +22,7 @@
 # ## Dependencies
 # - `util_funcs.sh` (for utility functions like `to_upper`)
 
+# -> See bottom for "normal" initialization code.
 
 # # Function: errno
 #  `errno` - Provides POSIX errno codes and values for use in scripts or lookup of error codes on the command line.
@@ -45,8 +46,8 @@ errno() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -59,7 +60,7 @@ errno() {
         return ${__rc__}
     fi
 
-    if [ $1 -eq 0 ]; then
+    if [ "$1" -eq 0 ]; then
         echo "No error"
         __rc__=0
         return ${__rc__}
@@ -125,8 +126,8 @@ errfind() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -179,13 +180,20 @@ errfind() {
 # - **Input Parameters**: 
 #   - `errno_code`: The errno code to generate a warning for.
 # - **Output**: 
-#   - Outputs a warning message to STDERR.
+#   - Outputs a warning message to STDERR with caller info including:
+#     - Function name that called errno_warn
+#     - Line number where errno_warn was called
+#     - Source file where errno_warn was called
+#     - Function name that called the function that called errno_warn
+#     - Line number where that function was called
+#     - Source file containing that function call
 # - **Exceptions**: 
 #   - Returns the error number associated with the provided errno code.
 #
 errno_warn() {
     __rc__=$1
     echo "WARNING: $(errno "${__rc__}")" >&2
+    echo "WARNING: FUNCTION: ${FUNCNAME[0]} LINE: ${BASH_LINENO[0]} FILE: ${BASH_SOURCE[0]}" >&2
     return "${__rc__}"
 }
 
@@ -194,43 +202,79 @@ errno_warn() {
 # ## Description
 # - **Purpose**: 
 #   - Prints an error message to STDERR using the `errno` function and exits the script with the corresponding error number.
+#     You may use the POSIX error code or the error number.
 # - **Usage**: 
 #   - `errno_exit <errno_code>`
+# - **Example**:
+#   - `errno_exit EACCES`
+#   - `errno_exit 13`
 # - **Input Parameters**: 
 #   - `errno_code`: The errno code to generate an error for.
 # - **Output**: 
-#   - Outputs an error message to STDERR and exits the script.
+#   - Outputs an error message to STDERR with caller info including:
+#     - Function name that called errno_exit
+#     - Line number where errno_exit was called
+#     - Source file where errno_exit was called
+#     - Function name that called the function that called errno_exit
+#     - Line number where that function was called
+#     - Source file containing that function call
 # - **Exceptions**: 
 #   - Exits the script with the provided error number.
 #
 errno_exit() {
     __rc__=$1
     echo "ERROR: $(errno "${__rc__}")" >&2
+    echo "ERROR: FUNCTION: ${FUNCNAME[0]} LINE: ${BASH_LINENO[0]} FILE: ${BASH_SOURCE[0]}" >&2
     exit "${__rc__}"
 }
 
 
-# Define an associative array for message classes with standard logging levels
 
-declare -g -A message_class=(
-    ["DEBUG9"]=1
-    ["DEBUG8"]=2
-    ["DEBUG7"]=2
-    ["DEBUG6"]=3
-    ["DEBUG5"]=4
-    ["DEBUG4"]=5
-    ["DEBUG3"]=6
-    ["DEBUG2"]=7
-    ["DEBUG1"]=8
-    ["DEBUG0"]=9
-    ["DEBUG"]=10
-    ["INFO"]=20
-    ["WARNING"]=30
-    ["WARN"]=30
-    ["ERROR"]=40
-    ["CRITICAL"]=50
-    ["SILENT"]=99
-)
+# # Function: errval
+# `errval` - Returns the numeric value associated with a log level.
+#
+# ## Description
+# - **Purpose**: 
+#   - Converts a text log level (like "DEBUG", "INFO", etc.) to its corresponding numeric value.
+#   - Used internally to compare log levels for filtering messages.
+# - **Usage**: 
+#   - `errval <log_level>`
+# - **Input Parameters**: 
+#   - `log_level`: The text log level to convert. Supported values:
+#     - DEBUG0-DEBUG9: Values 9-1 respectively
+#     - DEBUG: Value 10
+#     - INFO: Value 20
+#     - WARNING/WARN: Value 30 
+#     - ERROR: Value 40
+#     - CRITICAL: Value 50
+#     - SILENT: Value 99
+# - **Output**: 
+#   - Returns the numeric value corresponding to the provided log level.
+# - **Exceptions**: 
+#   - Returns empty if an invalid log level is provided.
+#
+errval() {
+    declare -A message_class=(
+        ["DEBUG9"]=1
+        ["DEBUG8"]=2
+        ["DEBUG7"]=2
+        ["DEBUG6"]=3
+        ["DEBUG5"]=4
+        ["DEBUG4"]=5
+        ["DEBUG3"]=6
+        ["DEBUG2"]=7
+        ["DEBUG1"]=8
+        ["DEBUG0"]=9
+        ["DEBUG"]=10
+        ["INFO"]=20
+        ["WARNING"]=30
+        ["WARN"]=30
+        ["ERROR"]=40
+        ["CRITICAL"]=50
+        ["SILENT"]=99
+    )
+    echo "${message_class[$1]}"
+}
 
 
 ## Function: log_message
@@ -261,44 +305,26 @@ log_message() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
 
     local message_level="$1"; shift
+    local message_class
+    message_class=$(errval "$message_level")
     local message_out="$*"
 
-#     declare -A message_class=(
-#         ["DEBUG9"]=1
-#         ["DEBUG8"]=2
-#         ["DEBUG7"]=3
-#         ["DEBUG6"]=4
-#         ["DEBUG5"]=5
-#         ["DEBUG4"]=6
-#         ["DEBUG3"]=7
-#         ["DEBUG2"]=8
-#         ["DEBUG1"]=9
-#         ["DEBUG0"]=10
-#         ["DEBUG"]=10
-#         ["INFO"]=20
-#         ["WARNING"]=30
-#         ["WARN"]=30
-#         ["ERROR"]=40
-#         ["CRITICAL"]=50
-#         ["SILENT"]=99
-#     )
-
     # Check if the provided message level exists in the message_class array
-    if [[ -z "${message_class[$message_level]+_}" ]]; then
+    if [[ -z "${message_class+_}" ]]; then
         echo "($MY_NAME) WARNING: Unknown log level '$message_level'. Message: $message_out" >&2
         errno_exit 9
     fi
 
     # echo " LOG_MESSAGE CALLED: ${message_level} ${debug_level} ($MY_NAME): ${message_out}" >&2
     # Compare the current debug_level with the message's severity level
-    if [ "$debug_level" -le "${message_class[$message_level]}" ]; then
+    if [ "$debug_level" -le "${message_class}" ]; then
         echo "$MY_NAME ${message_level}($debug_level): ${message_out}" >&2
     fi
 }

@@ -19,7 +19,7 @@
   ```bash
   2024-11-30    pa1                                 ~/miniconda3/envs/pa1
   2024-11-30    pa1..base-3-10                      ~/miniconda3/envs/pa1..base-3-10
-  2024-11-30    seq311.00.case-analitics            ~/miniconda3/envs/seq311.00.case-analitics
+  2024-11-30    seq311.00.case-analytics            ~/miniconda3/envs/seq311.00.case-analytics
   2024-12-05    pa1.00.case-analytics               ~/miniconda3/envs/pa1.00.case-analytics
   ```
 - **Exceptions**: 
@@ -36,4 +36,4 @@ Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 24 at 05:26:21
+Generated on: Generated: 2024 12 29 at 04:28:18

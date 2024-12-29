@@ -1,4 +1,0 @@
-# Required by venvutil
-rich
-nltk
-tiktoken

@@ -23,9 +23,12 @@
 # Capture the fully qualified path of the sourced script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Don't source this script if it's already been sourced.
+# The RHS has to be in "" to match the array.
+# shellcheck disable=SC2076
 [[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
 echo "Sourcing: ${THIS_SCRIPT}"
 
+# shellcheck disable=SC2206
 __VENV_INTERNAL_FUNCTIONS=(
     ${__VENV_INTERNAL_FUNCTIONS[@]}
 )
@@ -144,8 +147,8 @@ sort_2d_array() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -207,8 +210,8 @@ push_stack() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -242,8 +245,8 @@ pop_stack() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -254,7 +257,8 @@ pop_stack() {
     # Dynamically get the length of the stack
     eval "local stack_length=\${#${stack_name}[@]}"
 
-    # Check if the stack is empty
+    # Check if the stack is empty - SC complains, but it's done in the eval above.
+    # shellcheck disable=SC2154
     if [[ "${stack_length}" -eq 0 ]]; then
         echo "Stack is empty" >&2
         __rc__=1
@@ -303,8 +307,8 @@ stack_op() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -395,8 +399,8 @@ ptree() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -405,7 +409,8 @@ ptree() {
     local indent="${2:-" "}"
     
     # Get terminal width
-    local term_width=$(tput cols)
+    local term_width
+    term_width=$(tput cols)
 
     # Calculate effective width for command output
     local effective_width=$((term_width - ${#indent} - 14))
@@ -447,14 +452,16 @@ var_type() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp ${FUNCNAME[0]}; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp ${FUNCNAME[0]}; return 1 ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
 
     local var_name="$1"
-    local var_type=$(declare -p "$var_name" 2>/dev/null | cut -d ' ' -f 2) 
+    local var_type
+    var_type=$(declare -p "$var_name" 2>/dev/null | cut -d ' ' -f 2) 
+
     case "$var_type" in
         -a)
             echo "array"

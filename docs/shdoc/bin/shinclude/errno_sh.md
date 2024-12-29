@@ -10,6 +10,7 @@
 | [errfind](functions/errfind.md) | Find the error code for a given string. |
 | [errno_warn](functions/errno_warn.md) | Prints a warning using the errno function to STDERR and returns the error number. |
 | [errno_exit](functions/errno_exit.md) | Prints an error to STDERR using the errno function and exits with the error number. |
+| [errval](functions/errval.md) | Returns the numeric value associated with a log level. |
 | [log_message](functions/log_message.md) | Prints a message to STDERR based on the provided log level. |
 
 ---
@@ -22,4 +23,4 @@ Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 24 at 05:26:20
+Generated on: Generated: 2024 12 29 at 04:28:17
