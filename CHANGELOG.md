@@ -1,8 +1,30 @@
 # Changelog
 
+# 2024-12-29 - Shell Include Files Enhancements
+
+### errno.sh
+
+- Enhanced error handling with improved POSIX errno codes.
+- Added better error message formatting and logging categorization.
+- Introduced new functionality for more descriptive error messages.
+
+### util_funcs.sh
+
+- Improved utility functions for better performance and reliability.
+- Enhanced logging and error checking mechanisms.
+- Streamlined common tasks in Bash scripting.
+
+### venv_funcs.sh
+
+- Enhanced virtual environment management functions.
+- Improved error recovery and logging for VENV operations.
+- Added new features for better environment variable handling.
+
 ## 2024-12-28 - Warehouse Tool Improvements
 
 - handled if higher level directories don't exist at destination.
+- Added additional information to err_warn and er_exit messages
+- Picked lint and corrected spelling and other documentation issues.
 
 ## 2024-12-23 - Core Functionality Enhancements
 
@@ -302,3 +324,5 @@ This collection includes build scripts, benchmarking tools, and regression testi
 If you find any of my work here helpful, please reach out. I would like to have a dialog with anyone else interested.
 
 Watch this spot, more to come, and you can always [buy me a coffee.](https://www.buymeacoffee.com/venvutil)
+
+#
