@@ -22,8 +22,6 @@
 # ## Dependencies
 # - `util_funcs.sh` (for utility functions like `to_upper`)
 
-# -> See bottom for "normal" initialization code.
-
 # # Function: errno
 #  `errno` - Provides POSIX errno codes and values for use in scripts or lookup of error codes on the command line.
 # ## Description
@@ -354,6 +352,7 @@ __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 # shellcheck disable=SC2206
 __VENV_INTERNAL_FUNCTIONS=(
     ${__VENV_INTERNAL_FUNCTIONS[@]}
+    "errval"
 )
 
 # Set default debug level, if not already set.

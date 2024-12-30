@@ -1,6 +1,6 @@
 ## ccln
 # Function: clan
-`ccln` - Clone a Conda Environment.
+`ccln` - Clone current Virtual Environment
 ## Description
 - **Purpose**: 
   - Clones the current Virtual Environment to a new environment. It will
@@ -29,4 +29,4 @@ Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 29 at 04:28:18
+Generated on: Generated: 2024 12 30 at 05:08:23

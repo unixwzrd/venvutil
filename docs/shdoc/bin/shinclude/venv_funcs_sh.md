@@ -10,9 +10,9 @@
 | [pop_venv](functions/pop_venv.md) | Specialized pop the VENV off the stack and decrement. |
 | [__set_venv_vars](functions/__set_venv_vars.md) | Sets internal VENV variables. |
 | [snum](functions/snum.md) | Force set the VENV Sequence number. |
-| [vpfx](functions/vpfx.md) | Return the current VENV prefix. |
+| [vpfx](functions/vpfx.md) | Return the current VENV prefix of a sequenced set. |
 | [vnum](functions/vnum.md) | Return the current VENV sequence number. |
-| [vdsc](functions/vdsc.md) | Return the current VENV description. |
+| [vdsc](functions/vdsc.md) | Return the current VENV description of a sequenced set. |
 | [cact](functions/cact.md) | Change active VENV. |
 | [dact](functions/dact.md) | Deactivate the current VENV. |
 | [pact](functions/pact.md) | Switch to the Previous Active VENV. |
@@ -22,7 +22,7 @@
 | [nenv](functions/nenv.md) | Create a New Virtual Environment in a Series. |
 | [denv](functions/denv.md) | Delete a Virtual Environment. |
 | [renv](functions/renv.md) | Revert to Previous Virtual Environment. |
-| [ccln](functions/ccln.md) | Clone a Conda Environment. |
+| [ccln](functions/ccln.md) | Clone current Virtual Environment |
 | [venvdiff](functions/venvdiff.md) | Compare Two Virtual Environments. |
 
 ---
@@ -35,4 +35,4 @@ Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 29 at 04:28:18
+Generated on: Generated: 2024 12 30 at 05:08:23

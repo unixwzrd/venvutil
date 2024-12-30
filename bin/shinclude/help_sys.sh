@@ -125,6 +125,12 @@ process_scripts() {
                 __VENV_FUNCTIONS["$function"]="$function_markdown_path"
                 sorted_function_names+=("$function")
                 
+                # Skip internal functions
+                # shellcheck disable=SC2076,SC2199
+                if [[ " ${__VENV_INTERNAL_FUNCTIONS[@]} " =~ " ${function} " ]]; then
+                    continue
+                fi
+
                 # Update longest function name length
                 if [[ ${#function} -gt $longest_function_name ]]; then
                     longest_function_name=${#function}

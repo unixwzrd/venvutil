@@ -19,9 +19,6 @@
 #   - Some functions may return specific error codes or print error messages to STDERR.
 #   - Refer to individual function documentation for details.
 
-# Declare and assign separately to avoid masking return values. shellcheck SC2155
-# shellcheck disable=SC2155
-
 # Determine the real path of the script
 THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}")
 # Don't source this script if it's already been sourced.
@@ -30,8 +27,9 @@ THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}")
 echo "Sourcing: ${THIS_SCRIPT}"
 
 # Define an array of internal functions to exclude from help and documentation
+# shellcheck disable=SC2206
 __VENV_INTERNAL_FUNCTIONS=(
-    "${__VENV_INTERNAL_FUNCTIONS[@]}"
+    ${__VENV_INTERNAL_FUNCTIONS[@]}
     "pip"
     "conda"
     "get_function_hash"
@@ -94,7 +92,8 @@ do_wrapper() {
     eval "conda() $(declare -f __venv_conda| sed '1d')"
 
     # Make the command be how the user invoked it rather than with the wrappers.
-    local user_cmd=$(echo "${cmd}" "${cmd_args}" | sed 's/__venv_//g')
+    local user_cmd
+    user_cmd=$(echo "${cmd}" "${cmd_args}" | sed 's/__venv_//g')
 
     # Check if the command ${cmd} is a file or a function/alias. If it's not a function,
     # we want to run it with the "command" builtin to bypass shell functions or aliases.
@@ -109,13 +108,16 @@ do_wrapper() {
     # --help, -h, or --dry-run.
     if [[ " ${actions_to_log[*]} " =~ ${action} ]] \
                 && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
-        local log_date=$(date '+%Y-%m-%d %H:%M:%S')
+        local log_date
+        local freeze_date
+        log_date=$(date '+%Y-%m-%d %H:%M:%S')
+        freeze_date=$(date "+%Y%m%d%H%M%S")
         local venv_log_dir="${VENVUTIL_CONFIG}/log"
         local venvutil_log="${VENVUTIL_CONFIG}/venvutil.log"
         local venv_history_log="${venv_log_dir}/${CONDA_DEFAULT_ENV}.log"
-        local freeze_date=$(date "+%Y%m%d%H%M%S")
         local freeze_dir="${VENVUTIL_CONFIG}/freeze"
         local freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${freeze_date}.txt"
+
         # Freeze the state of the environment before a potentially destructive command is executed.
         command pip freeze > "${freeze_state}"
         if eval " ${env_vars} ${cmd} ${cmd_args} "; then
