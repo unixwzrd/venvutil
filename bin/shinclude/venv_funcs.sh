@@ -64,52 +64,6 @@
 # - **Version**: [Version Number]
 #
 
-# Capture the fully qualified path of the sourced script
-[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
-# Don't source this script if it's already been sourced.
-# The RHS has to be in "" to match the array.
-# shellcheck disable=SC2076
-[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
-
-
-# Extract script name, directory, and arguments
-MY_NAME=$(basename "${THIS_SCRIPT}")
-__VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
-__VENV_BASE=$(dirname "${__VENV_BIN}")
-__VENV_ARGS=$*
-__VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
-
-if [ -f "${__VENV_INCLUDE}/util_funcs.sh" ]; then
-    # shellcheck source=./util_funcs.sh
-    . "${__VENV_INCLUDE}/util_funcs.sh"
-else
-    echo "Could not find util_funcs.sh in INCLUDEDIR: ${__VENV_INCLUDE}"
-    exit 1
-fi
-
-# shellcheck disable=SC2206
-__VENV_INTERNAL_FUNCTIONS=(
-    ${__VENV_INTERNAL_FUNCTIONS[@]}
-    "push_venv"
-    "pop_venv"
-    "__set_venv_vars"
-)
-
-# This is so we can pass a return code up through sub-shells since set values are lost in sub-shells.
-# May or may not be a good ide, but we might want to pass get the return value of our function calls,
-# and not that of the last command that ren in the function call which may me 0 for an echo command
-# when it's the last command in the function and we want the return code of the function.
-# This is something we would like where the echo statement will return a value like the last item
-# popped off the stack. So instead of a sub-shell, which will also not return a value, we can use
-# this to set the return code and exit the function passing the to return or exit.  echo would be
-# the last command in the function and we would get the return code of the function.
-#
-#__rc__ is internal and is in a our function shell includes.
-# It would be nice to come up with a fairly "automatic" way to do this.
-__rc__=0
-
-# Initialize the stack
-__VENV_STACK=()
 
 # # Function: push_venv
 # `push_venv` - Specialized push the default VENV onto the stack.
@@ -214,7 +168,7 @@ snum() {
 }
 
 # # Function: vpfx
-# `vpfx` - Return the current VENV prefix.
+# `vpfx` - Return the current VENV prefix of a sequenced set.
 #
 # ## Description
 # - **Purpose**: 
@@ -229,13 +183,10 @@ snum() {
 #   - None
 #
 vpfx() {
-    if [ -z "${__VENV_PREFIX}" ]; then
-        echo "Error: No VENV prefix has been set." >&2
-        __rc__=1
-        return ${__rc__}
+    local env_name="$CONDA_DEFAULT_ENV"
+    if [[ "$env_name" =~ ^([^.]*)\.([0-9]+)\.(.*)$ ]]; then
+        echo "${BASH_REMATCH[1]}"
     fi
-    
-    echo "${__VENV_PREFIX}"
 }
 
 # # Function: vnum
@@ -254,17 +205,13 @@ vpfx() {
 #   - None
 #
 vnum() {
-    if [ -z "${__VENV_NUM}" ]; then
-        echo "Error: No VENV sequence number has been set." >&2
-        __rc__=1
-        return ${__rc__}
+    if [[ "${__VENV_NAME}" =~ ^(.*)\.([0-9]+)\.(.*)$ ]]; then
+        echo "${BASH_REMATCH[2]}"
     fi
-    
-    echo "${__VENV_NUM}"
 }
 
 # # Function: vdsc
-# `vdsc` - Return the current VENV description.
+# `vdsc` - Return the current VENV description of a sequenced set.
 #
 # ## Description
 # - **Purpose**: 
@@ -279,13 +226,10 @@ vnum() {
 #   - None
 #
 vdsc() {
-    if [ -z "${__VENV_DESC}" ]; then
-        echo "Error: No VENV sequence number has been set." >&2
-        __rc__=1
-        return ${__rc__}
+    local env_name="$CONDA_DEFAULT_ENV"
+    if [[ "$env_name" =~ ^([^.]*)\.([0-9]+)\.(.*)$ ]]; then
+        echo "${BASH_REMATCH[3]}"
     fi
-    
-    echo "${__VENV_DESC}"
 }
 
 # # Function: cact
@@ -397,6 +341,7 @@ dact() {
     echo "Deactivating: ${CONDA_DEFAULT_ENV}" 1>&2
     conda deactivate
     pop_venv
+    # shellcheck disable=SC2034
     stack_value="${__sv__}"
     return "${__rc__}"
 }
@@ -737,7 +682,7 @@ renv() {
 }
 
 # # Function: clan
-# `ccln` - Clone a Conda Environment.
+# `ccln` - Clone current Virtual Environment
 #
 # ## Description
 # - **Purpose**: 
@@ -855,3 +800,51 @@ venvdiff() {
     echo "Comparing packages in $env1 and $env2:"
     diff -y <(echo "$env1_packages") <(echo "$env2_packages")
 }
+
+## Initialization
+__VENV_SOURCED_LIST=${__VENV_SOURCED_LIST:-""}
+# Capture the fully qualified path of the sourced script
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Don't source this script if it's already been sourced.
+# The RHS has to be in "" to match the array.
+# shellcheck disable=SC2076
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+
+
+# Extract script name, directory, and arguments
+__VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
+__VENV_BASE=$(dirname "${__VENV_BIN}")
+__VENV_ARGS=$*
+__VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
+
+# Ensure util_funcs.sh is sourced for utility functions
+if declare -f "source_util_script" >/dev/null 2>&1; then
+    source_util_script "util_funcs"
+    log_message "INFO" "Sourced util_funcs.sh"
+else
+    # shellcheck source=/dev/null
+    source "${__VENV_INCLUDE}/util_funcs.sh"
+    log_message "INFO" "Sourced ${__VENV_INCLUDE}/util_funcs.sh"
+fi
+
+# shellcheck disable=SC2206
+__VENV_INTERNAL_FUNCTIONS=(
+    ${__VENV_INTERNAL_FUNCTIONS[@]}
+    "push_venv"
+    "pop_venv"
+    "__set_venv_vars"
+)
+
+# Initialize the stack
+__VENV_STACK=()
+# Stack value
+declare -g __sv__
+
+# This is so we can pass a return code up through sub-shells since set values are lost in sub-shells.
+# This to set the return code and exit the function passing the to return or exit.  echo would be
+# the last command in the function and we would get the return code of the function.
+#
+# __rc__ is internal and is in a our function shell includes.
+# It would be nice to come up with a fairly "automatic" way to do this.
+
+__rc__=0

@@ -1,6 +1,6 @@
 ## vpfx
 # Function: vpfx
-`vpfx` - Return the current VENV prefix.
+`vpfx` - Return the current VENV prefix of a sequenced set.
 ## Description
 - **Purpose**: 
   - Returns the prefix of the current virtual environment.
@@ -24,4 +24,4 @@ Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 29 at 04:28:18
+Generated on: Generated: 2024 12 30 at 05:08:22
