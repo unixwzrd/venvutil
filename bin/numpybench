@@ -47,9 +47,9 @@ parser.add_argument(
 args = parser.parse_args()
 
 # Open output file if specified
-output_file = None
+OUTPUT_FILE = None
 if args.output:
-    output_file = open(args.output, "w", encoding="utf-8")
+    OUTPUT_FILE = open(args.output, "w", encoding="utf-8")
 
 
 def print_with_timestamp(message, file=None):
@@ -76,37 +76,37 @@ def do_tests():
     - Matrix summation (np.sum)
     """
     size = 2500
-    A = np.random.rand(size, size)
-    B = np.random.rand(size, size)
+    a = np.random.rand(size, size)
+    b = np.random.rand(size, size)
 
     # Number of iterations
     iterations = args.count
 
     tests = [
-        ("Matrix multiplication", lambda: np.dot(A, B)),
-        ("Matrix transposition", lambda: np.transpose(A)),
-        ("Eigenvalue computation", lambda: np.linalg.eigvals(A)),
-        ("Fourier transformation", lambda: np.fft.fft(A)),
-        ("Summation", lambda: np.sum(A)),
+        ("Matrix multiplication", lambda: np.dot(a, b)),
+        ("Matrix transposition", lambda: np.transpose(a)),
+        ("Eigenvalue computation", lambda: np.linalg.eigvals(a)),
+        ("Fourier transformation", lambda: np.fft.fft(a)),
+        ("Summation", lambda: np.sum(a)),
     ]
 
     for name, test_func in tests:
-        print_with_timestamp(f"BEGIN TEST: {name}", file=output_file)
+        print_with_timestamp(f"BEGIN TEST: {name}", file=OUTPUT_FILE)
         start = time.time()
         for _ in range(iterations):
             test_func()
         end = time.time()
         print_with_timestamp(
-            f"Time for {name.lower()}: {(end - start):.4f} seconds", file=output_file
+            f"Time for {name.lower()}: {(end - start):.4f} seconds", file=OUTPUT_FILE
         )
-        print_with_timestamp("END TEST / BEGIN NEXT TEST", file=output_file)
+        print_with_timestamp("END TEST / BEGIN NEXT TEST", file=OUTPUT_FILE)
 
 
 def main():
     """Run the NumPy benchmark suite."""
     print_with_timestamp(
         f"Producing information for VENV ----> {os.getenv('CONDA_DEFAULT_ENV')}",
-        file=output_file,
+        file=OUTPUT_FILE,
     )
 
     # Capture np.show_config() output and print it line by line with timestamps
@@ -117,17 +117,17 @@ def main():
     sys.stdout = old_stdout
 
     for line in new_stdout.getvalue().split("\n"):
-        print_with_timestamp(line, file=output_file)
+        print_with_timestamp(line, file=OUTPUT_FILE)
 
     if args.skip_tests:
         print_with_timestamp(
-            "############### SKIPPING PERFORMANCE CHECKS", file=output_file
+            "############### SKIPPING PERFORMANCE CHECKS", file=OUTPUT_FILE
         )
     else:
         do_tests()
 
-    if output_file:
-        output_file.close()
+    if OUTPUT_FILE:
+        OUTPUT_FILE.close()
 
 
 if __name__ == "__main__":

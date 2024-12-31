@@ -11,7 +11,7 @@ d | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | functions | 755 |  |  
 d | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | scripts | 755 |  |  | 256 | 
 f |  |  | LICENSE | 644 |  |  | 11362 | fbb090d446bc51f5b8611e8c59bddf5447f155e2
 f |  |  | README.md | 644 |  |  | 16044 | d5491b1d2c3c353d096a32bf311ebfc8a03c7717
-f |  |  | manifest.lst | 644 |  |  | 17641 | dea01fd34c49bac3344b6feda1e5a89ea229fee8
+f |  |  | manifest.lst | 644 |  |  | 17641 | 6b36964b1372cf89b0e06858521afd7fe6023a64
 f |  |  | setup.cf | 644 |  |  | 799 | b61b02ff439616b7f46a85b4e3ae3078f3282073
 f |  |  | setup.sh | 755 |  |  | 20706 | e37ac02cbcf2826707c1463fbc09b5bba50c9f9d
 f | bin | bin | buildvenvs | 755 |  |  | 14995 | acd98e35e3b7052dd1e068729169855f204efd6c
@@ -21,8 +21,8 @@ f | bin | bin | filter-vm_stat | 755 |  |  | 2606 | 7eccba1613a50f1be68e3bb02632
 f | bin | bin | generate_manifest.sh | 755 |  |  | 5707 | 1f77e3ae38b7cd1a9c51951001205018175530b7
 f | bin | bin | genmd | 755 |  |  | 49545 | 8ee360e4bc7a5c8e4d35d14e1589cb0b71d8c386
 f | bin | bin | ld | 755 |  |  | 2697 | 61e28d8e54ae13b00d6c8f7e0cb4e01bc768b798
-f | bin | bin | numpy-1.26-reinst.sh | 755 |  |  | 343 | df58788f400d8d1b4571e95c2f486012469ca404
-f | bin | bin | numpybench | 755 |  |  | 3625 | 78261f0e3a8896713b01442674495c2bfbd0ac41
+f | bin | bin | numpy-1.26-reinst.sh | 755 |  |  | 343 | a1fcc77cd28f16dd6527ffa3c932a6206cdc9721
+f | bin | bin | numpybench | 755 |  |  | 3625 | dd5b984895064eb0b6f1ee7da318ac766732da1b
 f | bin | bin | numpyprof | 755 |  |  | 1579 | fe821ae6a607ff116a9ae9f9abc8483125cdfcac
 f | bin | bin | numpytime | 755 |  |  | 1423 | 14349c95f754bc9260a2bf6d4a84b1b6f1126336
 f | bin | bin | purgevenv | 755 |  |  | 905 | 5dccd04b18d676390fb85e45ff268c5ee0ce8d7d
