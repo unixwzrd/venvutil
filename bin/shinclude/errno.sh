@@ -41,6 +41,13 @@
 #
 errno() {
     local OPTIND=1
+
+    # Check if no arguments were passed
+    if [ $# -eq 0 ]; then
+        vhelp "${FUNCNAME[0]}"
+        return 0
+    fi
+
     # Parse options
     while getopts "h" opt; do
         case $opt in
@@ -49,14 +56,6 @@ errno() {
         esac
     done
     shift $((OPTIND - 1))
-
-
-    if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
-        echo "Usage: errno [errno_code|errno_number]"
-        echo "Example: errno EACCES"
-        __rc__=0
-        return ${__rc__}
-    fi
 
     if [ "$1" -eq 0 ]; then
         echo "No error"
@@ -80,7 +79,8 @@ errno() {
     local line errno_num errno_text
 
     if [[ "$errno_code" =~ ^[0-9]+$ ]]; then
-        line=$(grep -wE "#define [A-Z_]*[ \t]*\b$errno_code\b" "$errno_file")
+        # shellcheck disable=SC1087
+        line=$(grep -wE "#define [A-Z0-9_]+[[:space:]]+$errno_code[[:space:]]" "$errno_file")
         errno_code=$(echo "$line" | awk '{print $2}')
     else
         # Not using braces for that, it's a regular expression here.

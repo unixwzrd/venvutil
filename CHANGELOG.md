@@ -1,6 +1,11 @@
 # Changelog
 
-# 2024-12-29 - Shell Include Files Enhancements
+## 2024-12-30 - Fixed a bug in `errno.sh` `errno` function
+
+- Bug in `errno.sh` `errno` function number 7, E2BIG failed to parse.
+- Simplified logic and dead code when no argument passed.
+
+## 2024-12-29 - Shell Include Files Enhancements
 
 ### errno.sh
 
