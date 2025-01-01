@@ -11,7 +11,7 @@ d | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | functions | 755 |  |  
 d | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | scripts | 755 |  |  | 256 | 
 f |  |  | LICENSE | 644 |  |  | 11362 | fbb090d446bc51f5b8611e8c59bddf5447f155e2
 f |  |  | README.md | 644 |  |  | 16044 | d5491b1d2c3c353d096a32bf311ebfc8a03c7717
-f |  |  | manifest.lst | 644 |  |  | 17641 | 6b36964b1372cf89b0e06858521afd7fe6023a64
+f |  |  | manifest.lst | 644 |  |  | 17641 | 376e95af1830847605b33e93ea1c5b2881fb05bc
 f |  |  | setup.cf | 644 |  |  | 799 | b61b02ff439616b7f46a85b4e3ae3078f3282073
 f |  |  | setup.sh | 755 |  |  | 20706 | e37ac02cbcf2826707c1463fbc09b5bba50c9f9d
 f | bin | bin | buildvenvs | 755 |  |  | 14995 | acd98e35e3b7052dd1e068729169855f204efd6c
@@ -38,7 +38,7 @@ f | bin | bin | torchtime | 755 |  |  | 1389 | 54a4dcdd6ac16189f2be61f8d71ed46ab
 f | bin | bin | vinfo | 755 |  |  | 4789 | 9997bdc1649925c2ee46d15235d504d7bba64a03
 f | bin | bin | warehouse.sh | 755 |  |  | 3211 | 7ef782147dacf52bcdcf6f1cd7464a1fe8b14e11
 f | bin/shinclude | bin/shinclude | errno.sh | 755 |  |  | 12986 | 7fa15e93c3f002ad748d8cd3535050b96cf4e8ac
-f | bin/shinclude | bin/shinclude | help_sys.sh | 755 |  |  | 32836 | 0ceb80995f848d93352e73c60868f37125526096
+f | bin/shinclude | bin/shinclude | help_sys.sh | 755 |  |  | 32986 | 7b155e1447df0a1031b6873870de6d9ec9cb130c
 f | bin/shinclude | bin/shinclude | init_env.sh | 755 |  |  | 4003 | a000a59aa32cb60a5b535160a1c8361e3849fd77
 f | bin/shinclude | bin/shinclude | util_funcs.sh | 755 |  |  | 14661 | e1160453dc4a0c944ad50d4b7cbbe8ab994a4290
 f | bin/shinclude | bin/shinclude | venv_funcs.sh | 755 |  |  | 24869 | 8a34688fda45fb8289f8cf253fc54fe4b82c2363
