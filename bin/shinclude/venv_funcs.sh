@@ -457,6 +457,7 @@ lenv() {
         env_path=$(echo "$line" | awk '{print $NF}' )
         # Get creation date or N/A if path doesn't exist
         creation_date="N/A"
+        [ -z "$env_path" ] && creation_date=""
         [ -d "$env_path" ] && creation_date=$(stat -c "%y" "$env_path" | cut -d"${time_opts}" -f1)
         # Remove $HOME from the path
         env_path=${env_path/$HOME/\~}
