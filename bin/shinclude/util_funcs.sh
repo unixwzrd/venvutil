@@ -20,18 +20,7 @@
 # ## Dependencies
 # - None explicitly stated. The script is designed to be self-contained, relying only on standard Bash features.
 
-# Capture the fully qualified path of the sourced script
-[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
-# Don't source this script if it's already been sourced.
-# The RHS has to be in "" to match the array.
-# shellcheck disable=SC2076
-[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
-echo "Sourcing: ${THIS_SCRIPT}"
 
-# shellcheck disable=SC2206
-__VENV_INTERNAL_FUNCTIONS=(
-    ${__VENV_INTERNAL_FUNCTIONS[@]}
-)
 
 # Utility functions
 
@@ -477,3 +466,17 @@ var_type() {
             ;;
     esac
 }
+
+
+# Capture the fully qualified path of the sourced script
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Don't source this script if it's already been sourced.
+# The RHS has to be in "" to match the array.
+# shellcheck disable=SC2076
+[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+echo "Sourcing: ${THIS_SCRIPT}"
+
+# shellcheck disable=SC2206
+__VENV_INTERNAL_FUNCTIONS=(
+    ${__VENV_INTERNAL_FUNCTIONS[@]}
+)

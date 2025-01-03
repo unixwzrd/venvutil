@@ -134,25 +134,47 @@ All short options have corresponding long options with double dashes (`--`):
 
 ## Examples
 
+1. **Find all the `.sh` files in the current directory, excluding `tmp conf functions`**
+
+    ```bash
+    (python-3.10-dev) [unixwzrd@xanax: dev]$ filetree -i .sh -e tmp conf functions
+    filetree WARNING(30): Configuration file not found: .exclusions.cfg
+    Root Directory
+    ├── bin/
+    │   ├── generate_manifest.sh
+    │   ├── numpy-1.26-reinst.sh
+    │   ├── shinclude/
+    │   │   ├── errno.sh
+    │   │   ├── help_sys.sh
+    │   │   ├── init_env.sh
+    │   │   ├── util_funcs.sh
+    │   │   ├── venv_funcs.sh
+    │   │   └── wrapper_funcs.sh
+    │   └── warehouse.sh
+    ├── modules/
+    │   └── conda-install.sh
+    └── setup.sh
+    ```
+
 1. **Exclude Specific Directories and Files:**
 
     ```bash
     filetree -e "node_modules|dist" "*.log *.tmp"
     ```
 
-2. **Include Only Python and JavaScript Files:**
+1. **Include Only Python and JavaScript Files:**
 
     ```bash
     filetree -i "*.py *.js"
     ```
 
-3. **Combine Exclusions and Inclusions:**
+1. **Combine Exclusions and Inclusions:**
 
     ```bash
     filetree -e "node_modules|dist" "*.log *.tmp" -i "*.py *.js"
     ```
 
-4. **Using Environment Variables for Defaults:**
+1. **Using Environment Variables for Defaults:**
 
     ```bash
     export GENMD_DIR_EXCLUDES="node_modules dist"
@@ -161,7 +183,7 @@ All short options have corresponding long options with double dashes (`--`):
     filetree
     ```
 
-5. **Display Help Message:**
+1. **Display Help Message:**
 
     ```bash
     filetree -h

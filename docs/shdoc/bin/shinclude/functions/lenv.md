@@ -16,11 +16,12 @@
       - `-h`   Show this help message
 - **Output**: 
   - A list of all existing conda virtual environments with their last modification date.
+  - The active environment is marked with an asterisk.
   ```bash
-  2024-11-30    pa1                                 ~/miniconda3/envs/pa1
-  2024-11-30    pa1..base-3-10                      ~/miniconda3/envs/pa1..base-3-10
-  2024-11-30    seq311.00.case-analytics            ~/miniconda3/envs/seq311.00.case-analytics
-  2024-12-05    pa1.00.case-analytics               ~/miniconda3/envs/pa1.00.case-analytics
+  2024-11-30    pa1                                  ~/miniconda3/envs/pa1
+  2024-11-30    pa1..base-3-10                     * ~/miniconda3/envs/pa1..base-3-10
+  2024-11-30    seq311.00.case-analytics             ~/miniconda3/envs/seq311.00.case-analytics
+  2024-12-05    pa1.00.case-analytics                ~/miniconda3/envs/pa1.00.case-analytics
   ```
 - **Exceptions**: 
   - If no environments are available, the output from `conda info -e` will indicate this.
@@ -36,4 +37,4 @@ Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2024 12 30 at 05:08:22
+Generated on: Generated: 2025 01 03 at 02:39:55
