@@ -1,5 +1,33 @@
 # Changelog
 
+## 2024-12-30 - Help System and Documentation Enhancements
+
+### Help System Improvements
+
+- Fixed directory handling in `process_scripts` function
+- Improved variable naming for better code clarity
+- Enhanced error handling for directory operations
+- Updated documentation generation process
+
+### Documentation Updates
+
+- Comprehensive update of function documentation in `docs/shdoc`
+- Enhanced markdown generation for all shell functions
+- Improved cross-referencing between documentation files
+- Updated core functionality documentation
+
+### Shell Function Enhancements
+
+- Enhanced error handling and logging in utility functions
+- Improved virtual environment management functions
+- Updated documentation generation system
+
+### General Improvements
+
+- Added new requirements.txt file
+- Updated manifest.lst with latest changes
+- Enhanced overall documentation structure
+
 ## 2024-12-30 - Fixed a bug in `errno.sh` `errno` function
 
 - Bug in `errno.sh` `errno` function number 7, E2BIG failed to parse.

@@ -405,11 +405,12 @@ pact() {
 #       - `-h`   Show this help message
 # - **Output**: 
 #   - A list of all existing conda virtual environments with their last modification date.
+#   - The active environment is marked with an asterisk.
 #   ```bash
-#   2024-11-30    pa1                                 ~/miniconda3/envs/pa1
-#   2024-11-30    pa1..base-3-10                      ~/miniconda3/envs/pa1..base-3-10
-#   2024-11-30    seq311.00.case-analytics            ~/miniconda3/envs/seq311.00.case-analytics
-#   2024-12-05    pa1.00.case-analytics               ~/miniconda3/envs/pa1.00.case-analytics
+#   2024-11-30    pa1                                  ~/miniconda3/envs/pa1
+#   2024-11-30    pa1..base-3-10                     * ~/miniconda3/envs/pa1..base-3-10
+#   2024-11-30    seq311.00.case-analytics             ~/miniconda3/envs/seq311.00.case-analytics
+#   2024-12-05    pa1.00.case-analytics                ~/miniconda3/envs/pa1.00.case-analytics
 #   ```
 # - **Exceptions**: 
 #   - If no environments are available, the output from `conda info -e` will indicate this.
@@ -818,13 +819,13 @@ __VENV_ARGS=$*
 __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
 # Ensure util_funcs.sh is sourced for utility functions
-if declare -f "source_util_script" >/dev/null 2>&1; then
-    source_util_script "util_funcs"
-    log_message "INFO" "Sourced util_funcs.sh"
+if declare -f "errno" >/dev/null 2>&1; then
+    source_util_script "errno"
+    log_message "INFO" "Sourced errno.sh"
 else
     # shellcheck source=/dev/null
-    source "${__VENV_INCLUDE}/util_funcs.sh"
-    log_message "INFO" "Sourced ${__VENV_INCLUDE}/util_funcs.sh"
+    source "${__VENV_INCLUDE}/errno.sh"
+    log_message "INFO" "Sourced ${__VENV_INCLUDE}/errno.sh"
 fi
 
 # shellcheck disable=SC2206

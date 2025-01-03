@@ -1,20 +1,9 @@
 # Documentation Generation
 
-Ok, we have a lot of problems,
-
-- that change did not fix parsing which is now very broken.
-- the directories written to should be:
-  - BASE_DIR/docs/shdoc/bin
-     Contains the head/top markdown documentation for each script in the bin directory. 
-  - BASE_DIR/docs/shdoc/bin/[scriptname]
-     Contains the function markdown documentation for the functions in that script.
-  - BASE_DIR/docs/shdoc/bin/shinclude/
-     Contains the head/top markdown documentation foe the scripts in the  bin/shinclude directory
-  - BASE_DIR/docs/shdoc/bin/shinclude/[scriptname]
-     Contains the function documentation for the functions in the script.
-
 Script documentation begins at the first `#` after the `#!` until the first blank line or non-comment `#` line.
+
 - example
+
 ```bash
 #1/usr/bin/env bash
 # Script: help_sys.sh
@@ -31,7 +20,9 @@ Script documentation begins at the first `#` after the `#!` until the first blan
 ```
 
 Function documentation is from the end of the previous function to the continuous lines preceded by `#`  up to the function definition.
+
 - example
+
 ```bash
    esac
    echo "$(zero_pad ${sn})"
@@ -55,6 +46,6 @@ Function documentation is from the end of the previous function to the continuou
 sort_2d_array() {
 ```
 
-We need to strip off the leading `# ` and then the remaining portion of the line should be in markdown format.
+We need to strip off the leading `#` and then the remaining portion of the line should be in markdown format.
 
 There is one markdown file per script and one markdown file per function organized in the directory structure as above.

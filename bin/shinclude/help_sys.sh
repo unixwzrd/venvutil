@@ -99,7 +99,7 @@ declare -g longest_function_name=0
 #   - None
 #
 process_scripts() {
-    local dir_name=${PWD}
+    local current_dir=${PWD}
     cd "${__VENV_BASE}" || errno_exit ENOENT
     local dir_name="$1"
     local script_dir="${dir_name}"
@@ -143,7 +143,7 @@ process_scripts() {
     readarray -t sorted_function_names < <(printf "%s\n" "${sorted_function_names[@]}" | sort)
     
     # shellcheck disable=SC2164
-    cd "${dir_name}" > /dev/null 2>&1
+    cd "${current_dir}" > /dev/null 2>&1
 }
 
 # # Function: init_help_system
@@ -164,7 +164,7 @@ process_scripts() {
 #   - None
 #
 init_help_system() {
-    local dir_name=${PWD}
+    local current_dir=${PWD}
     cd "${__VENV_BASE}" || errno_exit ENOENT
 
     [ -n "${__VENV_FUNCTIONS[*]}" ] && return
@@ -178,7 +178,7 @@ init_help_system() {
     readarray -t sorted_script_names < <(printf "%s\n" "${!__VENV_SCRIPTS[@]}" | sort)
     
     # shellcheck disable=SC2164
-    cd "${dir_name}" > /dev/null 2>&1
+    cd "${current_dir}" > /dev/null 2>&1
 }
 
 
@@ -591,7 +591,7 @@ write_page_footer() {
 #   - None
 #
 generate_markdown() {
-    local dir_name=${PWD}
+    local current_dir=${PWD}
     cd "${__VENV_BASE}"  || errno_exit ENOENT
 
     local conf_file="conf/help_sys.conf"
@@ -746,7 +746,7 @@ generate_markdown() {
     # Now find and delete old markdown files
     find "${shdoc_base}" -type f -name '*.md' ! -newer "${completed_timestamp}" -exec rm {} \;
     printf "\n"
-    cd "${dir_name}" > /dev/null 2>&1
+    cd "${current_dir}" > /dev/null 2>&1
 }
 
 # # Function: general_help
