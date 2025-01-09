@@ -1,5 +1,32 @@
 # Changelog
 
+## 2025-01-09 - Script Sourcing and Directory Handling Improvements
+
+### Shell Include Files Enhancements
+
+- Implemented consistent script sourcing tracking across all function include scripts
+- Fixed bug in script sourcing prevention mechanism
+- Improved directory creation handling
+- Streamlined directory operations with optimized `mkdir -p` usage
+
+### Core Script Updates
+
+- `init_env.sh`: Enhanced script sourcing control with improved tracking
+- `help_sys.sh`: Improved directory handling and path management
+- `errno.sh`: Cleaned up code organization and removed redundant sections
+- `util_funcs.sh`: Enhanced directory operations and error handling
+- `venv_funcs.sh`: Updated script sourcing mechanism for better reliability
+- `wrapper_funcs.sh`: Improved function loading control and consistency
+- `buildvenvs`: Updated directory handling for better efficiency (experimental)
+- `modules/conda-install.sh`: Enhanced installation process and error handling (experimental)
+
+### Technical Improvements
+
+- Removed redundant directory existence checks before mkdir operations
+- Standardized script sourcing prevention across all include files
+- Enhanced error handling for directory operations
+- Improved code organization and cleanup
+
 ## 2024-12-30 - Help System and Documentation Enhancements
 
 ### Help System Improvements
@@ -357,5 +384,3 @@ This collection includes build scripts, benchmarking tools, and regression testi
 If you find any of my work here helpful, please reach out. I would like to have a dialog with anyone else interested.
 
 Watch this spot, more to come, and you can always [buy me a coffee.](https://www.buymeacoffee.com/venvutil)
-
-#

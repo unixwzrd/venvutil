@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# Exit on error
+set -e
+
+echo "Running pre-commit hooks..."
+
+# Run vhelp generate_markdown
+echo "Generating markdown documentation..."
+vhelp generate_markdown
+
+# Run generate_manifest
+echo "Generating manifest..."
+./bin/generate_manifest
+
+# Add the generated files to the commit
+git add docs/shdoc/**/*.md
+git add manifest.lst
+
+echo "Pre-commit hooks completed successfully" 

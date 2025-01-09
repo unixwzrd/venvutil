@@ -1,10 +1,10 @@
-    #!/bin/sh
+#!/usr/bin/env bash
 
 
 # Conda install
 __CONDA() {
     cd ${__BUILD_DIR}
-    [ -e ./tmp ] || mkdir tmp
+    mkdir tmp
     cd tmp
     curl  https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o miniconda.sh
     # Do a non-destructive Conda install whcih will preserve existing VENV's

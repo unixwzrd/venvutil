@@ -804,13 +804,19 @@ venvdiff() {
 }
 
 ## Initialization
-__VENV_SOURCED_LIST=${__VENV_SOURCED_LIST:-""}
-# Capture the fully qualified path of the sourced script
+# Determine the real path of the script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Declare the global associative array if not already declared
+if [[ -z "${__VENV_SOURCED+x}" ]]; then
+    declare -Ag __VENV_SOURCED
+fi
 # Don't source this script if it's already been sourced.
-# The RHS has to be in "" to match the array.
-# shellcheck disable=SC2076
-[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+if [[ -n "${__VENV_SOURCED["${THIS_SCRIPT}"]}" ]]; then
+    echo "Skipping already sourced script: ${THIS_SCRIPT}"
+    return 0
+fi
+__VENV_SOURCED["${THIS_SCRIPT}"]=1
+echo "Sourcing: ${THIS_SCRIPT}"
 
 
 # Extract script name, directory, and arguments

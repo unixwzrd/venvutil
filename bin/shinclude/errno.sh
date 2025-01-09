@@ -226,8 +226,6 @@ errno_exit() {
     exit "${__rc__}"
 }
 
-
-
 # # Function: errval
 # `errval` - Returns the numeric value associated with a log level.
 #
@@ -328,14 +326,18 @@ log_message() {
 }
 
 ## Initialization
-__VENV_SOURCED_LIST=${__VENV_SOURCED_LIST:-""}
 # Determine the real path of the script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
-# Remove quotes from right-hand side of =~ to match as a regex rather than literally. shellcheck SC2076
-# Don't source this script if it's already been sourced. The SC message is intentional the list is treated like
-# string to search for the string in the list/array.
-# shellcheck disable=SC2076
-[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+# Declare the global associative array if not already declared
+if [[ -z "${__VENV_SOURCED+x}" ]]; then
+    declare -Ag __VENV_SOURCED
+fi
+# Don't source this script if it's already been sourced.
+if [[ -n "${__VENV_SOURCED["${THIS_SCRIPT}"]}" ]]; then
+    echo "Skipping already sourced script: ${THIS_SCRIPT}"
+    return 0
+fi
+__VENV_SOURCED["${THIS_SCRIPT}"]=1
 echo "Sourcing: ${THIS_SCRIPT}"
 
 # Extract script name, directory, and arguments

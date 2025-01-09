@@ -22,11 +22,19 @@
 # - **Environment**:
 #   - **MD_PROCESSOR**: Set to the markdown processor of your choice. If `glow` is in your path, it will use that.
 
+## Initialization
 # Determine the real path of the script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Declare the global associative array if not already declared
+if [[ -z "${__VENV_SOURCED+x}" ]]; then
+    declare -Ag __VENV_SOURCED
+fi
 # Don't source this script if it's already been sourced.
-# shellcheck disable=SC2076
-[[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
+if [[ -n "${__VENV_SOURCED["${THIS_SCRIPT}"]}" ]]; then
+    echo "Skipping already sourced script: ${THIS_SCRIPT}"
+    return 0
+fi
+__VENV_SOURCED["${THIS_SCRIPT}"]=1
 echo "Sourcing: ${THIS_SCRIPT}"
 
 # Extract script name, directory, and arguments
@@ -156,7 +164,7 @@ process_scripts() {
 # - **Scope**:
 #   - Global. Modifies the global array `__VENV_FUNCTIONS`.
 # - **Input Parameters**: 
-#   - None. Internally iterates over the scripts listed in the `__VENV_SOURCED_LIST` array.
+#   - None.
 # - **Output**: 
 #   - Populates `__VENV_FUNCTIONS` with function names and their corresponding documentation.
 #   - Sorts `__VENV_FUNCTIONS` based on function names.
@@ -597,7 +605,7 @@ generate_markdown() {
     local conf_file="conf/help_sys.conf"
     local shdoc_base
     shdoc_base="$(docs_base_path)"
-    [ -d "${shdoc_base}" ] || mkdir -p "${shdoc_base}"
+    mkdir -p "${shdoc_base}"
 
     local in_progress_timestamp="${shdoc_base}/.in-progress"
     local completed_timestamp="${shdoc_base}/AUTO_GENERATED_DO_NOT_MODIFY_OR_PLACE_FILES_HERE"
@@ -615,8 +623,7 @@ generate_markdown() {
         local scripts_docs_dir="${shdoc_base}/${script_dir}"
         local script_docs_path="${scripts_docs_dir}/scripts"
         local function_docs_path="${scripts_docs_dir}/functions"
-        [ -d "${function_docs_path}" ] || mkdir -p "${function_docs_path}"
-        [ -d "${script_docs_path}" ] || mkdir -p "${script_docs_path}"
+        mkdir -p "${function_docs_path}" "${script_docs_path}"
         local script_files
         readarray -t script_files < <(file "${script_dir}"/* | grep "shell script" | cut -d":" -f1)
 
@@ -746,6 +753,8 @@ generate_markdown() {
     # Now find and delete old markdown files
     find "${shdoc_base}" -type f -name '*.md' ! -newer "${completed_timestamp}" -exec rm {} \;
     printf "\n"
+    # disable this check because it is going to return anyway.
+    # shellcheck disable=SC2164
     cd "${current_dir}" > /dev/null 2>&1
 }
 
