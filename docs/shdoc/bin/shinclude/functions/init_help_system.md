@@ -9,7 +9,7 @@
 - **Scope**:
   - Global. Modifies the global array `__VENV_FUNCTIONS`.
 - **Input Parameters**: 
-  - None. Internally iterates over the scripts listed in the `__VENV_SOURCED_LIST` array.
+  - None.
 - **Output**: 
   - Populates `__VENV_FUNCTIONS` with function names and their corresponding documentation.
   - Sorts `__VENV_FUNCTIONS` based on function names.
@@ -27,4 +27,4 @@ Copyright (c) 2024 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2025 01 03 at 02:39:54
+Generated on: Generated: 2025 01 09 at 10:30:15
