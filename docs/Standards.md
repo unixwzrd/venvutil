@@ -29,7 +29,7 @@ A template for [Script Documentation Style](/doc/Script_Doc_Templ.md) is found h
     MY_INCLUDE="${MY_BIN}/shinclude"
 
     # Define an array of internal functions to exclude from help and documentation
-    __VENV_INTERNAL_FUNCTIONS=("init_help_system" "functions to esclude from help documentation" )
+    __VENV_INTERNAL_FUNCTIONS=("init_help_system" "functions to exclude from help documentation" )
     ```
 
 ### Function-Level Documentation
