@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# venvutil_setup.sh - Setup and configure venvutil.
+# setup.sh - Setup and configure venvutil.
 #
 # This script installs and configures the venvutil tools and utilities.
 # It supports installation and removal operations, although the removal and rollback functionality
@@ -55,31 +55,6 @@
 # License:
 #     Apache License, Version 2.0
 #
-
-[ "${DEBUG_SETUP:-""}" = "ON" ] && set -x
-set -euo pipefail
-
-# Initialize script variables
-THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}")
-MY_NAME="$(basename "${THIS_SCRIPT}")"
-MY_PATH="$(dirname "${THIS_SCRIPT}")"
-
-[[ "${BASH_VERSINFO[0]}" -lt 4 ]] \
-    && echo "($MY_NAME) ERROR: This script requires Bash version 4 or higher." >&2 \
-    && exit 75 
-
-# Default values
-PKG_NAME="DEFAULT"
-PKG_VERSION=""
-INSTALL_BASE=""
-INSTALL_CONFIG="$HOME/.${PKG_NAME}"
-INSTALL_MANIFEST="manifest.lst"
-ACTION=""
-VERBOSE=false
-
-declare -g -A pkg_config_values=()
-declare -g -a pkg_config_set_vars=()
-declare -g -a pkg_config_desc_vars=()
 
 # Logging function
 log_message() {
@@ -150,7 +125,7 @@ parse_arguments() {
     return 0
 }
 
-# Initialization
+# Installation Initialization
 initialization() {
 
     load_pkg_config
@@ -170,89 +145,10 @@ initialization() {
     log_message "INFO" "Configuring $PKG_NAME for initialization..."
 
     # Parse manifest metadata
-    parse_manifest_metadata
+    parse_manifest_metadata "${INSTALL_MANIFEST}"
 
     return 0
 
-}
-
-expand_variables() {
-    local input="$1"
-
-    # Validate the input: Allow variable references and valid values
-    if [[ ! "$input" =~ ^[A-Za-z0-9_\$\{\}]+([[:space:]]*[-+*/]?[[:space:]]*[A-Za-z0-9_\$\{\}]+)*$ ]]; then
-        return 1
-    fi
-
-    # Sanitize the input by escaping special characters if necessary
-    # For example, you might want to escape quotes or backslashes
-    sanitized_input=$(echo "$input" | sed 's/[&;|<>]/\\&/g')
-
-    # Use eval to expand variables safely, handling both ${var} and $var notation
-    eval "echo \"$sanitized_input\""
-}
-
-# Load package configuration from .cf file
-load_pkg_config() {
-    local config_file="$MY_PATH/setup.cf"
-    if [ ! -f "$config_file" ]; then
-        echo "ERROR: Configuration file $config_file not found." >&2
-        exit 2
-    fi
-
-    local key=""
-    local value=""
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        # Trim leading and trailing whitespace
-        line="$(sed 's/^[[:space:]]*//; s/[[:space:]]*$//' <<< "$line")"
-
-        # Skip comments and blank lines
-        [[ -z "$line" ]] && continue
-        [[ "$line" =~ ^# ]] && continue
-
-        # Check for Key=Value pattern
-        if [[ "$line" =~ ^([A-Za-z_]+)=(.*)$ ]]; then
-            key="${BASH_REMATCH[1]}"
-            if ! value=$(expand_variables "${BASH_REMATCH[2]}"); then
-                echo "($MY_NAME) WARNING: Invalid variable assignment: '$line' - skipping." >&2
-                continue
-            fi
-            # Set shell variable
-            declare -g "$key"="$value"
-            # Append or initialize array entry
-            if [[ -z "${pkg_config_values[$key]:-}" ]]; then
-                pkg_config_values[$key]="$value"
-                pkg_config_set_vars+=("$key")
-            else
-                pkg_config_values[$key]+=$'\n'"$value"
-            fi
-            continue
-        fi
-
-        # Check for Key: Value pattern
-        if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
-            key="${BASH_REMATCH[1]}"
-            value="${BASH_REMATCH[2]}"
-            # Set shell variable
-            declare -g "$key"="$value"
-            # Append or initialize array entry
-            if [[ -z "${pkg_config_values[$key]:-}" ]]; then
-                pkg_config_values[$key]="$value"
-                pkg_config_desc_vars+=("$key")
-            else
-                pkg_config_values[$key]+=$'\n'"$value"
-            fi
-            continue
-        fi
-
-        # If a line doesn't match either pattern, assume it’s an additional value for the last key
-        # If no previous key is known, just ignore.
-        if [[ -n "$key" ]]; then
-            # Treat as another line for the current key
-            declare -g "$key"="${!key:-}\n${line}"
-            pkg_config_values[$key]+=$'\n'"$line"
-        fi
-    done < "$config_file"
 }
 
 # Create package configuration directory
@@ -266,23 +162,6 @@ create_pkg_config_dir() {
     return 0
 }
 
-# Parse manifest metadata
-parse_manifest_metadata() {
-    if [ ! -f "$INSTALL_MANIFEST" ]; then
-        echo "ERROR: Manifest file $INSTALL_MANIFEST not found." >&2
-        exit 2
-    fi
-    echo "Parsing manifest metadata..." >&2
-    local manifest_file="$INSTALL_MANIFEST"
-    while IFS='| ' read -r line || [[ -n "$line" ]]; do
-        [[ "$line" =~ ^#.*$ ]] && continue    # Skip comments
-        [[ -z "$line" ]] && break             # Stop at first blank line (end of metadata)
-        if [[ "$line" =~ ^[A-Za-z_]+=.*$ ]]; then
-            eval "$line"
-        fi
-    done < "$manifest_file"
-    return 0
-}
 
 install_conda() {
     log_message "INFO" "Installing conda..."
@@ -660,5 +539,57 @@ main() {
             ;;
     esac
 }
+
+## Initialization
+[ "${DEBUG_SETUP:-""}" = "ON" ] && set -x
+set -euo pipefail
+
+[[ "${BASH_VERSINFO[0]}" -lt 4 ]] \
+    && echo "($MY_NAME) ERROR: This script requires Bash version 4 or higher." >&2 \
+    && exit 75 
+
+# Determine the real path of the script
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Extract script name, directory, and arguments
+# MY_NAME appears unused. Verify use (or export if used externally).
+# shellcheck disable=SC2034
+MY_NAME=$(basename "${THIS_SCRIPT}")
+__SETUP_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
+__SETUP_BASE=$(dirname "${__SETUP_BIN}")
+__SETUP_INCLUDE="${__SETUP_BASE}/bin/shinclude"
+
+# Default values
+PKG_NAME="DEFAULT"
+PKG_VERSION=""
+INSTALL_BASE=""
+INSTALL_CONFIG="$HOME/.${PKG_NAME}"
+INSTALL_MANIFEST="manifest.lst"
+ACTION=""
+VERBOSE=false
+
+declare -g -A pkg_config_values=()
+declare -g -a pkg_config_set_vars=()
+declare -g -a pkg_config_desc_vars=()
+
+SH_LIB="${SH_LIB:-""}"
+for try in "${SH_LIB}" "$(dirname "${THIS_SCRIPT}")/shinclude" "${__SETUP_INCLUDE}" "${HOME}/bin/shinclude"; do
+    [ -f "${try}/packaging.sh" ] && { SH_LIB="${try}"; break; }
+done
+[ -z "${SH_LIB}" ] && {
+    cat<<_EOT_ >&2
+ERROR ($MY_NAME): Could not locate \`packaging.sh\` file.
+ERROR ($MY_NAME): Please set install packaging.sh which came with this repository in one of
+    the following locations:
+        - $(dirname "${THIS_SCRIPT}")/shinclude
+        - $HOME/shinclude
+        - $HOME/bin/shinclude
+    or set the environment variable SH_LIB to the directory containing packaging.sh
+
+_EOT_
+    exit 2     # (ENOENT: 2): No such file or directory
+}
+echo "INFO ($MY_NAME): Using SH_LIB directory - ${SH_LIB}" >&2
+# shellcheck source=/dev/null
+source "${SH_LIB}/packaging.sh"
 
 main "$@"

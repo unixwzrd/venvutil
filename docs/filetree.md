@@ -146,7 +146,7 @@ All short options have corresponding long options with double dashes (`--`):
     │   ├── shinclude/
     │   │   ├── errno.sh
     │   │   ├── help_sys.sh
-    │   │   ├── init_env.sh
+    │   │   ├── init_lib.sh
     │   │   ├── util_funcs.sh
     │   │   ├── venv_funcs.sh
     │   │   └── wrapper_funcs.sh

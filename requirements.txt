@@ -2,3 +2,8 @@
 rich
 nltk
 tiktoken
+mistune
+numpy==1.26.*
+torch
+ftfy
+mistune

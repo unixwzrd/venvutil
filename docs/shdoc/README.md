@@ -6,12 +6,15 @@
 
 | Script | Description |
 |:--|:--|
-| [errno.sh](bin/shinclude/errno_sh.md) | Provides POSIX errno codes and utilities for Bash scripts |
-| [help_sys.sh](bin/shinclude/help_sys_sh.md) | Help System Functions for Bash Scripts |
-| [init_env.sh](bin/shinclude/init_env_sh.md) | Initialize Environment and Source Utility Scripts |
-| [util_funcs.sh](bin/shinclude/util_funcs_sh.md) | Utility Functions for Bash Scripts |
-| [venv_funcs.sh](bin/shinclude/venv_funcs_sh.md) | Virtual Environment Management Functions for Bash Scripts |
-| [wrapper_funcs.sh](bin/shinclude/wrapper_funcs_sh.md) | Python Package Manager Wrapper Functions |
+| [config_lib.sh](bin/shinclude/config_lib_sh.md) | Support functions for manifest and setup packaging. |
+| [errno_lib.sh](bin/shinclude/errno_lib_sh.md) | Provides POSIX errno codes and utilities for Bash scripts |
+| [init_lib.sh](bin/shinclude/init_lib_sh.md) | Initialize Environment and Source Utility Scripts |
+| [string_lib.sh](bin/shinclude/string_lib_sh.md) | Consolidated string sanitization & variable expansion library |
+| [type_lib.sh](bin/shinclude/type_lib_sh.md) | Support functions for variable type handling. |
+| [util_lib.sh](bin/shinclude/util_lib_sh.md) | Utility Functions for Bash Scripts |
+| [venv_lib.sh](bin/shinclude/venv_lib_sh.md) | Virtual Environment Management Functions for Bash Scripts |
+| [venvutil_lib.sh](bin/shinclude/venvutil_lib_sh.md) | Sources all the scripts for the venv utilities. |
+| [wrapper_lib.sh](bin/shinclude/wrapper_lib_sh.md) | Python Package Manager Wrapper Functions |
 
 ---
 
@@ -19,8 +22,8 @@
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
 Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
-Copyright (c) 2024 Michael Sullivan
+Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2025 01 09 at 10:43:59
+Generated on: 2025-02-06 at 19:22:37

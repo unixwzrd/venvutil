@@ -1,5 +1,94 @@
 # Changelog
 
+## 2025-02-06 - Major Release: Library Reorganization and New Tools
+
+### Core Library Reorganization
+- Renamed all shell library files to use `_lib.sh` suffix for better organization
+- Added new core libraries and new functionality:
+  - `config_lib.sh`: Configuration management functions
+  - `type_lib.sh`: Type checking and validation
+  - `string_lib.sh`: String manipulation utilities
+  - `errno_lib.sh`: Enhanced error handling
+  - `helpsys_lib.sh`: Improved help system
+  - `init_lib.sh`: Initialization routines
+  - `venvutil_lib.sh`: Virtual environment utilities
+  - `wrapper_lib.sh`: Command wrapping functions
+
+### Virtual Environment Enhancements
+- Enhanced `lenv` function with new capabilities:
+  - Added column headers for better readability
+  - Added Python version display for each environment
+  - Improved sorting by time or name (forward/reverse)
+  - Enhanced long format time display with date and time
+  - Added environment status indicators
+- Improved `ccln` (clone) function:
+  - Added support for cloning without sequence number
+  - Enhanced error handling during clone operations
+  - Added automatic environment activation after cloning
+- Added virtual environment renaming capability:
+  - New `renv` function for renaming environments
+  - Preserves all packages and configurations
+  - Handles both sequenced and non-sequenced environments
+  - Updates environment references in configuration
+  - Maintains environment history and logs
+- Added new environment management features:
+  - Better environment variable handling
+  - Improved error recovery mechanisms
+  - Enhanced logging for all venv operations
+
+### New Tools and Utilities
+- Added performance testing tools:
+  - `torch_torture.py`: PyTorch stress testing
+  - `numpy_torture.py`: NumPy stress testing
+  - `numpy-comp` and `numpy-comp.sh`: NumPy compilation tools
+  - `compare_test`: General performance comparison framework
+- Added chat management utilities:
+  - `extract-chat` and `extract_chat.py`: Chat extraction tools
+  - `rename-chat` and `rename-chat.py`: Chat renaming utilities
+
+### Core System Improvements
+- Enhanced `setup.sh` with improved Conda integration and error handling
+- Updated `setup.cf` with new configuration options
+- Modified core utilities for better performance:
+  - `purgevenv`: Enhanced cleanup operations
+  - `genmd`: Better documentation generation
+- Enhanced `requirements.txt` with latest dependencies
+
+### Documentation Enhancements
+- Added new documentation:
+  - `Metrics_Layout.md`: Performance metrics documentation
+- Updated existing documentation:
+  - `Standards.md`: Updated coding standards
+  - `filetree.md`: New file structure documentation
+  - `installer-manifest.md`: Updated installation guide
+- Comprehensive updates to function documentation in `docs/shdoc/`
+
+### Technical Improvements
+- Enhanced error handling across all utilities:
+  - Better POSIX errno code handling
+  - Improved error message formatting
+  - Enhanced error context for debugging
+- Improved virtual environment management:
+  - Better state tracking
+  - Enhanced environment switching
+  - Improved environment cleanup
+- Better type checking and validation:
+  - Added robust type checking functions
+  - Enhanced input validation
+  - Improved error reporting
+- Enhanced string manipulation functions:
+  - Added new string cleaning utilities
+  - Improved pattern matching
+  - Better text formatting
+- Improved configuration management:
+  - Enhanced config file handling
+  - Better default value management
+  - Improved configuration validation
+- Better help system organization:
+  - Enhanced function documentation
+  - Improved command-line help
+  - Better cross-referencing
+
 ## 2025-01-09 - Script Sourcing and Directory Handling Improvements
 
 ### Shell Include Files Enhancements

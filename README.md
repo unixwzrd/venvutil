@@ -14,7 +14,8 @@
     - [Tools Overview](#tools-overview)
     - [Shell Functions](#shell-functions)
   - [Conda and Pip Logging](#conda-and-pip-logging)
-  - [~~C++, G++, and~~ LD Pass-Through](#c-g-and-ld-pass-through)
+  - [LD Pass-Through](#ld-pass-through)
+    - [Recipe for building NumPy with Accelerate Framework optimizations on Apple Silicon](#recipe-for-building-numpy-with-accelerate-framework-optimizations-on-apple-silicon)
     - [Purpose](#purpose)
     - [Explanation](#explanation)
   - [NLTK and Token Count](#nltk-and-token-count)
@@ -23,9 +24,14 @@
   - [Support My Work](#support-my-work)
   - [License](#license)
   - [Future Improvements](#future-improvements)
+    - [High Priority](#high-priority)
+    - [Performance and Security](#performance-and-security)
+    - [Tools and Integration](#tools-and-integration)
   - [Recent Improvements](#recent-improvements)
-    - [Setup Script Enhancements](#setup-script-enhancements-1)
-    - [Shell Function Improvements](#shell-function-improvements)
+    - [Core Functionality](#core-functionality)
+    - [Library Organization](#library-organization)
+    - [Performance Tools](#performance-tools)
+    - [Documentation](#documentation)
 
 ## Project Overview
 
@@ -105,7 +111,7 @@ Thanks for using Venvutil!
   - A script that generates markdown documentation from project files, facilitating easy sharing and collaboration.
 - **filetree**: [Detailed Documentation](docs/filetree.md)
   - will produce file hierarchy structure based on file and directories to exclude and include..
-- **core functions provided by init_env.sh**: [Detailed Documentation](docs/shdoc/README.md)
+- **core functions provided by venvutil_lib.sh**: [Detailed Documentation](docs/shdoc/README.md)
   - Provides a number of useful shell functions for managing aVirtual Environments along with some utility function, such as `ptree`
   - **compile wrappers for C++, G++, and LD**: [Detailed Documentation](docs/compile_wrappers.md)
     - To help compile many things in the macOS Environment which incorrectly pass the linker the --version flag.
@@ -163,9 +169,13 @@ This logging combined with the frozen environments can be used to ensure that yo
 
 Configuration options, logs and freezes are found in the `$HOME`
 
-## ~~C++, G++, and~~ LD Pass-Through
+## LD Pass-Through
 
 Meson was fixed which gave me troubles tracking this down, so I am removing the hard links for c++ and g++, but leaving in the ld script pass-through just in case something else tries to invoke it using the wrong flag for `--version` when it needs to be `-v`, here are the instructions for building NumPy with the optimizations turned on. It also seems that after I built GCC, it conflicted with the Xcode c++ compiler, installing another c++ in /usr/local/bin which was simply a herd link to g++.
+
+### Recipe for building NumPy with Accelerate Framework optimizations on Apple Silicon
+
+This has also been placed in the `numpy-comp` script.
 
 ```bash
 CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework -Wl,Accelerate -framework Accelerate" pip install numpy==1.26.* --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true
@@ -207,7 +217,7 @@ Thank you for your support!
 This project is licensed under the Apache License
                  Version 2.0, License.
 
- Copyright 2024 Michael P. Sullivan - unixwzrd@unixwzrd.ai
+ Copyright 2025 Michael P. Sullivan - unixwzrd@unixwzrd.ai
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -226,36 +236,47 @@ This project is licensed under the Apache License
 
 ## Future Improvements
 
-- **Chunkfile Enhancements**:
-  - Add support for custom chunk naming patterns
-  - Add compression support for output chunks
-    - Add support for automatic chunk size calculation based on available memory
-- **l processing of chunks Virtual Environment Tools**: Continue to expand the collection of tools for managing virtual environments.
-  - High on the list is `vinfo`, `venvdiff`, `vlog`
-- **Additional Documentation**: Expand the documentation to include more examples and examples of using the tools.
-- **Overall Enhancements**: Additional improvements and documentation are needed, but focus is shifting to other projects for now.
+### High Priority
+- **Testing Framework**: Comprehensive testing suite for shell functions, including unit tests and integration tests
+- **Documentation**: Enhanced function reference, troubleshooting guides, and architecture documentation
+- **Core Functionality**: Standard package sets for new Virtual Environments and improved package management
+
+### Performance and Security
+- **Security Enhancements**: Improved permission handling and secure configuration options
+- **Performance Testing**: Enhanced NumPy/PyTorch testing tools with visualization and metrics
+- **Optimization**: Improved file handling and parallel processing capabilities
+
+### Tools and Integration
+- **Chat Tools**: Enhanced conversation analytics and metadata extraction
+- **User Interface**: Interactive modes and improved progress reporting
+- **Integration**: Enhanced container support and remote environment management
+
+For a complete list of planned improvements, see our [TODO.md](TODO.md).
 
 ## Recent Improvements
 
-### Setup Script Enhancements
+### Core Functionality
+- Enhanced virtual environment management with `lenv` Python version display
+- Added environment renaming capability with `renv`
+- Improved cloning functionality in `ccln`
+- Enhanced logging and configuration management
 
-- **Error Handling**: Enhanced error handling with proper exit codes and validation
-- **Configuration**: Improved package configuration management and logging
-- **Hard Links**: Added support for hard link creation in manifest
-- **Rollback**: Added framework for installation rollback capability
-- **Manifest**: Enhanced manifest handling and validation
+### Library Organization
+- Renamed shell libraries to use `_lib.sh` suffix for better clarity
+- Created specialized libraries for different functionalities
+- Enhanced error handling and type checking
+- Improved help system and initialization routines
 
-### Shell Function Improvements
+### Performance Tools
+- Added PyTorch and NumPy stress testing tools
+- Implemented compilation tools and benchmarking
+- Enhanced chat management utilities
+- Improved documentation generation
 
-- **Virtual Environment Management**:
-  - Enhanced environment variable handling
-  - Improved error recovery mechanisms
-  - Better logging for venv operations
-- **Error Handling**:
-  - Improved POSIX errno codes with better formatting
-  - Enhanced error message categorization
-  - Added detailed debugging context
-- **Help System**:
-  - Added new documentation path handling
-  - Updated function naming conventions
-  - Enhanced help message formatting
+### Documentation
+- Added comprehensive performance metrics documentation
+- Updated coding standards and file structure documentation
+- Enhanced installation guide and function documentation
+- Added migration guide for version 20250206-00_R1
+
+For a complete list of changes, see our [CHANGELOG.md](CHANGELOG.md).

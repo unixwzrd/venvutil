@@ -1,37 +1,36 @@
 ## errno_exit
 # Function: errno_exit
- `errno_exit` - Prints an error to STDERR using the errno function and exits with the error number.
+ `errno_exit` - Prints an error message to STDERR and exits with the error number.
 ## Description
 - **Purpose**: 
-  - Prints an error message to STDERR using the `errno` function and exits the script with the corresponding error number.
-    You may use the POSIX error code or the error number.
+  - Prints an error message to STDERR using the provided error code and optional message.
+  - Exits the script with the corresponding error number.
+  - Accepts either POSIX error codes (e.g. EACCES) or error numbers (e.g. 13).
 - **Usage**: 
-  - `errno_exit <errno_code>`
+  - `errno_exit <errno_code> [message]`
 - **Example**:
-  - `errno_exit EACCES`
-  - `errno_exit 13`
+  - `errno_exit EACCES "Failed to access file"`
+  - `errno_exit 13 "Permission denied"`
 - **Input Parameters**: 
-  - `errno_code`: The errno code to generate an error for.
+  - `errno_code`: The error code to use (POSIX name or number)
+  - `message`: (Optional) Additional message to include in the error
 - **Output**: 
-  - Outputs an error message to STDERR with caller info including:
-    - Function name that called errno_exit
-    - Line number where errno_exit was called
-    - Source file where errno_exit was called
-    - Function name that called the function that called errno_exit
-    - Line number where that function was called
-    - Source file containing that function call
-- **Exceptions**: 
-  - Exits the script with the provided error number.
+  - Prints error messages to STDERR including:
+    - Optional custom message if provided
+    - Call stack trace with function name, line number and file
+    - Error message corresponding to the error code
+- **Exit Status**: 
+  - Exits with the numeric error code
 
 ## Definition 
 
-* [errno.sh](../errno_sh.md)
+* [errno_lib.sh](../errno_lib_sh.md)
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
 Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
-Copyright (c) 2024 Michael Sullivan
+Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2025 01 09 at 10:43:58
+Generated on: 2025-02-06 at 19:22:37

@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+# Example: run both scripts with different matrix sizes
+# and iteration counts, logging to unique files.
+
+. $HOME/.bashrc
+
+run_tests() {
+  size=$1
+  iter=$2
+  venv=$3
+
+  StartTime=$(date +%Y-%m-%d\ %H:%M:%S)
+
+  #echo "===== Numpy Benchmark: size=$size, iter=$iter ====="
+  # numpy_torture --size "$size" --iterations "$iter" --output "numpy_s${size}_i${iter}.log"
+  numpy_torture --size "$size" --iterations "$iter"
+
+  #echo "===== Torch Benchmark CPU: size=$size, iter=$iter ====="
+  # torch_torture --device cpu --size "$size" --iterations "$iter" --output "torch_cpu_s${size}_i${iter}.log"
+  # torch_torture --device cpu --size "$size" --iterations "$iter"
+
+  #echo "===== Torch Benchmark GPU (if available): size=$size, iter=$iter ====="
+  # torch_torture --device cuda --size "$size" --iterations "$iter" --output "torch_gpu_s${size}_i${iter}.log"
+  torch_torture --device auto --size "$size" --iterations "$iter"
+
+  EndTime=$(date +%Y-%m-%d\ %H:%M:%S)
+  echo "Start Time: ${StartTime}, End Time: ${EndTime}"
+
+}
+
+export -f run_tests
+
+for size in 500 1000 1500 2000 2500; do
+  #for size in 500 1000 ; do
+  for iter in 5 10 15 20 25; do
+  #for iter in 5 10 ; do
+    for venv in comp-numpy-daily-pytorch adv-numpy-daily-pytorch; do
+      if [ "${venv}" != "${prev_venv}" ]; then
+        cact ${venv}
+      fi
+
+      /usr/bin/time -a bash -c "run_tests ${size} ${iter} ${venv}"
+
+      prev_venv=${venv}
+    done
+  done
+done

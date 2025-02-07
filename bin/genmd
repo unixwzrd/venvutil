@@ -133,53 +133,29 @@
 #     Apache License, Version 2.0
 #
 
+# Ensure the script exits on error and treats unset variables as errors
+set -euo pipefail
+
 # Get the base directory
 # Determine the real path of the script
-[ -L "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}") || THIS_SCRIPT="${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}"
-MY_NAME="$(basename "${THIS_SCRIPT}")"
-MY_PATH="$(dirname "${THIS_SCRIPT}")"
-#Make sure our associated utilities are in the path
-export PATH="${MY_PATH}:${PATH}"
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# shellcheck disable=SC2034
+MY_NAME=$(basename "${THIS_SCRIPT}")
 # Check for Bash version 4+
 if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
     echo "ERROR ($MY_NAME): genmd requires Bash version 4 or higher." >&2
     exit 75     # (EPROGMISMATCH: 75): Program version wrong
 fi
 
-# Ensure the script exits on error and treats unset variables as errors
-set -euo pipefail
+__VENV_BIN="$(dirname "${THIS_SCRIPT}")"
+__VENV_BASE="$(dirname "${__VENV_BIN}")"
+__VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
-# Try to locate the SHINCLUDE directory which contains included scripts and functions in a "standard"
-# fashion. places we could look are, in this order:
-#   - $(dirname "${THIS_SCRIPT}")
-#   - $(dirname "${THIS_SCRIPT}")/shinclude
-#   - $HOME/shinclude
-#   - $HOME/bin directory
-#   - $HOME/bin/shinclude directory
-#   - from the environment variable `SHINCLUDE`
-#
-SHINCLUDE="${SHINCLUDE:-""}"
-for try in "${SHINCLUDE}" "$(dirname "${THIS_SCRIPT}")/shinclude" "${HOME}/bin/shinclude"; do
-    [ -f "${try}/errno.sh" ] && { SHINCLUDE="${try}"; break; }
-done
-[ -z "${SHINCLUDE}" ] && {
-    cat<<_EOT_ >&2
-ERROR ($MY_NAME): Could not locate \`errno.sh\` directory.
-ERROR ($MY_NAME): Please set install errno.sh which came with this repository in one of
-    the following locations:
-        - $(dirname "${THIS_SCRIPT}")/shinclude
-        - $HOME/shinclude
-        - $HOME/bin/shinclude
-    or set the environment variable SHINCLUDE to the directory containing errno.sh
-
-_EOT_
-    exit 2     # (ENOENT: 2): No such file or directory
-}
-echo "INFO ($MY_NAME): Using SHINCLUDE directory - ${SHINCLUDE}" >&2
 # shellcheck source=/dev/null
-source "${SHINCLUDE}/errno.sh"
-MY_NAME="$(basename "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}" )"
+source "${__VENV_INCLUDE}/init_lib.sh" || true
 
+#Make sure our associated utilities are in the path
+export PATH="${__VENV_BIN}:${PATH}"
 # Get the base directory for the script
 GENMD_BASE="${GENMD_BASE:-${BASE_DIR:-"."}}"
 log_message "INFO" "Using base directory - $GENMD_BASE" 
@@ -433,6 +409,48 @@ parse_gitignore() {
 }
 
 
+# set_variable - Function to assign values to variables based on their names and type.
+#
+# Description:
+#   Assigns a variable with the given name and value.
+#
+#   If the variable is an array, associative, or scalar, it is assigned
+#   accordingly. Otherwise, it is treated as a scalar.
+#
+# Parameters:
+#   $1: The name of the variable to assign.
+#   $2: The value to assign.
+#
+set_variable() {
+    local var_name="$1"
+    shift
+    local var_value="$*"
+
+    # Declare and assign separately to avoid masking return values. SC2155
+    # shellcheck disable=SC2155
+    local var_type=$(var_type "$var_name")
+
+    log_message "DEBUG2" "assign_variable: var_name=$var_name, var_value=\"$var_value\", var_type=$var_type"
+
+    case "$var_type" in
+        "array")
+            IFS=' ' readarray -t "$var_name" <  <( printf "%s" "$var_value" )
+            ;;
+        "associative")
+            IFS=' ' mapfile -g -t "$var_name" <  <( printf "%s" "$var_value" )
+            ;;
+        "scalar")
+            declare -g "$var_name"="$var_value"
+            ;;
+        "integer")
+            declare -g "$var_name=$var_value"
+            ;;
+         *)
+            declare -g "$var_name"="$var_value"
+            ;;
+    esac
+}
+
 # handle_variable - Manage the assignment of variable values based on configuration actions.
 #
 # Description:
@@ -468,7 +486,7 @@ handle_variable() {
             # Merge the current value with the value from the config file
             local -a mergevalue
             mergevalue=${current_value:-""}
-            set_variable "$var_name" "${mergevalue[*]} ${var_value}"
+            set_variable "$var_name" "${mergevalue[*]}" "${var_value}"
             ;;
         "set")
             # Set the variable from the command line or defaults
@@ -489,44 +507,6 @@ handle_variable() {
     esac
 }
 
-# assign_variable - Function to assign values to variables based on their names and type.
-#
-# Description:
-#   Assigns a variable with the given name and value.
-#
-#   If the variable is an array, associative, or scalar, it is assigned
-#   accordingly. Otherwise, it is treated as a scalar.
-#
-# Parameters:
-#   $1: The name of the variable to assign.
-#   $2: The value to assign.
-#
-set_variable() {
-    local var_name="$1"
-    shift
-    local value="$*"
-
-    # Declare and assign separately to avoid masking return values. SC2155
-    # shellcheck disable=SC2155
-    local var_type=$(var_type "$var_name")
-
-    log_message "DEBUG2" "assign_variable: var_name=$var_name, var_value=\"$value\", var_type=$var_type"
-
-    case "$var_type" in
-        "array")
-            IFS=' ' readarray -t "$var_name" <  <( printf "%s" "$value" )
-            ;;
-        "associative")
-            IFS=' ' mapfile -g -t "$var_name" <  <( printf "%s" "$value" )
-            ;;
-        "scalar")
-            declare -g "$var_name"="$value"
-            ;;
-        *)
-            declare -g "$var_name"="$value"
-            ;;
-    esac
-}
 
 # load_config - Function to load configuration from a .grc file
 #

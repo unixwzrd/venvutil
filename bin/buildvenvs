@@ -12,8 +12,8 @@ MY_CONF_DIR="${MY_DIR}/conf"
 MY_CONFIG=$1
 # Source in some useful shortcut functions for VENV management.
 # shellcheck source=/dev/null
-[ -f "${MY_INCLUDE}/init_env.sh" ] && . "${MY_INCLUDE}/init_env.sh" \
-    || ( echo "${MY_NAME}: Could not find init_env.sh in INCLUDEDIR: ${MY_INCLUDE}"; exit 1 )
+[ -f "${MY_INCLUDE}/venvutil_lib.sh" ] && . "${MY_INCLUDE}/venvutil_lib.sh" \
+    || ( echo "${MY_NAME}: Could not find venvutil_lib.sh in INCLUDEDIR: ${MY_INCLUDE}"; exit 1 )
 
 umask 022
 

@@ -17,13 +17,13 @@
 
 ## Definition 
 
-* [venv_funcs.sh](../venv_funcs_sh.md)
+* [venv_lib.sh](../venv_lib_sh.md)
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
 Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
-Copyright (c) 2024 Michael Sullivan
+Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2025 01 09 at 10:43:59
+Generated on: 2025-02-06 at 19:22:37
