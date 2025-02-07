@@ -220,7 +220,9 @@ __venv_conda_check() {
     current_hash=$(get_function_hash conda)
     if [[ "${current_hash}" != "${__venv_conda_hash:-}" ]]; then
         # Capture the current conda function definition and assign it to __venv_conda
-        eval "__venv_conda() $(declare -f conda | sed '1d')" 2>/dev/null
+        if declare -f conda >/dev/null 2>&1; then
+            eval "__venv_conda() $(declare -f conda | sed '1d')" 2>/dev/null
+        fi
         # Redefine the conda function to include the wrapper
         conda() {
             do_wrapper "__venv_conda" "$@"

@@ -1,5 +1,4 @@
 # This file uses pipe-separated fields
-c | . | | manifest.lst | | | | |
 c | bin | | numpy-1.26-reinst.sh | | | | |
 c | bin/shinclude | | init_env.sh | | | | |
 c | docs/shdoc/bin/shinclude | | help_sys_sh.md | | | | |
@@ -40,7 +39,7 @@ d | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | functions | 755 |  |  
 d | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | scripts | 755 |  |  | 352 | 
 f |  |  | LICENSE | 644 |  |  | 11362 | fbb090d446bc51f5b8611e8c59bddf5447f155e2
 f |  |  | README.md | 644 |  |  | 16994 | 77502f9b9fddd0483f4f1ca498a5cbdbf23ca52b
-f |  |  | manifest.lst | 644 |  |  | 20991 | d9aa265f5a7b3d2da1b4f9a1437cd727c495eb8e
+f |  |  | manifest.lst | 644 |  |  | 20958 | 5847b431570bd618c7dc4ddd39958bdbb741c0e3
 f |  |  | requirements-build.txt | 644 |  |  | 185 | 5befca95d85d0ff6665950e90a120accc77f2dd4
 f |  |  | requirements.txt | 644 |  |  | 82 | 7ce33b2cefe2dafe0ec69a943e5321206c8b3697
 f |  |  | setup.cf | 644 |  |  | 983 | 311dfbad0f4008a212e2a1e718a331d8eddf5118
@@ -110,79 +109,79 @@ f | docs | docs | numpybench.md | 644 |  |  | 2627 | 1e3ad54d8f4f2aaf34bdce6583c
 f | docs | docs | performance_testing.md | 644 |  |  | 4664 | ef4e3e2e37838664cca906024865c97eef76c457
 f | docs | docs | warehouse.md | 644 |  |  | 3039 | c7fe4ad3e74302516dafee83d8dd8cdabaa47886
 f | docs/shdoc | docs/shdoc | AUTO_GENERATED_DO_NOT_MODIFY_OR_PLACE_FILES_HERE | 644 |  |  | 0 | da39a3ee5e6b4b0d3255bfef95601890afd80709
-f | docs/shdoc | docs/shdoc | README.md | 644 |  |  | 1338 | 3a59466fcf8c1142367cd9196ed2956cc60e3314
-f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | config_lib_sh.md | 644 |  |  | 1003 | 695102b9b4263e9bc5e8ef8dd038e1ddbcc765c3
-f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | errno_lib_sh.md | 644 |  |  | 1313 | 4ba5e04abe72c24bd178d1e787d2729f05d3c8a5
-f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | init_lib_sh.md | 644 |  |  | 716 | c5371fca28b6255a3d4b32b82a5590918c81e25f
-f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | string_lib_sh.md | 644 |  |  | 948 | df293f5da10944067beafaa7e01b5f0e60e43ee9
-f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | type_lib_sh.md | 644 |  |  | 783 | dedb79bae3530806d97ff681a96df9b648fcb12e
-f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | util_lib_sh.md | 644 |  |  | 1037 | 2ab88cbe06f183bde6f49a8fb495dcf4c0f42a81
-f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | venv_lib_sh.md | 644 |  |  | 1907 | 7f7918346ae10fec36c366eabb714d73925acc8c
-f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | venvutil_lib_sh.md | 644 |  |  | 494 | 85fe05fb3aca00014162f801d337a02a4c3f4502
-f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | wrapper_lib_sh.md | 644 |  |  | 882 | 48ff8a5af29c60c4f3a3b4fa80c3e018006635c1
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | __set_venv_vars.md | 644 |  |  | 651 | 56262fa984acc8823a0552303300c4222543b26e
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | __venv_conda_check.md | 644 |  |  | 825 | d31dd35207cbff574d8c73007b3603209dd1bae5
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | _deprecated.md | 644 |  |  | 656 | 9bb5795fa4e7c33de83ac268eb4d3d704e083500
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | _source_check.md | 644 |  |  | 315 | 35a449d76df1a53ac1a2fbe8642e19f5e2d886f5
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | benv.md | 644 |  |  | 987 | b7a09e96d4c826c5d65f113a181ec42491aabe97
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | cact.md | 644 |  |  | 760 | 527475f3f940f4d90feb4c7e90a94d0e03db4127
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | ccln.md | 644 |  |  | 1004 | 46a18bee640a61ff074cdc01d0f953860e860723
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | check_lib.md | 644 |  |  | 813 | abedcab6bef1fb73017448fd5a83868eae10f1c4
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | colortext.md | 644 |  |  | 885 | 49ed64da4bb897e20dec0073be71cadbf800b11b
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | dact.md | 644 |  |  | 632 | bcea3d7c17dbd93022fb996eb2c369baae8c6369
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | denv.md | 644 |  |  | 740 | 0051115cc15ab72de44c32e54a7faac8a7210502
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | do_wrapper.md | 644 |  |  | 830 | 5a41f5d2aa2bc2d6927adbf2333592c6e1c394e9
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | errfind.md | 644 |  |  | 841 | 7e48c1e1ea100b71174ebab1bd01f7dcc50f5075
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | errno.md | 644 |  |  | 1060 | 8dd7dc4ee0f1aefff1bf69100e951ead392bdca3
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | errno_exit.md | 644 |  |  | 1270 | d1208c4c82d988367cd20c3ef790481c521d4b94
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | errno_warn.md | 644 |  |  | 1268 | dd01903e52ed4a09463a62061235f798cc16fc6a
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | errval.md | 644 |  |  | 1065 | e621bc909d6f3c0ca7206bf2cb7ef0e9e4820a15
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | escape_string.md | 644 |  |  | 770 | 60ef0831a5e5a022c6bab7c30d9fed60e85b65f3
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | expand_variable.md | 644 |  |  | 741 | f9304e2bb2d67328f293d375f927df6a609b35b0
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | get_function_hash.md | 644 |  |  | 750 | 4b0125da774f932002dc07732bce3143cecec245
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | handle_variable.md | 644 |  |  | 1256 | d695285ce18949504b2b39c3ed9235253665a62c
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | lastenv.md | 644 |  |  | 698 | c66cc66dc7e3ec5ad3929e314f65dd145f0b6437
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | lenv.md | 644 |  |  | 1563 | dcca8ba7a8a4fae2c6d517d64e61839923a031e6
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | load_pkg_config.md | 644 |  |  | 1857 | 0a3091bdb1779be913aebacf40602fbffc93d8a7
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | log_message.md | 644 |  |  | 1288 | 0e77603ab3216e3b450a5abfc57906fb84c7b8a7
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | nenv.md | 644 |  |  | 988 | d85a71508fc920f9db59588d5cc04af2573fd423
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | next_step.md | 644 |  |  | 953 | 380e053e28e68772b7866ec5fa290c6439e2f6e9
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | pact.md | 644 |  |  | 683 | 17a03f617ecc280e2cde163fab47bd4b9a32cd59
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | parse_manifest_metadata.md | 644 |  |  | 754 | 16c84c9e6cfff453caf8423cb32d4a94f704cd22
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | pip.md | 644 |  |  | 761 | b44e84fb3625fd1e8a3ebfcaf7423a0073950322
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | pkg_config_vars.md | 644 |  |  | 654 | 1bda946e594a45186d33ac9b9ce39b3d9e0fd2e6
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | pop_stack.md | 644 |  |  | 780 | ea00e4ff40ac5d30abf09dd3c769670dacbf1600
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | pop_venv.md | 644 |  |  | 656 | 3ddb1857e6409b898d7df967284d1dba486e7f7d
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | ptree.md | 644 |  |  | 813 | ddb0b094d6ff27c01e1bcd528d681904d5e0adbf
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | push_stack.md | 644 |  |  | 808 | cab54db9e2e6d7318e64c2e0873307bef839ab2f
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | push_venv.md | 644 |  |  | 653 | bf2245eee9e7fec322827dd73f9d92d017f4768a
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | renv.md | 644 |  |  | 802 | 8ca5896707a453ba6e159544693064a30cf2d10a
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | sanitize.md | 644 |  |  | 873 | 68bfd70fd81cb384fde6ef8e29c1e5dbc32c0332
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | set_variable.md | 644 |  |  | 1110 | 65e54f91d5f82910210884a843f861afec3d43a9
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | snum.md | 644 |  |  | 660 | 4d5c17041209fd3edc94dd743ee41890d33a4ec2
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | sort_2d_array.md | 644 |  |  | 1319 | b68aef52b08ea643b66fd36e35dce05db02196df
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | source_lib.md | 644 |  |  | 1377 | 572c7e8afc4852cda2917eb0523c431600d634d3
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | stack_op.md | 644 |  |  | 946 | c60fa56fadb7cec0db0f449a11f442283644a19a
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | stringclean.md | 644 |  |  | 758 | 214b5a49d45679573bf992b41b3937344f095d3c
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | strip_space.md | 644 |  |  | 740 | 37724f91894a13a36ecd7143d716c7c5e4984834
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | to_upper.md | 644 |  |  | 644 | d8b625c045b0a7aa03405dafd3875e3a554242eb
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | var_type.md | 644 |  |  | 835 | 6f4e62a82b64ba73ee702926083e6459538ca093
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | vdiff.md | 644 |  |  | 842 | fecc77446235085da4712175db7eb6bb3978d54b
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | vdsc.md | 644 |  |  | 626 | 8187d8b35b9c1af35263eb7efa4c79cc15d14a8b
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | vnum.md | 644 |  |  | 619 | 8cd9a7797ded90643694138fcb50e9ae46060d30
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | vpfx.md | 644 |  |  | 611 | 636f0bbc5956cb89bfec0191a84c7defab86bb6f
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | vren.md | 644 |  |  | 878 | da91a93f356ba0a37741daa52c6c5ab5a7920fc3
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | write_config.md | 644 |  |  | 795 | 8765f7f5134136eccc500b391e86c323d22aac88
-f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | zero_pad.md | 644 |  |  | 1031 | d5e972c3c14de68ec62053756d56ba5f42299f5b
-f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | config_lib.sh.md | 644 |  |  | 1190 | 1dc447cace9c1832054769afea8048d7ae7c290b
-f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | errno_lib.sh.md | 644 |  |  | 1060 | db397aa77ef6fe462d50a5a5834570a316b8eb2c
-f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | init_lib.sh.md | 644 |  |  | 1750 | feccc0257a8815df851239c888fc7b94ae29c483
-f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | string_lib.sh.md | 644 |  |  | 872 | b087ebca1d52028141cf27e14c74607d9f30ec22
-f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | type_lib.sh.md | 644 |  |  | 918 | 3cbad114961a2b9b257dac651bbdd4e97363599d
-f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | util_lib.sh.md | 644 |  |  | 1415 | 2643bae44f46aa0428ec80c444417366542668bb
-f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | venv_lib.sh.md | 644 |  |  | 2904 | 1c3378f3ed29ca99cefa6747b4d978020dc18a11
-f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | venvutil_lib.sh.md | 644 |  |  | 607 | 376fa859370a9763c8f513813645eac58ad535b1
-f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | wrapper_lib.sh.md | 644 |  |  | 1342 | 453df8809bb5f715a2b6756eeff23cb6479b65a8
+f | docs/shdoc | docs/shdoc | README.md | 644 |  |  | 1338 | 3d53605d2cc3771a39a06f824fb3112c5e3519b9
+f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | config_lib_sh.md | 644 |  |  | 1003 | 476978edee76556a62dcd66844e6e081c557556d
+f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | errno_lib_sh.md | 644 |  |  | 1313 | 8f8ad2ab8aaa13f73726ee432dd8d3ec3e26f0ff
+f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | init_lib_sh.md | 644 |  |  | 716 | 4afb180fc58781912ef2228add19b94b3a4c8836
+f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | string_lib_sh.md | 644 |  |  | 948 | 71925152ac30ecc7e8752ba699276e8e56f34c74
+f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | type_lib_sh.md | 644 |  |  | 783 | ad7dd1fa3f4a70de42bb13dcebeb4645cb2f08cd
+f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | util_lib_sh.md | 644 |  |  | 1037 | c57b2b65577f59c42ca498f8b6d53dd093cd5adc
+f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | venv_lib_sh.md | 644 |  |  | 1907 | f4ddd97d7d178b05c4e9e4f73a4c218ce7b875bf
+f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | venvutil_lib_sh.md | 644 |  |  | 494 | 4f3dabc43f3304b2249c682f99f565098701c8c5
+f | docs/shdoc/bin/shinclude | docs/shdoc/bin/shinclude | wrapper_lib_sh.md | 644 |  |  | 882 | 927d604ab5169ee9fa60284b15f764f2e950aa7d
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | __set_venv_vars.md | 644 |  |  | 651 | 83d17ba83bf1c3ebdc24e94276370bf89955398c
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | __venv_conda_check.md | 644 |  |  | 825 | c90315da6239fb057ca92971f46ac9ae330ac57f
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | _deprecated.md | 644 |  |  | 656 | 39f6f00e7614d2f265d47455f4de4efd63975bc9
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | _source_check.md | 644 |  |  | 315 | 262b40f574cbb8eff99bdfd5e770bce0363b91f4
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | benv.md | 644 |  |  | 987 | 981f0c3a62f3d0415214a4dca497ba00139cb5b1
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | cact.md | 644 |  |  | 760 | 0743df6357f6de0344a7c9f4bd94f4fdd5acfd1e
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | ccln.md | 644 |  |  | 1004 | 7d38bd99033d8c5b37b726605b39fd85cbeaedfe
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | check_lib.md | 644 |  |  | 813 | 0f00d453787112cf05fc7fa344a4cef888584a4f
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | colortext.md | 644 |  |  | 885 | 09446e80b0d75d8c5d919cac0a06f3943d888713
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | dact.md | 644 |  |  | 632 | b10631745f42a4bc2f3e348577127db4be4f9c83
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | denv.md | 644 |  |  | 740 | 9e2e12c118fc8fe83b5dec75345407f4decea3a6
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | do_wrapper.md | 644 |  |  | 830 | cb31cf789f924ff31652f361207fccda28a5ee88
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | errfind.md | 644 |  |  | 841 | 9bf9b53a56c17726f21b3aaecbc0f96a3311bf40
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | errno.md | 644 |  |  | 1060 | 044f4664b28acb93e0236837d57c2d3aa7dc1db7
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | errno_exit.md | 644 |  |  | 1270 | 7eb150b851095994e179fdf3643a2e6d37ea6311
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | errno_warn.md | 644 |  |  | 1268 | 1b191abc649a07f275860a46c7be54329f2ad49a
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | errval.md | 644 |  |  | 1065 | 6d9d52e8b1132a8062cf442120aaf290f86d98fa
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | escape_string.md | 644 |  |  | 770 | 5bfefb60ad537f5e18473aea058bbf2fd9f18799
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | expand_variable.md | 644 |  |  | 741 | 45a588333849de3f810637b08a9a279e1a6e4bab
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | get_function_hash.md | 644 |  |  | 750 | 5bcdab705c610b99ba40f0f3e24f8cdc9aa6f056
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | handle_variable.md | 644 |  |  | 1256 | 6029818e2c287da23bf85d37929e0378df96a5f8
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | lastenv.md | 644 |  |  | 698 | 0dda95d51226676862543d6bfb1b8172ab1fb41e
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | lenv.md | 644 |  |  | 1563 | 9c33b9a8d0927d6f161eab4b88331461aed50f9d
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | load_pkg_config.md | 644 |  |  | 1857 | 6fe8d0228da29bdbcf2726d587172db37d967101
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | log_message.md | 644 |  |  | 1288 | 225b183cb076d35ce1a2ba5439c00d0d7bd9f97a
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | nenv.md | 644 |  |  | 988 | e22093283e8a70e750e7c3e41a11a4754639cb89
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | next_step.md | 644 |  |  | 953 | b2d73f64fae49add6065f89496ae1470faf7fa55
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | pact.md | 644 |  |  | 683 | 1587328505fab795cd6427e64583ae38cc8ad166
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | parse_manifest_metadata.md | 644 |  |  | 754 | d23d8d7e9c9846455d5ed596f6af7f9dc457ce21
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | pip.md | 644 |  |  | 761 | 6f988dc38da0ad679cc2257acb136e0631cbe75a
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | pkg_config_vars.md | 644 |  |  | 654 | a668bb5f0c165a801ee7e997fcf053ef285494cd
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | pop_stack.md | 644 |  |  | 780 | 0c4dbe728957db9f5380d10d7aaeeb9f3bbed50a
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | pop_venv.md | 644 |  |  | 656 | 3c5413a8af0e5bdf3fb756783807dfbca8a948fd
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | ptree.md | 644 |  |  | 813 | 66be67abe8efd055a5248f2440f9e3e506201cee
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | push_stack.md | 644 |  |  | 808 | 618750bf7684adf09f0b46705b2d89e515849501
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | push_venv.md | 644 |  |  | 653 | 0b9d128805264ac13313f5cc24545c61d800dbed
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | renv.md | 644 |  |  | 802 | f5b1012f8098bf466976bf9aa0a044a8068746b7
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | sanitize.md | 644 |  |  | 873 | 628a50327e2b889539617e1f4b76e8192f1931a9
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | set_variable.md | 644 |  |  | 1110 | 0c38dd76489031c90a8e0e0cfe2f0b88cb8efbb9
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | snum.md | 644 |  |  | 660 | 47cf09e1b977edb8d46c1ab164dd92be186d6ff1
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | sort_2d_array.md | 644 |  |  | 1319 | e8c530fa420117aafcb603d97e412430f768ab17
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | source_lib.md | 644 |  |  | 1377 | a0b4e2d418bfa3060a588115366116d310619429
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | stack_op.md | 644 |  |  | 946 | a9a08884675d83ac9f15d18632ef3893d7abb95d
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | stringclean.md | 644 |  |  | 758 | 9e72ba7554f734cd655fb2fe8dbdb5ce5d12c4e4
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | strip_space.md | 644 |  |  | 740 | bf85355c01121334d0659b05ac8d24d61e00887d
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | to_upper.md | 644 |  |  | 644 | 15d11b721f29c4ff98a80398a5613b4a019abdd4
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | var_type.md | 644 |  |  | 835 | 053cedd2e9c496e388c44c5950a7a7bd5c8ce649
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | vdiff.md | 644 |  |  | 842 | d1937a1cbf8af5198dad26e1b4bf7ad86cb8de97
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | vdsc.md | 644 |  |  | 626 | 7550412534fb46bd715e1e901156548c33f60665
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | vnum.md | 644 |  |  | 619 | ddcab8ee98ec88ff220cc30b22e921048108ebb4
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | vpfx.md | 644 |  |  | 611 | c931acebfafa412635642053fb726df29c258a29
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | vren.md | 644 |  |  | 878 | b324cdb13188f13c6ffa31c8ac89422263a7088b
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | write_config.md | 644 |  |  | 795 | 95911b9e54702676779c03ad95c357d0abd0a22d
+f | docs/shdoc/bin/shinclude/functions | docs/shdoc/bin/shinclude/functions | zero_pad.md | 644 |  |  | 1031 | 08d7ad77bc0825fca8d70af49767f3931448ce31
+f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | config_lib.sh.md | 644 |  |  | 1190 | 78ce66269176218eacb8854b874d3f7c62552a47
+f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | errno_lib.sh.md | 644 |  |  | 1060 | 53a3985de2b6a6c62bed09fd6712ac29edda7e15
+f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | init_lib.sh.md | 644 |  |  | 1750 | bea1653dc7543a65d76a159d0982b355163965fe
+f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | string_lib.sh.md | 644 |  |  | 872 | a96b18f6f700c41bb68c2af2aa503aa6c5bfce51
+f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | type_lib.sh.md | 644 |  |  | 918 | 8f4f6fae61df8b1d5d0241229acb6ddcabee44b0
+f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | util_lib.sh.md | 644 |  |  | 1415 | 0dcf87eabb7a2a8f88a38cf029ac9f5a19def130
+f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | venv_lib.sh.md | 644 |  |  | 2904 | 901ec8820441153b7783d12c5a882525e0cbfed6
+f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | venvutil_lib.sh.md | 644 |  |  | 607 | a81f5a30da9ee8ab967086b7f72eca697ee48ed6
+f | docs/shdoc/bin/shinclude/scripts | docs/shdoc/bin/shinclude/scripts | wrapper_lib.sh.md | 644 |  |  | 1342 | f7585785bd6db7ea028aba88d10cea3aeb397098
 f | modules | modules | conda-install.sh | 644 |  |  | 1494 | b9d60252174be34023013a06897184db09e68664
 f | pytest_cache | pytest_cache | README.md | 644 |  |  | 302 | 54be9e578952c88d983b7d92c5f96579869575a3
 l | bin | chunkfile.py | chunkfile | 755 |  |  | 12 | 
