@@ -127,7 +127,7 @@ expand_variable() {
 
     # Sanitize the input by escaping special characters if necessary
     # For example, you might want to escape quotes or backslashes
-    sanitized_input=$(echo "$input" | sed 's/[&;|\n\\]/\\&/g')
+    sanitized_input=$(echo "$input" | sed 's/[&;|\n\\>=]/\\&/g')
 
     # Use eval to expand variables safely, handling both ${var} and $var notation
     eval echo "$sanitized_input"
