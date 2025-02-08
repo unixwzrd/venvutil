@@ -68,7 +68,6 @@ __VENV_INTERNAL_FUNCTIONS=(
 # - **Exceptions**: 
 #   - None.
 var_type() {
-    set +x
     local OPTIND=1
     # Parse options
     while getopts "h" opt; do
@@ -83,7 +82,7 @@ var_type() {
     local var_type
     var_type=$(declare -p "$var_name" 2>/dev/null | cut -d ' ' -f 2) 
 
-    __rc_=0
+    __rc__=0
     case "$var_type" in
         -a)
             echo "array"
@@ -119,7 +118,6 @@ var_type() {
             ;;
     esac
 
-    set +x
     return ${__rc__}
 }
 
@@ -145,7 +143,7 @@ set_variable() {
     local var_name=$1
     local -n var_ref1=$2
     local var_ref2=""
-    if [ -n "$3" ]; then
+    if [ -n "${3:-}" ]; then
         local -n var_ref2=$3
     fi
 

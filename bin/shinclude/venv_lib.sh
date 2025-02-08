@@ -285,6 +285,7 @@ vdsc() {
 #   - `cact [-h] [env_name]`
 # - **Options**: 
 #   - `-h`   Show this help message
+#   - `-x`   Enable debug mode
 # - **Input Parameters**: 
 #   - `env_name` (string) - The name of the environment to activate.
 # - **Output**: 
@@ -295,9 +296,10 @@ vdsc() {
 cact() {
     local OPTIND=1
     # Parse options
-    while getopts "h" opt; do
+    while getopts "hx" opt; do
         case $opt in
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            x) set -x; local set_here="y" ;;
             \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
@@ -333,6 +335,9 @@ cact() {
     # Activate new environment
     echo "Activating new environment: ${__VENV_NAME}..."
     conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." 1>&2; return 1; }
+    if [ "${set_here}" == 'y' ]; then
+        set +x
+    fi
 }
 
 # # Function: dact
@@ -345,6 +350,7 @@ cact() {
 #   - `dact [-h]`
 # - **Options**: 
 #   - `-h`   Show this help message
+#   - `-x`   Enable debug mode
 # - **Input Parameters**: 
 #   - None
 # - **Output**: 
@@ -355,9 +361,10 @@ cact() {
 dact() {
     local OPTIND=1
     # Parse options
-    while getopts "h" opt; do
+    while getopts "hx" opt; do
         case $opt in
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            x) set -x; local set_here="y" ;;
             \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
@@ -386,6 +393,9 @@ dact() {
     pop_venv
     # shellcheck disable=SC2034
     stack_value="${__sv__}"
+    if [ "${set_here}" == 'y' ]; then
+        set +x
+    fi
     return "${__rc__}"
 }
 
@@ -399,6 +409,7 @@ dact() {
 #   - `pact [-h]`
 # - **Options**: 
 #   - `-h`   Show this help message
+#   - `-x`   Enable debug mode
 # - **Input Parameters**: 
 #   - None
 # - **Output**: 
@@ -410,9 +421,10 @@ pact() {
     local OPTIND=1
 
     # Parse options
-    while getopts "h" opt; do
+    while getopts "hx" opt; do
         case $opt in
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            x) set -x; local set_here="y" ;;
             \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
@@ -427,6 +439,9 @@ pact() {
         pop_venv > /dev/null
     else
         echo "No previous environment to switch to."
+    fi
+    if [ "${set_here}" == 'y' ]; then
+        set +x
     fi
 }
 
@@ -446,6 +461,7 @@ pact() {
 #       - `-t`   Sort by last update time
 #       - `-r`   Reverse the sort order
 #       - `-h`   Show this help message
+#       - `-x`   Enable debug mode
 # - **Output**: 
 #   - A list of all existing conda virtual environments with their last modification date.
 #   - The active environment is marked with an asterisk.
@@ -467,12 +483,13 @@ lenv() {
     local OPTIND=1
 
     # Parse options
-    while getopts "ltrh" opt; do
+    while getopts "ltrhx" opt; do
         case $opt in
             t) sort_by_time=true ;;
             r) sort_opts="-r" ;;
             l) time_opts="."; sort_key="3"; date_spacing="20";;
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            x) set -x; local set_here="y" ;;
             \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
@@ -547,6 +564,10 @@ lenv() {
     done
 
     rm "$temp_file"
+
+    if [ "${set_here}" == 'y' ]; then
+        set +x
+    fi 
 }
 
 # # Function: lastenv
@@ -581,6 +602,7 @@ lastenv() {
 #   - `benv [-h] ENV_NAME [EXTRA_OPTIONS]`
 # - **Options**: 
 #   - `-h`   Show this help message
+#   - `-x`   Enable debug mode
 # - **Input Parameters**: 
 #   - `ENV_NAME` (string) - The name of the new environment to create.
 #   - `EXTRA_OPTIONS` (string, optional) - Additional options to pass to `conda create`.
@@ -596,9 +618,10 @@ lastenv() {
 benv() {
     local OPTIND=1
     # Parse options
-    while getopts "h" opt; do
+    while getopts "hx" opt; do
         case $opt in
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            x) set -x; local set_here="y" ;;
             \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
@@ -616,6 +639,9 @@ benv() {
 
     echo "Base environment created - activating ${env_name}"
     cact "${env_name}"
+    if [ "${set_here}" == 'y' ]; then
+        set +x
+    fi
 }
 
 # # Function: nenv
@@ -628,6 +654,7 @@ benv() {
 #   - `nenv [-h] PREFIX [EXTRA_OPTIONS]`
 # - **Options**: 
 #   - `-h`   Show this help message
+#   - `-x`   Enable debug mode
 # - **Input Parameters**: 
 #   - `PREFIX` (string) - The prefix to identify the series of environments.
 #   - `EXTRA_OPTIONS` (string, optional) - Additional options to pass to the environment creation.
@@ -639,9 +666,10 @@ benv() {
 nenv() {
     local OPTIND=1
     # Parse options
-    while getopts "h" opt; do
+    while getopts "hx" opt; do
         case $opt in
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            x) set -x; local set_here="y" ;;
             \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
@@ -662,6 +690,9 @@ nenv() {
     __VENV_PREFIX="${prefix}"
     # Create a clone of the base environment
     ccln "base"
+    if [ "${set_here}" == 'y' ]; then
+        set +x
+    fi
 }
 
 # # Function: denv
@@ -674,6 +705,7 @@ nenv() {
 #   - `denv [-h] [env_name]`
 # - **Options**: 
 #   - `-h`   Show this help message
+#   - `-x`   Enable debug mode
 # - **Input Parameters**: 
 #   - `env_name` (string) - The name of the environment to delete.
 # - **Output**: 
@@ -684,9 +716,10 @@ nenv() {
 denv() {
     local OPTIND=1
     # Parse options
-    while getopts "h" opt; do
+    while getopts "hx" opt; do
         case $opt in
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            x) set -x; local set_here="y" ;;
             \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
@@ -702,6 +735,9 @@ denv() {
 
     echo "Removing environment -> ${env_to_delete}"
     conda remove --all -n "${env_to_delete}" -y
+    if [ "${set_here}" == 'y' ]; then
+        set +x
+    fi
 }
 
 # # Function: renv
@@ -714,6 +750,7 @@ denv() {
 #   - `renv [-h]`
 # - **Options**: 
 #   - `-h`   Show this help message
+#   - `-x`   Enable debug mode
 # - **Input Parameters**: 
 #   - None
 # - **Output**: 
@@ -724,9 +761,10 @@ denv() {
 renv() {
     local OPTIND=1
     # Parse options
-    while getopts "h" opt; do
+    while getopts "hx" opt; do
         case $opt in
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            x) set -x; local set_here="y" ;;
             \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
@@ -749,6 +787,9 @@ renv() {
     dact  # Deactivate the current environment
     denv "${env_to_delete}"  # Delete the environment
     cact "${previous_env}"  # Reactivate the previous environment
+    if [ "${set_here}" == 'y' ]; then
+        set +x
+    fi
 }
 
 # # Function: ccln
@@ -764,6 +805,7 @@ renv() {
 #   - `ccln [-h] [new_env_name]`
 # - **Options**: 
 #   - `-h`   Show this help message
+#   - `-x`   Enable debug mode
 # - **Input Parameters**: 
 #   - `new_env_name` (string) - The name of the new cloned environment.
 # - **Output**: 
@@ -774,9 +816,10 @@ renv() {
 ccln() {
     local OPTIND=1
     # Parse options
-    while getopts "h" opt; do
+    while getopts "hx" opt; do
         case $opt in
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            x) set -x; local set_here="y" ;;
             \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
@@ -815,6 +858,10 @@ ccln() {
 
     # Switch to the newly created VENV
     cact "${new_name}"
+
+    if [ "${set_here}" == 'y' ]; then
+        set +x
+    fi
 }
 
 # # Function: vren
@@ -827,6 +874,7 @@ ccln() {
 #   - `vren [-h] [new_name]`
 # - **Options**: 
 #   - `-h`   Show this help message
+#   - `-x`   Enable debug mode
 # - **Input Parameters**: 
 #   - `old_name` (optional string) - The current name of the environment or 
 #     the current environment if not specified.
@@ -839,9 +887,10 @@ ccln() {
 vren() {
     local OPTIND=1
     # Parse options
-    while getopts "h" opt; do
+    while getopts "hx" opt; do
         case $opt in
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            x) set -x; local set_here="y" ;;
             \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
@@ -900,7 +949,12 @@ vren() {
 
     # Activate the renamed environment
     cact "${new_name}"
+
     __rc__=$?
+
+    if [ "${set_here}" == 'y' ]; then
+        set +x
+    fi
     return ${__rc__}
 }
 
@@ -914,6 +968,7 @@ vren() {
 #   - `venvdiff [-h] [env1] [env2]`
 # - **Options**: 
 #   - `-h`   Show this help message
+#   - `-x`   Enable debug mode
 # - **Input Parameters**: 
 #   - `env1` (string) - The first environment to compare.
 #   - `env2` (string) - The second environment to compare.
@@ -925,9 +980,10 @@ vren() {
 vdiff() {
     local OPTIND=1
     # Parse options
-    while getopts "h" opt; do
+    while getopts "hx" opt; do
         case $opt in
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            x) set -x; local set_here="y" ;;
             \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
@@ -956,6 +1012,10 @@ vdiff() {
 
     echo "Comparing packages in $env1 and $env2:"
     diff -y <(echo "$env1_packages") <(echo "$env2_packages")
+
+    if [ "${set_here}" == 'y' ]; then
+        set +x
+    fi
 }
 
 

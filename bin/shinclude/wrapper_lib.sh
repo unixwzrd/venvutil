@@ -2,30 +2,31 @@
 # # Script: wrapper_lib.sh
 # `wrapper_lib.sh` - Python Package Manager Wrapper Functions
 # ## Description
-# - **Purpose**: 
+# - **Purpose**:
 #   - Provides enhanced functionality for managing Python package commands by wrapping pip and conda.
 #   - Intercepts and logs changes to virtual environments for rollback, auditing, and future use in venvdiff or vdiff.
-# - **Usage**: 
+# - **Usage**:
 #   - Source this script in your command line environment to import the wrapper functions.
 #   - For example, in another script: `source wrapper_lib.sh`.
 # - **Features**:
 #   - Saves a `pip freeze` before any potentially destructive changes to a virtual environment.
 #   - Logs the complete command line to a log file for both conda and pip.
 #   - Persists logs in the `$HOME/.venvutil` directory, even after virtual environments are deleted.
-# - **Dependencies**: 
+# - **Dependencies**:
 #   - Requires Bash and the Python package managers pip and conda.
-# - **Exceptions**: 
+# - **Exceptions**:
 #   - Some functions may return specific error codes or print error messages to STDERR.
 #   - Refer to individual function documentation for details.
 
 ## Initialization
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 if ! declare -p __VENV_SOURCED >/dev/null 2>&1; then declare -gA __VENV_SOURCED; fi
-if [[ "${__VENV_SOURCED[${THIS_SCRIPT}]:-}" == 1 ]]; then 
+if [[ "${__VENV_SOURCED[${THIS_SCRIPT}]:-}" == 1 ]]; then
     # echo "************************* SKIPPED SKIPPED SKIPPED SKIPPED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
-    return 
+    return
 fi
 __VENV_SOURCED["${THIS_SCRIPT}"]=1
+# echo "************************* SOURCED SOURCED SOURCED SOURCED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
 
 # shellcheck disable=SC2034
 MY_NAME=$(basename "${THIS_SCRIPT}")
@@ -56,15 +57,15 @@ __VENV_INTERNAL_FUNCTIONS=(
 # `get_function_hash` - Get the hash of a function's definition.
 #
 # ## Description
-# - **Purpose**: 
+# - **Purpose**:
 #   - Computes the hash of a function's definition for integrity checks.
-# - **Usage**: 
+# - **Usage**:
 #   - `get_function_hash [function_name]`
-# - **Input Parameters**: 
+# - **Input Parameters**:
 #   - `function_name` (string) - The name of the function to hash.
-# - **Output**: 
+# - **Output**:
 #   - The hash of the function's definition.
-# - **Exceptions**: 
+# - **Exceptions**:
 #   - None
 #
 get_function_hash() {
@@ -80,19 +81,20 @@ mkdir -p "${VENVUTIL_CONFIG}/freeze" "${VENVUTIL_CONFIG}/log"
 # `do_wrapper` - General wrapper function for logging specific command actions.
 #
 # ## Description
-# - **Purpose**: 
+# - **Purpose**:
 #   - Executes a Python package manager command with optional logging based on the specified action.
-# - **Usage**: 
+# - **Usage**:
 #   - `do_wrapper <cmd> <additional parameters>`
-# - **Input Parameters**: 
+# - **Input Parameters**:
 #   - `cmd` (string) - The command to be executed.
 #   - `additional parameters` (string) - Any additional parameters to be passed to the command.
-# - **Output**: 
+# - **Output**:
 #   - None
-# - **Exceptions**: 
+# - **Exceptions**:
 #   - None
 #
 do_wrapper() {
+   __rc__=0
     local cmd="$1"; shift
     local action="$1"
     local actions_to_log=("install" "uninstall" "remove"
@@ -103,7 +105,7 @@ do_wrapper() {
     local env_vars
     env_vars=$( env | sed -E '/^SHELL=/,$d' | sed -E 's/^([A-Za-z_]+)=(.*)$/\1="\2"/' | tr '\n' ' ' )
 
-    # Put the function back to "conda" our PROMPT_COMMAND will put it back after the command
+    # Put the function back to "conda" we will set it back at the end of this function.
     eval "conda() $(declare -f __venv_conda| sed '1d')"
 
     # Make the command be how the user invoked it rather than with the wrappers.
@@ -176,6 +178,9 @@ do_wrapper() {
         __rc__="$?"
     fi
 
+    # In case we are running in a script and not on the command line
+    __venv_conda_check
+
     return "${__rc__}"
 }
 
@@ -183,36 +188,56 @@ do_wrapper() {
 # `pip` - Wrapper function for pip commands.
 #
 # ## Description
-# - **Purpose**: 
+# - **Purpose**:
 #   - Wraps pip commands to ensure environment variables are preserved. provides logging
 #     for pip commands and the virtual environment affected
-# - **Usage**: 
+# - **Usage**:
 #   - `pip [arguments]`
-# - **Input Parameters**: 
+# - **Input Parameters**:
 #   - `arguments` (string) - Arguments to pass to pip.
-# - **Output**: 
+# - **Output**:
 #   - Executes the pip command with the provided arguments.
-# - **Exceptions**: 
+# - **Exceptions**:
 #   - None
 #
 pip() {
     do_wrapper pip "$@"
 }
 
+# # Function: conda
+# `conda` - Wrapper function for conda commands.
+#
+# ## Description
+# - **Purpose**:
+#   - Wraps conda commands to ensure environment variables are preserved. provides logging
+#     for conda commands and the virtual environment affected
+# - **Usage**:
+#   - `conda [arguments]`
+# - **Input Parameters**:
+#   - `arguments` (string) - Arguments to pass to conda.
+# - **Output**:
+#   - Executes the conda command with the provided arguments.
+# - **Exceptions**:
+#   - None
+#
+conda() {
+    do_wrapper conda "$@"
+}
+
 # # Function: __venv_conda_check
 # `__venv_conda_check` - Ensure conda function is wrapped and check for definition changes.
 #
 # ## Description
-# - **Purpose**: 
+# - **Purpose**:
 #   - Checks if the conda function definition has changed and re-hooks if necessary. Replaces
 #     the conda function with a wrapper that logs the command and environment affected.
-# - **Usage**: 
+# - **Usage**:
 #   - `__venv_conda_check`
-# - **Input Parameters**: 
+# - **Input Parameters**:
 #   - None
-# - **Output**: 
+# - **Output**:
 #   - Ensures the conda function is wrapped correctly.
-# - **Exceptions**: 
+# - **Exceptions**:
 #   - None
 #
 __venv_conda_check() {
@@ -220,9 +245,7 @@ __venv_conda_check() {
     current_hash=$(get_function_hash conda)
     if [[ "${current_hash}" != "${__venv_conda_hash:-}" ]]; then
         # Capture the current conda function definition and assign it to __venv_conda
-        if declare -f conda >/dev/null 2>&1; then
-            eval "__venv_conda() $(declare -f conda | sed '1d')" 2>/dev/null
-        fi
+        eval "__venv_conda() $(declare -f conda | sed '1d')" 2>/dev/null
         # Redefine the conda function to include the wrapper
         conda() {
             do_wrapper "__venv_conda" "$@"
@@ -246,3 +269,4 @@ PROMPT_COMMAND="__venv_conda_check; ${PROMPT_COMMAND:-}"
 
 __rc__=0
 return ${__rc__}
+
