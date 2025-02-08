@@ -21,9 +21,9 @@
 ## Initialization
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 if ! declare -p __VENV_SOURCED >/dev/null 2>&1; then declare -gA __VENV_SOURCED; fi
-if [[ "${__VENV_SOURCED[${THIS_SCRIPT}]:-}" == 1 ]]; then 
+if [[ "${__VENV_SOURCED[${THIS_SCRIPT}]:-}" == 1 ]]; then
     # echo "************************* SKIPPED SKIPPED SKIPPED SKIPPED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
-    return 
+    return
 fi
 __VENV_SOURCED["${THIS_SCRIPT}"]=1
 # echo "************************* READING READING READING READING             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
@@ -54,21 +54,20 @@ __VENV_INTERNAL_FUNCTIONS=(
 # ## Description
 # - **Purpose**:
 #   - Retrieves the type of a variable.
-# - **Usage**: 
+# - **Usage**:
 #   - `var_type [-h] "var_name"`
-# - **Options**: 
+# - **Options**:
 #   - `-h`   Show this help message
-# - **Examples**: 
+# - **Examples**:
 #   - `var_type "my_variable"`
 #   - `var_type=$(var_type "my_variable")
-# - **Input Parameters**: 
+# - **Input Parameters**:
 #   - `var_name`: The name of the variable.
-# - **Output**: 
+# - **Output**:
 #   - The type of the variable as a string. Can be one of `array`, `associative`, `scalar`, or `unknown`.
-# - **Exceptions**: 
+# - **Exceptions**:
 #   - None.
 var_type() {
-    set +x
     local OPTIND=1
     # Parse options
     while getopts "h" opt; do
@@ -81,9 +80,9 @@ var_type() {
 
     local var_name="$1"
     local var_type
-    var_type=$(declare -p "$var_name" 2>/dev/null | cut -d ' ' -f 2) 
+    var_type=$(declare -p "$var_name" 2>/dev/null | cut -d ' ' -f 2)
 
-    __rc_=0
+    __rc__=0
     case "$var_type" in
         -a)
             echo "array"
@@ -119,7 +118,6 @@ var_type() {
             ;;
     esac
 
-    set +x
     return ${__rc__}
 }
 
@@ -145,7 +143,7 @@ set_variable() {
     local var_name=$1
     local -n var_ref1=$2
     local var_ref2=""
-    if [ -n "$3" ]; then
+    if [ -n "${3:-}" ]; then
         local -n var_ref2=$3
     fi
 
@@ -165,7 +163,7 @@ set_variable() {
             declare -g -A "${var_name}"
             # shellcheck disable=SC2178
             declare -n new_array="${var_name}"
-            for key in "${!var_ref1[@]}"; do 
+            for key in "${!var_ref1[@]}"; do
                 new_array[$key]="${var_ref1[$key]}"
             done
             if [ -n "$var_ref2" ]; then

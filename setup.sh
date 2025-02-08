@@ -70,12 +70,12 @@ log_message() {
 
     # Print message to STDERR and log file
     if [ "$VERBOSE" = true ]; then
-        echo "($MY_NAME) [$message_level] $message_out" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
+        echo "($__SETUP_NAME) [$message_level] $message_out" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
         return 0
     fi
 
     # Write message to log file
-    echo "($MY_NAME) [$message_level] $message_out" >> "$INSTALL_CONFIG/install.log" 2>&1
+    echo "($__SETUP_NAME) [$message_level] $message_out" >> "$INSTALL_CONFIG/install.log" 2>&1
 }
 
 # Function to display help extracted from the script
@@ -109,7 +109,7 @@ parse_arguments() {
         case $opt in
             d) INSTALL_BASE="$OPTARG" ;;
             v) VERBOSE=true ;;
-            h) display_help_and_exit "Usage: $MY_NAME [options] {install|remove|rollback}" ;;
+            h) display_help_and_exit "Usage: $__SETUP_NAME [options] {install|remove|rollback}" ;;
             \?) echo "Invalid option -$OPTARG" >&2; exit 1 ;;
             :) echo "Option -$OPTARG requires an argument." >&2; exit 1 ;;
         esac
@@ -119,7 +119,7 @@ parse_arguments() {
     # Ensure at least one action is specified
     ACTION="${1:-}"
     if [ -z "$ACTION" ]; then
-        display_help_and_exit "Usage: $MY_NAME [options] {install|remove|rollback}" 
+        display_help_and_exit "Usage: $__SETUP_NAME [options] {install|remove|rollback}"
     fi
 
     return 0
@@ -128,7 +128,9 @@ parse_arguments() {
 # Installation Initialization
 initialization() {
 
-    load_pkg_config
+    pkg_config_vars
+
+    load_pkg_config "${__SETUP_BASE}/setup.cf"
 
     # Set PKG_NAME early to load config
     PKG_NAME=${Name:-${PKG_NAME:-"DEFAULT"}}
@@ -140,7 +142,7 @@ initialization() {
     create_pkg_config_dir
 
     # Set default manifest path
-    INSTALL_MANIFEST="$MY_PATH/manifest.lst"
+    INSTALL_MANIFEST="$__SETUP_BASE/manifest.lst"
 
     log_message "INFO" "Configuring $PKG_NAME for initialization..."
 
@@ -155,7 +157,7 @@ initialization() {
 create_pkg_config_dir() {
     if [ ! -d "${INSTALL_CONFIG}" ]; then
         mkdir -p "${INSTALL_CONFIG}"
-        mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze" 
+        mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze"
         log_message "INFO" "Created ${INSTALL_CONFIG} directories..."
     fi
     # Create application configuration directory
@@ -166,7 +168,7 @@ create_pkg_config_dir() {
 install_conda() {
     log_message "INFO" "Installing conda..."
     # Check if conda is already installed
-    if command -v conda &> /dev/null; then
+    if which conda &> /dev/null; then
         log_message "INFO" "Conda is already installed. Skipping installation."
         return 0
     fi
@@ -200,7 +202,7 @@ install_conda() {
     export CONDA_INSTALL_COMPLETE=Y
     SHELL=$(which "$(basename "$SHELL")")
     # Wheeeeee!!!!!!
-    exec "$SHELL" -l -c "${THIS_SCRIPT} ${ACTION}"
+    exec "$SHELL" -l -c "${__SETUP_BASE}/${__SETUP_NAME}  ${ACTION}"
     return 0
 }
 
@@ -227,13 +229,13 @@ write_pkg_info() {
 check_deps() {
     # Check for Bash version 4+
     if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
-        log_message "ERROR" "$MY_NAME requires Bash version 4 or higher."
+        log_message "ERROR" "$__SETUP_NAME requires Bash version 4 or higher."
         exit 75
     fi
 
     # Check Operating System (Linux or macOS)
     if [ "$(uname -s)" != "Darwin" ] && [ "$(uname -s)" != "Linux" ]; then
-        log_message "ERROR" "$MY_NAME is only supported on macOS and Linux."
+        log_message "ERROR" "$__SETUP_NAME is only supported on macOS and Linux."
         exit 75
     fi
 
@@ -289,7 +291,7 @@ install_assets() {
         IFS=$'| ' read -r asset_type destination source name permissions owner group size checksum <<< "$line"
 
         destination="${INSTALL_BASE}/${destination}"
-        source_path="${MY_PATH}/${source}/${name}"
+        source_path="${__SETUP_BASE}/${source}/${name}"
         dest_path="${destination}/${name}"
 
         mkdir -p "$destination"
@@ -306,18 +308,24 @@ install_assets() {
                 chmod "$permissions" "$dest_path"
                 ;;
             h) # Create hard link
+                # shellcheck disable=SC2164
                 cd "$destination"
                 ln "$source" "$name"
+                # shellcheck disable=SC2164
                 cd - > /dev/null
                 ;;
             l) # Create symbolic link
+                # shellcheck disable=SC2164
                 cd "$destination"
                 ln -sf "$source" "$name"
+                # shellcheck disable=SC2164
                 cd - > /dev/null
                 ;;
             c) # Remove the asset
+                # shellcheck disable=SC2164
                 cd "$destination"
                 rm -rf "$name"
+                # shellcheck disable=SC2164
                 cd - > /dev/null
                 ;;
             *)
@@ -343,19 +351,19 @@ post_install_user_message() {
     or exit the terminal and start a new one. To verify the installation files
     for correct location and file integrity run the following command:
 
-    $MY_NAME verify (not implemented yet)
+    $__SETUP_NAME verify (not implemented yet)
 
     If you wish to uninstall the packages associated with $PKG_NAME, run the
     following command:
 
-    $MY_NAME uninstall (not implemented yet)
+    $__SETUP_NAME uninstall (not implemented yet)
 
     This will only remove the files associated with the package, not the
     Conda installation, its installed packages or any other dependencies. If
     you wish to uninstall everything associated with the package, run the
     following command:
 
-    $MY_NAME remove_all (not implemented yet)
+    $__SETUP_NAME remove_all (not implemented yet)
 
     The documentation may be found in the $INSTALL_BASE/README.md file. Please
     contact the package maintainers for any issues or feature requests or file them on
@@ -386,17 +394,23 @@ update_bashrc() {
     # Expressions don't expand in single quotes, use double quotes for that.
     # shellcheck disable=SC2016
     local path_line="if [[ ! \"\$PATH\" =~ \"$INSTALL_BASE/bin:\" ]]; then export PATH=\"$INSTALL_BASE/bin:\$PATH\"; fi"
+    local source_line="if [[ -f "${INSTALL_BASE}/bin/shinclude/init_lib.sh" ]]; then source \"${INSTALL_BASE}/bin/shinclude/init_lib.sh\"; fi"
 
-    if ! grep -Fxq "$path_line" "$bashrc"; then
-        echo "$path_line" >> "$bashrc"
+    for line in "${path_line}" "${source_line}"; do
+        if ! grep -Fxq "$line" "$bashrc"; then
+            echo "$line" >> "$bashrc"
+        fi
         log_message "INFO" "Updated $bashrc added package $PKG_NAME bin directory."
-    fi
+        log_message "INFO" "Updated $bashrc added package $PKG_NAME initialization."
+    done
     return 0
 }
 
 install_python_packages() {
+    benv venvutil
+    read -p "Press Enter to continue"
     log_message "INFO" "Installing NLTK data..."
-    pip install -r "$MY_PATH/requirements.txt" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
+    pip install -r "$__SETUP_BASE/requirements.txt" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
     python <<_EOT_
 import nltk
 nltk.download('punkt')
@@ -535,28 +549,30 @@ main() {
             ;;
         *)
             echo "Invalid action: $ACTION"
-            display_help_and_exit "Usage: $MY_NAME [options] {install|remove|rollback}"
+            display_help_and_exit "Usage: $__SETUP_NAME [options] {install|remove|rollback}"
             ;;
     esac
 }
 
 ## Initialization
-[ "${DEBUG_SETUP:-""}" = "ON" ] && set -x
-set -euo pipefail
+[ "${DEBUG_SETUP:-""}" == "ON" ] && set -x
+#set -eo pipefail
 
 [[ "${BASH_VERSINFO[0]}" -lt 4 ]] \
-    && echo "($MY_NAME) ERROR: This script requires Bash version 4 or higher." >&2 \
-    && exit 75 
+    && echo "($__SETUP_NAME) ERROR: This script requires Bash version 4 or higher." >&2 \
+    && exit 75
 
 # Determine the real path of the script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Extract script name, directory, and arguments
-# MY_NAME appears unused. Verify use (or export if used externally).
+# __SETUP_NAME appears unused. Verify use (or export if used externally).
 # shellcheck disable=SC2034
-MY_NAME=$(basename "${THIS_SCRIPT}")
-__SETUP_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
-__SETUP_BASE=$(dirname "${__SETUP_BIN}")
-__SETUP_INCLUDE="${__SETUP_BASE}/bin/shinclude"
+# Initialize script variables
+THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}")
+__SETUP_NAME="$(basename "${THIS_SCRIPT}")"
+__SETUP_BASE="$(dirname "${THIS_SCRIPT}")"
+__SETUP_BIN="${__SETUP_BASE}/bin"
+__SETUP_INCLUDE="${__SETUP_BIN}/shinclude"
 
 # Default values
 PKG_NAME="DEFAULT"
@@ -573,23 +589,24 @@ declare -g -a pkg_config_desc_vars=()
 
 SH_LIB="${SH_LIB:-""}"
 for try in "${SH_LIB}" "$(dirname "${THIS_SCRIPT}")/shinclude" "${__SETUP_INCLUDE}" "${HOME}/bin/shinclude"; do
-    [ -f "${try}/packaging.sh" ] && { SH_LIB="${try}"; break; }
+    [ -f "${try}/init_lib.sh" ] && { SH_LIB="${try}"; break; }
 done
 [ -z "${SH_LIB}" ] && {
     cat<<_EOT_ >&2
-ERROR ($MY_NAME): Could not locate \`packaging.sh\` file.
-ERROR ($MY_NAME): Please set install packaging.sh which came with this repository in one of
+ERROR ($__SETUP_NAME): Could not locate \`init_lib.sh\` file.
+ERROR ($__SETUP_NAME): Please set install init_lib.sh which came with this repository in one of
     the following locations:
-        - $(dirname "${THIS_SCRIPT}")/shinclude
+        - $(dirname "${THIS_SCRIPT}")/bin/shinclude
         - $HOME/shinclude
         - $HOME/bin/shinclude
-    or set the environment variable SH_LIB to the directory containing packaging.sh
+    or set the environment variable SH_LIB to the directory containing init_lib.sh
 
 _EOT_
     exit 2     # (ENOENT: 2): No such file or directory
 }
-echo "INFO ($MY_NAME): Using SH_LIB directory - ${SH_LIB}" >&2
+echo "INFO ($__SETUP_NAME): Using SH_LIB directory - ${SH_LIB}" >&2
 # shellcheck source=/dev/null
-source "${SH_LIB}/packaging.sh"
+source "${SH_LIB}/init_lib.sh"
 
 main "$@"
+

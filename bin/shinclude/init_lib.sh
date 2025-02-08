@@ -38,6 +38,7 @@ if [[ "${__VENV_SOURCED[${THIS_SCRIPT}]:-}" == 1 ]]; then
 fi
 # Mark this script as sourced
 __VENV_SOURCED[${THIS_SCRIPT}]=1
+# echo "************************* SOURCED SOURCED SOURCED SOURCED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
 
 # Extract script name, directory, and arguments
 declare -g __VENV_BIN
@@ -166,15 +167,15 @@ source_lib venvutil_lib
 # Initialize Conda environment
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/unixwzrd/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+__conda_setup="$('${HOME}/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
 # shellcheck disable=SC2181
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
-    if [ -f "/Users/unixwzrd/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/Users/unixwzrd/miniconda3/etc/profile.d/conda.sh"
+    if [ -f "${HOME}/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "${HOME}/miniconda3/etc/profile.d/conda.sh"
     else
-        export PATH="/Users/unixwzrd/miniconda3/bin:$PATH"
+        export PATH="${HOME}/miniconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup
