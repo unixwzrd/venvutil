@@ -2,16 +2,16 @@
 # Function: do_wrapper
 `do_wrapper` - General wrapper function for logging specific command actions.
 ## Description
-- **Purpose**: 
+- **Purpose**:
   - Executes a Python package manager command with optional logging based on the specified action.
-- **Usage**: 
+- **Usage**:
   - `do_wrapper <cmd> <additional parameters>`
-- **Input Parameters**: 
+- **Input Parameters**:
   - `cmd` (string) - The command to be executed.
   - `additional parameters` (string) - Any additional parameters to be passed to the command.
-- **Output**: 
+- **Output**:
   - None
-- **Exceptions**: 
+- **Exceptions**:
   - None
 
 ## Definition 
@@ -25,4 +25,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-06 at 21:08:04
+Generated on: 2025-02-09 at 02:58:51

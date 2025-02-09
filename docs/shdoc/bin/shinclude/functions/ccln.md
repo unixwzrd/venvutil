@@ -11,6 +11,7 @@
   - `ccln [-h] [new_env_name]`
 - **Options**: 
   - `-h`   Show this help message
+  - `-x`   Enable debug mode
 - **Input Parameters**: 
   - `new_env_name` (string) - The name of the new cloned environment.
 - **Output**: 
@@ -29,4 +30,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-06 at 21:08:04
+Generated on: 2025-02-09 at 02:58:51

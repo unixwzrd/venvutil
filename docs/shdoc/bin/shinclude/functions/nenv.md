@@ -8,6 +8,7 @@
   - `nenv [-h] PREFIX [EXTRA_OPTIONS]`
 - **Options**: 
   - `-h`   Show this help message
+  - `-x`   Enable debug mode
 - **Input Parameters**: 
   - `PREFIX` (string) - The prefix to identify the series of environments.
   - `EXTRA_OPTIONS` (string, optional) - Additional options to pass to the environment creation.
@@ -27,4 +28,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-06 at 21:08:03
+Generated on: 2025-02-09 at 02:58:51

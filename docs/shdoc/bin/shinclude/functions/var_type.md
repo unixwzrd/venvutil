@@ -4,18 +4,18 @@
 ## Description
 - **Purpose**:
   - Retrieves the type of a variable.
-- **Usage**: 
+- **Usage**:
   - `var_type [-h] "var_name"`
-- **Options**: 
+- **Options**:
   - `-h`   Show this help message
-- **Examples**: 
+- **Examples**:
   - `var_type "my_variable"`
   - `var_type=$(var_type "my_variable")
-- **Input Parameters**: 
+- **Input Parameters**:
   - `var_name`: The name of the variable.
-- **Output**: 
+- **Output**:
   - The type of the variable as a string. Can be one of `array`, `associative`, `scalar`, or `unknown`.
-- **Exceptions**: 
+- **Exceptions**:
   - None.
 
 ## Definition 
@@ -29,4 +29,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-06 at 21:08:03
+Generated on: 2025-02-09 at 02:58:51

@@ -2,15 +2,15 @@
 # Function: get_function_hash
 `get_function_hash` - Get the hash of a function's definition.
 ## Description
-- **Purpose**: 
+- **Purpose**:
   - Computes the hash of a function's definition for integrity checks.
-- **Usage**: 
+- **Usage**:
   - `get_function_hash [function_name]`
-- **Input Parameters**: 
+- **Input Parameters**:
   - `function_name` (string) - The name of the function to hash.
-- **Output**: 
+- **Output**:
   - The hash of the function's definition.
-- **Exceptions**: 
+- **Exceptions**:
   - None
 
 ## Definition 
@@ -24,4 +24,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-06 at 21:08:04
+Generated on: 2025-02-09 at 02:58:51

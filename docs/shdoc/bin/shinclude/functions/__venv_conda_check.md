@@ -2,16 +2,16 @@
 # Function: __venv_conda_check
 `__venv_conda_check` - Ensure conda function is wrapped and check for definition changes.
 ## Description
-- **Purpose**: 
+- **Purpose**:
   - Checks if the conda function definition has changed and re-hooks if necessary. Replaces
     the conda function with a wrapper that logs the command and environment affected.
-- **Usage**: 
+- **Usage**:
   - `__venv_conda_check`
-- **Input Parameters**: 
+- **Input Parameters**:
   - None
-- **Output**: 
+- **Output**:
   - Ensures the conda function is wrapped correctly.
-- **Exceptions**: 
+- **Exceptions**:
   - None
 
 ## Definition 
@@ -25,4 +25,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-06 at 21:08:04
+Generated on: 2025-02-09 at 02:58:51

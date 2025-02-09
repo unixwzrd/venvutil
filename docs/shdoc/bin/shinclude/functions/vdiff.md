@@ -8,6 +8,7 @@
   - `venvdiff [-h] [env1] [env2]`
 - **Options**: 
   - `-h`   Show this help message
+  - `-x`   Enable debug mode
 - **Input Parameters**: 
   - `env1` (string) - The first environment to compare.
   - `env2` (string) - The second environment to compare.
@@ -27,4 +28,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-06 at 21:08:04
+Generated on: 2025-02-09 at 02:58:51

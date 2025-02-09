@@ -2,16 +2,16 @@
 # Function: pip
 `pip` - Wrapper function for pip commands.
 ## Description
-- **Purpose**: 
+- **Purpose**:
   - Wraps pip commands to ensure environment variables are preserved. provides logging
     for pip commands and the virtual environment affected
-- **Usage**: 
+- **Usage**:
   - `pip [arguments]`
-- **Input Parameters**: 
+- **Input Parameters**:
   - `arguments` (string) - Arguments to pass to pip.
-- **Output**: 
+- **Output**:
   - Executes the pip command with the provided arguments.
-- **Exceptions**: 
+- **Exceptions**:
   - None
 
 ## Definition 
@@ -25,4 +25,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-06 at 21:08:04
+Generated on: 2025-02-09 at 02:58:51

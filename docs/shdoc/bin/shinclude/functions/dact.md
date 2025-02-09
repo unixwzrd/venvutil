@@ -8,6 +8,7 @@
   - `dact [-h]`
 - **Options**: 
   - `-h`   Show this help message
+  - `-x`   Enable debug mode
 - **Input Parameters**: 
   - None
 - **Output**: 
@@ -26,4 +27,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-06 at 21:08:03
+Generated on: 2025-02-09 at 02:58:51

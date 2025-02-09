@@ -14,6 +14,7 @@
       - `-t`   Sort by last update time
       - `-r`   Reverse the sort order
       - `-h`   Show this help message
+      - `-x`   Enable debug mode
 - **Output**: 
   - A list of all existing conda virtual environments with their last modification date.
   - The active environment is marked with an asterisk.
@@ -37,4 +38,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-06 at 21:08:03
+Generated on: 2025-02-09 at 02:58:51

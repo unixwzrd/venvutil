@@ -8,6 +8,7 @@
   - `benv [-h] ENV_NAME [EXTRA_OPTIONS]`
 - **Options**: 
   - `-h`   Show this help message
+  - `-x`   Enable debug mode
 - **Input Parameters**: 
   - `ENV_NAME` (string) - The name of the new environment to create.
   - `EXTRA_OPTIONS` (string, optional) - Additional options to pass to `conda create`.
@@ -31,4 +32,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-06 at 21:08:03
+Generated on: 2025-02-09 at 02:58:51
