@@ -22,7 +22,7 @@
 # - `setup.cf` (for package configuration)
 ## Initialization
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
-if ! declare -p __VENV_SOURCED >/dev/null 2>&1; then declare -gA __VENV_SOURCED; fi
+if ! declare -p __VENV_SOURCED >/dev/null 2>&1; then declare -A __VENV_SOURCED; fi
 if [[ "${__VENV_SOURCED[${THIS_SCRIPT}]:-}" == 1 ]]; then 
     # echo "************************* SKIPPED SKIPPED SKIPPED SKIPPED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
     return 
@@ -38,16 +38,16 @@ __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
 # Get the init_lib.sh script
 # shellcheck source=/dev/null
-source "${__VENV_INCLUDE}/init_lib.sh"
+# source "${__VENV_INCLUDE}/init_lib.sh"
 
 # Get the errno_lib.sh script
-source_lib errno_lib
+# source_lib errno_lib
 
 # Get the string_lib.sh script
-source_lib string_lib
+# source_lib string_lib
 
 # Get the type_lib.sh script
-source_lib type_lib
+# source_lib type_lib
 
 # Declare global variables
 # The values are the values by key in the .cf file regardless fo the operator used to set them.

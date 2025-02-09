@@ -20,7 +20,7 @@
 
 ## Initialization
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
-if ! declare -p __VENV_SOURCED >/dev/null 2>&1; then declare -gA __VENV_SOURCED; fi
+if ! declare -p __VENV_SOURCED >/dev/null 2>&1; then declare -A __VENV_SOURCED; fi
 if [[ "${__VENV_SOURCED[${THIS_SCRIPT}]:-}" == 1 ]]; then
     # echo "************************* SKIPPED SKIPPED SKIPPED SKIPPED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
     return
@@ -36,10 +36,10 @@ __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
 # Get the init_lib.sh script
 # shellcheck source=/dev/null
-source "${__VENV_INCLUDE}/init_lib.sh"
+# source "${__VENV_INCLUDE}/init_lib.sh"
 
 # Get the errno_lib.sh script
-source_lib errno_lib
+# source_lib errno_lib
 
 # Add internal functions to the __VENV_INTERNAL_FUNCTIONS array.
 if ! declare -p __VENV_INTERNAL_FUNCTIONS >/dev/null 2>&1; then declare -ga __VENV_INTERNAL_FUNCTIONS; fi

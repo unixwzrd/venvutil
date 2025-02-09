@@ -16,7 +16,7 @@
 
 ## Initialization
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
-if ! declare -p __VENV_SOURCED >/dev/null 2>&1; then declare -gA __VENV_SOURCED; fi
+if ! declare -p __VENV_SOURCED >/dev/null 2>&1; then declare -A __VENV_SOURCED; fi
 if [[ "${__VENV_SOURCED[${THIS_SCRIPT}]:-}" == 1 ]]; then 
     # echo "************************* SKIPPED SKIPPED SKIPPED SKIPPED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
     return 
@@ -40,7 +40,7 @@ if ! declare -p __VENV_INTERNAL_FUNCTIONS >/dev/null 2>&1; then declare -ga __VE
 __VENV_INTERNAL_FUNCTIONS=(
     ${__VENV_INTERNAL_FUNCTIONS[@]}
 )
-#source_lib config_lib
+source_lib config_lib
 source_lib errno_lib
 source_lib helpsys_lib
 source_lib string_lib
