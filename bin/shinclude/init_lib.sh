@@ -162,7 +162,7 @@ _EOT_
 }
 
 # Get the venvutil_lib.sh script
-source_lib venvutil_lib
+# source_lib venvutil_lib
 
 __rc__=0
 return ${__rc__}
