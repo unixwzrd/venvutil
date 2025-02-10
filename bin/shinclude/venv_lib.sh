@@ -320,7 +320,7 @@ cact() {
     fi
 
     # Pop from stack if top of stack matches the new environment
-    if [[ "${__VENV_STACK[${#__VENV_STACK[@]}]}" == "$new_env" ]]; then
+    if [[ "${__VENV_STACK[${#__VENV_STACK[@]}]:-}" == "$new_env" ]]; then
         pop_venv
     fi
 
@@ -335,7 +335,7 @@ cact() {
     # Activate new environment
     echo "Activating new environment: ${__VENV_NAME}..."
     conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." 1>&2; return 1; }
-    if [ "${set_here}" == 'y' ]; then
+    if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi
 }
@@ -393,7 +393,7 @@ dact() {
     pop_venv
     # shellcheck disable=SC2034
     stack_value="${__sv__}"
-    if [ "${set_here}" == 'y' ]; then
+    if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi
     return "${__rc__}"
@@ -440,7 +440,7 @@ pact() {
     else
         echo "No previous environment to switch to."
     fi
-    if [ "${set_here}" == 'y' ]; then
+    if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi
 }
@@ -565,7 +565,7 @@ lenv() {
 
     rm "$temp_file"
 
-    if [ "${set_here}" == 'y' ]; then
+    if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi 
 }
@@ -598,18 +598,20 @@ lastenv() {
 # ## Description
 # - **Purpose**: 
 #   - Creates a new base conda virtual environment and activates it.
+#   - If no packages specified, creates environment with latest Python and pip.
 # - **Usage**: 
-#   - `benv [-h] ENV_NAME [EXTRA_OPTIONS]`
+#   - `benv [-h] ENV_NAME [PACKAGES...] [OPTIONS...]
 # - **Options**: 
 #   - `-h`   Show this help message
 #   - `-x`   Enable debug mode
 # - **Input Parameters**: 
 #   - `ENV_NAME` (string) - The name of the new environment to create.
-#   - `EXTRA_OPTIONS` (string, optional) - Additional options to pass to `conda create`.
+#   - `PACKAGES` (string, optional) - Packages to install. Defaults to latest Python and pip.
+#   - `OPTIONS` (string, optional) - Additional options to pass to `conda create`.
 # - ** Examples**: 
-#   - `benv pa1`
-#   - `benv pa1 -c conda-forge`
-#   - `benv pa1 python=3.11`
+#   - `benv pa1` - Creates env with latest Python and pip
+#   - `benv pa1 python=3.11 numpy pandas` - Creates env with specific packages
+#   - `benv pa1 -c conda-forge python=3.11` - Uses conda-forge channel
 # - **Output**: 
 #   - Creates and activates the new environment.
 # - **Exceptions**: 
@@ -627,11 +629,24 @@ benv() {
     done
     shift $((OPTIND - 1))
 
-    local env_name="$1"; shift
-    local extra_options="$*"
+    # Check for environment name
+    if [ -z "$1" ]; then
+        echo "Error: Environment name is required" >&2
+        vhelp "${FUNCNAME[0]}"
+        return 1
+    fi
 
-    echo "Creating base virtual environment ${env_name} ${extra_options}"
-    conda create -n "${env_name}" "${extra_options}" -y || {
+    local env_name="$1"; shift
+    local packages="$*"
+
+    # If no packages specified, use latest Python and pip
+    if [ -z "$packages" ]; then
+        echo "Warning: No packages specified. Creating environment with latest Python." >&2
+        packages="python"
+    fi
+
+    echo "Creating base virtual environment ${env_name} with packages: ${packages}"
+    conda create -n "${env_name}" ${packages} -y || {
         echo "Error: Failed to create environment ${env_name}" >&2
         __rc__=1
         return "${__rc__}"
@@ -639,7 +654,7 @@ benv() {
 
     echo "Base environment created - activating ${env_name}"
     cact "${env_name}"
-    if [ "${set_here}" == 'y' ]; then
+    if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi
 }
@@ -690,7 +705,7 @@ nenv() {
     __VENV_PREFIX="${prefix}"
     # Create a clone of the base environment
     ccln "base"
-    if [ "${set_here}" == 'y' ]; then
+    if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi
 }
@@ -735,7 +750,7 @@ denv() {
 
     echo "Removing environment -> ${env_to_delete}"
     conda remove --all -n "${env_to_delete}" -y
-    if [ "${set_here}" == 'y' ]; then
+    if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi
 }
@@ -787,7 +802,7 @@ renv() {
     dact  # Deactivate the current environment
     denv "${env_to_delete}"  # Delete the environment
     cact "${previous_env}"  # Reactivate the previous environment
-    if [ "${set_here}" == 'y' ]; then
+    if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi
 }
@@ -859,7 +874,7 @@ ccln() {
     # Switch to the newly created VENV
     cact "${new_name}"
 
-    if [ "${set_here}" == 'y' ]; then
+    if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi
 }
@@ -952,7 +967,7 @@ vren() {
 
     __rc__=$?
 
-    if [ "${set_here}" == 'y' ]; then
+    if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi
     return ${__rc__}
@@ -1013,7 +1028,7 @@ vdiff() {
     echo "Comparing packages in $env1 and $env2:"
     diff -y <(echo "$env1_packages") <(echo "$env2_packages")
 
-    if [ "${set_here}" == 'y' ]; then
+    if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi
 }

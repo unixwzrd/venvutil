@@ -359,11 +359,7 @@ write_pkg_config() {
 install_python_packages() {
     log_message "INFO" "Installing Python packages..."
     log_message "INFO" "Creating virtual environment..."
-    benv -x venvutil
-    echo "Allow for validation and verification before continuing..."
-    declare -p
-    read -p "Press Enter to continue"
-
+    benv venvutil
     log_message "INFO" "Installing NLTK data..."
     pip install -r "$__SETUP_BASE/requirements.txt" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
     python <<_EOT_
@@ -399,7 +395,6 @@ run_conda_installer() {
     # Initialize conda for our shell
     conda init "$(basename "${SHELL}")"
     log_message "INFO" "Conda installed successfully, checking for updates..."
-    declare -p | grep -i conda
     conda update -n base -c defaults conda -y
 
     return 0
@@ -441,7 +436,7 @@ update_bashrc() {
     # Expressions don't expand in single quotes, use double quotes for that.
     # shellcheck disable=SC2016
     local path_line="if [[ ! \"\$PATH\" =~ \"$INSTALL_BASE/bin:\" ]]; then export PATH=\"$INSTALL_BASE/bin:\$PATH\"; fi"
-    local source_line="if [[ -f "${INSTALL_BASE}/bin/shinclude/init_lib.sh" ]]; then source \"${INSTALL_BASE}/bin/shinclude/init_lib.sh\"; fi"
+    local source_line="if [[ -f "${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh" ]]; then source \"${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh\"; fi"
 
     for line in "${path_line}" "${source_line}"; do
         if ! grep -Fxq "$line" "$bashrc"; then
@@ -525,7 +520,7 @@ remove_bashrc_entries() {
     # Expressions don't expand in single quotes, use double quotes for that.
     # shellcheck disable=SC2016
     local path_line="if [[ ! \"\$PATH\" =~ \"$INSTALL_BASE/bin:\" ]]; then export PATH=\"$INSTALL_BASE/bin:\$PATH\"; fi"
-    local source_line="if [[ -f "${INSTALL_BASE}/bin/shinclude/init_lib.sh" ]]; then source \"${INSTALL_BASE}/bin/shinclude/init_lib.sh\"; fi"
+    local source_line="if [[ -f "${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh" ]]; then source \"${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh\"; fi"
 
     for line in "${path_line}" "${source_line}"; do
         if grep -Fxq "$line" "$bashrc"; then
@@ -645,7 +640,7 @@ _EOT_
 
 echo "INFO ($__SETUP_NAME): Using SH_LIB directory - ${SH_LIB}" >&2
 # shellcheck source=/dev/null
-source "${SH_LIB}/init_lib.sh"
+source "${SH_LIB}/venvutil_lib.sh"
 
 main "$@"
 

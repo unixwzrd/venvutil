@@ -17,16 +17,15 @@
 # - **Exceptions**:
 #   - Some functions may return specific error codes or print error messages to STDERR.
 #   - Refer to individual function documentation for details.
-set -x
 ## Initialization
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 if ! declare -p __VENV_SOURCED >/dev/null 2>&1; then declare -g -A __VENV_SOURCED; fi
 if [[ "${__VENV_SOURCED[${THIS_SCRIPT}]:-}" == 1 ]]; then
-    echo "************************* SKIPPED SKIPPED SKIPPED SKIPPED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
+    # echo "************************* SKIPPED SKIPPED SKIPPED SKIPPED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
     return
 fi
 __VENV_SOURCED["${THIS_SCRIPT}"]=1
-echo "************************* SOURCED SOURCED SOURCED SOURCED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
+# echo "************************* SOURCED SOURCED SOURCED SOURCED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
 
 # shellcheck disable=SC2034
 MY_NAME=$(basename "${THIS_SCRIPT}")
@@ -208,39 +207,6 @@ pip() {
     do_wrapper pip "$@"
 }
 
-# # Function: conda
-# `conda` - Wrapper function for conda commands.
-#
-# ## Description
-# - **Purpose**:
-#   - Wraps conda commands to ensure environment variables are preserved. provides logging
-#     for conda commands and the virtual environment affected
-# - **Usage**:
-#   - `conda [arguments]`
-# - **Input Parameters**:
-#   - `arguments` (string) - Arguments to pass to conda.
-# - **Output**:
-#   - Executes the conda command with the provided arguments.
-# - **Exceptions**:
-#   - None
-#
-#conda() {
-#    do_wrapper conda "$@"
-#}
-# current_hash=$(get_function_hash conda)
-# if [[ "${current_hash}" != "${__venv_conda_hash:-}" ]]; then
-#     # Capture the current conda function definition and assign it to __venv_conda
-#     local line
-#     line=$(declare -f conda | sed '1d')
-#     eval "__venv_conda() ${line}" 2>/dev/null
-#     # Redefine the conda function to include the wrapper
-#     conda() {
-#         do_wrapper "__venv_conda" "$@"
-#     }
-#     # Set the hash to be the new conda function.
-#     __venv_conda_hash=$(get_function_hash conda)
-# fi
-
 # # Function: __venv_conda_check
 # `__venv_conda_check` - Ensure conda function is wrapped and check for definition changes.
 #
@@ -305,7 +271,7 @@ PROMPT_COMMAND="__venv_conda_check; ${PROMPT_COMMAND:-}"
 
 __rc__=0
 
-echo "************************* EXITING EXITING EXITING EXITING             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
+# echo "************************* EXITING EXITING EXITING EXITING             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
 
 __venv_conda_check
 

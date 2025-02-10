@@ -351,30 +351,33 @@ ptree() {
     # Parse options
     while getopts "h" opt; do
         case $opt in
-            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
+            h)
+                vhelp "${FUNCNAME[0]}"
+                return 0
+                ;;
+            \?)
+                echo "Invalid option: -$OPTARG" >&2
+                vhelp "${FUNCNAME[0]}"
+                return 1
+                ;;
         esac
     done
     shift $((OPTIND - 1))
 
     local pid="$1"
     local indent="${2:-" "}"
-    
-    # Get terminal width
-    local term_width
-    term_width=$(tput cols)
 
-    # Calculate effective width for command output
-    local effective_width=$((term_width - ${#indent} - 14))
+    # Get terminal width and calculate effective width for the command output
+    local term_width effective_width
+    term_width=$(tput cols)
+    effective_width=$(( term_width - ${#indent} - 14 ))
 
     # Display the current process with indentation and truncate command based on effective width
     ps -o pid,ppid,command -p "$pid" | awk -v indent="$indent" -v width="$effective_width" 'NR>1 {printf "%s%s %s %s\n", indent, $1, $2, substr($0, index($0,$3), width)}'
 
-    # Get child processes
+    # Get child processes using ps and awk (more reliable than pgrep -P in some environments)
     local children
-    children=$(pgrep -P "$pid")
-
-    # Recurse for each child process
+    children=$(ps -eo pid,ppid | awk -v ppid="$pid" '$2==ppid {print $1}')
     for child in $children; do
         ptree "$child" "  $indent"
     done
