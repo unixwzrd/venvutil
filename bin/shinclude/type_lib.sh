@@ -4,18 +4,18 @@
 # ## Description
 # - **Purpose**:
 #   - Offers functions to handle variable types.
-# - **Usage**:
+# ## Usage
 #   - Source this script in your Bash scripts to utilize its functions.
 #     ```bash
 #     source /path/to/type_lib.sh
 #     ```
-# - **Input Parameters**:
+# ## Input Parameters
 #   - None.
-# - **Output**:
+# ## Output
 #   - Sets variables from the setup.cf file for package installation.
-# - **Exceptions**:
+# ## Exceptions
 #   - Returns specific error codes if the setup.cf file is not found or invalid.
-# - **Initialization**:
+# ## Initialization
 #   - Ensures the script is sourced only once and initializes necessary variables.
 
 ## Initialization

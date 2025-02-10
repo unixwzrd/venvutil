@@ -3,22 +3,22 @@
 ## Description
 - **Purpose**:
   - Offers functions to retrieve and manage POSIX error codes within Bash scripts.
-- **Usage**:
+## Usage
   - Source this script in your Bash scripts to utilize error code utilities.
     ```bash
     source /path/to/errno_lib.sh
     ```
-- **Input Parameters**:
+## Input Parameters
   - None.
-- **Output**:
+## Output
   - Functions that output error codes and messages.
-- **Exceptions**:
+## Exceptions
   - Returns specific error codes if system `errno.h` is not found or invalid errno codes are provided.
-- **Initialization**:
+## Initialization
   - Ensures the script is sourced only once and initializes necessary variables.
 #
 ## Dependencies
-- `util_lib.sh` (for utility functions like `to_upper`)
+- `string_lib.sh` (for utility functions like `to_upper`)
 
 
 
@@ -33,4 +33,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 08:06:28
+Generated on: 2025-02-10 at 15:04:50

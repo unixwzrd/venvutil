@@ -8,16 +8,16 @@
 #     - Sanitizing strings with a custom "allowed character set"
 #     - Escaping specific characters with a backslash
 #     - Expanding shell variables in a string (handling $VAR or ${VAR})
-# - **Usage**:
+# ## Usage
 #   - Source this script in your Bash scripts to utilize its functions. 
 #     ```bash
 #     source_lib string_lib
 #     ```
-# - **Input Parameters**:
+# ## Input Parameters
 #   - None
-# - **Output**:
+# ## Output
 #   - None
-# - **Exceptions**:
+# ## Exceptions
 #   - None
 
 ## Initialization

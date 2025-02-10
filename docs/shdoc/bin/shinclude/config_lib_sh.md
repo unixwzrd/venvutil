@@ -1,6 +1,6 @@
 # Functions Defined in Script: config_lib.sh
 
-### [config_lib.sh](/docs/shdoc/bin/shinclude/scripts/config_lib.sh.md) - Support functions for manifest and setup packaging.
+### [config_lib.sh](/docs/shdoc/bin/shinclude/scripts/config_lib.sh.md) - Configuration Management and Variable Handling
 
 ## List of Functions Defined
 
@@ -22,4 +22,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 08:06:28
+Generated on: 2025-02-10 at 15:04:50

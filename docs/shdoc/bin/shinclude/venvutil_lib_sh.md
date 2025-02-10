@@ -1,6 +1,6 @@
 # Functions Defined in Script: venvutil_lib.sh
 
-### [venvutil_lib.sh](/docs/shdoc/bin/shinclude/scripts/venvutil_lib.sh.md) - Sources all the scripts for the venv utilities.
+### [venvutil_lib.sh](/docs/shdoc/bin/shinclude/scripts/venvutil_lib.sh.md) - Primary Entry Point for VenvUtil Library System
 
 ## List of Functions Defined
 
@@ -17,4 +17,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 08:06:29
+Generated on: 2025-02-10 at 15:04:52

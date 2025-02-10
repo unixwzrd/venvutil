@@ -39,29 +39,29 @@
   - `lastenv()`: Retrieve the Last Environment with a Given Prefix.
   - `benv()`: Create a New Base Virtual Environment.
   - `nenv()`: Create a New Virtual Environment in a Series.
+  - `vren()`: Rename a Virtual Environment
 #
-- **Usage Example**:
+## Usage Example
   ```shellscript
   source venv_lib.sh
   benv myenv
   cact myenv
   ```
 #
-- **Dependencies**: 
+## Dependencies
   - This script depends on the `conda` command-line tool for managing virtual environments.
   - The `util_funcs.sh` script is also required and should be located in the same directory as this script.
 #
-- **Notes**:
+## Notes
   - This script assumes that the `conda` command is available in the system's PATH.
   - It is recommended to source this script in other scripts rather than executing it directly.
   - Make sure to set the appropriate permissions on this script to allow execution.
 #
-- **Author**: Michael Sullivan <unixwzrd@unixwzrd.ai>
+## Author
+  - Michael Sullivan <unixwzrd@unixwzrd.ai>
   - https://unixwzrd.ai/
   - https://github.com/unixwzrd
   - https://github.com/unixwzrd/venvutil
-#
-- **Last Modified**: 2025-01-13
 #
 
 
@@ -77,4 +77,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 08:06:29
+Generated on: 2025-02-10 at 15:04:51

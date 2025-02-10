@@ -6,14 +6,15 @@
 
 | Script | Description |
 |:--|:--|
-| [config_lib.sh](bin/shinclude/config_lib_sh.md) | Support functions for manifest and setup packaging. |
+| [config_lib.sh](bin/shinclude/config_lib_sh.md) | Configuration Management and Variable Handling |
 | [errno_lib.sh](bin/shinclude/errno_lib_sh.md) | Provides POSIX errno codes and utilities for Bash scripts |
-| [init_lib.sh](bin/shinclude/init_lib_sh.md) | Initialize Environment and Source Utility Scripts |
+| [helpsys_lib.sh](bin/shinclude/helpsys_lib_sh.md) | Help System Functions for Bash Scripts |
+| [init_lib.sh](bin/shinclude/init_lib_sh.md) | Library Initialization and Environment Setup |
 | [string_lib.sh](bin/shinclude/string_lib_sh.md) | Consolidated string sanitization & variable expansion library |
 | [type_lib.sh](bin/shinclude/type_lib_sh.md) | Support functions for variable type handling. |
-| [util_lib.sh](bin/shinclude/util_lib_sh.md) | Utility Functions for Bash Scripts |
+| [util_lib.sh](bin/shinclude/util_lib_sh.md) | Utility Functions and Cross-Platform Support |
 | [venv_lib.sh](bin/shinclude/venv_lib_sh.md) | Virtual Environment Management Functions for Bash Scripts |
-| [venvutil_lib.sh](bin/shinclude/venvutil_lib_sh.md) | Sources all the scripts for the venv utilities. |
+| [venvutil_lib.sh](bin/shinclude/venvutil_lib_sh.md) | Primary Entry Point for VenvUtil Library System |
 | [wrapper_lib.sh](bin/shinclude/wrapper_lib_sh.md) | Python Package Manager Wrapper Functions |
 
 ---
@@ -26,4 +27,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 08:06:30
+Generated on: 2025-02-10 at 15:04:52

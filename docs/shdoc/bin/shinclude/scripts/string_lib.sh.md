@@ -7,16 +7,16 @@
     - Sanitizing strings with a custom "allowed character set"
     - Escaping specific characters with a backslash
     - Expanding shell variables in a string (handling $VAR or ${VAR})
-- **Usage**:
+## Usage
   - Source this script in your Bash scripts to utilize its functions. 
     ```bash
     source_lib string_lib
     ```
-- **Input Parameters**:
+## Input Parameters
   - None
-- **Output**:
+## Output
   - None
-- **Exceptions**:
+## Exceptions
   - None
 
 
@@ -32,4 +32,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 08:06:29
+Generated on: 2025-02-10 at 15:04:51

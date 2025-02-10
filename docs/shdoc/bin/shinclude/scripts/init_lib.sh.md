@@ -1,20 +1,21 @@
 # Script: init_lib.sh
-`init_lib.sh` - Initialize Environment and Source Utility Scripts
+`init_lib.sh` - Library Initialization and Environment Setup
+#
 ## Description
 - **Purpose**: 
   - Initializes the environment for bash scripting, particularly in the context of managing virtual environments. It sets up the necessary environment and sources utility scripts required for the proper functioning of other scripts in the system. It is responsible for orchestrating the environment setup in the correct order and can also be used to source additional environment or setup scripts as required, such as `.env.local` files.
-- **Usage**: 
+## Usage
   - Source this script in other bash scripts to import the necessary environment and utility
     functions. It also contains a function that can be called to perform environment setup tasks
     in user scripts. To use it, include the following line in your bash scripts:
     ```bash
     source /path/to/init_lib.sh
     ```
-- **Input Parameters**: 
+## Input Parameters
   - None. The script operates without requiring any input parameters.
-- **Output**: 
+## Output
   - Sets up the environment, sources utility scripts, and prepares the system for managing virtual environments.
-- **Exceptions**: 
+## Exceptions
   - Exits with code 1 if it fails to find any of the required scripts or if any part of the
     initialization process fails.
 #
@@ -40,4 +41,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 08:06:29
+Generated on: 2025-02-10 at 15:04:51

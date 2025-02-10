@@ -4,20 +4,18 @@
 - **Purpose**:
   - Provides enhanced functionality for managing Python package commands by wrapping pip and conda.
   - Intercepts and logs changes to virtual environments for rollback, auditing, and future use in venvdiff or vdiff.
-- **Usage**:
+## Usage
   - Source this script in your command line environment to import the wrapper functions.
   - For example, in another script: `source wrapper_lib.sh`.
-- **Features**:
+## Features
   - Saves a `pip freeze` before any potentially destructive changes to a virtual environment.
   - Logs the complete command line to a log file for both conda and pip.
   - Persists logs in the `$HOME/.venvutil` directory, even after virtual environments are deleted.
-- **Dependencies**:
+## Dependencies
   - Requires Bash and the Python package managers pip and conda.
-- **Exceptions**:
+## Exceptions
   - Some functions may return specific error codes or print error messages to STDERR.
   - Refer to individual function documentation for details.
-## Initialization
-echo "************************* SOURCED SOURCED SOURCED SOURCED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
 
 
 
@@ -32,4 +30,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 08:06:29
+Generated on: 2025-02-10 at 15:04:52

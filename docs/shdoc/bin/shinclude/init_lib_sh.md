@@ -1,6 +1,6 @@
 # Functions Defined in Script: init_lib.sh
 
-### [init_lib.sh](/docs/shdoc/bin/shinclude/scripts/init_lib.sh.md) - Initialize Environment and Source Utility Scripts
+### [init_lib.sh](/docs/shdoc/bin/shinclude/scripts/init_lib.sh.md) - Library Initialization and Environment Setup
 
 ## List of Functions Defined
 
@@ -20,4 +20,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 08:06:29
+Generated on: 2025-02-10 at 15:04:51
