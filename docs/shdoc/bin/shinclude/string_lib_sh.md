@@ -11,6 +11,7 @@
 | [sanitize](functions/sanitize.md) | Removes every character not in the specified allowed set. |
 | [stringclean](functions/stringclean.md) | Sanitize a String by Removing Non-Alphanumeric Characters |
 | [escape_string](functions/escape_string.md) | Escape Special Characters in a String |
+| [colortext](functions/colortext.md) | Prints a message to STDERR with ANSI color codes. |
 
 ---
 
@@ -22,4 +23,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 02:23:47
+Generated on: 2025-02-10 at 08:06:29

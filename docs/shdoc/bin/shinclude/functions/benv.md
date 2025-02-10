@@ -4,18 +4,20 @@
 ## Description
 - **Purpose**: 
   - Creates a new base conda virtual environment and activates it.
+  - If no packages specified, creates environment with latest Python and pip.
 - **Usage**: 
-  - `benv [-h] ENV_NAME [EXTRA_OPTIONS]`
+  - `benv [-h] ENV_NAME [PACKAGES...] [OPTIONS...]
 - **Options**: 
   - `-h`   Show this help message
   - `-x`   Enable debug mode
 - **Input Parameters**: 
   - `ENV_NAME` (string) - The name of the new environment to create.
-  - `EXTRA_OPTIONS` (string, optional) - Additional options to pass to `conda create`.
+  - `PACKAGES` (string, optional) - Packages to install. Defaults to latest Python and pip.
+  - `OPTIONS` (string, optional) - Additional options to pass to `conda create`.
 - ** Examples**: 
-  - `benv pa1`
-  - `benv pa1 -c conda-forge`
-  - `benv pa1 python=3.11`
+  - `benv pa1` - Creates env with latest Python and pip
+  - `benv pa1 python=3.11 numpy pandas` - Creates env with specific packages
+  - `benv pa1 -c conda-forge python=3.11` - Uses conda-forge channel
 - **Output**: 
   - Creates and activates the new environment.
 - **Exceptions**: 
@@ -32,4 +34,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 02:23:47
+Generated on: 2025-02-10 at 08:06:29

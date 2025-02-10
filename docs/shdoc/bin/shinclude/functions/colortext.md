@@ -18,7 +18,7 @@
 
 ## Definition 
 
-* [errno_lib.sh](../errno_lib_sh.md)
+* [string_lib.sh](../string_lib_sh.md)
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
@@ -27,4 +27,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 02:23:46
+Generated on: 2025-02-10 at 08:06:29

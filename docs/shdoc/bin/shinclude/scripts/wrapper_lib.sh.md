@@ -17,6 +17,7 @@
   - Some functions may return specific error codes or print error messages to STDERR.
   - Refer to individual function documentation for details.
 ## Initialization
+echo "************************* SOURCED SOURCED SOURCED SOURCED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
 
 
 
@@ -31,4 +32,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-02-10 at 02:23:47
+Generated on: 2025-02-10 at 08:06:29

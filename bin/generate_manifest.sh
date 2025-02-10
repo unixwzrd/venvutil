@@ -139,7 +139,7 @@ include_files=(${include_files[@]:-("README.md" "LICENSE" "setup.sh" "setup.cf" 
 # shellcheck disable=SC2206
 include_dirs=(${include_dirs[@]:-("bin" "docs" "conf")})
 # shellcheck disable=SC2206
-exclude_dirs=(".vscode" ".venvutil" "tmp")
+exclude_dirs=(".vscode" ".venvutil" "tmp" "pytest_cache")
 # Output file
 OUTPUT_FILE="manifest.lst"
 
