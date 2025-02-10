@@ -20,10 +20,9 @@
 set -x
 ## Initialization
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
-if ! declare -p __VENV_SOURCED >/dev/null 2>&1; then declare -A __VENV_SOURCED; fi
+if ! declare -p __VENV_SOURCED >/dev/null 2>&1; then declare -g -A __VENV_SOURCED; fi
 if [[ "${__VENV_SOURCED[${THIS_SCRIPT}]:-}" == 1 ]]; then
     echo "************************* SKIPPED SKIPPED SKIPPED SKIPPED             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
-    set +x
     return
 fi
 __VENV_SOURCED["${THIS_SCRIPT}"]=1
@@ -259,7 +258,6 @@ pip() {
 #   - None
 #
 __venv_conda_check() {
-    set -x
     local current_hash
     current_hash=$(get_function_hash conda)
     if [[ "${current_hash}" != "${__venv_conda_hash:-}" ]]; then
@@ -276,7 +274,6 @@ __venv_conda_check() {
         # Set the hash to be the new conda function.
         __venv_conda_hash=$(get_function_hash conda)
     fi
-    set +x
 }
 
 if ! declare -p __venv_conda_hash >/dev/null 2>&1; then declare -g __venv_conda_hash; fi
@@ -309,7 +306,6 @@ PROMPT_COMMAND="__venv_conda_check; ${PROMPT_COMMAND:-}"
 __rc__=0
 
 echo "************************* EXITING EXITING EXITING EXITING             ************************* -----> $(basename "${THIS_SCRIPT}")" >&2
-set +x
 
 __venv_conda_check
 

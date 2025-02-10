@@ -125,11 +125,29 @@ parse_arguments() {
     return 0
 }
 
+get_os_config() {
+    # Find host OS and architecture
+    declare -g OS ARCH
+    OS=$(uname -s)
+    [ "$OS" == "Darwin" ] && OS="MacOSX"
+    [ "$OS" == "Linux" ] && OS="Linux"
+    ARCH=$(uname -m)
+    ARCH=${ARCH//aarch64/arm64}
+    return 0
+}
+
 # Installation Initialization
 initialization() {
 
-    pkg_config_vars
+    get_os_config
 
+    # check to see if function exists for pkg_config_vars
+    if ! declare -f pkg_config_vars &>/dev/null; then
+        log_message "ERROR" "pkg_config_vars function not found configuration not loaded."
+        exit 2
+    fi
+
+    pkg_config_vars
     load_pkg_config "${__SETUP_BASE}/setup.cf"
 
     # Set PKG_NAME early to load config
@@ -160,51 +178,6 @@ create_pkg_config_dir() {
         log_message "INFO" "Created ${INSTALL_CONFIG} directories..."
     fi
     # Create application configuration directory
-    return 0
-}
-
-
-install_conda() {
-    log_message "INFO" "Installing conda..."
-    # Check if conda is already installed
-    if which conda &> /dev/null; then
-        log_message "INFO" "Conda is already installed. Skipping installation."
-        return 0
-    fi
-
-    (cd ; rm -rf local .venvutil  nltk_data .conda miniconda3 )
-
-    # Find host OS and architecture
-    local OS ARCH
-    OS=$(uname -s)
-    [ "$OS" == "Darwin" ] && OS="MacOSX"
-    [ "$OS" == "Linux" ] && OS="Linux"
-    ARCH=$(uname -m)
-    ARCH=${ARCH//aarch64/arm64}
-
-    # Download and install conda
-    log_message "INFO" "Downloading and installing Conda..."
-    local INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-${OS}-${ARCH}.sh"
-    curl -k -O "$INSTALLER_URL"
-    # do a non-destructive install
-    bash "Miniconda3-latest-${OS}-${ARCH}.sh" -b -u
-    rm "Miniconda3-latest-${OS}-${ARCH}.sh"
-    # Activate the Conda installation
-    # shellcheck disable=SC1091
-    source "${HOME}/miniconda3/bin/activate"
-    # Initialize conda for our shell
-    conda init "$(basename "${SHELL}")"
-    log_message "INFO" "Conda installed successfully, checking for updates..."
-    declare -p | grep -i conda
-    conda update -n base -c defaults conda -y
-    # Because Red Hat Enterprise Linux defines, sets it, but doesn't export it BASHSOURCED...
-    # Prevents /etc/bashrc from being sourced again on Red Hat Enterprise Linux.
-    export BASHSOURCED=Y
-    # So we don't recurse.
-    export CONDA_INSTALL_COMPLETE=Y
-    SHELL=$(which "$(basename "$SHELL")")
-    # Wheeeeee!!!!!!
-    exec "$SHELL" -l -c "${__SETUP_BASE}/${__SETUP_NAME}  ${ACTION}"
     return 0
 }
 
@@ -261,32 +234,11 @@ check_deps() {
 # Pre-installation tasks
 pre_install() {
     # Check if pre-installation tasks have already been completed
-    # Stop recursion before it starts, this is re-entrant.
-    if [ "${CONDA_INSTALL_COMPLETE:-""}" == "Y" ]; then
-        return 0
-    fi
     log_message "INFO" "Pre-installation tasks..."
     # Custom pre-install tasks can be added here
     check_deps
     # This may be used for verification or rollback/removal later.
     write_pkg_info
-    install_conda
-    unset CONDA_INSTALL_COMPLETE
-}
-
-initialize_conda() {
-    set -x
-    log_message "INFO" "Initializing conda..."
-    
-    # Try to get conda setup with explicit path and shell
-    __conda_setup="$(${HOME}/miniconda3/bin/conda 'shell.bash' 'hook')"
-    eval "${__conda_setup}"
-    source "${HOME}/miniconda3/etc/profile.d/conda.sh"
-    unset __conda_setup
-
-    declare -p | grep -i conda
-    set +x
-    return 0
 }
 
 install_assets() {
@@ -404,6 +356,84 @@ write_pkg_config() {
     return 0
 }
 
+install_python_packages() {
+    log_message "INFO" "Installing Python packages..."
+    log_message "INFO" "Creating virtual environment..."
+    benv -x venvutil
+    echo "Allow for validation and verification before continuing..."
+    declare -p
+    read -p "Press Enter to continue"
+
+    log_message "INFO" "Installing NLTK data..."
+    pip install -r "$__SETUP_BASE/requirements.txt" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
+    python <<_EOT_
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+_EOT_
+    log_message "INFO" "NLTK data installed successfully."
+    return 0
+}
+
+restart_shell() {
+    log_message "INFO" "Restarting shell..."
+    # Because Red Hat Enterprise Linux defines, sets it, but doesn't export it BASHSOURCED...
+    # Prevents /etc/bashrc from being sourced again on Red Hat Enterprise Linux.
+    export BASHSOURCED=Y
+    # So we don't recurse.
+    export CONDA_INSTALL_COMPLETE=Y
+    SHELL=$(which "$(basename "$SHELL")")
+    # Wheeeeee!!!!!!
+    exec "$SHELL" -l -c "${__SETUP_BASE}/${__SETUP_NAME}  ${ACTION}"
+    return 0
+}
+
+run_conda_installer() {
+    log_message "INFO" "Running conda installer..."
+    bash "Miniconda3-latest-${OS}-${ARCH}.sh" -b -u
+    rm "Miniconda3-latest-${OS}-${ARCH}.sh"
+    # Activate the Conda installation
+    # shellcheck disable=SC1091
+    source "${HOME}/miniconda3/bin/activate"
+
+    # Initialize conda for our shell
+    conda init "$(basename "${SHELL}")"
+    log_message "INFO" "Conda installed successfully, checking for updates..."
+    declare -p | grep -i conda
+    conda update -n base -c defaults conda -y
+
+    return 0
+}
+
+get_conda_installer() {
+    log_message "INFO" "Getting conda installer..."
+    # Find host OS and architecture
+    local OS ARCH
+    OS=$(uname -s)
+    [ "$OS" == "Darwin" ] && OS="MacOSX"
+    [ "$OS" == "Linux" ] && OS="Linux"
+    ARCH=$(uname -m)
+    ARCH=${ARCH//aarch64/arm64}
+    local INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-${OS}-${ARCH}.sh"
+    curl -k -O "$INSTALLER_URL"
+    return 0
+}
+
+install_conda() {
+    # Stop recursion before it starts, this is re-entrant.
+    if [ "${CONDA_INSTALL_COMPLETE:-""}" == "Y" ]; then
+        unset CONDA_INSTALL_COMPLETE
+        return 0
+    fi
+    log_message "INFO" "Installing conda..."
+    (cd ; rm -rf local .venvutil  nltk_data .conda miniconda3 )
+
+    get_conda_installer
+    run_conda_installer
+    restart_shell
+    return 0
+}
+
 # Update .bashrc
 update_bashrc() {
     log_message "INFO" "Updating .bashrc for package $PKG_NAME in PATH..."
@@ -423,27 +453,13 @@ update_bashrc() {
     return 0
 }
 
-install_python_packages() {
-    benv -x venvutil
-    read -p "Press Enter to continue"
-    log_message "INFO" "Installing NLTK data..."
-    pip install -r "$__SETUP_BASE/requirements.txt" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
-    python <<_EOT_
-import nltk
-nltk.download('punkt')
-nltk.download('stopwords')
-_EOT_
-    log_message "INFO" "NLTK data installed successfully."
-}
-
 post_install() {
     log_message "INFO" "Post-installation tasks..."
-    install_python_packages
-    # Example: Update .bashrc if necessary
     update_bashrc
+    install_conda
+    install_python_packages
     write_pkg_config
     post_install_user_message
-    log_message "INFO" "Installation for $PKG_NAME complete."
     return 0
 }
 
@@ -451,9 +467,9 @@ post_install() {
 install() {
     log_message "INFO" "Installing package: $PKG_NAME..."
     pre_install
-    # initialize_conda
     install_assets
     post_install
+    log_message "INFO" "Installation for $PKG_NAME complete."
     return 0
 }
 
@@ -461,6 +477,7 @@ install() {
 pre_remove() {
     log_message "INFO" "Pre-removal tasks..."
     # Custom pre-remove tasks can be added here
+    return 0
 }
 
 # Removal function
@@ -499,14 +516,7 @@ remove_assets() {
         esac
     done
 
-    post_remove
-}
-
-# Post-removal tasks
-post_remove() {
-    log_message "INFO" "Post-removal tasks..."
-    # Example: Remove package bin directory from .bashrc
-    remove_bashrc_entries
+    return 0
 }
 
 # Remove entries from .bashrc
@@ -526,11 +536,11 @@ remove_bashrc_entries() {
     return 0
 }
 
-# Rollback function
-rollback() {
-    log_message "CRITICAL" "Rollback initiated..."
-    # Implement rollback logic based on actions logged during installation
-    # For example, read a log file and undo actions
+# Post-removal tasks
+post_remove() {
+    log_message "INFO" "Post-removal tasks..."
+    # Example: Remove package bin directory from .bashrc
+    remove_bashrc_entries
 }
 
 remove() {
@@ -538,9 +548,17 @@ remove() {
     pre_remove
     remove_assets
     post_remove
+    log_message "INFO" "Package: $PKG_NAME removed."
     return 0
 }
 
+
+# Rollback function
+rollback() {
+    log_message "CRITICAL" "Rollback initiated..."
+    # Implement rollback logic based on actions logged during installation
+    # For example, read a log file and undo actions
+}
 
 verify() {
     log_message "INFO" "Verifying package: $PKG_NAME tasks..."
@@ -578,8 +596,7 @@ main() {
 
 ## Initialization
 [ "${DEBUG_SETUP:-""}" == "ON" ] && set -x
-#set -eo pipefail
-# start fresh
+set -uo pipefail
 
 [[ "${BASH_VERSINFO[0]}" -lt 4 ]] \
     && echo "($__SETUP_NAME) ERROR: This script requires Bash version 4 or higher." >&2 \
@@ -588,8 +605,6 @@ main() {
 # Determine the real path of the script
 [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
 # Extract script name, directory, and arguments
-# __SETUP_NAME appears unused. Verify use (or export if used externally).
-# shellcheck disable=SC2034
 # Initialize script variables
 THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}")
 __SETUP_NAME="$(basename "${THIS_SCRIPT}")"
@@ -627,6 +642,7 @@ ERROR ($__SETUP_NAME): Please set install init_lib.sh which came with this repos
 _EOT_
     exit 2     # (ENOENT: 2): No such file or directory
 }
+
 echo "INFO ($__SETUP_NAME): Using SH_LIB directory - ${SH_LIB}" >&2
 # shellcheck source=/dev/null
 source "${SH_LIB}/init_lib.sh"
