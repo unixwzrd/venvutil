@@ -308,10 +308,12 @@ post_install_user_message() {
     log_message "INFO" "Provide user instructions..."
     # Custom post-install message can be added here
     cat <<_EOT_
+
     The package $PKG_NAME has been installed to $INSTALL_BASE.
     To use the package, the following line was added to your .bashrc file:
 
     if [[ ! "\$PATH" =~ "$INSTALL_BASE/bin:" ]]; then export PATH="$INSTALL_BASE/bin:\$PATH"; fi
+    if [[ -f "${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh" ]]; then source \"${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh\"; fi
 
     If you wish to use it in the current shell, run the following command:
 
@@ -421,8 +423,6 @@ install_conda() {
         return 0
     fi
     log_message "INFO" "Installing conda..."
-    (cd ; rm -rf local .venvutil  nltk_data .conda miniconda3 )
-
     get_conda_installer
     run_conda_installer
     restart_shell
@@ -643,5 +643,3 @@ echo "INFO ($__SETUP_NAME): Using SH_LIB directory - ${SH_LIB}" >&2
 source "${SH_LIB}/venvutil_lib.sh"
 
 main "$@"
-
-
