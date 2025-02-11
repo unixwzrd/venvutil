@@ -2,10 +2,25 @@
 
 This is release 20250210_01-rel.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
 
+## What's New in This Major Release (20250210_01-rel)
+
+- Comprehensive documentation overhaul with standardized structure, improved API references, and enhanced cross-referencing across components.
+- Library reorganization: All core libraries are now loaded via 'venvutil_lib.sh' with enhanced error handling and type checking.
+- Enhanced virtual environment management: Updated 'lenv' now displays column headers and Python versions, improved 'ccln' cloning functionality, and a new 'renv' command for renaming environments.
+- Improved logging and process management: Robust error handling and logging across pip, conda, and shell functions, ensuring reliability on both macOS and Linux.
+- Thoroughly tested in four separate, fresh user environments, ensuring cross-platform stability and performance.
+- Migration Notes: Update any direct library sourcing to use 'venvutil_lib.sh' and revise configuration files to align with the new pkg-config format.
+  - For full details, please refer to CHANGELOG.md for the complete list of changes.
+
+## Table of Contents
+
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
+  - [What's New in This Major Release (20250210\_01-rel)](#whats-new-in-this-major-release-20250210_01-rel)
+  - [Table of Contents](#table-of-contents)
   - [Project Overview](#project-overview)
     - [Key Features](#key-features)
     - [Why Use Venvutil?](#why-use-venvutil)
+    - [Tested on the following systems](#tested-on-the-following-systems)
   - [Installation Instructions](#installation-instructions)
     - [Prerequisites](#prerequisites)
     - [Running the installer](#running-the-installer)
@@ -56,6 +71,13 @@ Venvutil is a versatile toolset designed to simplify the management of Python vi
 - **Enhanced Logging**: Provides a record of changes to VENV's, making it easy to track and recover from potential issues.
 - **Ensure Reproducibility**: By freezing the state of environments, Venvutil helps ensure that your setups are consistent across different machines and setups.
 - **Transparent Tool Wrapping**: Provides pass-through wrappers Pip, Conda, and LD to ensure compatibility without compromising security or functionality.
+
+### Tested on the following systems
+
+- macOS 15.3 (Sequoia)
+- macOS 13.4 (Monterey)
+- Red Hat Enterprise Linus 8
+- Redhat Enterprise Linux 9
 
 ## Installation Instructions
 
