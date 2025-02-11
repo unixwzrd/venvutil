@@ -1,130 +1,133 @@
-#!/usr/bin/env python3
-"""
-NumPy Benchmark Utility
-
-This script performs a series of matrix operations to benchmark NumPy performance,
-particularly useful for testing GPU and Neural Engine acceleration on Apple Silicon.
-When NumPy is properly compiled and linked against the Accelerate Framework,
-you can expect to see an 8-9x improvement in performance over pre-compiled binaries.
-
-The benchmark includes:
-- Matrix multiplication
-- Matrix transposition
-- Eigenvalue computation
-- Fourier transformation
-- Matrix summation
-
-Each operation is performed on 2500x2500 matrices.
-"""
+#!/usr/bin/env python
+import argparse
 import os
 import sys
 import time
-from argparse import ArgumentParser
-from datetime import datetime
 from io import StringIO
+from datetime import datetime
+
 import numpy as np
 
-# Initialize argparse
-parser = ArgumentParser(description="Run NumPy benchmarks and output results.")
-parser.add_argument(
-    "-o",
-    "--output",
-    type=str,
-    help="Optional file to write detailed results to.",
-)
-parser.add_argument(
-    "-s", "--skip-tests", action="store_true", help="Skip time-consuming tests."
-)
-parser.add_argument(
-    "-c",
-    "--count",
-    type=int,
-    default=1,
-    help="Number of iterations for each test (default: 1).",
-)
+OUTPUT_FILE = None  # Will be assigned if --output is provided
 
-# Parse the arguments
-args = parser.parse_args()
-
-# Open output file if specified
-OUTPUT_FILE = None
-if args.output:
-    OUTPUT_FILE = open(args.output, "w", encoding="utf-8")
-
-
-def print_with_timestamp(message, file=None):
-    """Print messages with a timestamp.
+def timestamped_print(message: str, file=None) -> None:
+    """
+    Print a message with a timestamp.
+    Optionally writes to a file if provided.
 
     Args:
-        message: The message to print
-        file: Optional file object to write to
+        message (str): The message to print
+        file (file-like object, optional): File object to write output
     """
-    output = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} {message}"
-    print(output)
+    out = f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} {message}"
+    print(out)
     if file:
-        file.write(output + "\n")
+        file.write(out + "\n")
 
 
-def do_tests():
-    """Perform matrix operation benchmarks.
-
-    Tests include:
-    - Matrix multiplication (np.dot)
-    - Matrix transposition (np.transpose)
-    - Eigenvalue computation (np.linalg.eigvals)
-    - Fourier transformation (np.fft.fft)
-    - Matrix summation (np.sum)
+def run_numpy_tests(size: int, iterations: int, file=None) -> None:
     """
-    size = 2500
-    a = np.random.rand(size, size)
-    b = np.random.rand(size, size)
+    Execute basic NumPy operations multiple times for performance measurements.
 
-    # Number of iterations
-    iterations = args.count
+    Args:
+        size (int): Dimension for square matrices
+        iterations (int): Number of repeats for each test
+        file (file-like, optional): Where to write log output
+    """
+    timestamped_print(f"Creating random matrices of size {size}x{size}", file=file)
+    mat_a = np.random.rand(size, size)
+    mat_b = np.random.rand(size, size)
 
+    # Tests to perform
     tests = [
-        ("Matrix multiplication", lambda: np.dot(a, b)),
-        ("Matrix transposition", lambda: np.transpose(a)),
-        ("Eigenvalue computation", lambda: np.linalg.eigvals(a)),
-        ("Fourier transformation", lambda: np.fft.fft(a)),
-        ("Summation", lambda: np.sum(a)),
+        ("Matrix multiplication", lambda: np.dot(mat_a, mat_b)),
+        ("Matrix transposition", lambda: np.transpose(mat_a)),
+        ("Eigenvalue computation", lambda: np.linalg.eigvals(mat_a)),
+        ("Fourier transformation", lambda: np.fft.fft(mat_a)),
+        ("Summation", lambda: np.sum(mat_a)),
     ]
 
-    for name, test_func in tests:
-        print_with_timestamp(f"BEGIN TEST: {name}", file=OUTPUT_FILE)
-        start = time.time()
+    # Run each test 'iterations' times
+    for test_name, func in tests:
+        timestamped_print(f"BEGIN TEST: {test_name}", file=file)
+        start_time = time.time()
+
         for _ in range(iterations):
-            test_func()
-        end = time.time()
-        print_with_timestamp(
-            f"Time for {name.lower()}: {(end - start):.4f} seconds", file=OUTPUT_FILE
+            _ = func()  # Even if we ignore the result, it forces execution
+
+        elapsed = time.time() - start_time
+        timestamped_print(
+            f"Time for {test_name.lower()}: {elapsed:.4f} seconds",
+            file=file
         )
-        print_with_timestamp("END TEST / BEGIN NEXT TEST", file=OUTPUT_FILE)
+        timestamped_print("END TEST / BEGIN NEXT TEST", file=file)
 
 
-def main():
-    """Run the NumPy benchmark suite."""
-    print_with_timestamp(
-        f"Producing information for VENV ----> {os.getenv('CONDA_DEFAULT_ENV')}",
-        file=OUTPUT_FILE,
+def show_numpy_config(file=None) -> None:
+    """
+    Capture and print NumPy configuration info with timestamps.
+
+    Args:
+        file (file-like, optional): Where to write output
+    """
+    old_stdout = sys.stdout
+    capture_stdout = StringIO()
+    sys.stdout = capture_stdout
+
+    np.show_config()
+
+    sys.stdout = old_stdout
+    lines = capture_stdout.getvalue().strip().split("\n")
+    for line in lines:
+        timestamped_print(line, file=file)
+
+
+def main() -> None:
+    """
+    Main entry point to run the NumPy torture tests.
+    Allows specifying matrix size, iteration count,
+    skip-tests option, and output file.
+    """
+    parser = argparse.ArgumentParser(description="NumPy torture test.")
+    parser.add_argument(
+        "--size",
+        type=int,
+        default=2500,
+        help="Matrix dimension (square); default=2500"
+    )
+    parser.add_argument(
+        "--count",
+        type=int,
+        default=1,
+        help="Number of iterations per test; default=1"
+    )
+    parser.add_argument(
+        "--skip-tests",
+        action="store_true",
+        help="Skip the performance checks entirely"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Path to output log file"
     )
 
-    # Capture np.show_config() output and print it line by line with timestamps
-    old_stdout = sys.stdout
-    new_stdout = StringIO()
-    sys.stdout = new_stdout
-    np.show_config()
-    sys.stdout = old_stdout
+    args = parser.parse_args()
 
-    for line in new_stdout.getvalue().split("\n"):
-        print_with_timestamp(line, file=OUTPUT_FILE)
+    global OUTPUT_FILE
+    if args.output:
+        OUTPUT_FILE = open(args.output, "w", encoding="utf-8")
+
+    # Show environment info
+    venv = os.getenv("CONDA_DEFAULT_ENV", "Unknown environment")
+    timestamped_print(f"Using environment: {venv}", file=OUTPUT_FILE)
+    timestamped_print("NumPy configuration:", file=OUTPUT_FILE)
+    show_numpy_config(file=OUTPUT_FILE)
 
     if args.skip_tests:
-        print_with_timestamp(
-            "############### SKIPPING PERFORMANCE CHECKS", file=OUTPUT_FILE
-        )
+        timestamped_print("SKIPPING PERFORMANCE CHECKS", file=OUTPUT_FILE)
     else:
-        do_tests()
+        run_numpy_tests(size=args.size, iterations=args.count, file=OUTPUT_FILE)
 
     if OUTPUT_FILE:
         OUTPUT_FILE.close()
@@ -132,3 +135,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -16,20 +16,23 @@ A template for [Script Documentation Style](/doc/Script_Doc_Templ.md) is found h
 - **Initialization**: All scripts, even included ones in the project should include the following lines at the beginning for proper operation.
 
     ```bash
-    # Determine the real path of the script
+    ## Initialization
     [ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
-    # Don't source this script if it's already been sourced.
-    [[ "${__VENV_SOURCED_LIST}" =~ "${THIS_SCRIPT}" ]] && return || __VENV_SOURCED_LIST="${__VENV_SOURCED_LIST} ${THIS_SCRIPT}"
-    echo "Sourcing:${THIS_SCRIPT}"
+    # shellcheck disable=SC2034
+    MY_NAME=$(basename "${THIS_SCRIPT}")
+    __VENV_BIN=$(dirname "$(dirname "${THIS_SCRIPT}")")
+    __VENV_BASE=$(dirname "${__VENV_BIN}")
+    __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
-    # Extract script name, directory, and arguments
-    MY_NAME=$(basename ${THIS_SCRIPT})
-    MY_BIN=$(dirname ${THIS_SCRIPT})
-    MY_ARGS=$*
-    MY_INCLUDE="${MY_BIN}/shinclude"
+    # Get the init_lib.sh script
+    # shellcheck source=/dev/null
+    source "${__VENV_INCLUDE}/init_lib.sh"
 
-    # Define an array of internal functions to exclude from help and documentation
-    __VENV_INTERNAL_FUNCTIONS=("init_help_system" "functions to esclude from help documentation" )
+    # Get the errno_lib.sh script
+    source_lib errno_lib
+
+    __rc__=0
+    return ${__rc__}
     ```
 
 ### Function-Level Documentation

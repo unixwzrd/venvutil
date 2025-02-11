@@ -1,5 +1,5 @@
 ## ccln
-# Function: clan
+# Function: ccln
 `ccln` - Clone current Virtual Environment
 ## Description
 - **Purpose**: 
@@ -11,6 +11,7 @@
   - `ccln [-h] [new_env_name]`
 - **Options**: 
   - `-h`   Show this help message
+  - `-x`   Enable debug mode
 - **Input Parameters**: 
   - `new_env_name` (string) - The name of the new cloned environment.
 - **Output**: 
@@ -20,13 +21,13 @@
 
 ## Definition 
 
-* [venv_funcs.sh](../venv_funcs_sh.md)
+* [venv_lib.sh](../venv_lib_sh.md)
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
 Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
-Copyright (c) 2024 Michael Sullivan
+Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2025 01 03 at 02:39:55
+Generated on: 2025-02-11 at 00:27:21

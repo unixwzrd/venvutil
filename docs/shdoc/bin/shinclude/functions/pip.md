@@ -2,27 +2,27 @@
 # Function: pip
 `pip` - Wrapper function for pip commands.
 ## Description
-- **Purpose**: 
+- **Purpose**:
   - Wraps pip commands to ensure environment variables are preserved. provides logging
     for pip commands and the virtual environment affected
-- **Usage**: 
+- **Usage**:
   - `pip [arguments]`
-- **Input Parameters**: 
+- **Input Parameters**:
   - `arguments` (string) - Arguments to pass to pip.
-- **Output**: 
+- **Output**:
   - Executes the pip command with the provided arguments.
-- **Exceptions**: 
+- **Exceptions**:
   - None
 
 ## Definition 
 
-* [wrapper_funcs.sh](../wrapper_funcs_sh.md)
+* [wrapper_lib.sh](../wrapper_lib_sh.md)
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
 Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
-Copyright (c) 2024 Michael Sullivan
+Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2025 01 03 at 02:39:56
+Generated on: 2025-02-11 at 00:27:21

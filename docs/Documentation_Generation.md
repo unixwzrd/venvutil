@@ -5,7 +5,7 @@ Script documentation begins at the first `#` after the `#!` until the first blan
 - example
 
 ```bash
-#1/usr/bin/env bash
+#!/usr/bin/env bash
 # Script: help_sys.sh
 # `help_sys.sh` - Help System Functions for Bash Scripts
 # ## Description

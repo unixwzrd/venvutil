@@ -2,26 +2,26 @@
 # Function: get_function_hash
 `get_function_hash` - Get the hash of a function's definition.
 ## Description
-- **Purpose**: 
+- **Purpose**:
   - Computes the hash of a function's definition for integrity checks.
-- **Usage**: 
+- **Usage**:
   - `get_function_hash [function_name]`
-- **Input Parameters**: 
+- **Input Parameters**:
   - `function_name` (string) - The name of the function to hash.
-- **Output**: 
+- **Output**:
   - The hash of the function's definition.
-- **Exceptions**: 
+- **Exceptions**:
   - None
 
 ## Definition 
 
-* [wrapper_funcs.sh](../wrapper_funcs_sh.md)
+* [wrapper_lib.sh](../wrapper_lib_sh.md)
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
 Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
-Copyright (c) 2024 Michael Sullivan
+Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2025 01 03 at 02:39:56
+Generated on: 2025-02-11 at 00:27:21

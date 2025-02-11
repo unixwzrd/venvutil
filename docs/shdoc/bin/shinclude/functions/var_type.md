@@ -4,29 +4,29 @@
 ## Description
 - **Purpose**:
   - Retrieves the type of a variable.
-- **Usage**: 
+- **Usage**:
   - `var_type [-h] "var_name"`
-- **Options**: 
+- **Options**:
   - `-h`   Show this help message
-- **Examples**: 
+- **Examples**:
   - `var_type "my_variable"`
   - `var_type=$(var_type "my_variable")
-- **Input Parameters**: 
+- **Input Parameters**:
   - `var_name`: The name of the variable.
-- **Output**: 
+- **Output**:
   - The type of the variable as a string. Can be one of `array`, `associative`, `scalar`, or `unknown`.
-- **Exceptions**: 
+- **Exceptions**:
   - None.
 
 ## Definition 
 
-* [util_funcs.sh](../util_funcs_sh.md)
+* [type_lib.sh](../type_lib_sh.md)
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
 Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
-Copyright (c) 2024 Michael Sullivan
+Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2025 01 03 at 02:39:55
+Generated on: 2025-02-11 at 00:27:20

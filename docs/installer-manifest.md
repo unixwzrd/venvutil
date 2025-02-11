@@ -15,26 +15,26 @@ This described the manifest file for the installer. The types are
 - Data Structure
 
     | field number |     name      | required/optional |     default      |                                    description                                    |
-    | :----------: | :-----------: | :---------------: | :--------------: | :-------------------------------------------------------------------------------: |
-    |      1       |    `type`     |     required      |    no default    |       c, d, f, h, l, - Cancel, directory, file, hard link, or symbolic link       |
-    |      2       | `destination` |     required      |    no default    |                        Destination location of the object                         |
-    |      3       |   `source`    |     required      |    no default    | Source location of the object for a link this is the file or directory to link to |
-    |      4       |    `name`     |     required      |    no default    |                                Name of the object                                 |
-    |      5       | `permissions` |     required      |    no default    |                             Permissions of the object                             |
-    |      6       |    `owner`    |     optional      | `/usr/bin/id -u` |                                Owner of the object                                |
-    |      7       |    `group`    |     optional      | `/usr/bin/id -g` |                                Group of the object                                |
-    |      8       |    `size`     |     optional      |    no default    |                                Size of the object                                 |
-    |      9       |  `checksum`   |     optional      |    no default    |                              Checksum of the object                               |
+    |------------|:------------|:------------------:|----------------|-------------------------------------------------------------------------------|
+    |      1       |    `type`     |     required      | no default    | c, d, f, h, l, - Cancel, directory, file, hard link, or symbolic link       |
+    |      2       | `destination` |     required      | no default    | Destination location of the object                         |
+    |      3       |   `source`    |     required      | no default    | Source location of the object for a link this is the file or directory to link to |
+    |      4       |    `name`     |     required      | no default    | Name of the object                                 |
+    |      5       | `permissions` |     required      | no default    | Permissions of the object                             |
+    |      6       |    `owner`    |     optional      | `/usr/bin/id -u` | Owner of the object                                |
+    |      7       |    `group`    |     optional      | `/usr/bin/id -g` | Group of the object                                |
+    |      8       |    `size`     |     optional      | no default    | Size of the object                                 |
+    |      9       |  `checksum`   |     optional      | no default    | Checksum of the object                               |
 
 - Layout
 
-    | type  | destination |   source   |    name    | permissions | owner | group | size  |   checksum   |
-    | :---: | :---------: | :--------: | :--------: | :---------: | :---: | :---: | :---: | :----------: |
-    |   c   |     bin     | asset_name | link_name  |     755     | user  | staff |  30   | 3a2c0c5d7b5e |
-    |   d   |     bin     |    bin     |  lib_dir   |    2755     | user  | staff |  30   |              |
-    |   f   |             |            | README.md  |     644     | user  | staff |  30   | 3a2c0c5d7b5e |
-    |   h   |     bin     | asset_name | link_name  |     755     | user  | staff |  30   | 3a2c0c5d7b5e |
-    |   l   |     bin     |            | asset_name |             |       |       |       |              |
+    | type | destination |   source   |    name    | permissions | owner | group | size  |   checksum   |
+    |:----:|-------------|-----------|-----------|-------------|--------|-------|------|--------------|
+    |  c  |     bin     | asset_name | link_name  |     755     | user  | staff |  30   | 3a2c0c5d7b5e |
+    |  d  |     bin     |    bin     |  lib_dir   |    2755     | user  | staff |  30   |              |
+    |  f  |             |            | README.md  |     644     | user  | staff |  30   | 3a2c0c5d7b5e |
+    |  h  |     bin     | asset_name | link_name  |     755     | user  | staff |  30   | 3a2c0c5d7b5e |
+    |  l  |     bin     |            | asset_name |             |       |       |       |              |
 
 - Example
 
@@ -90,21 +90,41 @@ To add a library to the set of packages pkg-config knows about, simply install a
 - Example pkg-config file
 
 ```conf
-# This is a comment
-prefix=/home/hp/unst   # this defines a variable
-exec_prefix=${prefix}  # defining another variable in terms of the first
-libdir=${exec_prefix}/lib
-includedir=${prefix}/include
+# Package Configuration File for venvutil
 
-Name: GObject                            # human-readable name
-Description: Object/type system for GLib # human-readable description
-Version: 1.3.1
-URL: http://www.gtk.org
-Requires: glib-2.0 = 1.3.1
-Conflicts: foobar <= 4.5
-Libs: -L${libdir} -lgobject-1.3
-Libs.private: -lm
-Cflags: -I${includedir}/glib-2.0 -I${libdir}/glib/include
+# Define variables
+prefix=$HOME/local/venvutil
+exec_prefix=${prefix}
+libdir="${exec_prefix}/lib"
+includedir=${prefix}/include
+bindir=${exec_prefix}/bin
+datadir=${prefix}/share
+sysconfdir=${prefix}/etc
+include_files=("README.md" "LICENSE" "setup.sh" "setup.cf" "manifest.lst")
+include_dirs=("bin" "docs" "conf" "modules" "${TMPDIR}")
+
+# Package metadata
+Name: venvutil
+Description: Virtual Environment Utilities
+Description: "${TERM} Virtual Environment Utilities"
+Version: 0.4.0
+Repository: https://github.com/unixwzrd/venvutil
+License: Apache License, Version 2.0
+Support: https://github.com/unixwzrd/venvutil/issues
+Contribute: https://patreon.com/unixwzrd
+Contribute: https://www.ko-fi.com/unixwzrd
+
+# Dependencies (if any)
+Requires: python >= 3.10
+Requires: bash >= 4.0
+Requires: Conda >= 22.11
+Requires: macOS
+Requires: Linux
+Conflicts:
+
+# Compiler and linker flags (if applicable)
+# Cflags: -I${includedir}
+# Libs: -L${libdir} -lvenvutil
 ```
 
 You would normally generate the file using configure, so that the prefix, etc. are set to the proper values.  The GNU Autoconf manual recommends generating files like .pc files at build time rather than configure time, so when you build the .pc file is a matter of taste and preference.
@@ -112,3 +132,9 @@ You would normally generate the file using configure, so that the prefix, etc. a
 Files have two kinds of line: keyword lines start with a keyword plus a colon, and variable definitions start with an alphanumeric string plus an equals sign. Keywords are defined in advance and have special meaning to pkg-config; variables do not, you can have any variables that you wish (however, users may expect to retrieve the usual directory name variables).
 
 - **Note** that variable references are written `"${foo}"`; you can escape literal `"${"` as `"$${"`.
+- **Note** Array variables may be written as `include_dir=("bin" "docs" "conf" "modules")` or `include_dir=(${include_dir[@]})`
+- **Note** Keywords which are repeated with different values will be merged into a single array using the keyword as the variable name.
+- **Note** Key Value consist of the Keyword followed by a `:` and then the value, which may contain any characters.
+- **Note** If there is a space between the `:` and the value, it is ignored.
+- **Note** The value may or may not have "quotes" around it.
+- **Note** There may be variables in any location in the values.

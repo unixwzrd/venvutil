@@ -11,8 +11,8 @@ set_args() {
 }
 
 set_args
-[ -f ${MY_INCLUDE}/init_env.sh ] && . ${MY_INCLUDE}/init_env.sh \
-    || ( echo "${MY_NAME}: Could not find init_env.sh in INCLUDE_DIR: ${MY_INCLUDE}"; exit 1 )
+[ -f ${MY_INCLUDE}/venvutil_lib.sh ] && . ${MY_INCLUDE}/venvutil_lib.sh \
+    || ( echo "${MY_NAME}: Could not find venvutil_lib.sh in INCLUDE_DIR: ${MY_INCLUDE}"; exit 1 )
 set_args
 
 # Delete the environments.

@@ -1,11 +1,26 @@
 # venvutil - Manage Conda and Pip VENV's with some simple functions and scripts
 
-(*Still under development*) This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
+This is release 20250210_01-rel.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
+
+## What's New in This Major Release (20250210_01-rel)
+
+- Comprehensive documentation overhaul with standardized structure, improved API references, and enhanced cross-referencing across components.
+- Library reorganization: All core libraries are now loaded via 'venvutil_lib.sh' with enhanced error handling and type checking.
+- Enhanced virtual environment management: Updated 'lenv' now displays column headers and Python versions, improved 'ccln' cloning functionality, and a new 'renv' command for renaming environments.
+- Improved logging and process management: Robust error handling and logging across pip, conda, and shell functions, ensuring reliability on both macOS and Linux.
+- Thoroughly tested in four separate, fresh user environments, ensuring cross-platform stability and performance.
+- Migration Notes: Update any direct library sourcing to use 'venvutil_lib.sh' and revise configuration files to align with the new pkg-config format.
+  - For full details, please refer to CHANGELOG.md for the complete list of changes.
+
+## Table of Contents
 
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
+  - [What's New in This Major Release (20250210\_01-rel)](#whats-new-in-this-major-release-20250210_01-rel)
+  - [Table of Contents](#table-of-contents)
   - [Project Overview](#project-overview)
     - [Key Features](#key-features)
     - [Why Use Venvutil?](#why-use-venvutil)
+    - [Tested on the following systems](#tested-on-the-following-systems)
   - [Installation Instructions](#installation-instructions)
     - [Prerequisites](#prerequisites)
     - [Running the installer](#running-the-installer)
@@ -14,7 +29,8 @@
     - [Tools Overview](#tools-overview)
     - [Shell Functions](#shell-functions)
   - [Conda and Pip Logging](#conda-and-pip-logging)
-  - [~~C++, G++, and~~ LD Pass-Through](#c-g-and-ld-pass-through)
+  - [LD Pass-Through and NumPy builds](#ld-pass-through-and-numpy-builds)
+    - [Recipe for building NumPy with Accelerate Framework optimizations on Apple Silicon](#recipe-for-building-numpy-with-accelerate-framework-optimizations-on-apple-silicon)
     - [Purpose](#purpose)
     - [Explanation](#explanation)
   - [NLTK and Token Count](#nltk-and-token-count)
@@ -23,9 +39,14 @@
   - [Support My Work](#support-my-work)
   - [License](#license)
   - [Future Improvements](#future-improvements)
+    - [High Priority](#high-priority)
+    - [Performance and Security](#performance-and-security)
+    - [Tools and Integration](#tools-and-integration)
   - [Recent Improvements](#recent-improvements)
-    - [Setup Script Enhancements](#setup-script-enhancements-1)
-    - [Shell Function Improvements](#shell-function-improvements)
+    - [Core Functionality](#core-functionality)
+    - [Library Organization](#library-organization)
+    - [Performance Tools](#performance-tools)
+    - [Documentation](#documentation)
 
 ## Project Overview
 
@@ -51,6 +72,13 @@ Venvutil is a versatile toolset designed to simplify the management of Python vi
 - **Ensure Reproducibility**: By freezing the state of environments, Venvutil helps ensure that your setups are consistent across different machines and setups.
 - **Transparent Tool Wrapping**: Provides pass-through wrappers Pip, Conda, and LD to ensure compatibility without compromising security or functionality.
 
+### Tested on the following systems
+
+- macOS 15.3 (Sequoia)
+- macOS 13.4 (Monterey)
+- Red Hat Enterprise Linus 8
+- Redhat Enterprise Linux 9
+
 ## Installation Instructions
 
 ### Prerequisites
@@ -73,8 +101,6 @@ bash ./setup.sh install
 
 By default this installs in $HOME/local/venvutil. You can override this with the -d flag. To any location you wish. The installer will download and update Conda if necessary, along with the python packages listed above. NLTK needs data and that will be downloaded into your home directory into the nltk_data directory.
 
-More updates will come in the next few days.
-
 Thanks for using Venvutil!
 
 ## Setup Script Enhancements
@@ -88,6 +114,10 @@ Thanks for using Venvutil!
 
 ### Tools Overview
 
+- **extract-chat** extracts ChatGPT JSON chatlogs, works with my [Safari extension](https://github.com/unixwzrd/chatgpt-chatlog-export), to extract chat history.
+  - Extract in either Markdown or HTML format.
+  - Retains code and references where possible along with some internal metadata.
+  - May be broken into chunks and fed into a fresh GPT context for continuity.
 - **tokencount**: [Detailed Documentation](docs/tokencount.md) *TODO*
   - A tool designed to count tokens in text files, useful for analyzing text data and preparing it for processing with language models.
 - **chunkfile**: [Detailed Documentation](docs/chunkfile.md)
@@ -105,7 +135,7 @@ Thanks for using Venvutil!
   - A script that generates markdown documentation from project files, facilitating easy sharing and collaboration.
 - **filetree**: [Detailed Documentation](docs/filetree.md)
   - will produce file hierarchy structure based on file and directories to exclude and include..
-- **core functions provided by init_env.sh**: [Detailed Documentation](docs/shdoc/README.md)
+- **core functions provided by venvutil_lib.sh**: [Detailed Documentation](docs/shdoc/README.md)
   - Provides a number of useful shell functions for managing aVirtual Environments along with some utility function, such as `ptree`
   - **compile wrappers for C++, G++, and LD**: [Detailed Documentation](docs/compile_wrappers.md)
     - To help compile many things in the macOS Environment which incorrectly pass the linker the --version flag.
@@ -113,6 +143,8 @@ Thanks for using Venvutil!
 ### Shell Functions
 
 These are a few of the shell functions provided by venvutil which I find useful.  There is more documentation on the functions in the README of the [venvutil Tools](docs/shdoc/README.md).
+
+To use the functions and tools, simply source in the venvutil_lib.sh file in your .bashrc. The setup.sh script will handle adding the necessary checks and source statements to your .bashrc file.
 
 - **venvutil Tools**: [Detailed Documentation](docs/shdoc/README.md)
   - A collection of shell functions and scripts for managing Python virtual environments and LLMs.
@@ -163,15 +195,19 @@ This logging combined with the frozen environments can be used to ensure that yo
 
 Configuration options, logs and freezes are found in the `$HOME`
 
-## ~~C++, G++, and~~ LD Pass-Through
+## LD Pass-Through and NumPy builds
 
 Meson was fixed which gave me troubles tracking this down, so I am removing the hard links for c++ and g++, but leaving in the ld script pass-through just in case something else tries to invoke it using the wrong flag for `--version` when it needs to be `-v`, here are the instructions for building NumPy with the optimizations turned on. It also seems that after I built GCC, it conflicted with the Xcode c++ compiler, installing another c++ in /usr/local/bin which was simply a herd link to g++.
+
+### Recipe for building NumPy with Accelerate Framework optimizations on Apple Silicon
+
+This has also been placed in the `numpy-comp` script, just specify version of NumPy you want to build.
 
 ```bash
 CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework -Wl,Accelerate -framework Accelerate" pip install numpy==1.26.* --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true
 ```
 
-This will build and install NumPy 1.26 into your Python virtual environment. With the Accelerate Framework optimizations on, you can now use NumPy with Apple Silicon.
+This will build and install NumPy 1.26 into your Python virtual environment. With the Accelerate Framework optimizations on, you can now use NumPy with Apple Silicon. The `numpy-comp` script will take of all teh details. There are several test scripts for NumPy and PyTorch which may be used to compare different builds for performance, these van run on multiple virtual environments for varies size NumPy arrays, PyTorch tensors and varying iterations.  These are useful for seeing what combinations of packages will give the best performance.
 
 ### Purpose
 
@@ -188,12 +224,12 @@ This will build and install NumPy 1.26 into your Python virtual environment. Wit
 
 ## Recent Changes
 
-- **Logging Enhancements**: Improved logging with dynamic program names and lazy formatting.
+- **Logging Enhancements**: (more) Improved logging with dynamic program names and lazy formatting.
 - **Configuration Management**: Introduced global variable declarations and robust configuration handling in `genmd`.
 
 ## Project Status
 
-The project is actively maintained and continuously evolving with new features and improvements.
+The project is actively maintained and continuously evolving with new features and improvements. Check out the CHANGELOG.md and teh project TODO.md list for more details.
 
 ## Support My Work
 
@@ -207,7 +243,7 @@ Thank you for your support!
 This project is licensed under the Apache License
                  Version 2.0, License.
 
- Copyright 2024 Michael P. Sullivan - unixwzrd@unixwzrd.ai
+ Copyright 2025 Michael P. Sullivan - unixwzrd@unixwzrd.ai
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -226,36 +262,47 @@ This project is licensed under the Apache License
 
 ## Future Improvements
 
-- **Chunkfile Enhancements**:
-  - Add support for custom chunk naming patterns
-  - Add compression support for output chunks
-    - Add support for automatic chunk size calculation based on available memory
-- **l processing of chunks Virtual Environment Tools**: Continue to expand the collection of tools for managing virtual environments.
-  - High on the list is `vinfo`, `venvdiff`, `vlog`
-- **Additional Documentation**: Expand the documentation to include more examples and examples of using the tools.
-- **Overall Enhancements**: Additional improvements and documentation are needed, but focus is shifting to other projects for now.
+### High Priority
+- **Testing Framework**: Comprehensive testing suite for shell functions, including unit tests and integration tests
+- **Documentation**: Enhanced function reference, troubleshooting guides, and architecture documentation
+- **Core Functionality**: Standard package sets for new Virtual Environments and improved package management
+
+### Performance and Security
+- **Security Enhancements**: Improved permission handling and secure configuration options
+- **Performance Testing**: Enhanced NumPy/PyTorch testing tools with visualization and metrics
+- **Optimization**: Improved file handling and parallel processing capabilities
+
+### Tools and Integration
+- **Chat Tools**: Enhanced conversation analytics and metadata extraction
+- **User Interface**: Interactive modes and improved progress reporting
+- **Integration**: Enhanced container support and remote environment management
+
+For a complete list of planned improvements, see our [TODO.md](TODO.md).
 
 ## Recent Improvements
 
-### Setup Script Enhancements
+### Core Functionality
+- Enhanced virtual environment management with `lenv` Python version display
+- Added environment renaming capability with `renv`
+- Improved cloning functionality in `ccln`
+- Enhanced logging and configuration management
 
-- **Error Handling**: Enhanced error handling with proper exit codes and validation
-- **Configuration**: Improved package configuration management and logging
-- **Hard Links**: Added support for hard link creation in manifest
-- **Rollback**: Added framework for installation rollback capability
-- **Manifest**: Enhanced manifest handling and validation
+### Library Organization
+- Renamed shell libraries to use `_lib.sh` suffix for better clarity
+- Created specialized libraries for different functionalities
+- Enhanced error handling and type checking
+- Improved help system and initialization routines
 
-### Shell Function Improvements
+### Performance Tools
+- Added PyTorch and NumPy stress testing tools
+- Implemented compilation tools and benchmarking
+- Enhanced chat management utilities
+- Improved documentation generation
 
-- **Virtual Environment Management**:
-  - Enhanced environment variable handling
-  - Improved error recovery mechanisms
-  - Better logging for venv operations
-- **Error Handling**:
-  - Improved POSIX errno codes with better formatting
-  - Enhanced error message categorization
-  - Added detailed debugging context
-- **Help System**:
-  - Added new documentation path handling
-  - Updated function naming conventions
-  - Enhanced help message formatting
+### Documentation
+- Added comprehensive performance metrics documentation
+- Updated coding standards and file structure documentation
+- Enhanced installation guide and function documentation
+- Added migration guide for version 20250206-00_R1
+
+For a complete list of changes, see our [CHANGELOG.md](CHANGELOG.md).

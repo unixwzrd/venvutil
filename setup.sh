@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# venvutil_setup.sh - Setup and configure venvutil.
+# setup.sh - Setup and configure venvutil.
 #
 # This script installs and configures the venvutil tools and utilities.
 # It supports installation and removal operations, although the removal and rollback functionality
@@ -56,31 +56,6 @@
 #     Apache License, Version 2.0
 #
 
-[ "${DEBUG_SETUP:-""}" = "ON" ] && set -x
-set -euo pipefail
-
-# Initialize script variables
-THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}")
-MY_NAME="$(basename "${THIS_SCRIPT}")"
-MY_PATH="$(dirname "${THIS_SCRIPT}")"
-
-[[ "${BASH_VERSINFO[0]}" -lt 4 ]] \
-    && echo "($MY_NAME) ERROR: This script requires Bash version 4 or higher." >&2 \
-    && exit 75 
-
-# Default values
-PKG_NAME="DEFAULT"
-PKG_VERSION=""
-INSTALL_BASE=""
-INSTALL_CONFIG="$HOME/.${PKG_NAME}"
-INSTALL_MANIFEST="manifest.lst"
-ACTION=""
-VERBOSE=false
-
-declare -g -A pkg_config_values=()
-declare -g -a pkg_config_set_vars=()
-declare -g -a pkg_config_desc_vars=()
-
 # Logging function
 log_message() {
     local message_level="$1"; shift
@@ -95,12 +70,12 @@ log_message() {
 
     # Print message to STDERR and log file
     if [ "$VERBOSE" = true ]; then
-        echo "($MY_NAME) [$message_level] $message_out" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
+        echo "($__SETUP_NAME) [$message_level] $message_out" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
         return 0
     fi
 
     # Write message to log file
-    echo "($MY_NAME) [$message_level] $message_out" >> "$INSTALL_CONFIG/install.log" 2>&1
+    echo "($__SETUP_NAME) [$message_level] $message_out" >> "$INSTALL_CONFIG/install.log" 2>&1
 }
 
 # Function to display help extracted from the script
@@ -134,7 +109,7 @@ parse_arguments() {
         case $opt in
             d) INSTALL_BASE="$OPTARG" ;;
             v) VERBOSE=true ;;
-            h) display_help_and_exit "Usage: $MY_NAME [options] {install|remove|rollback}" ;;
+            h) display_help_and_exit "Usage: $__SETUP_NAME [options] {install|remove|rollback}" ;;
             \?) echo "Invalid option -$OPTARG" >&2; exit 1 ;;
             :) echo "Option -$OPTARG requires an argument." >&2; exit 1 ;;
         esac
@@ -144,16 +119,36 @@ parse_arguments() {
     # Ensure at least one action is specified
     ACTION="${1:-}"
     if [ -z "$ACTION" ]; then
-        display_help_and_exit "Usage: $MY_NAME [options] {install|remove|rollback}" 
+        display_help_and_exit "Usage: $__SETUP_NAME [options] {install|remove|rollback}"
     fi
 
     return 0
 }
 
-# Initialization
+get_os_config() {
+    # Find host OS and architecture
+    declare -g OS ARCH
+    OS=$(uname -s)
+    [ "$OS" == "Darwin" ] && OS="MacOSX"
+    [ "$OS" == "Linux" ] && OS="Linux"
+    ARCH=$(uname -m)
+    ARCH=${ARCH//aarch64/arm64}
+    return 0
+}
+
+# Installation Initialization
 initialization() {
 
-    load_pkg_config
+    get_os_config
+
+    # check to see if function exists for pkg_config_vars
+    if ! declare -f pkg_config_vars &>/dev/null; then
+        log_message "ERROR" "pkg_config_vars function not found configuration not loaded."
+        exit 2
+    fi
+
+    pkg_config_vars
+    load_pkg_config "${__SETUP_BASE}/setup.cf"
 
     # Set PKG_NAME early to load config
     PKG_NAME=${Name:-${PKG_NAME:-"DEFAULT"}}
@@ -165,163 +160,24 @@ initialization() {
     create_pkg_config_dir
 
     # Set default manifest path
-    INSTALL_MANIFEST="$MY_PATH/manifest.lst"
+    INSTALL_MANIFEST="$__SETUP_BASE/manifest.lst"
 
     log_message "INFO" "Configuring $PKG_NAME for initialization..."
 
     # Parse manifest metadata
-    parse_manifest_metadata
+    parse_manifest_metadata "${INSTALL_MANIFEST}"
 
     return 0
 
-}
-
-expand_variables() {
-    local input="$1"
-
-    # Validate the input: Allow variable references and valid values
-    if [[ ! "$input" =~ ^[A-Za-z0-9_\$\{\}]+([[:space:]]*[-+*/]?[[:space:]]*[A-Za-z0-9_\$\{\}]+)*$ ]]; then
-        return 1
-    fi
-
-    # Sanitize the input by escaping special characters if necessary
-    # For example, you might want to escape quotes or backslashes
-    sanitized_input=$(echo "$input" | sed 's/[&;|<>]/\\&/g')
-
-    # Use eval to expand variables safely, handling both ${var} and $var notation
-    eval "echo \"$sanitized_input\""
-}
-
-# Load package configuration from .cf file
-load_pkg_config() {
-    local config_file="$MY_PATH/setup.cf"
-    if [ ! -f "$config_file" ]; then
-        echo "ERROR: Configuration file $config_file not found." >&2
-        exit 2
-    fi
-
-    local key=""
-    local value=""
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        # Trim leading and trailing whitespace
-        line="$(sed 's/^[[:space:]]*//; s/[[:space:]]*$//' <<< "$line")"
-
-        # Skip comments and blank lines
-        [[ -z "$line" ]] && continue
-        [[ "$line" =~ ^# ]] && continue
-
-        # Check for Key=Value pattern
-        if [[ "$line" =~ ^([A-Za-z_]+)=(.*)$ ]]; then
-            key="${BASH_REMATCH[1]}"
-            if ! value=$(expand_variables "${BASH_REMATCH[2]}"); then
-                echo "($MY_NAME) WARNING: Invalid variable assignment: '$line' - skipping." >&2
-                continue
-            fi
-            # Set shell variable
-            declare -g "$key"="$value"
-            # Append or initialize array entry
-            if [[ -z "${pkg_config_values[$key]:-}" ]]; then
-                pkg_config_values[$key]="$value"
-                pkg_config_set_vars+=("$key")
-            else
-                pkg_config_values[$key]+=$'\n'"$value"
-            fi
-            continue
-        fi
-
-        # Check for Key: Value pattern
-        if [[ "$line" =~ ^([A-Za-z_]+):[[:space:]]*(.*)$ ]]; then
-            key="${BASH_REMATCH[1]}"
-            value="${BASH_REMATCH[2]}"
-            # Set shell variable
-            declare -g "$key"="$value"
-            # Append or initialize array entry
-            if [[ -z "${pkg_config_values[$key]:-}" ]]; then
-                pkg_config_values[$key]="$value"
-                pkg_config_desc_vars+=("$key")
-            else
-                pkg_config_values[$key]+=$'\n'"$value"
-            fi
-            continue
-        fi
-
-        # If a line doesn't match either pattern, assume it’s an additional value for the last key
-        # If no previous key is known, just ignore.
-        if [[ -n "$key" ]]; then
-            # Treat as another line for the current key
-            declare -g "$key"="${!key:-}\n${line}"
-            pkg_config_values[$key]+=$'\n'"$line"
-        fi
-    done < "$config_file"
 }
 
 # Create package configuration directory
 create_pkg_config_dir() {
     if [ ! -d "${INSTALL_CONFIG}" ]; then
-        mkdir -p "${INSTALL_CONFIG}"
-        mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze" 
+        mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze"
         log_message "INFO" "Created ${INSTALL_CONFIG} directories..."
     fi
     # Create application configuration directory
-    return 0
-}
-
-# Parse manifest metadata
-parse_manifest_metadata() {
-    if [ ! -f "$INSTALL_MANIFEST" ]; then
-        echo "ERROR: Manifest file $INSTALL_MANIFEST not found." >&2
-        exit 2
-    fi
-    echo "Parsing manifest metadata..." >&2
-    local manifest_file="$INSTALL_MANIFEST"
-    while IFS='| ' read -r line || [[ -n "$line" ]]; do
-        [[ "$line" =~ ^#.*$ ]] && continue    # Skip comments
-        [[ -z "$line" ]] && break             # Stop at first blank line (end of metadata)
-        if [[ "$line" =~ ^[A-Za-z_]+=.*$ ]]; then
-            eval "$line"
-        fi
-    done < "$manifest_file"
-    return 0
-}
-
-install_conda() {
-    log_message "INFO" "Installing conda..."
-    # Check if conda is already installed
-    if command -v conda &> /dev/null; then
-        log_message "INFO" "Conda is already installed. Skipping installation."
-        return 0
-    fi
-
-    # Find host OS and architecture
-    local OS ARCH
-    OS=$(uname -s)
-    [ "$OS" == "Darwin" ] && OS="MacOSX"
-    [ "$OS" == "Linux" ] && OS="Linux"
-    ARCH=$(uname -m)
-    ARCH=${ARCH//aarch64/arm64}
-
-    # Download and install conda
-    log_message "INFO" "Downloading and installing Conda..."
-    local INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-${OS}-${ARCH}.sh"
-    curl -k -O "$INSTALLER_URL"
-    # do a non-destructive install
-    bash "Miniconda3-latest-${OS}-${ARCH}.sh" -b -u
-    rm "Miniconda3-latest-${OS}-${ARCH}.sh"
-    # Activate the Conda installation
-    # shellcheck disable=SC1091
-    source "${HOME}/miniconda3/bin/activate"
-    # Initialize conda for our shell
-    conda init "$(basename "${SHELL}")"
-    log_message "INFO" "Conda installed successfully, checking for updates..."
-    conda update -n base -c defaults conda -y
-    # Because Red Hat Enterprise Linux defines, sets it, but doesn't export it BASHSOURCED...
-    # Prevents /etc/bashrc from being sourced again on Red Hat Enterprise Linux.
-    export BASHSOURCED=Y
-    # So we don't recurse.
-    export CONDA_INSTALL_COMPLETE=Y
-    SHELL=$(which "$(basename "$SHELL")")
-    # Wheeeeee!!!!!!
-    exec "$SHELL" -l -c "${THIS_SCRIPT} ${ACTION}"
     return 0
 }
 
@@ -348,13 +204,13 @@ write_pkg_info() {
 check_deps() {
     # Check for Bash version 4+
     if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
-        log_message "ERROR" "$MY_NAME requires Bash version 4 or higher."
+        log_message "ERROR" "$__SETUP_NAME requires Bash version 4 or higher."
         exit 75
     fi
 
     # Check Operating System (Linux or macOS)
     if [ "$(uname -s)" != "Darwin" ] && [ "$(uname -s)" != "Linux" ]; then
-        log_message "ERROR" "$MY_NAME is only supported on macOS and Linux."
+        log_message "ERROR" "$__SETUP_NAME is only supported on macOS and Linux."
         exit 75
     fi
 
@@ -378,17 +234,11 @@ check_deps() {
 # Pre-installation tasks
 pre_install() {
     # Check if pre-installation tasks have already been completed
-    # Stop recursion before it starts, this is re-entrant.
-    if [ "${CONDA_INSTALL_COMPLETE:-""}" == "Y" ]; then
-        return 0
-    fi
     log_message "INFO" "Pre-installation tasks..."
     # Custom pre-install tasks can be added here
     check_deps
     # This may be used for verification or rollback/removal later.
     write_pkg_info
-    install_conda
-    unset CONDA_INSTALL_COMPLETE
 }
 
 install_assets() {
@@ -410,7 +260,7 @@ install_assets() {
         IFS=$'| ' read -r asset_type destination source name permissions owner group size checksum <<< "$line"
 
         destination="${INSTALL_BASE}/${destination}"
-        source_path="${MY_PATH}/${source}/${name}"
+        source_path="${__SETUP_BASE}/${source}/${name}"
         dest_path="${destination}/${name}"
 
         mkdir -p "$destination"
@@ -427,18 +277,24 @@ install_assets() {
                 chmod "$permissions" "$dest_path"
                 ;;
             h) # Create hard link
+                # shellcheck disable=SC2164
                 cd "$destination"
                 ln "$source" "$name"
+                # shellcheck disable=SC2164
                 cd - > /dev/null
                 ;;
             l) # Create symbolic link
+                # shellcheck disable=SC2164
                 cd "$destination"
                 ln -sf "$source" "$name"
+                # shellcheck disable=SC2164
                 cd - > /dev/null
                 ;;
             c) # Remove the asset
+                # shellcheck disable=SC2164
                 cd "$destination"
                 rm -rf "$name"
+                # shellcheck disable=SC2164
                 cd - > /dev/null
                 ;;
             *)
@@ -452,10 +308,12 @@ post_install_user_message() {
     log_message "INFO" "Provide user instructions..."
     # Custom post-install message can be added here
     cat <<_EOT_
+
     The package $PKG_NAME has been installed to $INSTALL_BASE.
     To use the package, the following line was added to your .bashrc file:
 
     if [[ ! "\$PATH" =~ "$INSTALL_BASE/bin:" ]]; then export PATH="$INSTALL_BASE/bin:\$PATH"; fi
+    if [[ -f "${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh" ]]; then source \"${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh\"; fi
 
     If you wish to use it in the current shell, run the following command:
 
@@ -464,19 +322,19 @@ post_install_user_message() {
     or exit the terminal and start a new one. To verify the installation files
     for correct location and file integrity run the following command:
 
-    $MY_NAME verify (not implemented yet)
+    $__SETUP_NAME verify (not implemented yet)
 
     If you wish to uninstall the packages associated with $PKG_NAME, run the
     following command:
 
-    $MY_NAME uninstall (not implemented yet)
+    $__SETUP_NAME uninstall (not implemented yet)
 
     This will only remove the files associated with the package, not the
     Conda installation, its installed packages or any other dependencies. If
     you wish to uninstall everything associated with the package, run the
     following command:
 
-    $MY_NAME remove_all (not implemented yet)
+    $__SETUP_NAME remove_all (not implemented yet)
 
     The documentation may be found in the $INSTALL_BASE/README.md file. Please
     contact the package maintainers for any issues or feature requests or file them on
@@ -500,6 +358,77 @@ write_pkg_config() {
     return 0
 }
 
+install_python_packages() {
+    log_message "INFO" "Installing Python packages..."
+    log_message "INFO" "Creating virtual environment..."
+    benv venvutil
+    log_message "INFO" "Installing NLTK data..."
+    pip install -r "$__SETUP_BASE/requirements.txt" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
+    python <<_EOT_
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+_EOT_
+    log_message "INFO" "NLTK data installed successfully."
+    return 0
+}
+
+restart_shell() {
+    log_message "INFO" "Restarting shell..."
+    # Because Red Hat Enterprise Linux defines, sets it, but doesn't export it BASHSOURCED...
+    # Prevents /etc/bashrc from being sourced again on Red Hat Enterprise Linux.
+    export BASHSOURCED=Y
+    # So we don't recurse.
+    export CONDA_INSTALL_COMPLETE=Y
+    SHELL=$(which "$(basename "$SHELL")")
+    # Wheeeeee!!!!!!
+    exec "$SHELL" -l -c "${__SETUP_BASE}/${__SETUP_NAME}  ${ACTION}"
+    return 0
+}
+
+run_conda_installer() {
+    log_message "INFO" "Running conda installer..."
+    bash "Miniconda3-latest-${OS}-${ARCH}.sh" -b -u
+    rm "Miniconda3-latest-${OS}-${ARCH}.sh"
+    # Activate the Conda installation
+    # shellcheck disable=SC1091
+    source "${HOME}/miniconda3/bin/activate"
+
+    # Initialize conda for our shell
+    conda init "$(basename "${SHELL}")"
+    log_message "INFO" "Conda installed successfully, checking for updates..."
+    conda update -n base -c defaults conda -y
+
+    return 0
+}
+
+get_conda_installer() {
+    log_message "INFO" "Getting conda installer..."
+    # Find host OS and architecture
+    local OS ARCH
+    OS=$(uname -s)
+    [ "$OS" == "Darwin" ] && OS="MacOSX"
+    [ "$OS" == "Linux" ] && OS="Linux"
+    ARCH=$(uname -m)
+    ARCH=${ARCH//aarch64/arm64}
+    local INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-${OS}-${ARCH}.sh"
+    curl -k -O "$INSTALLER_URL"
+    return 0
+}
+
+install_conda() {
+    # Stop recursion before it starts, this is re-entrant.
+    if [ "${CONDA_INSTALL_COMPLETE:-""}" == "Y" ]; then
+        unset CONDA_INSTALL_COMPLETE
+        return 0
+    fi
+    log_message "INFO" "Installing conda..."
+    get_conda_installer
+    run_conda_installer
+    restart_shell
+    return 0
+}
+
 # Update .bashrc
 update_bashrc() {
     log_message "INFO" "Updating .bashrc for package $PKG_NAME in PATH..."
@@ -507,33 +436,25 @@ update_bashrc() {
     # Expressions don't expand in single quotes, use double quotes for that.
     # shellcheck disable=SC2016
     local path_line="if [[ ! \"\$PATH\" =~ \"$INSTALL_BASE/bin:\" ]]; then export PATH=\"$INSTALL_BASE/bin:\$PATH\"; fi"
+    local source_line="if [[ -f "${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh" ]]; then source \"${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh\"; fi"
 
-    if ! grep -Fxq "$path_line" "$bashrc"; then
-        echo "$path_line" >> "$bashrc"
+    for line in "${path_line}" "${source_line}"; do
+        if ! grep -Fxq "$line" "$bashrc"; then
+            echo "$line" >> "$bashrc"
+        fi
         log_message "INFO" "Updated $bashrc added package $PKG_NAME bin directory."
-    fi
+        log_message "INFO" "Updated $bashrc added package $PKG_NAME initialization."
+    done
     return 0
-}
-
-install_python_packages() {
-    log_message "INFO" "Installing NLTK data..."
-    pip install -r "$MY_PATH/requirements.txt" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
-    python <<_EOT_
-import nltk
-nltk.download('punkt')
-nltk.download('stopwords')
-_EOT_
-    log_message "INFO" "NLTK data installed successfully."
 }
 
 post_install() {
     log_message "INFO" "Post-installation tasks..."
-    install_python_packages
-    # Example: Update .bashrc if necessary
     update_bashrc
+    install_conda
+    install_python_packages
     write_pkg_config
     post_install_user_message
-    log_message "INFO" "Installation for $PKG_NAME complete."
     return 0
 }
 
@@ -543,6 +464,7 @@ install() {
     pre_install
     install_assets
     post_install
+    log_message "INFO" "Installation for $PKG_NAME complete."
     return 0
 }
 
@@ -550,6 +472,7 @@ install() {
 pre_remove() {
     log_message "INFO" "Pre-removal tasks..."
     # Custom pre-remove tasks can be added here
+    return 0
 }
 
 # Removal function
@@ -588,7 +511,24 @@ remove_assets() {
         esac
     done
 
-    post_remove
+    return 0
+}
+
+# Remove entries from .bashrc
+remove_bashrc_entries() {
+    local bashrc="$HOME/.bashrc"
+    # Expressions don't expand in single quotes, use double quotes for that.
+    # shellcheck disable=SC2016
+    local path_line="if [[ ! \"\$PATH\" =~ \"$INSTALL_BASE/bin:\" ]]; then export PATH=\"$INSTALL_BASE/bin:\$PATH\"; fi"
+    local source_line="if [[ -f "${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh" ]]; then source \"${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh\"; fi"
+
+    for line in "${path_line}" "${source_line}"; do
+        if grep -Fxq "$line" "$bashrc"; then
+            sed -i.bak "/$line/d" "$bashrc"
+            log_message "INFO" "Removed package bin directory from $bashrc."
+        fi
+    done
+    return 0
 }
 
 # Post-removal tasks
@@ -598,18 +538,15 @@ post_remove() {
     remove_bashrc_entries
 }
 
-# Remove entries from .bashrc
-remove_bashrc_entries() {
-    local bashrc="$HOME/.bashrc"
-    # Expressions don't expand in single quotes, use double quotes for that.
-    # shellcheck disable=SC2016
-    local path_line="if [[ ! \"\$PATH\" =~ \"$INSTALL_BASE/bin:\" ]]; then export PATH=\"$INSTALL_BASE/bin:\$PATH\"; fi"
-
-    if grep -Fxq "$path_line" "$bashrc"; then
-        sed -i.bak "/$path_line/d" "$bashrc"
-        log_message "INFO" "Removed package bin directory from $bashrc."
-    fi
+remove() {
+    log_message "INFO" "Removing package: $PKG_NAME tasks..."
+    pre_remove
+    remove_assets
+    post_remove
+    log_message "INFO" "Package: $PKG_NAME removed."
+    return 0
 }
+
 
 # Rollback function
 rollback() {
@@ -617,15 +554,6 @@ rollback() {
     # Implement rollback logic based on actions logged during installation
     # For example, read a log file and undo actions
 }
-
-remove() {
-    log_message "INFO" "Removing package: $PKG_NAME tasks..."
-    pre_remove
-    remove_assets
-    post_remove
-    return 0
-}
-
 
 verify() {
     log_message "INFO" "Verifying package: $PKG_NAME tasks..."
@@ -656,9 +584,62 @@ main() {
             ;;
         *)
             echo "Invalid action: $ACTION"
-            display_help_and_exit "Usage: $MY_NAME [options] {install|remove|rollback}"
+            display_help_and_exit "Usage: $__SETUP_NAME [options] {install|remove|rollback}"
             ;;
     esac
 }
+
+## Initialization
+[ "${DEBUG_SETUP:-""}" == "ON" ] && set -x
+set -uo pipefail
+
+[[ "${BASH_VERSINFO[0]}" -lt 4 ]] \
+    && echo "($__SETUP_NAME) ERROR: This script requires Bash version 4 or higher." >&2 \
+    && exit 75
+
+# Determine the real path of the script
+[ -L "${BASH_SOURCE[0]}" ] && THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[0]}") || THIS_SCRIPT="${BASH_SOURCE[0]}"
+# Extract script name, directory, and arguments
+# Initialize script variables
+THIS_SCRIPT=$(readlink -f "${BASH_SOURCE[$((${#BASH_SOURCE[@]} -1))]}")
+__SETUP_NAME="$(basename "${THIS_SCRIPT}")"
+__SETUP_BASE="$(dirname "${THIS_SCRIPT}")"
+__SETUP_BIN="${__SETUP_BASE}/bin"
+__SETUP_INCLUDE="${__SETUP_BIN}/shinclude"
+
+# Default values
+PKG_NAME="DEFAULT"
+PKG_VERSION=""
+INSTALL_BASE=""
+INSTALL_CONFIG="$HOME/.${PKG_NAME}"
+INSTALL_MANIFEST="manifest.lst"
+ACTION=""
+VERBOSE=false
+
+declare -g -A pkg_config_values=()
+declare -g -a pkg_config_set_vars=()
+declare -g -a pkg_config_desc_vars=()
+
+SH_LIB="${SH_LIB:-""}"
+for try in "${SH_LIB}" "$(dirname "${THIS_SCRIPT}")/shinclude" "${__SETUP_INCLUDE}" "${HOME}/bin/shinclude"; do
+    [ -f "${try}/init_lib.sh" ] && { SH_LIB="${try}"; break; }
+done
+[ -z "${SH_LIB}" ] && {
+    cat<<_EOT_ >&2
+ERROR ($__SETUP_NAME): Could not locate \`init_lib.sh\` file.
+ERROR ($__SETUP_NAME): Please set install init_lib.sh which came with this repository in one of
+    the following locations:
+        - $(dirname "${THIS_SCRIPT}")/bin/shinclude
+        - $HOME/shinclude
+        - $HOME/bin/shinclude
+    or set the environment variable SH_LIB to the directory containing init_lib.sh
+
+_EOT_
+    exit 2     # (ENOENT: 2): No such file or directory
+}
+
+echo "INFO ($__SETUP_NAME): Using SH_LIB directory - ${SH_LIB}" >&2
+# shellcheck source=/dev/null
+source "${SH_LIB}/venvutil_lib.sh"
 
 main "$@"

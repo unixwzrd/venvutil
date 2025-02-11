@@ -3,16 +3,18 @@
 # Define variables
 prefix=$HOME/local/venvutil
 exec_prefix=${prefix}
-libdir=${exec_prefix}/lib
+libdir="${exec_prefix}/lib"
 includedir=${prefix}/include
 bindir=${exec_prefix}/bin
 datadir=${prefix}/share
 sysconfdir=${prefix}/etc
+include_files=("README.md" "LICENSE" "setup.sh" "setup.cf" "manifest.lst" "requirements.txt" "requirements-build.txt")
+include_dirs=("bin" "docs" "conf" "modules")
 
 # Package metadata
 Name: venvutil
-Description: Virtual Environment Utilities
-Version: 0.4.0
+Description: "${TERM} Virtual Environment Utilities"
+Version: 20250206-00_R1
 Repository: https://github.com/unixwzrd/venvutil
 License: Apache License, Version 2.0
 Support: https://github.com/unixwzrd/venvutil/issues
@@ -21,11 +23,11 @@ Contribute: https://www.ko-fi.com/unixwzrd
 
 # Dependencies (if any)
 Requires: python >= 3.10
-Requires: bash >= 4.0
+Requires: bash > 4.0
 Requires: Conda >= 22.11
 Requires: macOS
 Requires: Linux
-Conflicts:
+# Conflicts:
 
 # Compiler and linker flags (if applicable)
 # Cflags: -I${includedir}

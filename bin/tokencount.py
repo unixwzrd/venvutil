@@ -19,7 +19,7 @@ Examples:
 
     2. Count tokens from stdin:
         echo "Some text" | tokencount.py
-        
+
     3. Interactive stdin mode:
         tokencount.py
         (Type text, press Ctrl+D/Ctrl+Z when done)
@@ -34,9 +34,9 @@ License:
     Apache License, Version 2.0
 """
 
-import nltk
 import sys
 import argparse
+import nltk
 
 # nltk.download('punkt')  # Download the Punkt tokenizer models
 

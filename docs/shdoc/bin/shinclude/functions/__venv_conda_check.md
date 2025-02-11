@@ -2,27 +2,27 @@
 # Function: __venv_conda_check
 `__venv_conda_check` - Ensure conda function is wrapped and check for definition changes.
 ## Description
-- **Purpose**: 
+- **Purpose**:
   - Checks if the conda function definition has changed and re-hooks if necessary. Replaces
     the conda function with a wrapper that logs the command and environment affected.
-- **Usage**: 
+- **Usage**:
   - `__venv_conda_check`
-- **Input Parameters**: 
+- **Input Parameters**:
   - None
-- **Output**: 
+- **Output**:
   - Ensures the conda function is wrapped correctly.
-- **Exceptions**: 
+- **Exceptions**:
   - None
 
 ## Definition 
 
-* [wrapper_funcs.sh](../wrapper_funcs_sh.md)
+* [wrapper_lib.sh](../wrapper_lib_sh.md)
 ---
 
 Website: [unixwzrd.ai](https://unixwzrd.ai)
 Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
-Copyright (c) 2024 Michael Sullivan
+Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: Generated: 2025 01 03 at 02:39:56
+Generated on: 2025-02-11 at 00:27:21

@@ -189,3 +189,5 @@ manifest.bak
 .spellignore
 .project-planning
 .master-planning
+output-shell.txt
+output-script.txt
