@@ -1,6 +1,6 @@
 # venvutil - Manage Conda and Pip VENV's with some simple functions and scripts
 
-(*Still under development*) This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
+This is release 20250210_01-rel.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
 
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
   - [Project Overview](#project-overview)
@@ -14,7 +14,7 @@
     - [Tools Overview](#tools-overview)
     - [Shell Functions](#shell-functions)
   - [Conda and Pip Logging](#conda-and-pip-logging)
-  - [LD Pass-Through](#ld-pass-through)
+  - [LD Pass-Through and NumPy builds](#ld-pass-through-and-numpy-builds)
     - [Recipe for building NumPy with Accelerate Framework optimizations on Apple Silicon](#recipe-for-building-numpy-with-accelerate-framework-optimizations-on-apple-silicon)
     - [Purpose](#purpose)
     - [Explanation](#explanation)
@@ -79,8 +79,6 @@ bash ./setup.sh install
 
 By default this installs in $HOME/local/venvutil. You can override this with the -d flag. To any location you wish. The installer will download and update Conda if necessary, along with the python packages listed above. NLTK needs data and that will be downloaded into your home directory into the nltk_data directory.
 
-More updates will come in the next few days.
-
 Thanks for using Venvutil!
 
 ## Setup Script Enhancements
@@ -94,6 +92,10 @@ Thanks for using Venvutil!
 
 ### Tools Overview
 
+- **extract-chat** extracts ChatGPT JSON chatlogs, works with my [Safari extension](https://github.com/unixwzrd/chatgpt-chatlog-export), to extract chat history.
+  - Extract in either Markdown or HTML format.
+  - Retains code and references where possible along with some internal metadata.
+  - May be broken into chunks and fed into a fresh GPT context for continuity.
 - **tokencount**: [Detailed Documentation](docs/tokencount.md) *TODO*
   - A tool designed to count tokens in text files, useful for analyzing text data and preparing it for processing with language models.
 - **chunkfile**: [Detailed Documentation](docs/chunkfile.md)
@@ -119,6 +121,8 @@ Thanks for using Venvutil!
 ### Shell Functions
 
 These are a few of the shell functions provided by venvutil which I find useful.  There is more documentation on the functions in the README of the [venvutil Tools](docs/shdoc/README.md).
+
+To use the functions and tools, simply source in the venvutil_lib.sh file in your .bashrc. The setup.sh script will handle adding the necessary checks and source statements to your .bashrc file.
 
 - **venvutil Tools**: [Detailed Documentation](docs/shdoc/README.md)
   - A collection of shell functions and scripts for managing Python virtual environments and LLMs.
@@ -169,19 +173,19 @@ This logging combined with the frozen environments can be used to ensure that yo
 
 Configuration options, logs and freezes are found in the `$HOME`
 
-## LD Pass-Through
+## LD Pass-Through and NumPy builds
 
 Meson was fixed which gave me troubles tracking this down, so I am removing the hard links for c++ and g++, but leaving in the ld script pass-through just in case something else tries to invoke it using the wrong flag for `--version` when it needs to be `-v`, here are the instructions for building NumPy with the optimizations turned on. It also seems that after I built GCC, it conflicted with the Xcode c++ compiler, installing another c++ in /usr/local/bin which was simply a herd link to g++.
 
 ### Recipe for building NumPy with Accelerate Framework optimizations on Apple Silicon
 
-This has also been placed in the `numpy-comp` script.
+This has also been placed in the `numpy-comp` script, just specify version of NumPy you want to build.
 
 ```bash
 CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework -Wl,Accelerate -framework Accelerate" pip install numpy==1.26.* --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true
 ```
 
-This will build and install NumPy 1.26 into your Python virtual environment. With the Accelerate Framework optimizations on, you can now use NumPy with Apple Silicon.
+This will build and install NumPy 1.26 into your Python virtual environment. With the Accelerate Framework optimizations on, you can now use NumPy with Apple Silicon. The `numpy-comp` script will take of all teh details. There are several test scripts for NumPy and PyTorch which may be used to compare different builds for performance, these van run on multiple virtual environments for varies size NumPy arrays, PyTorch tensors and varying iterations.  These are useful for seeing what combinations of packages will give the best performance.
 
 ### Purpose
 
@@ -198,12 +202,12 @@ This will build and install NumPy 1.26 into your Python virtual environment. Wit
 
 ## Recent Changes
 
-- **Logging Enhancements**: Improved logging with dynamic program names and lazy formatting.
+- **Logging Enhancements**: (more) Improved logging with dynamic program names and lazy formatting.
 - **Configuration Management**: Introduced global variable declarations and robust configuration handling in `genmd`.
 
 ## Project Status
 
-The project is actively maintained and continuously evolving with new features and improvements.
+The project is actively maintained and continuously evolving with new features and improvements. Check out the CHANGELOG.md and teh project TODO.md list for more details.
 
 ## Support My Work
 
