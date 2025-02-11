@@ -139,7 +139,7 @@ include_files=(${include_files[@]:-("README.md" "LICENSE" "setup.sh" "setup.cf" 
 # shellcheck disable=SC2206
 include_dirs=(${include_dirs[@]:-("bin" "docs" "conf")})
 # shellcheck disable=SC2206
-exclude_dirs=(".vscode" ".venvutil" "tmp" "pytest_cache")
+exclude_dirs=(".vscode" "tmp" )
 # Output file
 OUTPUT_FILE="manifest.lst"
 
@@ -171,7 +171,7 @@ done < <(get_deleted_files)
 prune_conditions=()
 if [[ ${#exclude_dirs[@]} -gt 0 ]]; then
     prune_conditions+=( "(" )
-    prune_conditions+=( "-path" "*/.*" )
+    prune_conditions+=( "-path" "*/.*" "-o" )
     for dir in "${exclude_dirs[@]}"; do
         prune_conditions+=( "-path" "./$dir" "-o" "-path" "./$dir/*" "-o" )
     done
@@ -209,6 +209,7 @@ find_args+=( ")" "-print" )
 
 # Execute the find command
 find "${find_args[@]}" | while read -r asset; do
+    echo "$asset"
     # Process entries
     process_and_generate_manifest "$asset"
 done
