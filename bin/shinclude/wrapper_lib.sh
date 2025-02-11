@@ -69,7 +69,7 @@ __VENV_INTERNAL_FUNCTIONS=(
 #   - None
 #
 get_function_hash() {
-    declare -f "$1" | md5 | cut -d' ' -f1
+    declare -f "$1" | md5sum | cut -d' ' -f1
 }
 
 # Define the location of the venvutil config directory
