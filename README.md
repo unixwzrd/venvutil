@@ -157,13 +157,13 @@ To use the functions and tools, simply source in the venvutil_lib.sh file in you
 
   ```bash
   (base) [unixwzrd@xanax: ~]$ lenv
-Date        Python   Environment                   Path
-2025-01-27  3.11.11  adv-numpy-daily-pytorch      ~/miniconda3/envs/adv-numpy-daily-pytorch
-2025-01-13  3.12.8   base                       * ~/miniconda3
-2025-01-25  3.11.11  comp-numpy-daily-pytorch     ~/miniconda3/envs/comp-numpy-daily-pytorch
-2025-01-25  3.11.11  comp-numpy-std-pytorch       ~/miniconda3/envs/comp-numpy-std-pytorch
-2025-01-02  3.10.16  python-3.10-PA-dev           ~/miniconda3/envs/python-3.10-PA-dev
-2024-12-30  3.10.16  python-3.10-dev              ~/miniconda3/envs/python-3.10-dev
+  Date        Python   Environment                   Path
+  2025-01-27  3.11.11  adv-numpy-daily-pytorch      ~/miniconda3/envs/adv-numpy-daily-pytorch
+  2025-01-13  3.12.8   base                       * ~/miniconda3
+  2025-01-25  3.11.11  comp-numpy-daily-pytorch     ~/miniconda3/envs/comp-numpy-daily-pytorch
+  2025-01-25  3.11.11  comp-numpy-std-pytorch       ~/miniconda3/envs/comp-numpy-std-pytorch
+  2025-01-02  3.10.16  python-3.10-PA-dev           ~/miniconda3/envs/python-3.10-PA-dev
+  2024-12-30  3.10.16  python-3.10-dev              ~/miniconda3/envs/python-3.10-dev
   ```
 
   - **errfind and errno**: [Detailed Documentation](docs/shdoc/bin/shinclude/errno_sh.md)
