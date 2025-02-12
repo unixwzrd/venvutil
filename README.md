@@ -156,13 +156,14 @@ To use the functions and tools, simply source in the venvutil_lib.sh file in you
   Provides a listing of all Pip and Conda managed environments, versions and date last updated.
 
   ```bash
-  (base) [unixwzrd@xanax: ~]$ lenv | sort
-  2024-10-16    seq311..base                        ~/miniconda3/envs/seq311..base
-  2024-11-16  * base                                ~/miniconda3
-  2024-11-30    pa1                                 ~/miniconda3/envs/pa1
-  2024-11-30    pa1..base-3-10                      ~/miniconda3/envs/pa1..base-3-10
-  2024-11-30    seq311.00.case-analytics            ~/miniconda3/envs/seq311.00.case-analytics
-  2024-12-05    pa1.00.case-analytics               ~/miniconda3/envs/pa1.00.case-analytics
+  (base) [unixwzrd@xanax: ~]$ lenv
+Date        Python   Environment                   Path
+2025-01-27  3.11.11  adv-numpy-daily-pytorch      ~/miniconda3/envs/adv-numpy-daily-pytorch
+2025-01-13  3.12.8   base                       * ~/miniconda3
+2025-01-25  3.11.11  comp-numpy-daily-pytorch     ~/miniconda3/envs/comp-numpy-daily-pytorch
+2025-01-25  3.11.11  comp-numpy-std-pytorch       ~/miniconda3/envs/comp-numpy-std-pytorch
+2025-01-02  3.10.16  python-3.10-PA-dev           ~/miniconda3/envs/python-3.10-PA-dev
+2024-12-30  3.10.16  python-3.10-dev              ~/miniconda3/envs/python-3.10-dev
   ```
 
   - **errfind and errno**: [Detailed Documentation](docs/shdoc/bin/shinclude/errno_sh.md)
