@@ -209,7 +209,6 @@ find_args+=( ")" "-print" )
 
 # Execute the find command
 find "${find_args[@]}" | while read -r asset; do
-    echo "$asset"
     # Process entries
     process_and_generate_manifest "$asset"
 done
