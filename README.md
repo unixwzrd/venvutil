@@ -153,7 +153,7 @@ To use the functions and tools, simply source in the venvutil_lib.sh file in you
 - **ptree**: [Detailed Documentation](docs/shdoc/bin/shinclude/functions/ptree.md)
   - A shell function that displays a file tree structure of a directory, highlighting directories that contain certain files.
 - **lenv**: [Detailed Documentation](docs/shdoc/bin/shinclude/functions/lenv.md)
-  Provides a listing of all Pip and Conda managed environments, versions and date last updated.
+  - Provides a listing of all Pip and Conda managed environments, versions and date last updated.
 
   ```bash
   (base) [unixwzrd@xanax: ~]$ lenv
@@ -166,8 +166,8 @@ To use the functions and tools, simply source in the venvutil_lib.sh file in you
   2024-12-30  3.10.16  python-3.10-dev              ~/miniconda3/envs/python-3.10-dev
   ```
 
-  - **errfind and errno**: [Detailed Documentation](docs/shdoc/bin/shinclude/errno_sh.md)
-    - For locating POSIX return codes and messages and also looking up return code values. Helping you find the best error return code for any condition, no more using `return 1` or other random number.
+- **errfind and errno**: [Detailed Documentation](docs/shdoc/bin/shinclude/errno_sh.md)
+  - For locating POSIX return codes and messages and also looking up return code values. Helping you find the best error return code for any condition, no more using `return 1` or other random number.
 
   ```bash
   (base) [unixwzrd@xanax: ~]$ errfind invalid
