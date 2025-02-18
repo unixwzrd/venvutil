@@ -152,7 +152,7 @@ __VENV_BASE="$(dirname "${__VENV_BIN}")"
 __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
 # shellcheck source=/dev/null
-source "${__VENV_INCLUDE}/init_lib.sh" || true
+source "${__VENV_INCLUDE}/venvutil_lib.sh" || true
 
 #Make sure our associated utilities are in the path
 export PATH="${__VENV_BIN}:${PATH}"
