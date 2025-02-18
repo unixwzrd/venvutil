@@ -1,0 +1,10 @@
+venvutil_lib.sh|bin/shinclude
+wrapper_lib.sh|bin/shinclude
+string_lib.sh|bin/shinclude
+util_lib.sh|bin/shinclude
+errno_lib.sh|bin/shinclude
+init_lib.sh|bin/shinclude
+helpsys_lib.sh|bin/shinclude
+type_lib.sh|bin/shinclude
+venv_lib.sh|bin/shinclude
+config_lib.sh|bin/shinclude
