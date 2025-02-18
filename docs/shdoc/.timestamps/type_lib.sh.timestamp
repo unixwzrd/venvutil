@@ -1,6 +1,6 @@
   File: "bin/shinclude/type_lib.sh"
     ID: 10000100000001a Namelen: ?       Type: apfs
 Block size: 4096       Fundamental block size: 4096
-Blocks: Total: 242837545  Free: 55895961   Available: 55895961
-Inodes: Total: 2241997070 Free: 2235838440
+Blocks: Total: 242837545  Free: 55895218   Available: 55895218
+Inodes: Total: 2241967651 Free: 2235808720
 1739364313

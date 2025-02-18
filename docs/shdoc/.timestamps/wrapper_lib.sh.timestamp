@@ -1,6 +1,6 @@
   File: "bin/shinclude/wrapper_lib.sh"
     ID: 10000100000001a Namelen: ?       Type: apfs
 Block size: 4096       Fundamental block size: 4096
-Blocks: Total: 242837545  Free: 55895919   Available: 55895919
-Inodes: Total: 2241995394 Free: 2235836760
+Blocks: Total: 242837545  Free: 55895219   Available: 55895219
+Inodes: Total: 2241967691 Free: 2235808760
 1739364313
