@@ -1,6 +1,6 @@
   File: "bin/shinclude/config_lib.sh"
     ID: 10000100000001a Namelen: ?       Type: apfs
 Block size: 4096       Fundamental block size: 4096
-Blocks: Total: 242837545  Free: 59016762   Available: 59016762
-Inodes: Total: 2367005635 Free: 2360670480
+Blocks: Total: 242837545  Free: 58459566   Available: 58459566
+Inodes: Total: 2344731239 Free: 2338382640
 1739364313

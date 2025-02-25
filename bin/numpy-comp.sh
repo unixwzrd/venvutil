@@ -7,37 +7,45 @@
 # that version 1.26 will be installed and verify if this is what they want to do before proceeding.
 
 DEFAULT_VERSION="1.26.*"
+MIN_VERSION="1.26.0"
 
+# Get user input
 if [ -z "$1" ]; then
-    echo -e "No version specified. Would you like to install NumPy version ${DEFAULT_VERSION}? [y/N]"
+    echo -e "No version specified. Would you like to install NumPy version '${DEFAULT_VERSION}'? [y/N]"
     read -r response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
         VERSION=$DEFAULT_VERSION
     else
-        echo "Installation cancelled. Please specify a version greater than 1.26.0"
+        echo "Installation cancelled. Please specify a version greater than ${MIN_VERSION}."
         exit 1
     fi
 else
     VERSION=$1
 fi
 
-# Remove wildcard for comparison
-VERSION_CLEAN=$(echo "$VERSION" | sed 's/\*//g')
+# If wildcard (*) version is used, allow it without comparison
+if [[ "$VERSION" == *"*"* ]]; then
+    echo "Proceeding with NumPy version: $VERSION (latest for specified range)"
+else
+    # Convert versions to numeric values for comparison
+    version_numeric=$(echo "$VERSION" | awk -F. '{ printf("%d%03d%03d\n", $1,$2,$3) }')
+    min_numeric=$(echo "$MIN_VERSION" | awk -F. '{ printf("%d%03d%03d\n", $1,$2,$3) }')
 
-# Convert version numbers into comparable format
-min_version="1.26.0"
-if [[ "$VERSION_CLEAN" == "$DEFAULT_VERSION" ]]; then
-    VERSION_CLEAN=$min_version
+    # Ensure that input version is valid
+    if [[ ! "$version_numeric" =~ ^[0-9]+$ ]]; then
+        echo "Error: Invalid version format '$VERSION'. Please specify a valid version like 1.26.2 or 2.0.1."
+        exit 1
+    fi
+
+    # Compare the numeric version values
+    if [[ "$version_numeric" -lt "$min_numeric" ]]; then
+        echo "Error: Version must be greater than or equal to ${MIN_VERSION}"
+        echo "Specified version: $VERSION"
+        exit 1
+    fi
 fi
 
-# Compare using Bash version sorting
-if [[ "$(printf '%s\n' "$min_version" "$VERSION_CLEAN" | sort -V | head -n 1)" != "$min_version" ]]; then
-    echo "Error: Version must be greater than or equal to 1.26.0"
-    echo "Specified version: $VERSION_CLEAN"
-    exit 1
-fi
+echo "Proceeding with NumPy version: $VERSION"
 
-echo "Proceeding with NumPy version $VERSION_CLEAN..."
-
-echo "Installing NumPy version $VERSION..."
-CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework -Wl,Accelerate -framework Accelerate" pip install numpy=="$VERSION" --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true
+# CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework -Wl,Accelerate -framework Accelerate" pip install numpy=="$VERSION" --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true
+PATH="/usr/bin:${PATH}" CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -fno-strict-aliasing -DHAVE_BLAS_ILP64 -DACCELERATE_NEW_LAPACK=1 -DACCELERATE_LAPACK_ILP64=1" pip install numpy=="$VERSION" --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true
