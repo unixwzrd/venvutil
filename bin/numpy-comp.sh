@@ -21,20 +21,23 @@ else
     VERSION=$1
 fi
 
-# Handle wildcard versions by using the minimum version number
-VERSION_NUM=$(echo "$VERSION" | sed 's/\*//g' | tr -d '.')
-MIN_VERSION_NUM=1260
+# Remove wildcard for comparison
+VERSION_CLEAN=$(echo "$VERSION" | sed 's/\*//g')
 
-# If version contains wildcard, treat it as equal to minimum version
-if [[ "$VERSION" == *"*"* ]]; then
-    VERSION_NUM=$MIN_VERSION_NUM
+# Convert version numbers into comparable format
+min_version="1.26.0"
+if [[ "$VERSION_CLEAN" == "$DEFAULT_VERSION" ]]; then
+    VERSION_CLEAN=$min_version
 fi
 
-if [ "$VERSION_NUM" -lt "$MIN_VERSION_NUM" ]; then
+# Compare using Bash version sorting
+if [[ "$(printf '%s\n' "$min_version" "$VERSION_CLEAN" | sort -V | head -n 1)" != "$min_version" ]]; then
     echo "Error: Version must be greater than or equal to 1.26.0"
-    echo "Specified version: $VERSION"
+    echo "Specified version: $VERSION_CLEAN"
     exit 1
 fi
+
+echo "Proceeding with NumPy version $VERSION_CLEAN..."
 
 echo "Installing NumPy version $VERSION..."
 CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework -Wl,Accelerate -framework Accelerate" pip install numpy=="$VERSION" --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true
