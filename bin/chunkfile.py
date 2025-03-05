@@ -169,12 +169,13 @@ def write_chunk(
     base = os.path.basename(name)
     out_file = f"{base}_{part_num:02}{ext}"
 
-    with open(out_file, "wb") as chunk_file:
+    with open(out_file, "wb", encoding="utf-8") as chunk_file:
         if is_lines:
             # For line mode, join lines and remove trailing newline
             data = b"".join(chunk)  # type: ignore
-            chunk_file.write(data.rstrip(b"\n"))
-        else:
+            chunk_file.write(data.rstrip(b"\n").decode("utf-8"))
+    else:
+        with open(out_file, mode) as chunk_file:
             chunk_file.write(chunk)  # type: ignore
     print(f"Created: {out_file}")
 
@@ -213,11 +214,7 @@ def split_file(
         total = file_size + (num_chunks - 1) * overlap
         chunk_size = total // num_chunks
 
-    # Open file in text mode for line-based chunking, binary mode for byte-based
-    open_mode = "rb" if chunk_size else "rb"
-    open_kwargs = {"encoding": "utf-8"} if num_lines else {}
-    
-    with open(input_file, open_mode, **open_kwargs) as file:
+    with open(input_file, "rb", encoding="utf-8") as file:
         part_num = 1
         prev_overlap = b""
         prev_lines: List[bytes] = []
