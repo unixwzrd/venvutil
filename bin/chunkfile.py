@@ -147,7 +147,7 @@ def process_byte_based_chunk(
             return actual, b"", total_read, False
         return None, prev_overlap, total_read - len(chunk), False
     current = actual[:chunk_size]
-    next_overlap = actual[chunk_size - overlap : chunk_size]
+    next_overlap = actual[chunk_size - overlap:chunk_size]
     return current, next_overlap, total_read, False
 
 
@@ -214,17 +214,14 @@ def split_file(
         total = file_size + (num_chunks - 1) * overlap
         chunk_size = total // num_chunks
 
-    with open(input_file, "rb", encoding="utf-8") as file:
-        part_num = 1
-        prev_overlap = b""
-        prev_lines: List[bytes] = []
-        total_read = 0
+    if num_lines:
+        # For line-based chunking, use text mode with UTF-8 encoding
+        with open(input_file, "r", encoding="utf-8") as file:
+            part_num = 1
+            prev_lines: List[bytes] = []
 
-        while True:
-            is_first = part_num == 1
-
-            if num_lines:
-                # Line-based chunking
+            while True:
+                is_first = part_num == 1
                 lines, prev_lines, should_stop = process_line_based_chunk(
                     file, num_lines, overlap, is_first, prev_lines
                 )
@@ -233,8 +230,16 @@ def split_file(
                 write_chunk(lines, input_file, part_num, is_lines=True)
                 if len(lines) < (num_lines - (0 if is_first else overlap)):
                     break
-            else:
-                # Byte-based chunking
+                part_num += 1
+    else:
+        # For byte-based chunking, use binary mode without encoding
+        with open(input_file, "rb") as file:
+            part_num = 1
+            prev_overlap = b""
+            total_read = 0
+
+            while True:
+                is_first = part_num == 1
                 assert chunk_size is not None  # for type checker
                 result = process_byte_based_chunk(
                     file,
@@ -253,10 +258,9 @@ def split_file(
                 write_chunk(current, input_file, part_num)
                 if total_read >= file_size and not prev_overlap:
                     break
-
-            part_num += 1
-            if num_chunks and part_num > num_chunks:
-                break
+                part_num += 1
+                if num_chunks and part_num > num_chunks:
+                    break
 
     # Print summary
     print(f"Total chunks created: {part_num - 1}")
