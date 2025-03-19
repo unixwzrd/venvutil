@@ -94,6 +94,6 @@ numpy-comp [VERSION]
 - May require additional setup for certain Python environments
 
 ## See Also
-
+ 
 - Python's NumPy package: https://numpy.org/
 - Apple's Accelerate framework documentation 
