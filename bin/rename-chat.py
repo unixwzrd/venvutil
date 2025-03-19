@@ -141,41 +141,21 @@ def confirm_and_rename(old_path: str, new_path: str, auto_yes: bool) -> None:
         print("Rename cancelled")
 
 
-def rename_one_json(file_path: str, auto_yes: bool) -> None:
-    data = load_json_file(file_path)
-    if not data:
-        return
-
-    title = data.get("title", "").strip()
-    ctime = data.get("create_time")
-    utime = data.get("update_time")
-
-    if not title:
-        print(f"Skipping {file_path}: Missing or empty title.")
-        return
-    if not ctime:
-        print(f"Skipping {file_path}: Missing create_time.")
-        return
-
-    try:
-        new_name = generate_unique_filename(file_path, title, ctime, utime, extension="json")
-        confirm_and_rename(file_path, new_name, auto_yes)
-    except ValueError as e:
-        # Possibly creation time is invalid, fallback to file stat times
-        print(f"Error generating name for {file_path}: {e}")
-        try:
-            st = os.stat(file_path)
-            ctime = st.st_ctime
-            utime = st.st_mtime
-            print("Using file system timestamps as fallback.")
-            new_name = generate_unique_filename(file_path, title, ctime, utime, extension="json")
-            confirm_and_rename(file_path, new_name, auto_yes)
-        except (OSError, ValueError) as e2:
-            print(f"Failed fallback for {file_path}: {e2}")
-
-
-def process_files(patterns: List[str], auto_yes: bool) -> None:
+def process_files(patterns: List[str], auto_yes: bool, destination_dir: Optional[str] = None) -> None:
+    """
+    Process files matching the given patterns and rename them.
+    
+    Args:
+        patterns: List of file patterns to process
+        auto_yes: Whether to automatically confirm renames
+        destination_dir: Optional directory to move renamed files to
+    """
     files_to_rename = []
+    
+    # Default to current directory's JSON files if no patterns provided
+    if not patterns:
+        patterns = [os.path.join(os.getcwd(), "*.json")]
+    
     for pattern in patterns:
         if os.path.isdir(pattern):
             files_to_rename.extend(glob.glob(os.path.join(pattern, "*.json")))
@@ -193,15 +173,67 @@ def process_files(patterns: List[str], auto_yes: bool) -> None:
     for path in files_to_rename:
         if os.path.isfile(path) and path.lower().endswith(".json"):
             print(f"\nProcessing: {path}")
-            rename_one_json(path, auto_yes)
+            rename_one_json(path, auto_yes, destination_dir)
+
+
+def rename_one_json(file_path: str, auto_yes: bool, destination_dir: Optional[str] = None) -> None:
+    """
+    Rename a single JSON file based on its metadata.
+    
+    Args:
+        file_path: Path to the JSON file
+        auto_yes: Whether to automatically confirm renames
+        destination_dir: Optional directory to move renamed files to
+    """
+    data = load_json_file(file_path)
+    if not data:
+        return
+
+    title = data.get("title", "").strip()
+    ctime = data.get("create_time")
+    utime = data.get("update_time")
+
+    if not title:
+        print(f"Skipping {file_path}: Missing or empty title.")
+        return
+    if not ctime:
+        print(f"Skipping {file_path}: Missing create_time.")
+        return
+
+    try:
+        new_name = generate_unique_filename(
+            file_path, title, ctime, utime, extension="json", out_dir=destination_dir
+        )
+        confirm_and_rename(file_path, new_name, auto_yes)
+    except ValueError as e:
+        # Possibly creation time is invalid, fallback to file stat times
+        print(f"Error generating name for {file_path}: {e}")
+        try:
+            st = os.stat(file_path)
+            ctime = st.st_ctime
+            utime = st.st_mtime
+            print("Using file system timestamps as fallback.")
+            new_name = generate_unique_filename(
+                file_path, title, ctime, utime, extension="json", out_dir=destination_dir
+            )
+            confirm_and_rename(file_path, new_name, auto_yes)
+        except (OSError, ValueError) as e2:
+            print(f"Failed fallback for {file_path}: {e2}")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Rename JSON files based on title and timestamps.")
-    parser.add_argument("patterns", nargs="+", help="File patterns (wildcards, directories, etc.)")
-    parser.add_argument("-y", "--yes", action="store_true", help="Auto-confirm all renames.")
+    parser.add_argument("patterns", nargs="*", 
+                        help="File patterns (wildcards, directories, etc.). Defaults to *.json in current directory.")
+    parser.add_argument("-y", "--yes", action="store_true", 
+                        help="Auto-confirm all renames.")
+    parser.add_argument("-d", "--destination", 
+                        help="Destination directory for renamed files.")
     args = parser.parse_args()
-    process_files(args.patterns, args.yes)
+    
+    process_files(args.patterns, args.yes, args.destination)
 
+
+# Fix linter error: add two blank lines after function definition
 if __name__ == "__main__":
     main()

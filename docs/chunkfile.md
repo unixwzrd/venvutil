@@ -73,13 +73,14 @@ For example, splitting `input.txt` would create:
 - Preserves complete lines
 - Supports line overlap between chunks
 - Removes trailing newlines to prevent extra blank lines
+- Properly handles UTF-8 encoding for text files
 
 ### Byte-based Chunking (-n, -s)
 
 - Splits file into chunks of exact byte size
 - Supports byte overlap between chunks
 - Handles partial reads and end-of-file conditions
-- Preserves binary content
+- Preserves binary content precisely
 
 ### Overlap Support (-o)
 
@@ -103,16 +104,27 @@ The script validates inputs and provides clear error messages for:
 ### Line Mode
 
 - Reads file line by line
+- Uses text mode with UTF-8 encoding
 - Maintains overlap buffer
-- Handles UTF-8 and binary files
+- Handles both text and binary files
 - Preserves line endings except for trailing newline
 
 ### Byte Mode
 
 - Uses efficient block reading
+- Uses binary mode for exact byte preservation
 - Maintains overlap buffer
 - Handles partial reads
 - Preserves binary content exactly
+
+## Modes and File Handling
+
+The script automatically selects the appropriate file mode based on the chunking method:
+
+- Line mode (-l): Opens files in text mode with UTF-8 encoding
+- Byte mode (-n, -s): Opens files in binary mode for exact byte-level precision
+
+This ensures proper handling of both text and binary files without data corruption.
 
 ## Dependencies
 
