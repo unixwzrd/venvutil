@@ -2,7 +2,7 @@
 
 This is release 20250210_01-rel.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
 
-## What's New in This Major Release (20250210_01-rel)
+## What's New in This Major Release (20250318_00-release)
 
 - Comprehensive documentation overhaul with standardized structure, improved API references, and enhanced cross-referencing across components.
 - Library reorganization: All core libraries are now loaded via 'venvutil_lib.sh' with enhanced error handling and type checking.
@@ -15,7 +15,7 @@ This is release 20250210_01-rel.This project is continuously evolving, becoming 
 ## Table of Contents
 
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
-  - [What's New in This Major Release (20250210\_01-rel)](#whats-new-in-this-major-release-20250210_01-rel)
+  - [What's New in This Major Release (20250318\_00-release)](#whats-new-in-this-major-release-20250318_00-release)
   - [Table of Contents](#table-of-contents)
   - [Project Overview](#project-overview)
     - [Key Features](#key-features)
