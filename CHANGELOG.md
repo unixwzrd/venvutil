@@ -1,5 +1,30 @@
 # Changelog
 
+## 2025-03-19: Tool Enhancements and Bug Fixes
+
+### Chat Tools Enhancements
+- Enhanced `extract_chat.py`:
+  - Added code fence normalization to handle nested code blocks
+  - Improved command line arguments with short form `-f` for format
+  - Enhanced text processing for more consistent output
+- Improved `rename-chat.py`:
+  - Added destination directory support for renamed files (-d, --destination)
+  - Improved default behavior to handle current directory when no files specified
+  - Enhanced error handling and fallback mechanisms
+  - Better argument parsing and help messages
+
+### File Handling Improvements
+- Fixed bug in `chunkfile.py` when writing chunks:
+  - Fixed file opening mode handling for text vs. binary data
+  - Improved handling of UTF-8 encoded content
+
+### System Utility Enhancements
+- Enhanced `numpy-comp.sh`:
+  - Improved version number handling and validation
+  - Better wildcard (*) version support
+  - Enhanced user feedback messages
+  - Cleaner command-line output and error reporting
+
 ## 2025-02-10 - Documentation Overhaul and Process Improvements
 
 ### Documentation Structure and Organization
