@@ -435,6 +435,10 @@ def format_code_block(
         ['```python\\nprint("hello")\\n```\\n\\n']
     """
     formatted_lines = []
+    
+    # Normalize any code blocks that might be inside the code content itself
+    code_content = normalize_code_fences(code_content)
+    
     if output_format == "html":
         escaped_code = html.escape(code_content)
         formatted_lines.append(
@@ -685,15 +689,40 @@ def clean_text(text: str) -> str:
     for ch in text:
         cat = unicodedata.category(ch)
         # Keep standard controls like newlines, tabs, and otherwise discard control chars
-        # Keep everything else unless it’s a private-use area or other undesired code point
+        # Keep everything else unless it's a private-use area or other undesired code point
         if cat.startswith('C'):
             # Keep linefeed, carriage return, and tab if you want them
             if ch not in ('\n', '\r', '\t'):
                 continue
-        # You could add further checks if you don’t want private-use areas, etc.
+        # You could add further checks if you don't want private-use areas, etc.
         cleaned.append(ch)
 
     return ''.join(cleaned)
+
+
+def normalize_code_fences(text: str) -> str:
+    """
+    Normalize markdown code block fences to ensure proper rendering.
+    
+    This function ensures that code blocks starting with more than three 
+    backticks are normalized to exactly three backticks to prevent 
+    rendering issues in both HTML and Markdown output.
+    
+    Args:
+        text: The input text containing markdown code blocks
+        
+    Returns:
+        Text with normalized code block fences
+    """
+    # Pattern to match code block fences with more than three backticks
+    # The regex looks for lines starting with 4 or more backticks,
+    # optionally followed by a language identifier
+    pattern = r'^(`{4,})(\w*)'
+    
+    # Replace with exactly three backticks plus the language identifier
+    normalized_text = re.sub(pattern, r'```\2', text, flags=re.MULTILINE)
+    
+    return normalized_text
 
 
 def handle_regular_message(message_content: Dict, output_format: str) -> List[str]:
@@ -736,6 +765,9 @@ def handle_regular_message(message_content: Dict, output_format: str) -> List[st
 
             # Clean the text segment
             text_segment = clean_text(text_segment)
+            
+            # Normalize code block fences to prevent rendering issues
+            text_segment = normalize_code_fences(text_segment)
 
             if output_format == "markdown":
                 formatted_lines.append(text_segment + "\n\n")
@@ -768,6 +800,9 @@ def process_text_with_markdown(text_segment: str, output_format: str) -> List[st
     formatted_lines: List[str] = []
     processed_text_chunks: List[str] = []
     last_segment_end = 0
+
+    # Normalize code fences before processing
+    text_segment = normalize_code_fences(text_segment)
 
     try:
         markdown_segments = detect_markdown(text_segment)
@@ -1017,7 +1052,7 @@ def main():
     parser = argparse.ArgumentParser(description="Extract conversation logs to Markdown/HTML.")
     parser.add_argument("patterns", nargs="+", help="File patterns for JSON input")
     parser.add_argument("-o", "--output-dir", help="Output directory")
-    parser.add_argument("--format", choices=["markdown", "html"], default="markdown", help="Output format")
+    parser.add_argument("-f", "--format", choices=["markdown", "html"], default="markdown", help="Output format")
     args = parser.parse_args()
 
     process_file_patterns(args.patterns, args.output_dir, args.format)
