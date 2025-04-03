@@ -294,7 +294,8 @@ def main():
     # Process exclude patterns
     exclude_patterns = []
     for pattern in args.exclude:
-        exclude_patterns.extend(re.split(r"[| ]+", pattern.strip()))
+        patterns = [p.strip() for p in re.split(r"[| ]+", pattern.strip()) if p.strip()]
+        exclude_patterns.extend(patterns)
 
     # Load exclude patterns from environment variables
     env_dir_excludes = load_patterns_from_env("GENMD_DIR_EXCLUDES")
@@ -308,23 +309,25 @@ def main():
     config_excludes = load_exclusions_from_file(".exclusions.cfg")
     exclude_patterns.extend(DEFAULT_EXCLUDES + config_excludes)
 
-    # Ensure no duplicates in the exclusion patterns
-    exclude_patterns = list(set(exclude_patterns))
+    # Ensure no duplicates or empty patterns in the exclusion patterns
+    exclude_patterns = list(set(p for p in exclude_patterns if p))
     logging.debug("Exclusion patterns before adjustment: %s", exclude_patterns)
 
     # Adjust patterns to include both the pattern and '**/' + pattern
     adjusted_exclude_patterns = []
     for pattern in exclude_patterns:
+        if not pattern:  # Skip empty patterns
+            continue
         adjusted_exclude_patterns.append(pattern)
         if not pattern.startswith("**/"):
             adjusted_exclude_patterns.append("**/%s" % pattern)
-    exclude_patterns = list(set(adjusted_exclude_patterns))
+    exclude_patterns = list(set(p for p in adjusted_exclude_patterns if p))
     logging.debug("Adjusted exclusion patterns: %s", exclude_patterns)
 
     # Process include patterns
     include_patterns = []
     for pattern in args.include:
-        split_patterns = re.split(r"[| ]+", pattern.strip())
+        split_patterns = [p.strip() for p in re.split(r"[| ]+", pattern.strip()) if p.strip()]
         for pat in split_patterns:
             if pat.startswith("."):
                 # Assume it's a file extension
@@ -334,7 +337,7 @@ def main():
                 include_patterns.append(pat)
                 if not pat.startswith("**/"):
                     include_patterns.append("**/%s" % pat)
-    include_patterns = list(set(include_patterns))
+    include_patterns = list(set(p for p in include_patterns if p))
     logging.debug("Adjusted include patterns: %s", include_patterns)
 
     # Load include patterns from environment variables
