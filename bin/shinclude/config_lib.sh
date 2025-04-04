@@ -307,7 +307,7 @@ load_pkg_config() {
 write_config() {
     local config_file="$1"
     shift
-    local -a vars_to_write=("${!1}")
+    local -a vars_to_write=($@)
 
     : > "$config_file"  # Overwrite file
     log_message "INFO" "Writing config to $config_file"
@@ -322,10 +322,13 @@ write_config() {
         case "$var_type" in
             "array")
                 # Build array literal: var_name=("elem1" "elem2")
-                local -a arr_copy=("${!var_name}")
+                local -n values="${var_name}"
                 local array_literal='('
-                for elem in "${arr_copy[@]}"; do
-                    local escaped="${elem//\"/\\\"}"
+                for value in "${values[@]}"; do
+                    if [ -z "${value}" ]; then
+                        continue
+                    fi
+                    local escaped="${value//\"/\\\"}"
                     array_literal+="\"$escaped\" "
                 done
                 array_literal="${array_literal%% }"  # remove trailing space
@@ -337,6 +340,7 @@ write_config() {
                 echo "# $var_name is associative. Implement your own logic." >> "$config_file"
                 ;;
             "scalar"|"unknown")
+                echo "scalar: $var_name"
                 local val="${!var_name}"
                 local escaped="${val//\"/\\\"}"
                 echo "$var_name=\"$escaped\"" >> "$config_file"

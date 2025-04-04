@@ -177,7 +177,6 @@ create_pkg_config_dir() {
         mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze"
         log_message "INFO" "Created ${INSTALL_CONFIG} directories..."
     fi
-    # Create application configuration directory
     return 0
 }
 
@@ -195,6 +194,7 @@ write_pkg_info() {
     # shellcheck disable=SC2068
     for key in ${pkg_config_desc_vars[@]}; do
         echo "$key: ${pkg_config_values[$key]}" >> "${install_log}"
+        phg_config_set_vars+="$key"
     done
 
     return 0

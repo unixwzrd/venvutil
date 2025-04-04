@@ -276,7 +276,7 @@ set_option_value() {
     log_message "DEBUG3" "*** Setting command line options for $opt_name to \"$opt_value\""
     if [[ -n "$opt_value" && ! "$opt_value" =~ ^- ]]; then
         log_message "DEBUG1" "Load ${target_variable} with ${opt_name} values: ${opt_value}"
-        handle_variable "${target_variable}" "$opt_value"
+        handle_variable "${target_variable}" opt_value
         # IFS='| ' readarray -t "${target_variable}" <  <( printf "%s" "$opt_value" )
     else
         display_help "ERROR ($MY_NAME): -$opt_name requires a pattern string." 
@@ -554,7 +554,8 @@ load_config() {
         # Iterate over config_variables and handle values accordingly
         for var_name in "${config_variables[@]}"; do
             # Determine whether variable is merged, set or discarded from the config file.
-            handle_variable "$var_name" "${config_values["$var_name"]:-""}"  
+            local var_values="${config_values["$var_name"]:-""}"
+            handle_variable "$var_name" var_values
             log_message "DEBUG2" "Final assignment variable: \"$var_name\" updated value: \"${!var_name:-""}\""
         done
     fi
