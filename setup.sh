@@ -347,14 +347,8 @@ _EOT_
 
 write_pkg_config() {
     log_message "INFO" "Writing package configuration..."
-    echo "$PKG_NAME.pc.in" > "$INSTALL_CONFIG/$PKG_NAME.pc"
-    for var in "${pkg_config_set_vars[@]}"; do
-        echo "$var=\"${!var}\""
-    done >> "$INSTALL_CONFIG/$PKG_NAME.pc"
-    echo "" >> "$INSTALL_CONFIG/$PKG_NAME.pc"
-    for var in "${pkg_config_desc_vars[@]}"; do
-        echo "$var: ${!var}"
-    done >> "$INSTALL_CONFIG/$PKG_NAME.pc"
+    config_file="$INSTALL_CONFIG/$PKG_NAME.pc"
+    write_config "$config_file" "${pkg_config_set_vars[@]}"
     return 0
 }
 
