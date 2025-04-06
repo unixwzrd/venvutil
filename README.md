@@ -1,21 +1,42 @@
 # venvutil - Manage Conda and Pip VENV's with some simple functions and scripts
 
-This is release 20250210_01-rel.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
+This is release 20250406_00-release.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
 
-## What's New in This Major Release (20250318_00-release)
+## What's New in This Major Release (20250406_00-release)
 
-- Comprehensive documentation overhaul with standardized structure, improved API references, and enhanced cross-referencing across components.
-- Library reorganization: All core libraries are now loaded via 'venvutil_lib.sh' with enhanced error handling and type checking.
-- Enhanced virtual environment management: Updated 'lenv' now displays column headers and Python versions, improved 'ccln' cloning functionality, and a new 'renv' command for renaming environments.
-- Improved logging and process management: Robust error handling and logging across pip, conda, and shell functions, ensuring reliability on both macOS and Linux.
-- Thoroughly tested in four separate, fresh user environments, ensuring cross-platform stability and performance.
-- Migration Notes: Update any direct library sourcing to use 'venvutil_lib.sh' and revise configuration files to align with the new pkg-config format.
-  - For full details, please refer to CHANGELOG.md for the complete list of changes.
+### Core Library Enhancements
+- Enhanced variable handling with new `update_variable` function
+- Improved configuration management with better validation
+- Enhanced error handling and logging
+- Added support for configuration inheritance
+
+### Setup and Installation
+- Added new `refresh` option for updating from cloned repos
+- Fixed bashrc modification issues
+- Improved configuration handling
+- Enhanced error reporting
+
+### File Management
+- Improved pattern processing in `filetree.py`
+- Enhanced configuration file handling
+- Better handling of empty patterns
+- Added support for both file extensions and patterns
+
+### Documentation
+- Removed redundant debug level documentation
+- Enhanced help messages and usage documentation
+- Improved error messages and logging
+- Updated configuration documentation
+
 
 ## Table of Contents
 
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
-  - [What's New in This Major Release (20250318\_00-release)](#whats-new-in-this-major-release-20250318_00-release)
+  - [What's New in This Major Release (20250406\_00-release)](#whats-new-in-this-major-release-20250406_00-release)
+    - [Core Library Enhancements](#core-library-enhancements)
+    - [Setup and Installation](#setup-and-installation)
+    - [File Management](#file-management)
+    - [Documentation](#documentation)
   - [Table of Contents](#table-of-contents)
   - [Project Overview](#project-overview)
     - [Key Features](#key-features)
@@ -46,7 +67,7 @@ This is release 20250210_01-rel.This project is continuously evolving, becoming 
     - [Core Functionality](#core-functionality)
     - [Library Organization](#library-organization)
     - [Performance Tools](#performance-tools)
-    - [Documentation](#documentation)
+    - [Documentation](#documentation-1)
 
 ## Project Overview
 
@@ -74,7 +95,7 @@ Venvutil is a versatile toolset designed to simplify the management of Python vi
 
 ### Tested on the following systems
 
-- macOS 15.3 (Sequoia)
+- macOS 15.4 (Sequoia)
 - macOS 13.4 (Monterey)
 - Red Hat Enterprise Linus 8
 - Redhat Enterprise Linux 9
@@ -97,6 +118,11 @@ Venvutil is a versatile toolset designed to simplify the management of Python vi
 git clone https://github.com/unixwzrd/venvutil.git venvutil
 cd venvutil
 bash ./setup.sh install
+```
+
+```bash
+# For updates from cloned repo (without Python packages)
+./setup.sh --refresh
 ```
 
 By default this installs in $HOME/local/venvutil. You can override this with the -d flag. To any location you wish. The installer will download and update Conda if necessary, along with the python packages listed above. NLTK needs data and that will be downloaded into your home directory into the nltk_data directory.
@@ -205,7 +231,16 @@ Meson was fixed which gave me troubles tracking this down, so I am removing the 
 This has also been placed in the `numpy-comp` script, just specify version of NumPy you want to build.
 
 ```bash
-CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework -Wl,Accelerate -framework Accelerate" pip install numpy==1.26.* --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true
+# Build NumPy 1.26
+numpy-comp 1.26
+```
+
+Or whatever is your particular version of NumPy you want to build.
+
+```bash
+
+# Run PyTorch tests
+torch-torture
 ```
 
 This will build and install NumPy 1.26 into your Python virtual environment. With the Accelerate Framework optimizations on, you can now use NumPy with Apple Silicon. The `numpy-comp` script will take of all teh details. There are several test scripts for NumPy and PyTorch which may be used to compare different builds for performance, these van run on multiple virtual environments for varies size NumPy arrays, PyTorch tensors and varying iterations.  These are useful for seeing what combinations of packages will give the best performance.

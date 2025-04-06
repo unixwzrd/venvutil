@@ -1,5 +1,59 @@
 # Changelog
 
+## 2025-04-06: Core Library Enhancements and Bug Fixes
+
+### Core Library Improvements
+- Enhanced `type_lib.sh`:
+  - Deprecated `handle_variable` function in favor of new `update_variable`
+  - Added support for variable handling tables
+  - Improved portability across shell environments
+  - Enhanced error handling and validation
+- Improved `config_lib.sh`:
+  - Integrated with new `update_variable` function
+  - Enhanced associative array handling
+  - Improved configuration validation
+  - Better error reporting for invalid configurations
+- Enhanced `errno_lib.sh`:
+  - Changed default message level from WARNING to INFO
+  - Improved function name reporting in error messages
+  - Enhanced error message formatting
+
+### Setup and Installation
+- Enhanced `setup.sh`:
+  - Added new `refresh` option for updating from cloned repo:
+    - Skips Python package installation
+    - Updates only shell scripts and configuration
+    - Preserves existing virtual environments
+  - Fixed bashrc modification issue:
+    - Improved handling of venvutil removal
+    - Added safety checks for file modifications
+    - Enhanced backup and restore functionality
+  - Improved configuration handling:
+    - Better variable validation
+    - Enhanced error reporting
+    - Added support for new update_variable function
+
+### File Management
+- Fixed `filetree.py`:
+  - Improved configuration file handling:
+    - Better error handling for missing files
+    - Enhanced logging for configuration issues
+    - Added fallback mechanisms
+  - Enhanced pattern processing:
+    - Better handling of empty patterns
+    - Improved pattern validation
+    - Added support for both file extensions and patterns
+  - Fixed issues with include/exclude lists:
+    - Proper handling of pattern splitting
+    - Better validation of pattern formats
+    - Enhanced logging for pattern processing
+
+### Documentation and Logging
+- Removed redundant debug level documentation from `genmd`
+- Enhanced help messages and usage documentation
+- Improved error messages and logging
+- Updated configuration documentation
+
 ## 2025-03-19: Tool Enhancements and Bug Fixes
 
 ### Chat Tools Enhancements
