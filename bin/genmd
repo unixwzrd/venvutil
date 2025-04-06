@@ -135,7 +135,6 @@
 #
 
 # Ensure the script exits on error and treats unset variables as errors
-set -x
 set -euo pipefail
 
 # Get the base directory
