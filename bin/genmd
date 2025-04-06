@@ -135,6 +135,7 @@
 #
 
 # Ensure the script exits on error and treats unset variables as errors
+set -x
 set -euo pipefail
 
 # Get the base directory
@@ -152,6 +153,7 @@ __VENV_BIN="$(dirname "${THIS_SCRIPT}")"
 __VENV_BASE="$(dirname "${__VENV_BIN}")"
 __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
+echo "DEBUG: __VENV_INCLUDE=${__VENV_INCLUDE}"
 # shellcheck source=/dev/null
 source "${__VENV_INCLUDE}/venvutil_lib.sh" || true
 
@@ -276,7 +278,7 @@ set_option_value() {
     log_message "DEBUG3" "*** Setting command line options for $opt_name to \"$opt_value\""
     if [[ -n "$opt_value" && ! "$opt_value" =~ ^- ]]; then
         log_message "DEBUG1" "Load ${target_variable} with ${opt_name} values: ${opt_value}"
-        handle_variable "${target_variable}" opt_value
+        update_variable config_variable_action "$target_variable" opt_value
         # IFS='| ' readarray -t "${target_variable}" <  <( printf "%s" "$opt_value" )
     else
         display_help "ERROR ($MY_NAME): -$opt_name requires a pattern string." 
@@ -410,105 +412,6 @@ parse_gitignore() {
 }
 
 
-# # set_variable - Function to assign values to variables based on their names and type.
-# #
-# # Description:
-# #   Assigns a variable with the given name and value.
-# #
-# #   If the variable is an array, associative, or scalar, it is assigned
-# #   accordingly. Otherwise, it is treated as a scalar.
-# #
-# # Parameters:
-# #   $1: The name of the variable to assign.
-# #   $2: The value to assign.
-# #
-# set_variable() {
-#     local var_name="$1"
-#     shift
-#     local var_value="$*"
-# 
-#     # Declare and assign separately to avoid masking return values. SC2155
-#     # shellcheck disable=SC2155
-#     local var_type=$(var_type "$var_name")
-# 
-#     log_message "DEBUG2" "assign_variable: var_name=$var_name, var_value=\"$var_value\", var_type=$var_type"
-# 
-#     case "$var_type" in
-#         "array")
-#             IFS=' ' readarray -t "$var_name" <  <( printf "%s" "$var_value" )
-#             ;;
-#         "associative")
-#             IFS=' ' mapfile -g -t "$var_name" <  <( printf "%s" "$var_value" )
-#             ;;
-#         "scalar")
-#             declare -g "$var_name"="$var_value"
-#             ;;
-#         "integer")
-#             declare -g "$var_name=$var_value"
-#             ;;
-#          *)
-#             declare -g "$var_name"="$var_value"
-#             ;;
-#     esac
-# }
-# 
-# # handle_variable - Manage the assignment of variable values based on configuration actions.
-# #
-# # Description:
-# #   This function handles the assignment of variable values based on the specified
-# #   action defined in the `config_variable_action` associative array. It can merge,
-# #   set, configure, or discard values for a given variable.
-# #
-# # Parameters:
-# #   $1: The name of the variable to manage.
-# #   $2: The value to assign to the variable (if applicable).
-# #
-# # Actions:
-# #   - "merge": Merges the current value with the new value.
-# #   - "set": Sets the variable to the current value or a default.
-# #   - "config": Sets the variable from the config file.
-# #   - "discard": Preserves the current value without changes.
-# #
-# # Returns:
-# #   None
-# #
-# # Exit Codes:
-# #   2: Unknown action specified for variable.
-# #
-# handle_variable() {
-#     local var_name="$1"
-#     shift
-#     local var_value="$*"
-# 
-#     local current_value="${!var_name:-""}"
-# 
-#     case "${config_variable_action["$var_name"]}" in
-#         "merge")
-#             # Merge the current value with the value from the config file
-#             local -a mergevalue
-#             mergevalue=${current_value:-""}
-#             set_variable "$var_name" "${mergevalue[*]}" "${var_value}"
-#             ;;
-#         "set")
-#             # Set the variable from the command line or defaults
-#             set_variable "$var_name" "${current_value:-""}"
-#             ;;
-#         "config")
-#             # Set the variable from the config file setting
-#             set_variable "$var_name" "${!var_name:-""}"
-#             ;;
-#         "discard")
-#             # Preserve the current value
-#             set_variable "$var_name" "${current_value:-""}"
-#             ;;
-#         *)
-#             log_message "ERROR" "Unknown config_variable_action for variable \"$var_name\": ${config_variable_action["$var_name"]}"
-#             exit 2  # (ENOENT: 2): No such file or directory
-#             ;;
-#     esac
-# }
-# 
-
 # load_config - Function to load configuration from a .grc file
 #
 # Description:
@@ -555,7 +458,7 @@ load_config() {
         for var_name in "${config_variables[@]}"; do
             # Determine whether variable is merged, set or discarded from the config file.
             local var_values="${config_values["$var_name"]:-""}"
-            handle_variable "$var_name" var_values
+            update_variable config_variable_action "$var_name" var_values
             log_message "DEBUG2" "Final assignment variable: \"$var_name\" updated value: \"${!var_name:-""}\""
         done
     fi

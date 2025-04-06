@@ -56,7 +56,7 @@ __VENV_INTERNAL_FUNCTIONS=(
 )
 
 # Set default debug level, if not already set.
-if ! declare -p debug_level >/dev/null 2>&1; then declare -g debug_level=30; fi
+if ! declare -p debug_level >/dev/null 2>&1; then declare -g debug_level=20; fi
 # Return code
 if ! declare -p __rc__ >/dev/null 2>&1; then declare -g __rc__=0; fi
 
@@ -94,7 +94,7 @@ set_debug() {
 
     current_level="$debug_level"
 
-    #Need to set this to 30 is it's not already set so warning messages do not get suppressed
+    # Need to set this to 20 is it's not already set so INFO messages do not get suppressed
     debug_level=20
 
     # If numeric, validate range
@@ -301,6 +301,7 @@ errno_warn() {
     shift
     local message="$*"
     error_text=$(errno "${__rc__}"); __rc__=$?
+    declare -p | grep FUNCTION
     [ -n "${message}" ] && log_message "WARNING" "${message}"
     log_message "WARNING" "FUNCTION: ${FUNCNAME[1]} LINE: ${BASH_LINENO[1]} FILE: ${BASH_SOURCE[-1]}"
     log_message "WARNING" "${error_text}"
@@ -428,7 +429,6 @@ log_message() {
     message_class=$(errval "$message_level")
     local message_out="$*"
 
-    # Check if the provided message level exists in the message_class array
     if [[ -z "${message_class+_}" ]]; then
         echo "($script_name) WARNING: Unknown log level '$message_level'. Message: $message_out" >&2
         errno_exit 9
@@ -455,7 +455,7 @@ log_message() {
 #   - Prints a deprecation warning message to STDERR.
 #
 _deprecated() {
-    log_message "WARN" "Function ${FUNCNAME[0]} is deprecated. ${*}"
+    log_message "WARN" "Function ${FUNCNAME[1]} is deprecated. ${*}"
 }
 
 __rc__=0
