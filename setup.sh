@@ -7,7 +7,14 @@
 # is not yet implemented.
 #
 # Usage:
-#     venvutil_setup.sh [-d directory] [-r] [-v] {install|remove}
+#     setup.sh [-d directory] [-r] [-v] action_name
+#
+# Actions:
+#     install       Install venvutil tools and utilities from the cloned repository.
+#     refresh       Refresh the venvutil tools without installing conda or python packages.
+#     remove        Remove venvutil tools and utilities from the system.
+#     rollback      Rollback the venvutil tools and utilities from the system.
+#     verify        Verify the venvutil tools and utilities from the system.
 #
 # Options:
 #     -d directory  Specify the directory path where venvutil will be installed.
@@ -96,7 +103,11 @@ display_help_and_exit() {
             break
         fi
         # Remove leading '#' and spaces
-        help_text+="${line#\# }"$'\n'
+        if [[ "$line" =~ ^#[[:space:]]*$ ]]; then
+            help_text+=$'\n'
+        else
+            help_text+="${line#\# }"$'\n'
+        fi
     done < "$0"
 
     printf "%s" "$help_text" | ${PAGER:-cat}
@@ -108,8 +119,8 @@ parse_arguments() {
     while getopts ":d:vh" opt; do
         case $opt in
             d) INSTALL_BASE="$OPTARG" ;;
-            v) VERBOSE=true ;;
-            h) display_help_and_exit "Usage: $__SETUP_NAME [options] {install|remove|rollback}" ;;
+            v) VERBOSE=true, set -x ;;
+            h) display_help_and_exit "Usage: $__SETUP_NAME [options] {install|refresh|update|remove|rollback|verify}" ;;
             \?) echo "Invalid option -$OPTARG" >&2; exit 1 ;;
             :) echo "Option -$OPTARG requires an argument." >&2; exit 1 ;;
         esac
@@ -148,7 +159,7 @@ initialization() {
     fi
 
     pkg_config_vars
-    load_pkg_config "${__SETUP_BASE}/setup.cf"
+    load_pkg_config "${__SETUP_BASE}/setup.cf" pkg_config_actions
 
     # Set PKG_NAME early to load config
     PKG_NAME=${Name:-${PKG_NAME:-"DEFAULT"}}
@@ -177,7 +188,6 @@ create_pkg_config_dir() {
         mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze"
         log_message "INFO" "Created ${INSTALL_CONFIG} directories..."
     fi
-    # Create application configuration directory
     return 0
 }
 
@@ -185,7 +195,7 @@ create_pkg_config_dir() {
 write_pkg_info() {
     install_log="${INSTALL_CONFIG}/${PKG_NAME}.pc"
     INSTALL_DATE=$(date '+%Y-%m-%d %H:%M:%S')
-    log_message "INFO" "Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE"
+    log_message "INFO" "Package : Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE"
     echo "# Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE" > "${install_log}"
 
     # shellcheck disable=SC2068
@@ -195,6 +205,7 @@ write_pkg_info() {
     # shellcheck disable=SC2068
     for key in ${pkg_config_desc_vars[@]}; do
         echo "$key: ${pkg_config_values[$key]}" >> "${install_log}"
+        phg_config_set_vars+="$key"
     done
 
     return 0
@@ -347,14 +358,8 @@ _EOT_
 
 write_pkg_config() {
     log_message "INFO" "Writing package configuration..."
-    echo "$PKG_NAME.pc.in" > "$INSTALL_CONFIG/$PKG_NAME.pc"
-    for var in "${pkg_config_set_vars[@]}"; do
-        echo "$var=\"${!var}\""
-    done >> "$INSTALL_CONFIG/$PKG_NAME.pc"
-    echo "" >> "$INSTALL_CONFIG/$PKG_NAME.pc"
-    for var in "${pkg_config_desc_vars[@]}"; do
-        echo "$var: ${!var}"
-    done >> "$INSTALL_CONFIG/$PKG_NAME.pc"
+    config_file="$INSTALL_CONFIG/$PKG_NAME.pc"
+    write_config "$config_file" "${pkg_config_set_vars[@]}"
     return 0
 }
 
@@ -362,8 +367,9 @@ install_python_packages() {
     log_message "INFO" "Installing Python packages..."
     log_message "INFO" "Creating virtual environment..."
     benv venvutil
-    log_message "INFO" "Installing NLTK data..."
+    log_message "INFO" "Installing Python packages..."
     pip install -r "$__SETUP_BASE/requirements.txt" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
+    log_message "INFO" "Installing the NLTK models locally in VENV: ${CONDA_DEFAULT_ENV}"
     python <<_EOT_
 import nltk
 nltk.download('punkt')
@@ -429,6 +435,14 @@ install_conda() {
     return 0
 }
 
+
+install_python() {
+    log_message "INFO" "Installing Conda and Python packages..."
+    install_conda
+    install_python_packages
+    return 0
+}
+
 # Update .bashrc
 update_bashrc() {
     log_message "INFO" "Updating .bashrc for package $PKG_NAME in PATH..."
@@ -441,9 +455,8 @@ update_bashrc() {
     for line in "${path_line}" "${source_line}"; do
         if ! grep -Fxq "$line" "$bashrc"; then
             echo "$line" >> "$bashrc"
+            log_message "INFO" "Updated .bashrc added \"${line}\""
         fi
-        log_message "INFO" "Updated $bashrc added package $PKG_NAME bin directory."
-        log_message "INFO" "Updated $bashrc added package $PKG_NAME initialization."
     done
     return 0
 }
@@ -451,8 +464,7 @@ update_bashrc() {
 post_install() {
     log_message "INFO" "Post-installation tasks..."
     update_bashrc
-    install_conda
-    install_python_packages
+    install_python
     write_pkg_config
     post_install_user_message
     return 0
@@ -524,7 +536,13 @@ remove_bashrc_entries() {
 
     for line in "${path_line}" "${source_line}"; do
         if grep -Fxq "$line" "$bashrc"; then
-            sed -i.bak "/$line/d" "$bashrc"
+            # Create a temporary file
+            local tmpfile
+            tmpfile=$(mktemp)
+            # Use grep to exclude the matching line
+            grep -Fxv "$line" "$bashrc" > "$tmpfile"
+            # Move the temporary file back to .bashrc
+            mv "$tmpfile" "$bashrc"
             log_message "INFO" "Removed package bin directory from $bashrc."
         fi
     done
@@ -538,6 +556,22 @@ post_remove() {
     remove_bashrc_entries
 }
 
+refresh() {
+    log_message "INFO" "Refreshing package: $PKG_NAME tasks..."
+    remove_bashrc_entries 
+    pre_install
+    install_assets
+    update_bashrc
+    log_message "INFO" "Package: $PKG_NAME refreshed."
+    return 0
+}
+
+update() {
+    log_message "INFO" "Updating package: $PKG_NAME tasks..."
+    # Implement update logic here
+    return 0
+}
+
 remove() {
     log_message "INFO" "Removing package: $PKG_NAME tasks..."
     pre_remove
@@ -546,7 +580,6 @@ remove() {
     log_message "INFO" "Package: $PKG_NAME removed."
     return 0
 }
-
 
 # Rollback function
 rollback() {
@@ -563,12 +596,18 @@ verify() {
 
 # Main function
 main() {
-    parse_arguments "$@"
     initialization
 
     case "$ACTION" in
         install)
             install
+            ;;
+        refresh)
+            refresh
+            ;;
+        update)
+            echo "Not implemented at this time." && exit 1
+            update
             ;;
         remove)
             echo "Not implemented at this time." && exit 1
@@ -607,6 +646,15 @@ __SETUP_BASE="$(dirname "${THIS_SCRIPT}")"
 __SETUP_BIN="${__SETUP_BASE}/bin"
 __SETUP_INCLUDE="${__SETUP_BIN}/shinclude"
 
+# Set pager to less if available and PAGER not set, otherwise use cat
+if [ -z "${PAGER:-""}" ]; then
+    if command -v less >/dev/null 2>&1; then
+        PAGER="less"
+    else
+        PAGER="cat"
+    fi
+fi
+
 # Default values
 PKG_NAME="DEFAULT"
 PKG_VERSION=""
@@ -614,7 +662,8 @@ INSTALL_BASE=""
 INSTALL_CONFIG="$HOME/.${PKG_NAME}"
 INSTALL_MANIFEST="manifest.lst"
 ACTION=""
-VERBOSE=false
+
+parse_arguments "$@"
 
 declare -g -A pkg_config_values=()
 declare -g -a pkg_config_set_vars=()

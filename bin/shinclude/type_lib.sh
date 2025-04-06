@@ -211,6 +211,8 @@ set_variable() {
 #     - "config": Preserves the config file value
 #     - "discard": Keeps the original value
 handle_variable() {
+    __rc__=0
+    _deprecated "Use \`update_variable\` instead."
     local var_name=$1
     [[ -z "$2" || "$2" =~ ^[[:space:]]*$ ]] &&
         { errno_warn EINVAL "handle_variable: var_name=$var_name, value_ref='$2'"; return $?; }
@@ -247,5 +249,65 @@ handle_variable() {
     esac
 }
 
+# # Function: update_variable
+#   - Updates the current variable based on the actions defined in the
+#     `actions_list` associative array.
+# - **Usage**:
+#   - `update_variable "actions_list" "var_name1" "var_name2
+# - **Input Parameters**:
+#   - `actions_list`: Associative array mapping variable names to actions:
+#     - "merge": Combines existing value with new value
+#     - "set": Uses the new value
+#     - "config": Uses the current value (placeholder to change behavior of the function)
+#     - "discard": Keeps the original value (placeholder to change behavior of the function)
+#   - `var_name1`: The name of the variable to update.
+#   - `var_name2`: The name of the variable containing new or additional values.
+update_variable() {
+    __rc__=0
+    local actions_list=$1
+    local var_name1=$2
+    local var_name2=$3
+    local -n actions_list_ref=${actions_list:-}
+    local -n var_name1_value=${var_name1:-}
+    local -n var_name2_value=${var_name2:-}
+
+    local action_list=${!actions_list_ref}
+
+    if [ "$(var_type "${action_list:-}")" != "associative" ]; then
+        log_message "ERROR" "update_variable: actions_list is not an associative array"
+        errno_exit EINVAL "update_variable: actions_list is not an associative array"
+        return __rc__
+    fi
+
+    if [ -z "$var_name1" ] || [[ "$var_name1" =~ ^[[:space:]]*$ ]]; then
+        log_message "ERROR" "update_variable: var_name1 is not defined"
+        errno_warn EINVAL "Usage: update_variable actions_list var_name1 var_name2"
+        return __rc__
+    fi
+
+    if [ -z "$var_name2" ] || [[ "$var_name2" =~ ^[[:space:]]*$ ]]; then
+        log_message "ERROR" "update_variable: var_name2 is not defined"
+        errno_warn EINVAL "Usage: update_variable actions_list var_name1 var_name2"
+        return __rc__
+    fi
+
+    case "${actions_list_ref[$var_name1]}" in
+        "merge")
+            set_variable "$var_name1" var_name1_value var_name2_value
+            ;;
+        "set")
+            set_variable "$var_name1" var_name2_value
+            ;;
+        "config")
+            set_variable "$var_name1" var_name1_value
+            ;;
+        "discard")
+            set_variable "$var_name1" var_name1_value
+            ;;
+        *)
+            errno_exit ENOENT "Unknown config_variable_action for variable \"$var_name1\": ${actions_list_ref[$var_name1]}"
+            ;;
+    esac
+}
 __rc__=0
 return ${__rc__}

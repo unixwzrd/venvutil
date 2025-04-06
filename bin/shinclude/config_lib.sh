@@ -113,7 +113,7 @@ __VENV_INTERNAL_FUNCTIONS=(
 #   - None.
 pkg_config_vars() {
     # shellcheck disable=SC2034
-    declare -g -A var_actions=(
+    declare -g -A pkg_config_actions=(
         ["Cflags"]="set"
         ["Conflicts"]="merge"
         ["Contribute"]="merge"
@@ -211,6 +211,7 @@ expand_variable() {
 #     ```
 load_pkg_config() {
     local config_file="$1"
+    local -n var_actions="$2"
     if [[ ! -f "$config_file" ]]; then
         errno_exit ENOENT "No such config file: $config_file"
     fi
@@ -229,9 +230,9 @@ load_pkg_config() {
         if [[ "$line" =~ ^([A-Za-z_][A-Za-z0-9_]*)=\((.*)\)$ ]]; then
             key="${BASH_REMATCH[1]}"
             value="${BASH_REMATCH[2]}"
-            pkg_config_values["$key"]="$value"
-            pkg_config_set_vars+=("$key")
-            declare -g -a "$key"
+            pkg_config_values["${key}"]="${value}"
+            pkg_config_set_vars+=("${key}")
+            declare -g -a "${key}"
             local -a tmp_array=()
             for item in ${value}; do
                 if ! expanded="$(expand_variable "$item")"; then
@@ -240,7 +241,7 @@ load_pkg_config() {
                 tmp_array+=($expanded)
             done
             # Pass the entire array as a reference
-            handle_variable "${key}" tmp_array
+            update_variable var_actions "${key}" tmp_array
             continue
         fi
 
@@ -252,14 +253,13 @@ load_pkg_config() {
             key="${BASH_REMATCH[1]}"
             value="${BASH_REMATCH[2]}"
             # shellcheck disable=SC2034
-            pkg_config_values["$key"]="$value"
-            pkg_config_set_vars+=("$key")
+            pkg_config_values["${key}"]="${value}"
+            pkg_config_set_vars+=("${key}")
             if ! expanded="$(expand_variable "$value")"; then
                 log_message "ERROR" "Invalid scalar assignment: $line"
                 continue
             fi
-            declare -g "${key}"
-            handle_variable "$key" "expanded"
+            update_variable var_actions "${key}" expanded
             continue
         fi
 
@@ -279,11 +279,11 @@ load_pkg_config() {
                     log_message "ERROR" "Invalid quoted assignment: $line"
                     continue
                 fi
-                handle_variable "$key" expanded
             else
                 # Handle empty value case
-                handle_variable "$key" ' '
+                expanded=" "
             fi
+            update_variable var_actions "${key}" expanded
             continue
         fi
 
@@ -307,7 +307,7 @@ load_pkg_config() {
 write_config() {
     local config_file="$1"
     shift
-    local -a vars_to_write=("${!1}")
+    local -a vars_to_write=($@)
 
     : > "$config_file"  # Overwrite file
     log_message "INFO" "Writing config to $config_file"
@@ -322,10 +322,13 @@ write_config() {
         case "$var_type" in
             "array")
                 # Build array literal: var_name=("elem1" "elem2")
-                local -a arr_copy=("${!var_name}")
+                local -n values="${var_name}"
                 local array_literal='('
-                for elem in "${arr_copy[@]}"; do
-                    local escaped="${elem//\"/\\\"}"
+                for value in "${values[@]}"; do
+                    if [ -z "${value}" ]; then
+                        continue
+                    fi
+                    local escaped="${value//\"/\\\"}"
                     array_literal+="\"$escaped\" "
                 done
                 array_literal="${array_literal%% }"  # remove trailing space
@@ -337,6 +340,7 @@ write_config() {
                 echo "# $var_name is associative. Implement your own logic." >> "$config_file"
                 ;;
             "scalar"|"unknown")
+                echo "scalar: $var_name"
                 local val="${!var_name}"
                 local escaped="${val//\"/\\\"}"
                 echo "$var_name=\"$escaped\"" >> "$config_file"
