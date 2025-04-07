@@ -214,6 +214,7 @@ declare -g -a config_variables=(
 # the precedent will be from teh command line for some and from the
 # config file for others, some may come from the environment variables
 # and some may come from the config file or the command line.
+# shellcheck disable=SC2034
 declare -g -A config_variable_action=(
     ["GENMD_BASE"]="config"       # Set config file will override the environment variable
     ["add_line_numbers"]="set"    # Command line overrides all settings and preserved
@@ -274,9 +275,17 @@ set_option_value() {
     shift
     local opt_value=("$@")
 
+    echo "Command line options: $*"
+    echo "opt_name: $opt_name"
+    echo "opt_value: $opt_value"
+    echo "target_variable: $target_variable"
+
     log_message "DEBUG3" "*** Setting command line options for $opt_name to \"$opt_value\""
     if [[ -n "$opt_value" && ! "$opt_value" =~ ^- ]]; then
         log_message "DEBUG1" "Load ${target_variable} with ${opt_name} values: ${opt_value}"
+        echo "target_variable: $target_variable"
+        echo "opt_value: $opt_value"
+        echo "update_variable config_variable_action $target_variable opt_value"
         update_variable config_variable_action "$target_variable" opt_value
     else
         display_help "ERROR ($MY_NAME): -$opt_name requires a pattern string." 
@@ -387,32 +396,10 @@ load_config() {
     fi
 
     if [[ -e "$config_file" ]]; then
-
-        declare -A original_values
-        declare -A config_values
-        # Preserve the current values in temporary storage
-        for var_name in "${config_variables[@]}"; do
-            original_values["$var_name"]="${!var_name:-""}"
-        done
-        # shellcheck source=/dev/null
+        local tmp_debug_level=$debug_level
+        # shellcheck disable=SC1090
         source "$config_file"
-        # Quickly put debug level back to default or from the command line it should not change
-        # to value from config file.
-        debug_level=${original_values["debug_level"]}
-        # Set the new config file values and restore the original values
-        for var_name in "${config_variables[@]}"; do
-            config_values["$var_name"]="${!var_name:-""}"
-            declare -g "$var_name"="${original_values["$var_name"]:-""}"
-        done
-
-        log_message "INFO" "Configuration loaded from \"$config_file\""
-        # Iterate over config_variables and handle values accordingly
-        for var_name in "${config_variables[@]}"; do
-            # Determine whether variable is merged, set or discarded from the config file.
-            local var_values="${config_values["$var_name"]:-""}"
-            update_variable config_variable_action "$var_name" var_values
-            log_message "DEBUG2" "Final assignment variable: \"$var_name\" updated value: \"${!var_name:-""}\""
-        done
+        debug_level=${tmp_debug_level}
     fi
 }
 
@@ -894,6 +881,11 @@ display_settings() {
 }
 
 
+# Determine and load configuration based on output and config file specifications
+load_config_file
+
+declare -p | grep exclude
+
 # Processing begins here with command line options
 
 # Process command-line options using getopts
@@ -1049,13 +1041,13 @@ done
 # Shift off the options and optional --
 shift $((OPTIND -1))
 
+declare -p | grep exclude
+
 # Ensure necessary directories exist
 check_directory "$output_dir"
 check_directory "$config_dir"
 
-# Determine and load configuration based on output and config file specifications
-load_config_file
-
+exit
 
 # Parse .gitignore and populate gitignore_exclude and gitignore_include if enabled
 if [[ "$use_gitignore" = true ]]; then
@@ -1082,6 +1074,8 @@ fi
 if [[ ${#settings_modes[@]} -gt 0 ]]; then
     display_settings settings_modes
 fi
+
+declare -p | grep exclude
 
 # Debug: Show final directory exclusions
 log_message "DEBUG1" "Final directory exclusions: ${dir_excludes[*]}"
