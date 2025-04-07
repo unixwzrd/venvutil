@@ -1,5 +1,19 @@
 # Changelog
 
+## 2025-04-07: genmd Enhancements
+
+### genmd Enhancements
+- Enhanced `display_settings` function:
+  - Added support for markdown documentation generation
+  - Added support for configuration file generation
+  - Added support for environment variable export
+- improved condiguration variable handling and storage
+  - added `config_variables` array to manage configuration variables
+  - added `dump_config` function to dump configuration variables
+  - added `write_config` function to write configuration variables to a file
+- Consolidated functionality
+  - moved functions into other libraries for reuse.
+  
 ## 2025-04-06: Core Library Enhancements and Bug Fixes
 
 ### Core Library Improvements

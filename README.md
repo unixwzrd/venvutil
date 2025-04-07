@@ -2,7 +2,18 @@
 
 This is release 20250406_00-release.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
 
-## What's New in This Major Release (20250406_00-release)
+## What's New in This Major Release (20250406_01-update)
+Fixes and code consolidation  
+- `setup`, some reorganization of steps
+- `genmd`, consolidation of functions
+  - consistent config variable handling uses same functions as `setup` and `generate_manifest`
+  - `remove_duplicates` into `type_lib.sh`  
+  - `check_directory` into `config_lib.sh`
+  - `save_config` to `dump_config` in `config_lib.sh` 
+  - redid config information display and output
+- `errno_lib.sh`, function stack adjustment
+- `errno_lib.sh`, message formatting
+- `type_lib.sh`, functions mentioned moved into this library
 
 ### Core Library Enhancements
 - Enhanced variable handling with new `update_variable` function
@@ -32,7 +43,7 @@ This is release 20250406_00-release.This project is continuously evolving, becom
 ## Table of Contents
 
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
-  - [What's New in This Major Release (20250406\_00-release)](#whats-new-in-this-major-release-20250406_00-release)
+  - [What's New in This Major Release (20250406\_01-update)](#whats-new-in-this-major-release-20250406_01-update)
     - [Core Library Enhancements](#core-library-enhancements)
     - [Setup and Installation](#setup-and-installation)
     - [File Management](#file-management)
