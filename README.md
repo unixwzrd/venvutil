@@ -2,7 +2,7 @@
 
 This is release 20250406_00-release.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
 
-## What's New in This Major Release (20250406_01-update)
+## What's New in This Major Release (20250407_00-patch)
 Fixes and code consolidation  
 - `setup`, some reorganization of steps
 - `genmd`, consolidation of functions
@@ -43,7 +43,7 @@ Fixes and code consolidation
 ## Table of Contents
 
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
-  - [What's New in This Major Release (20250406\_01-update)](#whats-new-in-this-major-release-20250406_01-update)
+  - [What's New in This Major Release (20250407\_00-patch)](#whats-new-in-this-major-release-20250407_00-patch)
     - [Core Library Enhancements](#core-library-enhancements)
     - [Setup and Installation](#setup-and-installation)
     - [File Management](#file-management)
