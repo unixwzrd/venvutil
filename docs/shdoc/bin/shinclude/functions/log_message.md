@@ -22,6 +22,7 @@
   - `message`: The message to print if the log level is greater than or equal to the current debug level.
 - **Output**: 
   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
+ TODO Add option to specify a -l parameter for an optional log file
 
 ## Definition 
 
@@ -34,4 +35,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-04-06 at 02:21:40
+Generated on: 2025-04-06 at 23:08:41

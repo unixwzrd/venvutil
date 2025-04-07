@@ -133,7 +133,7 @@ source "${SHINCLUDE}/config_lib.sh"
 
 pkg_config_vars
 # Specify the files and directories to include
-load_pkg_config "${__SETUP_BASE}/setup.cf"
+load_pkg_config "${__SETUP_BASE}/setup.cf" pkg_config_actions
 # shellcheck disable=SC2206
 include_files=(${include_files[@]:-("README.md" "LICENSE" "setup.sh" "setup.cf" "manifest.lst")})
 # shellcheck disable=SC2206
