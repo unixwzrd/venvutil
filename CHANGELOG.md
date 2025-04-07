@@ -13,6 +13,7 @@
   - added `write_config` function to write configuration variables to a file
 - Consolidated functionality
   - moved functions into other libraries for reuse.
+- Fixed `pre-commit` hook to work with worktrees
   
 ## 2025-04-06: Core Library Enhancements and Bug Fixes
 

@@ -7,9 +7,11 @@
 | Function | Description |
 |:--|:--|
 | [pkg_config_vars](functions/pkg_config_vars.md) | Sets up the actions for the variables in a package config file. |
+| [check_directory](functions/check_directory.md) | Args: |
 | [expand_variable](functions/expand_variable.md) | Expands variables in a given string. |
 | [load_pkg_config](functions/load_pkg_config.md) | Loads package configuration from setup.cf file. |
-| [write_config](functions/write_config.md) | Write variables in valid Bash syntax (scalar vs array). |
+| [dump_config](functions/dump_config.md) | Write configuration variables to a file or stdout in valid Bash syntax |
+| [write_config](functions/write_config.md) | Write configuration variables to a file in valid Bash syntax |
 | [parse_manifest_metadata](functions/parse_manifest_metadata.md) | Parses manifest metadata. |
 
 ---
@@ -22,4 +24,4 @@ Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
 Generated Markdown Documentation
-Generated on: 2025-04-06 at 02:24:30
+Generated on: 2025-04-06 at 23:09:46
