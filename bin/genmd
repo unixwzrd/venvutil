@@ -152,7 +152,6 @@ __VENV_BIN="$(dirname "${THIS_SCRIPT}")"
 __VENV_BASE="$(dirname "${__VENV_BIN}")"
 __VENV_INCLUDE="${__VENV_BASE}/bin/shinclude"
 
-echo "DEBUG: __VENV_INCLUDE=${__VENV_INCLUDE}"
 # shellcheck source=/dev/null
 source "${__VENV_INCLUDE}/venvutil_lib.sh" || true
 
@@ -167,14 +166,13 @@ PAGER="${PAGER:-less -R}"
 # Declare arrays
 # Quote to prevent word splitting/globbing, or split robustly with mapfile or read -a. SC2206
 # shellcheck disable=SC2206
-declare -g -a dir_excludes=(${GENMD_DIR_EXCLUDES:-( ".git" "tmp" "log" "__pycache__" ".vscode")})
-# File_excludes appears unused. Verify use (or export if used externally).
+declare -g -a dir_excludes=${GENMD_DIR_EXCLUDES:-( ".git" "tmp" "log" "__pycache__" ".vscode" )}
 # shellcheck disable=SC2206,SC2034
-declare -g -a file_excludes=(${GENMD_FILE_EXCLUDES:-( "*.ico" "*.svg" "*.png" "*.pdf" "*.jpg" "*.htaccess" "*.webp" "*.jekyll" ".DS_Store" "*.JPG" "*.pdf" )})
+declare -g -a file_excludes=${GENMD_FILE_EXCLUDES:-( "*.ico" "*.svg" "*.png" "*.pdf" "*.jpg" "*.htaccess" "*.webp" "*.jekyll" ".DS_Store" "*.JPG" "*.pdf" )}
 # shellcheck disable=SC2206
-declare -g -a pattern_excludes=(${GENMD_PATTERN_EXCLUDES:-""})
+declare -g -a pattern_excludes=${GENMD_PATTERN_EXCLUDES:-()}
 # shellcheck disable=SC2206,SC2034
-declare -g -a file_includes=(${GENMD_FILE_INCLUDES:-""})
+declare -g -a file_includes=${GENMD_FILE_INCLUDES:-()}
 declare -g -a gitignore_exclude=()
 declare -g -a gitignore_includes=()
 
@@ -284,21 +282,6 @@ set_option_value() {
     fi
 }
 
-# Function to ensure a directory exists. If it does not, it creates it.
-#
-# Args:
-#   $1 (string): The path of the directory to be checked.
-#
-# Returns:
-#   None
-#
-check_directory() {
-    local dir_path="$1"
-    if [[ ! -d "$dir_path" ]]; then
-        mkdir -p "$dir_path" || { log_message "ERROR" "Failed to create directory \"$dir_path\"."; exit 1; }
-        log_message "WARNING" "Created directory \"$dir_path\"."
-    fi
-}
 
 # sanitize_patterns - Sanitizes a string by retaining only alphanumerics, underscores, dots, dashes,
 # and spaces.
@@ -323,40 +306,6 @@ sanitize_patterns() {
     echo "$cleanstring"
 }
 
-# remove_duplicates - Remove duplicate elements from an array.
-#
-# Description:
-#   Takes a named array reference as its only argument and removes any duplicate
-#   elements from it. The function will preserve the original order of elements
-#   but will remove any duplicates.
-#
-# Parameters:
-#   $1: The named array reference to process.
-#
-# Returns:
-#   The processed array with duplicates removed.
-#
-remove_duplicates() {
-    local -n array_ref=$1
-    declare -A seen
-    local unique=()
-    log_message "DEBUG1" "Removing duplicates from array '$1': '${array_ref[*]}'"
-    
-    # Double quote array expansions to avoid re-splitting elements.
-    # shellcheck disable=SC2068
-    for regex in ${array_ref[@]}; do
-        # Skip empty patterns
-        [[ -n "$regex" ]] || continue
-        log_message "DEBUG2" "remove_duplicates input regex: $regex"
-        if [[ -z "${seen[$regex]+_}" ]]; then
-            seen["$regex"]=1
-            unique+=("$regex")
-        fi
-    done
-
-    log_message "DEBUG1" "Finished removing duplicates from array '$1' with total of ${#unique[@]}: '${unique[*]}'"
-    array_ref=("${unique[@]}")
-}
 
 # parse_gitignore - Parse a .gitignore file for patterns to exclude/include
 #
@@ -424,6 +373,9 @@ parse_gitignore() {
 #
 # Parameters:
 #   $1: The path to the configuration file to load.
+#   $2: The name of the config variable to load.
+#
+#  TODO move this function to the config_lib.sh
 #
 load_config() {
     local config_file="$1"
@@ -876,45 +828,6 @@ compress_output() {
 }
 
 
-# Function to save configuration to a .grc file
-#
-# This function saves the configuration variables defined in the script to a specified .grc file.
-# It checks the output directory and writes each variable to the file in a format suitable for 
-# environment variable export. Special handling is applied for specific variables to ensure they 
-# are exported correctly.
-#
-# Args:
-#     None
-#
-# Returns:
-#     None
-#
-# Logs:
-#     INFO messages indicating the saving process and the final output file location.
-save_config() {
-    #echo "CALLING save_config"
-    local config_file="${config_filename_out}"
-    check_directory "$(dirname "$config_file")"
-
-    {
-        log_message "INFO" "Saving configuration to $config_file"
-        # shellcheck disable=SC2068
-        for var in ${config_variables[@]}; do
-            log_message "INFO" "Saving $var type: $(var_type "$var") value: \"${!var:-""}\""
-            case "$var" in
-                GENMD_DIR_EXCLUDES|GENMD_FILE_EXCLUDES|GENMD_PATTERN_EXCLUDES|GENMD_FILE_INCLUDES)
-                    echo "export $var=\"${!var:-""}\""
-                    ;;
-                *)
-                    echo "$var=\"${!var:-""}\""
-                    ;;
-            esac
-        done
-    } > "$config_file"
-
-    log_message "INFO" "Configuration saved to $config_file"
-}
-
 # Function to display or write out the current settings
 #
 # This function takes an array of modes and performs actions based on the provided modes.
@@ -947,10 +860,7 @@ display_settings() {
         case "$mode" in
             info)
                 log_message "INFO" "genmd current settings:"
-                # shellcheck disable=SC2068
-                for var in ${config_variables[@]}; do
-                    log_message "INFO" "$var: ${!var:-""}"
-                done
+                dump_config -s config_variables | sed 's/=/: /'
                 ;;
             md)
                 {
@@ -958,28 +868,20 @@ display_settings() {
                     echo ""
                     echo "| Variable               | Value                                                                 |"
                     echo "|------------------------|-----------------------------------------------------------------------|"
-                    # shellcheck disable=SC2068
-                    for var in ${config_variables[@]}; do
-                        local value=${!var:-""}
-                        # Escape or pattern match characters
-                        value=${value//|/\\|}
-                        # shellcheck disable=SC2086
-                        printf "| %s | %s |\n" "$var" ${value}
-                    done
-                    echo ""
+                    dump_config -s config_variables | sed 's/^\(.*\)=\(.*\)$/|\1|\2|/'
                 } >> "$output_filename"
                 ;;
             cfg)
-                save_config
+                check_directory "$(dirname "$config_file")"
+                dump_config -s -o "$config_file" config_variables
+                log_message "INFO" "Configuration saved to $config_file"
                 ;;
             env)
                 {
                     echo ""
                     echo "## genmd Environment Variables"
                     echo ""
-                    for var in "${config_variables[@]}"; do
-                        printf "export %s=\"%s\"\n" "$var" "${!var:-""}"
-                    done
+                    dump_config -s config_variables
                     echo ""
                 } > "${GENMD_BASE}/genmd_env.sh"
                 ;;
@@ -1164,7 +1066,6 @@ remove_duplicates pattern_excludes
 remove_duplicates gitignore_exclude
 remove_duplicates gitignore_include
 remove_duplicates file_includes
-
 remove_duplicates settings_modes
 
 # Truncate the output file only if not in dry_run

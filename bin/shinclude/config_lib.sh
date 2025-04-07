@@ -137,6 +137,24 @@ pkg_config_vars() {
     )
 }
 
+
+# Function to ensure a directory exists. If it does not, it creates it.
+#
+# Args:
+#   $1 (string): The path of the directory to be checked.
+#
+# Returns:
+#   None
+#
+check_directory() {
+    local dir_path="$1"
+    if [[ ! -d "$dir_path" ]]; then
+        mkdir -p "$dir_path" || { log_message "ERROR" "Failed to create directory \"$dir_path\"."; exit 1; }
+        log_message "WARNING" "Created directory \"$dir_path\"."
+    fi
+}
+
+
 # # Function: expand_variable
 # `expand_variable` - Expands variables in a given string.
 # ## Description
@@ -292,62 +310,182 @@ load_pkg_config() {
     return 0
 }
 
-# # Function: write_config
-# `write_config` - Write variables in valid Bash syntax (scalar vs array).
+# # Function: dump_config
+# `dump_config` - Write configuration variables to a file or stdout in valid Bash syntax
+#
 # ## Description
-# - **Purpose**:
-#   - Writes variables in valid Bash syntax (scalar vs array).
-# - **Usage**:
-#   - `write_config "/path/to/output.conf" config_variables[@]`
-# - **Input Parameters**:
-#   - `config_file`: The path to the output file.
-#   - `config_variables`: An array of variable names to write.
-# - **Output**:
-#   - Writes the variables to the output file in valid Bash syntax.
-write_config() {
-    local config_file="$1"
-    shift
-    local -a vars_to_write=($@)
+# - **Purpose**: 
+#   - Writes configuration variables to a file or stdout in valid Bash syntax
+#   - Supports writing scalar variables, arrays, and associative arrays
+#   - Can optionally sort variables
+#
+# ## Usage
+#   ```bash
+#   dump_config [-s] [-o output_file] [-h] <variable_array>
+#   ```
+#
+# ## Options
+#   - `-s`: Sort variables alphabetically before writing
+#   - `-o output_file`: Write to specified file (default: stdout)
+#   - `-h`: Display help message
+#
+# ## Input Parameters
+#   - `variable_array`: Name of array containing variables to write
+#
+# ## Output
+#   - Writes variables to the specified file (or stdout) in valid Bash syntax:
+#     - Scalar variables: `var="value"`
+#     - Arrays: `var=("elem1" "elem2")`
+#     - Associative arrays: `declare -A var=([key1]="val1" [key2]="val2")`
+#
+# ## Returns
+#   - 0: Success
+#   - 1: Invalid option provided
+#
+# ## Examples
+#   ```bash
+#   # Write config to stdout
+#   dump_config config_vars
+#
+#   # Write sorted config to file
+#   dump_config -s -o config.conf config_vars
+#   ```
+dump_config() {
+    __rc__=0
+    local sort_vars=false
+    local output_file="/dev/stdout"
+    local OPTIND=1
 
-    : > "$config_file"  # Overwrite file
-    log_message "INFO" "Writing config to $config_file"
+    while getopts "so:h" opt; do
+        case $opt in
+            s) sort_vars=true ;;
+            o) output_file="$OPTARG" ;;
+            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
+            \?) log_message "ERROR" "Invalid option: -$OPTARG"; echo "$USAGE"; return 1 ;;
+        esac
+    done
+    shift $((OPTIND-1))
 
-    for var_name in "${vars_to_write[@]}"; do
-        # Skip empty var_name
-        [[ -z "${var_name}" ]] && continue
+    # Get the variable array name from remaining arguments
+    local -n var_list="$1"
 
+    # Truncate file if writing to file (not stdout)
+    if [[ "$output_file" != "/dev/stdout" ]]; then
+        : > "$output_file"
+        log_message "INFO" "Writing config to $output_file"
+    fi
+
+    # Sort if requested
+    if [[ "$sort_vars" == true ]]; then
+        # Print array elements on separate lines, sort them, and read back into array
+        readarray -t sorted_array < <(printf '%s\n' "${var_list[@]}" | sort)
+        var_list=("${sorted_array[@]}")
+    fi
+
+    for var_name in "${var_list[@]}"; do
         local var_type
         var_type="$(var_type "$var_name")"
 
         case "$var_type" in
             "array")
-                # Build array literal: var_name=("elem1" "elem2")
-                local -n values="${var_name}"
-                local array_literal='('
-                for value in "${values[@]}"; do
-                    if [ -z "${value}" ]; then
+                # Start array declaration
+                printf '%s=(' "$var_name" >> "$output_file"
+                local -n array_ref="$var_name"
+                # Print each non-empty element
+                for value in "${array_ref[@]}"; do
+                    # TODO Remove this at some point
+                    # This is a patch to handle old errors in config processing.
+                    # Skip lone parentheses that may have been incorrectly parsed
+                    if [[ "$value" == "(" || "$value" == ")" ]]; then
                         continue
                     fi
-                    local escaped="${value//\"/\\\"}"
-                    array_literal+="\"$escaped\" "
+
+                    if [ -n "${value}" ]; then
+                        printf '"%s" ' "$value" >> "$output_file"
+                    fi
                 done
-                array_literal="${array_literal%% }"  # remove trailing space
-                array_literal+=')'
-                echo "$var_name=$array_literal" >> "$config_file"
+                # Close array declaration
+                printf ')\n' >> "$output_file"
                 ;;
             "associative")
-                # Harder to re-serialize. Implement if needed.
-                echo "# $var_name is associative. Implement your own logic." >> "$config_file"
+                printf 'declare -A %s=(' "$var_name" >> "$output_file"
+                local -n array_ref="$var_name"
+                for key in "${!array_ref[@]}"; do
+                    printf ' [%s]="%s"' "$key" "${array_ref[$key]}" >> "$output_file"
+                done
+                printf ' )\n' >> "$output_file"
                 ;;
-            "scalar"|"unknown")
-                echo "scalar: $var_name"
-                local val="${!var_name}"
-                local escaped="${val//\"/\\\"}"
-                echo "$var_name=\"$escaped\"" >> "$config_file"
+            *)
+                printf '%s="%s"\n' "$var_name" "${!var_name}" >> "$output_file"
                 ;;
         esac
     done
-    log_message "INFO" "Done writing config to $config_file"
+
+    return 0
+}
+
+# # Function: write_config
+# `write_config` - Write configuration variables to a file in valid Bash syntax
+#
+# ## Description
+# - **Purpose**: 
+#   - Writes configuration variables to a file in valid Bash syntax, handling different variable types appropriately
+#
+# ## Usage
+#   ```bash
+#   write_config <config_file> <variable_array>
+#   ```
+#
+# ## Input Parameters
+#   - `config_file`: Path to the output configuration file
+#   - `variable_array`: Name of array containing variables names to write
+#
+# ## Output
+#   - Writes variables to the specified file (or stdout) in valid Bash syntax:
+#     - Scalar variables: `var="value"`
+#     - Arrays: `var=("elem1" "elem2")`
+#     - Associative arrays: `declare -A var=([key1]="val1" [key2]="val2")`
+#
+# ## Returns
+#   - 0: Success
+#   - 1: Invalid option provided
+#
+# ## Examples
+#   ```bash
+#   # Write config to file
+#   write_config "/path/to/config.conf" config_vars
+#   ```
+#
+# ## Deprecation Notice
+# This function is deprecated and will be removed in a future version.
+# Please use `dump_config` instead, which has a clearer interface:
+#   ```bash
+#   # Write to file
+#   dump_config -o config.conf config_vars
+#
+#   # Write to stdout
+#   dump_config config_vars
+#   ```
+write_config() {
+    __rc__=0
+
+    _deprecated "write_config is deprecated. Please use dump_config instead."
+    __rc__=$?
+
+    local config_file="$1"
+    shift
+    local -n vars_to_write="$1"
+
+    local tmp_rc
+
+    dump_config -o "$config_file" vars_to_write
+    tmp_rc=$?
+
+    if [[ "$tmp_rc" -ne 0 ]]; then
+        __rc__=$tmp_rc
+    fi
+
+    return ${__rc__}
 }
 
 # # Function: parse_manifest_metadata
@@ -361,6 +499,7 @@ write_config() {
 # - **Output**:
 #   - Sets variables from the manifest file for package installation.
 parse_manifest_metadata() {
+    __rc__=0
     local manifest_file="$1"
     if [ ! -f "$manifest_file" ]; then
         echo "ERROR: Manifest file $manifest_file not found." >&2
@@ -374,7 +513,7 @@ parse_manifest_metadata() {
             eval "$line"
         fi
     done < "$manifest_file"
-    return 0
+    return ${__rc__}
 }
 
 

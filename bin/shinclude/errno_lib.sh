@@ -301,9 +301,10 @@ errno_warn() {
     shift
     local message="$*"
     error_text=$(errno "${__rc__}"); __rc__=$?
-    declare -p | grep FUNCTION
     [ -n "${message}" ] && log_message "WARNING" "${message}"
-    log_message "WARNING" "FUNCTION: ${FUNCNAME[1]} LINE: ${BASH_LINENO[1]} FILE: ${BASH_SOURCE[-1]}"
+    if [ "${FUNCNAME[1]}" != "_deprecated" ]; then
+        log_message "WARNING" "FUNCTION: ${FUNCNAME[1]} LINE: ${BASH_LINENO[1]} FILE: ${BASH_SOURCE[-1]}"
+    fi
     log_message "WARNING" "${error_text}"
     return "${__rc__}"
 }
@@ -411,13 +412,16 @@ errval() {
 #   - `message`: The message to print if the log level is greater than or equal to the current debug level.
 # - **Output**: 
 #   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
+#
+#  TODO Add option to specify a -l parameter for an optional log file
+#
 log_message() {
     local OPTIND=1
     # Parse options
     while getopts "h" opt; do
         case $opt in
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; echo "$*"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
@@ -437,7 +441,7 @@ log_message() {
     # echo " LOG_MESSAGE CALLED: ${message_level} ${debug_level} ($MY_NAME): ${message_out}" >&2
     # Compare the current debug_level with the message's severity level
     if [ "$debug_level" -le "${message_class}" ]; then
-        echo "$script_name ${message_level}($debug_level): ${message_out}" >&2
+        echo "$script_name ${message_level}($message_class): ${message_out}" >&2
     fi
 }
 
@@ -455,7 +459,7 @@ log_message() {
 #   - Prints a deprecation warning message to STDERR.
 #
 _deprecated() {
-    log_message "WARN" "Function ${FUNCNAME[1]} is deprecated. ${*}"
+    errno_warn ENOTSUP "Function \"${FUNCNAME[1]}\" is deprecated. ${*}"
 }
 
 __rc__=0

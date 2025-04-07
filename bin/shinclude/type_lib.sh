@@ -213,40 +213,6 @@ set_variable() {
 handle_variable() {
     __rc__=0
     _deprecated "Use \`update_variable\` instead."
-    local var_name=$1
-    [[ -z "$2" || "$2" =~ ^[[:space:]]*$ ]] &&
-        { errno_warn EINVAL "handle_variable: var_name=$var_name, value_ref='$2'"; return $?; }
-
-    # shellcheck disable=SC2034
-    local -n var_name_val=$2
-    # shellcheck disable=SC2034
-    local -n current_value=${var_name}
-
-    # TODO Handle different action tables.
-
-    # shellcheck disable=SC2154
-    case "${var_actions["$var_name"]}" in
-        "merge")
-            # Merge the current value with the value from the config file
-            set_variable "$var_name" "current_value" "var_name_val"
-            ;;
-        "set")
-            # Set the variable from the command line or defaults
-            set_variable "$var_name" "var_name_val"
-            ;;
-        "config")
-            # Set the variable from the config file setting
-            set_variable "$var_name" "current_value"
-            ;;
-        "discard")
-            # Preserve the original value
-            set_variable "$var_name" "current_value"
-            ;;
-        *)
-            log_message "ERROR" "Unknown config_variable_action for variable \"$var_name\": ${var_actions["$var_name"]}"
-            exit 2  # (ENOENT: 2): No such file or directory
-            ;;
-    esac
 }
 
 # # Function: update_variable
@@ -309,5 +275,43 @@ update_variable() {
             ;;
     esac
 }
+
+
+# remove_duplicates - Remove duplicate elements from an array.
+#
+# Description:
+#   Takes a named array reference as its only argument and removes any duplicate
+#   elements from it. The function will preserve the original order of elements
+#   but will remove any duplicates.
+#
+# Parameters:
+#   $1: The named array reference to process.
+#
+# Returns:
+#   The processed array with duplicates removed.
+#
+remove_duplicates() {
+    local -n array_ref=$1
+    declare -A seen
+    local unique=()
+    log_message "DEBUG1" "Removing duplicates from array '$1': '${array_ref[*]}'"
+    
+    # Double quote array expansions to avoid re-splitting elements.
+    # shellcheck disable=SC2068
+    for regex in ${array_ref[@]}; do
+        # Skip empty patterns
+        [[ -n "$regex" ]] || continue
+        log_message "DEBUG2" "remove_duplicates input regex: $regex"
+        if [[ -z "${seen[$regex]+_}" ]]; then
+            seen["$regex"]=1
+            unique+=("$regex")
+        fi
+    done
+
+    log_message "DEBUG1" "Finished removing duplicates from array '$1' with total of ${#unique[@]}: '${unique[*]}'"
+    array_ref=("${unique[@]}")
+}
+
+
 __rc__=0
 return ${__rc__}
