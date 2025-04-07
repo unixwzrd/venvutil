@@ -872,9 +872,9 @@ display_settings() {
                 } >> "$output_filename"
                 ;;
             cfg)
-                check_directory "$(dirname "$config_file")"
-                dump_config -s -o "$config_file" config_variables
-                log_message "INFO" "Configuration saved to $config_file"
+                check_directory "$(dirname "$config_filename_out")"
+                dump_config -s -o "$config_filename_out" config_variables
+                log_message "INFO" "Configuration saved to $config_filename_out"
                 ;;
             env)
                 {
