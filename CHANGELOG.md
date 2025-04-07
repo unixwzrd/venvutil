@@ -14,6 +14,7 @@
 - Consolidated functionality
   - moved functions into other libraries for reuse.
 - Fixed `pre-commit` hook to work with worktrees
+- Fixed genmd command line handling for multiple parameters for -e -1 -f -d -s
   
 ## 2025-04-06: Core Library Enhancements and Bug Fixes
 
