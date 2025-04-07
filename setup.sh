@@ -183,6 +183,9 @@ initialization() {
 }
 
 # Create package configuration directory
+#
+# TODO use check_directory in config_lib.sh
+#
 create_pkg_config_dir() {
     if [ ! -d "${INSTALL_CONFIG}" ]; then
         mkdir -p "$INSTALL_CONFIG/log" "$INSTALL_CONFIG/freeze"
@@ -192,8 +195,11 @@ create_pkg_config_dir() {
 }
 
 # Write package information
+#
+# TODO fix this to write to the log file all information
+
 write_pkg_info() {
-    install_log="${INSTALL_CONFIG}/${PKG_NAME}.pc"
+    install_log="${INSTALL_CONFIG}/${PKG_NAME}.log"
     INSTALL_DATE=$(date '+%Y-%m-%d %H:%M:%S')
     log_message "INFO" "Package : Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE"
     echo "# Package Information: Name=$PKG_NAME, Version=$PKG_VERSION, Date=$INSTALL_DATE" > "${install_log}"
@@ -359,7 +365,7 @@ _EOT_
 write_pkg_config() {
     log_message "INFO" "Writing package configuration..."
     config_file="$INSTALL_CONFIG/$PKG_NAME.pc"
-    write_config "$config_file" "${pkg_config_set_vars[@]}"
+    write_config "$config_file" pkg_config_set_vars
     return 0
 }
 
@@ -464,7 +470,6 @@ update_bashrc() {
 post_install() {
     log_message "INFO" "Post-installation tasks..."
     update_bashrc
-    install_python
     write_pkg_config
     post_install_user_message
     return 0
@@ -475,6 +480,7 @@ install() {
     log_message "INFO" "Installing package: $PKG_NAME..."
     pre_install
     install_assets
+    install_python
     post_install
     log_message "INFO" "Installation for $PKG_NAME complete."
     return 0
@@ -561,7 +567,7 @@ refresh() {
     remove_bashrc_entries 
     pre_install
     install_assets
-    update_bashrc
+    post_install
     log_message "INFO" "Package: $PKG_NAME refreshed."
     return 0
 }
