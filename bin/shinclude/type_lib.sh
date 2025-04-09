@@ -295,16 +295,14 @@ remove_duplicates() {
     declare -A seen
     local unique=()
     log_message "DEBUG1" "Removing duplicates from array '$1': '${array_ref[*]}'"
-    
-    # Double quote array expansions to avoid re-splitting elements.
-    # shellcheck disable=SC2068
-    for regex in ${array_ref[@]}; do
+
+    for value in "${array_ref[@]}"; do
         # Skip empty patterns
-        [[ -n "$regex" ]] || continue
-        log_message "DEBUG2" "remove_duplicates input regex: $regex"
-        if [[ -z "${seen[$regex]+_}" ]]; then
-            seen["$regex"]=1
-            unique+=("$regex")
+        [[ -n "$value" ]] || continue
+        if [[ -z "${seen[$value]+_}" ]]; then
+            seen["$value"]=1
+            unique+=("$value")
+            continue
         fi
     done
 

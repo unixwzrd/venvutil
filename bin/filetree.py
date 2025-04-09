@@ -65,9 +65,9 @@ License:
 
 import os
 import sys
-import argparse
 import re
-from pathlib import Path
+import argparse
+import fnmatch
 import logging
 from rich.console import Console
 from rich.tree import Tree
@@ -99,15 +99,31 @@ def is_ignored(item_relative_path, exclude_patterns, show_all=False):
     """
     if show_all:
         return False
-    # Explicitly ignore .git directory and its contents
-    if item_relative_path == ".git" or item_relative_path.startswith(".git/"):
-        logging.debug("Ignoring .git directory: %s", item_relative_path)
-        return True
-    path_obj = Path(item_relative_path)
+
+    # Check if any part of the path matches an exclude pattern
+    path_parts = item_relative_path.split(os.sep)
     for pattern in exclude_patterns:
-        if path_obj.match(pattern):
+        # First check if the pattern is a substring of any part of the path
+        for part in path_parts:
+            if pattern in part:
+                logging.debug(
+                    "Ignoring item because pattern '%s' is in path part '%s': %s", 
+                    pattern, part, item_relative_path
+                )
+                return True
+        # Then check if the pattern matches as a glob pattern
+        for part in path_parts:
+            if fnmatch.fnmatch(part, pattern):
+                logging.debug(
+                    "Ignoring item based on pattern '%s' matching part '%s': %s", 
+                    pattern, part, item_relative_path
+                )
+                return True
+        # Also check if the full path matches the pattern
+        if fnmatch.fnmatch(item_relative_path, pattern):
             logging.debug(
-                "Ignoring item based on pattern '%s': %s", pattern, item_relative_path
+                "Ignoring item based on pattern '%s' matching full path: %s", 
+                pattern, item_relative_path
             )
             return True
     return False
@@ -124,9 +140,23 @@ def is_included(item_relative_path, include_patterns, show_all=False):
     """
     if show_all or not include_patterns:
         return True
-    path_obj = Path(item_relative_path)
+    # Check if any part of the path matches an include pattern
+    path_parts = item_relative_path.split(os.sep)
     for pattern in include_patterns:
-        if path_obj.match(pattern):
+        # Check if pattern matches any part of the path
+        for part in path_parts:
+            if fnmatch.fnmatch(part, pattern):
+                logging.debug(
+                    "Including item based on pattern '%s' matching part '%s': %s", 
+                    pattern, part, item_relative_path
+                )
+                return True
+        # Also check if the full path matches the pattern
+        if fnmatch.fnmatch(item_relative_path, pattern):
+            logging.debug(
+                "Including item based on pattern '%s' matching full path: %s", 
+                pattern, item_relative_path
+            )
             return True
     return False
 
@@ -152,21 +182,31 @@ def add_items(
     :param follow_links: If True, follow symbolic links.
     :return: True if any items were added to the tree, False otherwise.
     """
-    has_included_items = (
-        False  # Flag to check if current directory has any included items
-    )
+    has_included_items = False
     try:
+        # Process all items in the current directory
         for item_name in sorted(os.listdir(root_dir)):
             item_path = os.path.join(root_dir, item_name)
             item_relative_path = (
                 os.path.join(relative_path, item_name) if relative_path else item_name
             )
+            
+            # Skip if the item is in the exclude list
             if is_ignored(item_relative_path, exclude_patterns, show_all):
+                logging.debug("Skipping excluded item: %s", item_relative_path)
                 continue
-            if os.path.isdir(item_path) and (
+                
+            if os.path.isfile(item_path):
+                # For files, check if they match the include patterns
+                if is_included(item_relative_path, include_patterns, show_all):
+                    parent_tree.add(item_name)
+                    has_included_items = True
+                    logging.debug("Added file: %s", item_relative_path)
+            elif os.path.isdir(item_path) and (
                 follow_links or not os.path.islink(item_path)
             ):
-                # Recursively add subdirectories
+                # For directories, always traverse them unless explicitly excluded
+                logging.debug("Entering directory: %s", item_relative_path)
                 dir_branch = Tree(f"{item_name}/")
                 dir_has_items = add_items(
                     item_path,
@@ -180,10 +220,8 @@ def add_items(
                 if dir_has_items:
                     parent_tree.add(dir_branch)
                     has_included_items = True
-            elif os.path.isfile(item_path):
-                if is_included(item_relative_path, include_patterns, show_all):
-                    parent_tree.add(item_name)
-                    has_included_items = True
+                    logging.debug("Added directory with items: %s", item_relative_path)
+                    
     except PermissionError:
         parent_tree.add("[red]Permission Denied[/red]")
         has_included_items = True
@@ -294,8 +332,26 @@ def main():
     # Process exclude patterns
     exclude_patterns = []
     for pattern in args.exclude:
-        patterns = [p.strip() for p in re.split(r"[| ]+", pattern.strip()) if p.strip()]
-        exclude_patterns.extend(patterns)
+        # If the pattern exists as a file or directory, it was probably shell-expanded
+        if os.path.exists(pattern):
+            # Convert back to a glob pattern
+            if os.path.isfile(pattern):
+                # For files, use the extension as a pattern
+                ext = os.path.splitext(pattern)[1]
+                if ext:
+                    exclude_patterns.append(f"*{ext}")
+            else:
+                # For directories, use the basename as a pattern
+                exclude_patterns.append(os.path.basename(pattern))
+        else:
+            # If the pattern contains a space or pipe, it was probably quoted
+            if ' ' in pattern or '|' in pattern:
+                # Split on spaces and pipes, preserving quoted strings
+                patterns = [p.strip() for p in re.split(r"[| ]+", pattern.strip()) if p.strip()]
+                exclude_patterns.extend(patterns)
+            else:
+                # Single pattern, add it directly
+                exclude_patterns.append(pattern)
 
     # Load exclude patterns from environment variables
     env_dir_excludes = load_patterns_from_env("GENMD_DIR_EXCLUDES")
@@ -327,16 +383,43 @@ def main():
     # Process include patterns
     include_patterns = []
     for pattern in args.include:
-        split_patterns = [p.strip() for p in re.split(r"[| ]+", pattern.strip()) if p.strip()]
-        for pat in split_patterns:
-            if pat.startswith("."):
-                # Assume it's a file extension
-                include_patterns.append("*%s" % pat)
-                include_patterns.append("**/*%s" % pat)
+        # If the pattern exists as a file or directory, it was probably shell-expanded
+        if os.path.exists(pattern):
+            # Convert back to a glob pattern
+            if os.path.isfile(pattern):
+                # For files, use the extension as a pattern
+                ext = os.path.splitext(pattern)[1]
+                if ext:
+                    include_patterns.append(f"*{ext}")
+                    include_patterns.append(f"**/*{ext}")
             else:
-                include_patterns.append(pat)
-                if not pat.startswith("**/"):
-                    include_patterns.append("**/%s" % pat)
+                # For directories, use the basename as a pattern
+                include_patterns.append(os.path.basename(pattern))
+                include_patterns.append(f"**/{os.path.basename(pattern)}")
+        else:
+            # If the pattern contains a space or pipe, it was probably quoted
+            if ' ' in pattern or '|' in pattern:
+                # Split on spaces and pipes, preserving quoted strings
+                patterns = [p.strip() for p in re.split(r"[| ]+", pattern.strip()) if p.strip()]
+                for pat in patterns:
+                    if pat.startswith("."):
+                        # Assume it's a file extension
+                        include_patterns.append("*%s" % pat)
+                        include_patterns.append("**/*%s" % pat)
+                    else:
+                        include_patterns.append(pat)
+                        if not pat.startswith("**/"):
+                            include_patterns.append("**/%s" % pat)
+            else:
+                # Single pattern, add it directly
+                if pattern.startswith("."):
+                    # Assume it's a file extension
+                    include_patterns.append("*%s" % pattern)
+                    include_patterns.append("**/*%s" % pattern)
+                else:
+                    include_patterns.append(pattern)
+                    if not pattern.startswith("**/"):
+                        include_patterns.append("**/%s" % pattern)
     include_patterns = list(set(p for p in include_patterns if p))
     logging.debug("Adjusted include patterns: %s", include_patterns)
 
