@@ -173,7 +173,7 @@ declare -g -a file_excludes=${GENMD_FILE_EXCLUDES:-( "*.ico" "*.svg" "*.png" "*.
 declare -g -a pattern_excludes=${GENMD_PATTERN_EXCLUDES:-()}
 # shellcheck disable=SC2206,SC2034
 declare -g -a file_includes=${GENMD_FILE_INCLUDES:-()}
-declare -g -a gitignore_exclude=()
+declare -g -a gitignore_excludes=()
 declare -g -a gitignore_includes=()
 
 
@@ -275,17 +275,9 @@ set_option_value() {
     shift
     local opt_value=("$@")
 
-    echo "Command line options: $*"
-    echo "opt_name: $opt_name"
-    echo "opt_value: $opt_value"
-    echo "target_variable: $target_variable"
-
     log_message "DEBUG3" "*** Setting command line options for $opt_name to \"$opt_value\""
     if [[ -n "$opt_value" && ! "$opt_value" =~ ^- ]]; then
         log_message "DEBUG1" "Load ${target_variable} with ${opt_name} values: ${opt_value}"
-        echo "target_variable: $target_variable"
-        echo "opt_value: $opt_value"
-        echo "update_variable config_variable_action $target_variable opt_value"
         update_variable config_variable_action "$target_variable" opt_value
     else
         display_help "ERROR ($MY_NAME): -$opt_name requires a pattern string." 
@@ -309,8 +301,8 @@ set_option_value() {
 sanitize_patterns() {
     local input="$*"
     # Retain only alphanumerics, underscores, dots, dashes, and spaces
-    cleanstring=${input//[^a-zA-Z0-9-_.* ]/}
-    # cleanstring=$(echo "$input" | sed 's/[^a-zA-Z0-9_.* ]//g')
+    cleanstring=${input//[^a-zA-Z0-9-_.*? ]/}
+    # cleanstring=$(echo "$input" | sed 's/[^a-zA-Z0-9_.?* ]//g')
     log_message "DEBUG" "Dirty pattern: $input"
     log_message "DEBUG" "Clean pattern: $cleanstring"
     echo "$cleanstring"
@@ -321,7 +313,7 @@ sanitize_patterns() {
 #
 # Description:
 #   Reads a .gitignore file and parses its contents to populate the
-#   `gitignore_exclude` and `gitignore_includes` arrays. The function will
+#   `gitignore_excludes` and `gitignore_includes` arrays. The function will
 #   skip empty lines, comment lines, and regular exclusion patterns. If the
 #   file does not exist, the function will log a message and exit.
 #
@@ -332,7 +324,7 @@ sanitize_patterns() {
 #   None
 #
 # Scope:
-#   Global. Modifies the global arrays `gitignore_exclude` and `gitignore_includes`.
+#   Global. Modifies the global arrays `gitignore_excludes` and `gitignore_includes`.
 #
 # Input:
 #   Reads .gitignore file
@@ -348,7 +340,7 @@ parse_gitignore() {
         
         while IFS= read -r line || [[ -n "$line" ]]; do
             # Trim leading and trailing whitespace
-            line="$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+            line="$(echo "$line" | sed -e 's/[[:space:]].*$//')"
             [[ -z "$line" || "$line" =~ ^# ]] && continue
             
             if [[ "$line" =~ ^! ]]; then
@@ -360,7 +352,7 @@ parse_gitignore() {
             fi
 
             # Regular exclusion pattern
-            gitignore_exclude+=("$line")
+            gitignore_excludes+=("$line")
             log_message "DEBUG1" "Parsed .gitignore exclude pattern: $line"
 
         done < "$gitignore_file"
@@ -397,7 +389,7 @@ load_config() {
 
     if [[ -e "$config_file" ]]; then
         local tmp_debug_level=$debug_level
-        # shellcheck disable=SC1090
+        # shellcheck source=/dev/null
         source "$config_file"
         debug_level=${tmp_debug_level}
     fi
@@ -509,121 +501,96 @@ display_help() {
 }
 
 
-# Function to build a single regex pattern from an array of patterns
-#
-# ## Description
-# - **Purpose**: 
-#   - Constructs a regex pattern by combining multiple input patterns from an array.
-# - **Usage**: 
-#   - `regex=$(build_regex "Caller message" patterns_array)`
-# - **Input Parameters**: 
-#   - `caller_message`: A message indicating the context of the caller function.
-#   - `patterns_ref`: A reference to an array of patterns to be combined into a regex.
-# - **Output**: 
-#   - Returns a single regex pattern constructed from the input patterns.
-# - **Exceptions**: 
-#   - None.
-#
 build_regex() {
-    local caller_message="$1"
-    local -n patterns_ref=$2  # Reference to the array
+    local array_name="$1"
     local regex=""
-    local escaped_pattern
+    local pattern escaped subregex
+    local -n arr_ref="$array_name"  # Create nameref so we can use the array directly
 
-    log_message "DEBUG2" "$caller_message patterns: \"${patterns_ref[*]}\""
+    # If the array is empty, return empty.
+    if (( ${#arr_ref[@]} == 0 )); then
+        log_message "INFO" "No patterns found for in build_regex $array_name"
+        return
+    fi
 
-    for pattern in "${patterns_ref[@]}"; do
-        log_message "DEBUG3" "$caller_message input pattern: \"$pattern\""
-        # Escape special regex characters except for '*' and '|'
-        escaped_pattern=$(echo "$pattern" | sed -E 's/([+.^(){}])/\\\1/g')        # Replace '*' with '.*' for wildcard matching
-        escaped_pattern=${escaped_pattern//\*/.*}
-        escaped_pattern=${escaped_pattern//^ $/}
-        escaped_pattern=${escaped_pattern// /|}
-        log_message "DEBUG3" "$caller_message escaped pattern: \"$escaped_pattern\""
-        if [[ -z "$regex" ]]; then
-            regex="$escaped_pattern"
+    for pattern in "${arr_ref[@]}"; do
+        # Skip empty patterns so that they do not contribute empty alternatives.
+        if [[ -z "$pattern" ]]; then
+            log_messsage "INFO" "Found n empty pattern for ${array_name}"
+            continue
+        fi
+        # Escape common regex metacharacters.
+        escaped=$(printf '%s' "$pattern" | sed -E 's/([.^$+?(){}|\[\]\\])/\\\1/g')
+        # Optionally convert asterisks to ".*"
+        escaped="${escaped//\./\\.}"
+        escaped="${escaped/#\*/.*}"
+        # escaped="(^|/)$escaped(/|$)"
+        if [ -z "$regex" ]; then
+            regex="$escaped"
         else
-            regex="$regex|$escaped_pattern"
+            regex="$regex|$escaped"
         fi
     done
-
-    log_message "DEBUG2" "$caller_message final regex: \"$regex\""
+    log_message "INFO" "Regex: $regex"
     echo "$regex"
 }
 
-# Function to build a list of files to include in the combined source.
-#
-# Args:
-#   $1 (array): A reference to the final files array.
-#   $2 (array): A reference to the directory excludes array.
-#   $3 (array): A reference to the pattern excludes array.
-#   $4 (array): A reference to the gitignore exclude array.
-#   $5 (array): A reference to the gitignore include array.
-#   $6 (array): A reference to the file excludes array.
-#   $7 (array): A reference to the file includes array.
-#
-# Returns:
-#   None
-#
+# build_file_list() – builds the final file list from excludes and includes.
+# It expects:
+#   $1 - a name reference for the output array
+#   $2..$n - names of arrays (each array should be named with a suffix "_excludes" or "_includes")
 build_file_list() {
     local -n final_files_ref=$1
-    local -n dir_excludes_ref=$2
-    local -n pattern_excludes_ref=$3
-    local -n gitignore_exclude_ref=$4
-    local -n gitignore_include_ref=$5
-    local -n file_excludes_ref=$6
-    local -n file_includes_ref=$7
+    shift
 
-    # Change to GENMD_BASE and perform find
-    cd "$GENMD_BASE"
-    readarray -t files < <(find ${follow_links:-} . -type f | sort )
+    local composite_exclude=""
+    local composite_include=""
+    local regex pattern_list
 
-    # Exclude directories in the exclude directory list
-    if [[ ${#dir_excludes_ref[@]} -gt 0 ]]; then
-        local dir_excludes_regex
-        dir_excludes_regex=$(build_regex "Exclude directories" "dir_excludes_ref" | sed -E 's/([^|]+)/\/\1\//g')
-        # Remove files within excluded directories
-        readarray -t files < <(printf "%s\n" "${files[@]}" | grep -vE "($dir_excludes_regex)")
+    # Change to the base directory.
+    cd "$GENMD_BASE" || errno_exit "ENOTDIR" "Cannot cd to $GENMD_BASE"
+
+    # Loop over every array name passed.
+    for pattern_list in "$@"; do
+        local -n composite_ref="$pattern_list"
+        if [[ ${#composite_ref[@]} == 0 ]]; then
+            log_message "WARN" "No patterns found for $pattern_list"
+            continue
+        else
+            composite_list=$(build_regex "$pattern_list")
+            case "$pattern_list" in
+                *excludes)
+                    if [[ -z "$composite_exclude" ]]; then
+                        composite_exclude="${composite_list}"
+                    else
+                        composite_exclude="$composite_exclude|$composite_list"
+                    fi
+                    ;;
+                *includes)
+                    if [[ -z "$composite_include" ]]; then
+                        composite_include="${composite_list}"
+                    else
+                        composite_include="$composite_include|$composite_list"
+                    fi
+                    ;;
+                *)
+                    errno_warn "EINVAL" "Warning: $pattern_list does not match expected naming (must end with _excludes or _includes)"
+                    ;;
+            esac
+        fi
+    done
+    # Get the full list of files.
+    mapfile -t files < <(find ${follow_links:-} . -type f | sort)
+
+    # Apply composite exclusion filtering (if any).
+    if [[ -n "$composite_exclude" ]]; then
+        mapfile -t files < <(printf "%s\n" "${files[@]}" | grep -vE "$composite_exclude")
     fi
 
-    # Exclude files based on file patterns
-    if [[ ${#file_excludes_ref[@]} -gt 0 ]]; then
-        local file_excludes_regex
-        file_excludes_regex=$(build_regex "Exclude files" "file_excludes_ref")
-        readarray -t files < <(printf "%s\n" "${files[@]}" | grep -vE "$file_excludes_regex")
+    # Apply composite inclusion filtering (if any).
+    if [[ -n "$composite_include" ]]; then
+        mapfile -t files < <(printf "%s\n" "${files[@]}" | grep -E "$composite_include")
     fi
-
-    # Exclude files based on .gitignore exclude patterns
-    if [[ ${#gitignore_exclude_ref[@]} -gt 0 ]]; then
-        local git_exclude_regex
-        git_exclude_regex=$(build_regex "Gitignore exclude" "gitignore_exclude_ref")
-        readarray -t files < <(printf "%s\n" "${files[@]}" | grep -vE "$git_exclude_regex")
-    fi
-
-    # Exclude any strings in the extra pattern list
-    if [[ ${#pattern_excludes_ref[@]} -gt 0 ]]; then
-        local pattern_excludes_regex
-        pattern_excludes_regex=$(build_regex "Exclude patterns" "pattern_excludes_ref")
-        readarray -t files < <(printf "%s\n" "${files[@]}" | grep -vE "$pattern_excludes_regex")
-    fi
-
-    # Re-include files based on .gitignore include patterns
-    if [[ "${use_gitignore}" = true && ${#gitignore_include_ref[@]} -gt 0 ]]; then
-        local git_include_regex
-        git_include_regex=$(build_regex "Gitignore include" "gitignore_include_ref")
-        # Find files that match include patterns and add them back
-        readarray -t files < <(printf "%s\n" "${files[@]}" | grep -E "$git_include_regex")
-    fi
-
-    # Include only files explicitly specified in the include file list
-    if [[ ${#file_includes_ref[@]} -gt 0 ]]; then
-        local file_includes_regex
-        file_includes_regex=$(build_regex "Include files" "file_includes_ref")
-        readarray -t files < <(printf "%s\n" "${files[@]}" | grep -E "$file_includes_regex")
-    fi
-
-    # Passing back the array reference
-    # shellcheck disable=SC2034
     final_files_ref=("${files[@]}")
 }
 
@@ -881,12 +848,8 @@ display_settings() {
 }
 
 
-# Determine and load configuration based on output and config file specifications
-load_config_file
+# Processing begins here with loading config file if it exists and command line options
 
-declare -p | grep exclude
-
-# Processing begins here with command line options
 
 # Process command-line options using getopts
 # Reset OPTIND in case getopts has been used previously
@@ -1041,15 +1004,14 @@ done
 # Shift off the options and optional --
 shift $((OPTIND -1))
 
-declare -p | grep exclude
+# Determine and load configuration based on output and config file specifications
+load_config_file
 
 # Ensure necessary directories exist
 check_directory "$output_dir"
 check_directory "$config_dir"
 
-exit
-
-# Parse .gitignore and populate gitignore_exclude and gitignore_include if enabled
+# Parse .gitignore and populate gitignore_excludes and gitignore_includes if enabled
 if [[ "$use_gitignore" = true ]]; then
     parse_gitignore
 fi
@@ -1058,7 +1020,7 @@ fi
 remove_duplicates dir_excludes
 remove_duplicates file_excludes
 remove_duplicates pattern_excludes
-remove_duplicates gitignore_exclude
+remove_duplicates gitignore_excludes
 remove_duplicates gitignore_include
 remove_duplicates file_includes
 remove_duplicates settings_modes
@@ -1075,8 +1037,6 @@ if [[ ${#settings_modes[@]} -gt 0 ]]; then
     display_settings settings_modes
 fi
 
-declare -p | grep exclude
-
 # Debug: Show final directory exclusions
 log_message "DEBUG1" "Final directory exclusions: ${dir_excludes[*]}"
 
@@ -1087,8 +1047,8 @@ generate_filetree "$output_filename" file_includes "${dir_excludes[@]}" "${patte
 
 # Build the file list
 build_file_list final_files dir_excludes \
-                pattern_excludes gitignore_exclude \
-                gitignore_include file_excludes \
+                pattern_excludes gitignore_excludes \
+                gitignore_includes file_excludes \
                 file_includes
 
 # Debug: Show final files to be processed
