@@ -82,19 +82,26 @@ def main():
     parser.add_argument(
         "-f", "--file", type=str, help="Path to the text file to be tokenized"
     )
+    parser.add_argument(
+        "-c", "--count", action="store_true", help="Output only the token count number"
+    )
     args = parser.parse_args()
 
     if args.file:
         with open(args.file, "r", encoding="utf-8") as file:
             text = file.read()
     else:
-        print(
-            "Reading from STDIN. Press Ctrl+D (Linux/Mac) or Ctrl+Z (Windows) to end input."
-        )
+        # Only show stdin prompt if not in count-only mode
+        if not args.count:
+            print(
+                "Reading from STDIN. Press Ctrl+D (Linux/Mac) or Ctrl+Z (Windows) to end input."
+            )
         text = sys.stdin.read()
 
     num_tokens = tokenize_text(text)
-    if args.file:
+    if args.count:
+        print(num_tokens)
+    elif args.file:
         print(f"Number of tokens in file '{args.file}': {num_tokens}")
     else:
         print(f"Number of tokens from STDIN: {num_tokens}")

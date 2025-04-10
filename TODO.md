@@ -15,6 +15,7 @@
 - [x] Create documentation coverage reports
 - [ ] Add automated release notes generation
 - [ ] Better handling of config files and variables
+- [ ] Improve handling default settings
 
 ### Testing Framework
 - [x] Add unit tests for core utilities
