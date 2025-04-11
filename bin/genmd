@@ -31,7 +31,7 @@
 # 
 #     -c, --config [filename]   Load configuration from a .grc file.
 #                               If the filename does not end with .grc, it will be
-#                               appended.
+#                               appended. The file will be created if it does not exist.
 # 
 #     -s, --settings [modes]    Show settings. Modes can be:
 #                               info    Show current settings
@@ -420,8 +420,9 @@ load_config_file() {
         if [[ -e "$config_filename_in" ]]; then
             load_config "$config_filename_in"
         else
-            log_message "ERROR" "Specified configuration file \"$config_filename_in\" does not exist."
-            exit 2
+            log_message "WARNING" "Specified configuration file \"$config_filename_in\" creating new config file."
+            check_directory "$(dirname "$config_filename_in")"
+            touch "$config_filename_in"
         fi
     elif [[ -n "$specified_output" && -z "$specified_config" ]]; then
         # Scenario: Output file specified, config file not specified
@@ -443,8 +444,9 @@ load_config_file() {
         if [[ -e "$config_filename_in" ]]; then
             load_config "$config_filename_in"
         else
-            log_message "ERROR" "Specified configuration file \"$config_filename_in\" does not exist."
-            exit 2
+            log_message "WARNING" "Specified configuration file \"$config_filename_in\" creating new config file."
+            check_directory "$(dirname "$config_filename_in")"
+            touch "$config_filename_in"
         fi
     else
         # Scenario: Neither output file nor config file specified
@@ -455,7 +457,9 @@ load_config_file() {
         if [[ -e "$config_filename_in" ]]; then
             load_config "$config_filename_in"
         else
-            log_message "WARN" "No configuration or output file specified. Using default \"$output_filename\" and config \"$config_filename_out\""
+            log_message "WARNING" "Specified configuration file \"$config_filename_in\" creating new config file."
+            check_directory "$(dirname "$config_filename_in")"
+            touch "$config_filename_in"
         fi
     fi
 }
