@@ -207,11 +207,12 @@ declare -g -a config_variables=(
     "compress"
     "compression_tool"
     "count_tokens"
+    "token_count"
 )
 
 # Define a list of actions for each config variable based on whether to
 # merge or set from the config file or the command line.
-# the precedent will be from teh command line for some and from the
+# the precedent will be from the command line for some or from the
 # config file for others, some may come from the environment variables
 # and some may come from the config file or the command line.
 # shellcheck disable=SC2034
@@ -232,6 +233,7 @@ declare -g -A config_variable_action=(
     ["pattern_excludes"]="merge"  # Merge all sources.
     ["remove_blanks"]="set"       # Command line overrides all settings and preserved
     ["settings_modes"]="set"      # Command line overrides all settings
+    ["token_count"]="discard"     # Read-only, cannot be set from command line
     ["use_gitignore"]="set"       # Command line overrides all settings and preserved
 )
 
@@ -254,7 +256,9 @@ declare -g settings_modes=( "md" "cfg" )
 declare -g skip_config=false                        # Set to true to skip loading config file
 declare -g specified_config=""
 declare -g specified_output=""
-declare -g use_gitignore=true  
+declare -g token_count=0
+declare -g use_gitignore=true
+
 
 # Function to handle pattern-based array options from command line.
 # Set the values of an array variable from a command line option.
@@ -781,74 +785,154 @@ compress_output() {
     fi
 }
 
-
-# Function to display or write out the current settings
-#
-# This function takes an array of modes and performs actions based on the provided modes.
-# It can display settings information, generate markdown documentation of the settings,
-# save the configuration to a file, or export environment variables to a script.
-#
+# Function to generate the settings section for the document
+# 
 # Args:
-#     $1 (array): An array of modes indicating what settings to display or write out.
-#                  Possible modes are:
-#                  - "all": Sets modes to ["info", "md", "cfg", "env"]
-#                  - "info": Displays the current settings in the log.
-#                  - "md": Generates markdown documentation of the settings.
-#                  - "cfg": Saves the current configuration to a .grc file.
-#                  - "env": Exports the current settings as environment variable declarations in a script.
+#     $1 (string): The output filename to write to
+#     $2 (array): Array of modes for displaying settings
 #
 # Returns:
 #     None
-#
-# Logs:
-#     INFO messages indicating the current settings and actions taken.
-#     WARN messages for any unknown modes passed to the function.
-display_settings() {
-    local -n modes=$1  # Array of modes passed to the function
+generate_settings() {
+    local output_file=$1
+    local -n modes=$2
 
-    if [[ " ${modes[*]} " =~ " all " ]]; then
-        modes=("info" "md" "cfg" "env")
+    if [[ "$dry_run" = true ]]; then
+        log_message "INFO" "Dry run: Would generate settings section to $output_file"
+        return
     fi
 
-    for mode in "${modes[@]}"; do
-        case "$mode" in
-            info)
-                log_message "INFO" "genmd current settings:"
-                dump_config -s config_variables | sed 's/=/: /'
-                ;;
-            md)
-                {
-                    echo "## genmd Settings"
-                    echo ""
-                    echo "| Variable               | Value                                                                 |"
-                    echo "|------------------------|-----------------------------------------------------------------------|"
-                    dump_config -s config_variables | sed 's/^\(.*\)=\(.*\)$/|\1|\2|/'
-                } >> "$output_filename"
-                ;;
-            cfg)
-                check_directory "$(dirname "$config_filename_out")"
-                dump_config -s -o "$config_filename_out" config_variables
-                log_message "INFO" "Configuration saved to $config_filename_out"
-                ;;
-            env)
-                {
-                    echo ""
-                    echo "## genmd Environment Variables"
-                    echo ""
-                    dump_config -s config_variables
-                    echo ""
-                } > "${GENMD_BASE}/genmd_env.sh"
-                ;;
-            *)
-                log_message "WARN" "Unknown mode '$mode' for --settings"
-                ;;
-        esac
-    done
+    if [[ ${#modes[@]} -gt 0 ]]; then
+        if [[ " ${modes[*]} " =~ " all " ]]; then
+            modes=("info" "md" "cfg" "env")
+        fi
+
+        for mode in "${modes[@]}"; do
+            case "$mode" in
+                info)
+                    log_message "INFO" "genmd current settings:"
+                    dump_config -s config_variables | sed 's/=/: /'
+                    ;;
+                md)
+                    {
+                        echo "## genmd Settings"
+                        echo ""
+                        echo "| Variable               | Value                                                                 |"
+                        echo "|------------------------|-----------------------------------------------------------------------|"
+                        dump_config -s config_variables | sed 's/^\(.*\)=\(.*\)$/|\1|\2|/'
+                    } >> "$output_file"
+                    ;;
+                cfg)
+                    check_directory "$(dirname "$config_filename_out")"
+                    dump_config -s -o "$config_filename_out" config_variables
+                    log_message "INFO" "Configuration saved to $config_filename_out"
+                    ;;
+                env)
+                    {
+                        echo ""
+                        echo "## genmd Environment Variables"
+                        echo ""
+                        dump_config -s config_variables
+                        echo ""
+                    } > "${GENMD_BASE}/genmd_env.sh"
+                    ;;
+                *)
+                    log_message "WARN" "Unknown mode '$mode' for --settings"
+                    ;;
+            esac
+        done
+    fi
 }
 
+# Main execution begins here
+main() {
+    # After determining and loading configuration
+    # Process the document with token counting
+    
+    # If it's a dry run, we could redirect output to /dev/null
+    local output_target="$output_filename"
+    if [[ "$dry_run" = true ]]; then
+        log_message "INFO" "Dry run: Output will be discarded"
+        output_target="/dev/null"
+    fi
+    
+    # Create temporary files for the multi-step process
+    local temp_header=$(mktemp)
+    local temp_body=$(mktemp)
+    
+    log_message "DEBUG" "Created temporary files: header=$temp_header, body=$temp_body"
+    
+    # Step 1: Generate the header with initial settings (no token count yet)
+    # Truncate the header file
+    : > "$temp_header"
+    
+    # Generate the settings section to the header
+    if [[ ${#settings_modes[@]} -gt 0 ]]; then
+        generate_settings "$temp_header" settings_modes
+    fi
+    
+    # Step 2: Process the body content
+    # Truncate the body file
+    : > "$temp_body"
+    
+    # Generate file tree markdown
+    # Argument mixes string and array. Use * or separate argument.
+    # shellcheck disable=SC2145
+    generate_filetree "$temp_body" file_includes "${dir_excludes[@]}" "${pattern_excludes[@]}" "${file_excludes[@]}"
+    
+    # Build the file list
+    build_file_list final_files dir_excludes \
+                    pattern_excludes gitignore_excludes \
+                    gitignore_includes file_excludes \
+                    file_includes
+    
+    # Debug: Show final files to be processed
+    {
+        printf "\n## Files included in final output\n"
+        # shellcheck disable=SC2154,SC2068
+        for f in ${final_files[@]}; do
+            printf -- "- %s\n" "$f"
+        done
+        printf "\n---\n"
+    } >> "$temp_body"
+    
+    # Process the files and generate markdown
+    process_files "$temp_body" final_files
+    
+    # Step 3: Calculate token count by combining files temporarily
+    if [[ "$count_tokens" = true ]]; then
+        local temp_combined=$(mktemp)
+        cat "$temp_header" "$temp_body" > "$temp_combined"
+        token_count=$(tokencount -c -f "$temp_combined" 2>/dev/null)
+        log_message "INFO" "Document token count: $token_count"
+        rm -f "$temp_combined"
+        
+        # Step 4: Regenerate the header with updated token count
+        # Only regenerate the header if we're counting tokens
+        # Truncate the header file
+        : > "$temp_header"
+        
+        # Only use "md" mode for the second pass to prevent running cfg/env operations twice
+        local md_mode=("md")
+        generate_settings "$temp_header" md_mode
+    fi
+    
+    # Step 5: Create the final output file
+    # Truncate the output file
+    : > "$output_target"
+    # Combine header and body
+    cat "$temp_header" "$temp_body" > "$output_target"
+    
+    # Clean up temporary files
+    rm -f "$temp_header" "$temp_body"
+    
+    # Step 6: Compress the final output if compression is enabled
+    if [[ "$compress" = true && "$dry_run" != true ]]; then
+        compress_output "${output_filename}"
+    fi
+}
 
 # Processing begins here with loading config file if it exists and command line options
-
 
 # Process command-line options using getopts
 # Reset OPTIND in case getopts has been used previously
@@ -1023,55 +1107,15 @@ remove_duplicates gitignore_include
 remove_duplicates file_includes
 remove_duplicates settings_modes
 
-# Truncate the output file only if not in dry_run
-if [[ "$dry_run" != true ]]; then
-    : > "$output_filename"
-else
-    log_message "INFO" "Dry run: Skipping truncation of $output_filename"
-fi
-
-# After truncating, handle the settings_modes to include info at the top
-if [[ ${#settings_modes[@]} -gt 0 ]]; then
-    display_settings settings_modes
-fi
-
 # Debug: Show final directory exclusions
 log_message "DEBUG1" "Final directory exclusions: ${dir_excludes[*]}"
 
+# Execute the main process
+main
 
-# Generate file tree markdown
-# Argument mixes string and array. Use * or separate argument.
-# shellcheck disable=SC2145
-generate_filetree "$output_filename" file_includes "${dir_excludes[@]}" "${pattern_excludes[@]}" "${file_excludes[@]}"
-
-# Build the file list
-build_file_list final_files dir_excludes \
-                pattern_excludes gitignore_excludes \
-                gitignore_includes file_excludes \
-                file_includes
-
-# Debug: Show final files to be processed
-{
-    printf "## Files included in final output\n"
-    # shellcheck disable=SC2154,SC2068
-    for f in ${final_files[@]}; do
-        printf -- "- %s\n" "$f"
-    done
-    printf "\n---\n"
-} >> "$output_filename"
-
-# Process the files and generate markdown
-process_files "$output_filename" final_files
-
-# Provide token count if requested
-if [[ "$count_tokens" = true ]]; then
-    tokencount -f "${output_filename}"
-fi
-
-# Compress the final output if compression is enabled
-if [[ "$compress" = true ]]; then
-    compress_output "${output_filename}"
-fi
-
+# Display final information
 log_message "INFO" "       Output file: $output_filename"
 log_message "INFO" "Configuration file: $config_filename_out"
+if [[ "$count_tokens" = true ]]; then
+    log_message "INFO" "     Token count: $token_count"
+fi
