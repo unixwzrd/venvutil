@@ -2,8 +2,9 @@
 
 This is release 20250409_00-release. This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
 
-## What's New in This Major Release (20250407_00-patch)
-Fixes and code consolidation  
+## What's New in This Major Release (20250410_00-update)
+### Updates genmd to include token_count in the metadata for the markdown file generated.
+### Fixes and code consolidation  
 - `setup`, some reorganization of steps
 - `genmd`, consolidation of functions
   - consistent config variable handling uses same functions as `setup` and `generate_manifest`
@@ -43,7 +44,9 @@ Fixes and code consolidation
 ## Table of Contents
 
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
-  - [What's New in This Major Release (20250407\_00-patch)](#whats-new-in-this-major-release-20250407_00-patch)
+  - [What's New in This Major Release (20250410\_00-update)](#whats-new-in-this-major-release-20250410_00-update)
+    - [Updates genmd to include token\_count in the metadata for the markdown file generated.](#updates-genmd-to-include-token_count-in-the-metadata-for-the-markdown-file-generated)
+    - [Fixes and code consolidation](#fixes-and-code-consolidation)
     - [Core Library Enhancements](#core-library-enhancements)
     - [Setup and Installation](#setup-and-installation)
     - [File Management](#file-management)
