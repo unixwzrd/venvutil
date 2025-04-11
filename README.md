@@ -1,53 +1,10 @@
 # venvutil - Manage Conda and Pip VENV's with some simple functions and scripts
 
-This is release 20250406_00-release.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
-
-## What's New in This Major Release (20250406_01-update)
-Fixes and code consolidation  
-- `setup`, some reorganization of steps
-- `genmd`, consolidation of functions
-  - consistent config variable handling uses same functions as `setup` and `generate_manifest`
-  - `remove_duplicates` into `type_lib.sh`  
-  - `check_directory` into `config_lib.sh`
-  - `save_config` to `dump_config` in `config_lib.sh` 
-  - redid config information display and output
-- `errno_lib.sh`, function stack adjustment
-- `errno_lib.sh`, message formatting
-- `type_lib.sh`, functions mentioned moved into this library
-
-### Core Library Enhancements
-- Enhanced variable handling with new `update_variable` function
-- Improved configuration management with better validation
-- Enhanced error handling and logging
-- Added support for configuration inheritance
-
-### Setup and Installation
-- Added new `refresh` option for updating from cloned repos
-- Fixed bashrc modification issues
-- Improved configuration handling
-- Enhanced error reporting
-
-### File Management
-- Improved pattern processing in `filetree.py`
-- Enhanced configuration file handling
-- Better handling of empty patterns
-- Added support for both file extensions and patterns
-
-### Documentation
-- Removed redundant debug level documentation
-- Enhanced help messages and usage documentation
-- Improved error messages and logging
-- Updated configuration documentation
-
+This is release 20250411_00-update.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
 
 ## Table of Contents
 
 - [venvutil - Manage Conda and Pip VENV's with some simple functions and scripts](#venvutil---manage-conda-and-pip-venvs-with-some-simple-functions-and-scripts)
-  - [What's New in This Major Release (20250406\_01-update)](#whats-new-in-this-major-release-20250406_01-update)
-    - [Core Library Enhancements](#core-library-enhancements)
-    - [Setup and Installation](#setup-and-installation)
-    - [File Management](#file-management)
-    - [Documentation](#documentation)
   - [Table of Contents](#table-of-contents)
   - [Project Overview](#project-overview)
     - [Key Features](#key-features)
@@ -78,7 +35,7 @@ Fixes and code consolidation
     - [Core Functionality](#core-functionality)
     - [Library Organization](#library-organization)
     - [Performance Tools](#performance-tools)
-    - [Documentation](#documentation-1)
+    - [Documentation](#documentation)
 
 ## Project Overview
 
