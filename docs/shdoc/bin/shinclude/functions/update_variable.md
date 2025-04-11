@@ -13,15 +13,15 @@
   - `var_name1`: The name of the variable to update.
   - `var_name2`: The name of the variable containing new or additional values.
 
-## Definition 
+## Defined in Script
 
 * [type_lib.sh](../type_lib_sh.md)
----
-
 Website: [unixwzrd.ai](https://unixwzrd.ai)
 Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
+---
+
 Generated Markdown Documentation
-Generated on: 2025-04-10 at 12:30:49
+Generated on: 2025-04-11 at 05:57:56

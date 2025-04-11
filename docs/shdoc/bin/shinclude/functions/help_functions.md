@@ -15,15 +15,15 @@
 - **Exceptions**: 
   - None. However, it skips functions listed in `__VENV_INTERNAL_FUNCTIONS` and those already in `__VENV_FUNCTIONS`.
 
-## Definition 
+## Defined in Script
 
 * [helpsys_lib.sh](../helpsys_lib_sh.md)
----
-
 Website: [unixwzrd.ai](https://unixwzrd.ai)
 Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
+---
+
 Generated Markdown Documentation
-Generated on: 2025-04-10 at 12:30:49
+Generated on: 2025-04-11 at 05:57:56

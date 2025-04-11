@@ -481,7 +481,7 @@ write_script_doc() {
     {
         echo -e "$script_markdown"
         echo -e "\n"
-        echo -e "## Defined in Script\n"
+        echo -e "## Script Documentation\n"
         echo -e "* [${script_name}](${script_readme_file})"
     } > "${script_markdown_file}"
     write_page_footer "${script_markdown_file}"
@@ -519,7 +519,7 @@ write_function_doc() {
     {
         echo -e "## ${function_name}"
         echo -e "$function_markdown"
-        echo -e "## Definition \n"
+        echo -e "## Defined in Script\n"
         echo -e "* [${script_name}](${script_readme_file})"
     } > "${function_markdown_file}"
     write_page_footer "$function_markdown_file"
@@ -545,6 +545,9 @@ write_table_footer() {
     local file_path="$1"
     {
         echo -e "\n---\n"
+        echo -e "## System Documentation Index\n"
+        echo -e "[System Documentation]($(get_system_readme_file))\n"
+        echo -e "---\n"
     } >> "${file_path}"
     write_page_footer "${file_path}"
 }
@@ -571,12 +574,12 @@ write_page_footer() {
     date_mark=$(date "+Generated on: %Y-%m-%d at %H:%M:%S")
 
     {
-        echo "---"
-        echo ""
         echo "Website: [unixwzrd.ai](https://unixwzrd.ai)"
         echo "Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)"
         echo "Copyright (c) 2025 Michael Sullivan"
         echo "Apache License, Version 2.0"
+        echo ""
+        echo "---"
         echo ""
         echo "Generated Markdown Documentation"
         echo "${date_mark}"
@@ -743,6 +746,8 @@ generate_markdown() {
                 previous_line="${line}"
 
             done < "$script_path"
+
+            printf "\n"
 
             # Write the extracted documentation to the markdown file
             write_table_footer "${script_readme_location}"

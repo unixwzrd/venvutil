@@ -48,15 +48,15 @@
 
 
 
-## Defined in Script
+## Script Documentation
 
 * [config_lib.sh](../config_lib_sh.md)
----
-
 Website: [unixwzrd.ai](https://unixwzrd.ai)
 Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2025 Michael Sullivan
 Apache License, Version 2.0
 
+---
+
 Generated Markdown Documentation
-Generated on: 2025-04-10 at 12:30:48
+Generated on: 2025-04-11 at 05:57:55

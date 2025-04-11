@@ -6,7 +6,9 @@
 
 At the top of each script, include a Markdown-formatted comment block that outlines:
 
-A template for [Script Documentation Style](/doc/Script_Doc_Templ.md) is found here.
+## Script Documentation Style
+
+A template for [Script Documentation Style](doc/Script_Doc_Templ.md) is found here.
 
 - **Purpose**: What the script is intended for.
 - **Usage**: How to use the script.
@@ -39,7 +41,9 @@ A template for [Script Documentation Style](/doc/Script_Doc_Templ.md) is found h
 
 Each function should also have a Markdown-formatted comment block with similar information:
 
-A template for [Function Documentation Style](/doc/Function_Doc_Templ.md) is found here.
+## Function Documentation Style
+
+A template for [Function Documentation Style](doc/Function_Doc_Templ.md) is found here.
 
 - **Purpose**: What the function does.
 - **Usage**: How to use the function.
