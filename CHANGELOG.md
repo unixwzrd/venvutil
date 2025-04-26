@@ -1,5 +1,14 @@
 # Changelog
 
+## 2025-04-26: Bug Fixes and Improvements
+
+### chunkfile.py Bug Fix
+- Fixed a TypeError in `chunkfile.py` when chunking files by lines:
+  - Resolved issue where line-based chunking attempted to join a list of str as bytes, causing a crash.
+  - Updated type hints and runtime checks to ensure line-based chunks are handled as lists of str, not bytes.
+  - Improved type safety and compatibility for line-based chunking mode.
+- No changes to CLI or output format; this is a bugfix for stability and correctness.
+
 ## 2025-04-07: genmd Enhancements
 
 ### genmd Enhancements
