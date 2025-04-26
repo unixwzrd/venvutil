@@ -76,8 +76,8 @@ def validate_inputs(
 
 
 def process_line_based_chunk(
-    file, num_lines: int, overlap: int, is_first: bool, prev_lines: List[bytes]
-) -> tuple[List[bytes], List[bytes], bool]:
+    file, num_lines: int, overlap: int, is_first: bool, prev_lines: List[str]
+) -> tuple[List[str], List[str], bool]:
     """Process a chunk when splitting by lines.
 
     Args:
@@ -152,7 +152,7 @@ def process_byte_based_chunk(
 
 
 def write_chunk(
-    chunk: Union[bytes, List[bytes]],
+    chunk: Union[bytes, List[str]],
     input_file: str,
     part_num: int,
     is_lines: bool = False,
@@ -169,11 +169,20 @@ def write_chunk(
     base = os.path.basename(name)
     out_file = f"{base}_{part_num:02}{ext}"
 
+<<<<<<< HEAD
     with open(out_file, "wb", encoding="utf-8") as chunk_file:
         if is_lines:
+=======
+    mode = "w" if is_lines else "wb"
+    if is_lines:
+        # Ensure chunk is a list of str for line mode
+        if not isinstance(chunk, list) or (chunk and not isinstance(chunk[0], str)):
+            chunk = [str(line) for line in chunk]
+        with open(out_file, mode, encoding="utf-8") as chunk_file:
+>>>>>>> origin/dev
             # For line mode, join lines and remove trailing newline
-            data = b"".join(chunk)  # type: ignore
-            chunk_file.write(data.rstrip(b"\n").decode("utf-8"))
+            data = "".join(chunk)
+            chunk_file.write(data.rstrip("\n"))
     else:
         with open(out_file, mode) as chunk_file:
             chunk_file.write(chunk)  # type: ignore
@@ -218,7 +227,7 @@ def split_file(
         # For line-based chunking, use text mode with UTF-8 encoding
         with open(input_file, "r", encoding="utf-8") as file:
             part_num = 1
-            prev_lines: List[bytes] = []
+            prev_lines: List[str] = []
 
             while True:
                 is_first = part_num == 1
