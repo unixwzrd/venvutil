@@ -1,9 +1,10 @@
 # Required by venvutil
-rich
-nltk
-tiktoken
-mistune
-numpy==1.26.*
-torch
 ftfy
 mistune
+mistune
+nltk
+numpy==1.26.*
+rich
+tiktoken
+torch
+Unidecode
