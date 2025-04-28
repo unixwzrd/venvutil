@@ -237,7 +237,7 @@ The project is actively maintained and continuously evolving with new features a
 
 ## Support My Work
 
-If you find Venvutil helpful and would like to support my work, consider sponsoring me on [Patreon](https://www.patreon.com/) or buying me a coffee on [Buy Me a Coffee](https://www.buymeacoffee.com/). Your support helps me continue developing and maintaining this project and other projects. It is greatly appreciated as I pursue contract work opportunities and sponsorships.
+If you find Venvutil helpful and would like to support my work, consider sponsoring me on [Patreon](https://www.patreon.com/unixwzrd) or buying me a coffee on [Buy Me a Coffee](https://www.buymeacoffee.com/unixwzrd). Your support helps me continue developing and maintaining this project and other projects. It is greatly appreciated as I pursue contract work opportunities and sponsorships.
 
 Thank you for your support!
 
