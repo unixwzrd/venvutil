@@ -503,7 +503,7 @@ display_help() {
         fi
     done < "$0"
 
-    printf "%s" "$help_text" | ${PAGER:-cat}
+    printf "%s" "$help_text" | ${PAGER:-/bin/cat}
     errno_exit 22     # (EINVAL: 22): Invalid argument
 }
 
@@ -894,7 +894,7 @@ main() {
     {
         printf "\n## Files included in final output\n"
         # shellcheck disable=SC2154,SC2068
-        for f in ${final_files[@]}; do
+        for f in "${final_files[@]}"; do
             printf -- "- %s\n" "$f"
         done
         printf "\n---\n"
