@@ -10,51 +10,51 @@
 #
 # Usage:
 #     genmd [options]
-# 
+#
 # Options:
 #     -e, --exclude [patterns]  Exclude directories matching the given patterns.
 #                               Multiple patterns can be separated by '|' or spaces.
-# 
+#
 #     -f, --file [patterns]     Exclude files matching the given patterns.
 #                               Multiple patterns can be separated by '|' or spaces.
-# 
+#
 #     -p, --pattern [patterns]  Exclude additional patterns matching the given strings.
 #                               Multiple patterns can be separated by '|' or spaces.
-# 
+#
 #     -i, --include [patterns]  Include files matching the given patterns.
 #                               Multiple patterns can be separated by '|' or spaces.
-# 
+#
 #     -o, --output [filename]   Output file (default: combined_source.md)
-# 
+#
 #     -L, --follow-links        Follow symbolic links when scanning directories.
 #                               By default, genmd does not follow symbolic links.
-# 
+#
 #     -c, --config [filename]   Load configuration from a .grc file.
 #                               If the filename does not end with .grc, it will be
 #                               appended. The file will be created if it does not exist.
-# 
+#
 #     -s, --settings [modes]    Show settings. Modes can be:
 #                               info    Show current settings
 #                               cfg     Write to configuration file
 #                               md      Include settings in markdown output
 #                               env     Output settings as environment variables
 #                               all     Perform info, md, and env actions
-# 
+#
 #     -n, --dry-run             Do not write the output file; print the files to be processed.
-# 
+#
 #     -g, --no-gitignore        Disable integration with .gitignore patterns.
 #                               By default, genmd uses patterns from .gitignore to exclude files
 #                               and directories. Use this flag to disable this behavior.
-# 
+#
 #     -C, --no-config           Run without sourcing the .grc configuration file.
 #                               This allows you to execute genmd using only the provided
 #                               command-line options and .gitignore patterns (if enabled).
-# 
+#
 #     -b, --remove-blanks       Optionally remove all blank lines and strip trailing spaces from
 #                               each files.
-# 
+#
 #     -l, --line-numbers        Optionally add line numbers to each file using 'nl -n'rn''.
-# 
+#
 #     -z, --compress [tool]     Optionally compress the final output using the specified
 #                               compression utility (e.g., gzip, xz, bzip2). The compressed file
 #                               will be named as 'output.md.<extension>'.
@@ -79,21 +79,21 @@
 #                                   99: SILENT
 #
 #     -h, --help                Show this help message
-# 
-# 
+#
+#
 # Description:
 #       The genmd script generates markdown from the files in the specified directory,
 #       excluding files and directories based on provided patterns. It outputs:
 #       - Project filesystem directory structure
 #       - Source code in a single markdown file for all included files.
 #       - Excluded files are omitted based on exclusion patterns.
-#       - Configuration file will be read if the `-c` option is used, and it assumes .grc is the 
+#       - Configuration file will be read if the `-c` option is used, and it assumes .grc is the
 #         file extension and the file is in the GENMD_BASE/utils/etc directory.
 #       - Configuration file will be written if -o is used and will be placed in the
 #         GENMD_BASE/utils/etc directory and will have the same name as the output file with
 #         .grc appended.
 #       - All exit codes are POSIX exit codes.
-#   
+#
 #       - Will use .gitignore patterns by default unless -g is used to reduce redundancy in your
 #         `.grc` files.
 #
@@ -112,24 +112,24 @@
 #                            markdown.
 #     GENMD_FILE_INCLUDES: A default list of file patterns to include in the generated markdown.
 #     PAGER: The pager to use for output, defaults to `less -R`
-# 
+#
 # Files and directories:
 #     Files are located in the GENMD_BASE directory.
 #     - utils/etc/genmd.grc: Default configuration file.
 #     - utils/etc: Default directory for configuration files.
 #     - utils/output: Default directory for output files.
-# 
+#
 # Dependencies:
 #     - bash 4.0 or higher
 #     - filetree, located in this repository
 #         https://github.com/unixwzrd/venvutil
-#     - filetree requires the Rich Python library. 
-#     
+#     - filetree requires the Rich Python library.
+#
 # Author:
 #     Michael Sullivan <unixwzrd@unixwzrd.ai>
 #         https://unixwzrd.ai/
 #         https://github.com/unixwzrd
-# 
+#
 # License:
 #     Apache License, Version 2.0
 #
@@ -159,7 +159,7 @@ source "${__VENV_INCLUDE}/venvutil_lib.sh" || true
 export PATH="${__VENV_BIN}:${PATH}"
 # Get the base directory for the script
 GENMD_BASE="${GENMD_BASE:-${BASE_DIR:-"."}}"
-log_message "INFO" "Using base directory - $GENMD_BASE" 
+log_message "INFO" "Using base directory - $GENMD_BASE"
 
 PAGER="${PAGER:-less -R}"
 
@@ -225,7 +225,7 @@ declare -g -A config_variable_action=(
     ["create_date"]="set"         # Command line overrides all settings and preserved
     ["debug_level"]="set"         # Command line overrides all settings and preserved
     ["dir_excludes"]="merge"      # Merge all sources.
-    ["dry_run"]="discard"         # Command not preserved, but set from command line
+    ["dry_run"]="set"         # Command not preserved, but set from command line
     ["file_excludes"]="merge"     # Merge all sources.
     ["file_includes"]="merge"     # Merge all sources.
     ["follow_links"]="set"        # Command line overrides all settings and preserved
@@ -283,7 +283,7 @@ set_option_value() {
         update_variable config_variable_action "$target_variable" opt_value
         # IFS='| ' readarray -t "${target_variable}" <  <( printf "%s" "$opt_value" )
     else
-        display_help "ERROR ($MY_NAME): -$opt_name requires a pattern string." 
+        display_help "ERROR ($MY_NAME): -$opt_name requires a pattern string."
     fi
 }
 
@@ -305,7 +305,6 @@ sanitize_patterns() {
     local input="$*"
     # Retain only alphanumerics, underscores, dots, dashes, and spaces
     cleanstring=${input//[^a-zA-Z0-9-_.*? ]/}
-    # cleanstring=$(echo "$input" | sed 's/[^a-zA-Z0-9_.?* ]//g')
     log_message "DEBUG" "Dirty pattern: $input"
     log_message "DEBUG" "Clean pattern: $cleanstring"
     echo "$cleanstring"
@@ -337,24 +336,29 @@ sanitize_patterns() {
 #
 parse_gitignore() {
     local gitignore_file="$GENMD_BASE/.gitignore"
-    
+
     if [[ -f "$gitignore_file" ]]; then
         log_message "INFO" "Parsing .gitignore file: $gitignore_file"
-        
+
         while IFS= read -r line || [[ -n "$line" ]]; do
             # Trim leading and trailing whitespace
             line="$(echo "$line" | sed -e 's/[[:space:]].*$//')"
             [[ -z "$line" || "$line" =~ ^# ]] && continue
-            
+
+
             if [[ "$line" =~ ^! ]]; then
-                # Remove the '!' and add to gitignore_includes
                 pattern="${line:1}"
+                # Optionally anchor explicit includes too (for consistency)
+                [[ "$pattern" == *.* ]] && pattern="${pattern}$"
                 gitignore_includes+=("$pattern")
                 log_message "DEBUG1" "Parsed .gitignore include pattern: $pattern"
                 continue
             fi
 
-            # Regular exclusion pattern
+            # Anchor excludes
+            if [[ "$line" == *.* ]]; then
+                line="${line}$"
+            fi
             gitignore_excludes+=("$line")
             log_message "DEBUG1" "Parsed .gitignore exclude pattern: $line"
 
@@ -465,24 +469,24 @@ load_config_file() {
 }
 
 # Function to display a short help message
-# 
+#
 # ## Description
-# - **Purpose**: 
+# - **Purpose**:
 #   - Displays a help message extracted from the script file.
-# - **Usage**: 
+# - **Usage**:
 #   - `display_help <message>`
-# - **Input Parameters**: 
+# - **Input Parameters**:
 #   - `message`: A brief introduction or message to be included in the help text.
-# - **Output**: 
+# - **Output**:
 #   - Displays the help text in a paginated format using the specified pager or defaults to `cat`.
-# - **Exceptions**: 
+# - **Exceptions**:
 #   - Calls `errno_exit` with an error code of 22 if an invalid argument is encountered.
-# 
+#
 display_help() {
     # Initialize a variable to hold the help text
     local message=$1
     local help_text=""
-    
+
     # Read the script file line by line
     help_text+="$message"$'\n\n'
     while IFS= read -r line || [[ -n "$line" ]]; do
@@ -538,11 +542,10 @@ build_regex() {
             regex="$regex|$escaped"
         fi
     done
-    log_message "INFO" "Regex: $regex"
     echo "$regex"
 }
 
-# build_file_list() – builds the final file list from excludes and includes.
+# build_file_list() - builds the final file list from excludes and includes.
 # It expects:
 #   $1 - a name reference for the output array
 #   $2..$n - names of arrays (each array should be named with a suffix "_excludes" or "_includes")
@@ -570,14 +573,14 @@ build_file_list() {
                     if [[ -z "$composite_exclude" ]]; then
                         composite_exclude="${composite_list}"
                     else
-                        composite_exclude="$composite_exclude|$composite_list"
+                        composite_exclude="${composite_exclude}|${composite_list}"
                     fi
                     ;;
                 *includes)
                     if [[ -z "$composite_include" ]]; then
                         composite_include="${composite_list}"
                     else
-                        composite_include="$composite_include|$composite_list"
+                        composite_include="${composite_include}|${composite_list}"
                     fi
                     ;;
                 *)
@@ -586,18 +589,20 @@ build_file_list() {
             esac
         fi
     done
-    # Get the full list of files.
-    mapfile -t files < <(find ${follow_links:-} . -type f | sort)
 
-    # Apply composite exclusion filtering (if any).
-    if [[ -n "$composite_exclude" ]]; then
-        mapfile -t files < <(printf "%s\n" "${files[@]}" | grep -vE "$composite_exclude")
-    fi
+    echo
+    log_message "INFO" "********** Composite EXCLUDE: \"${composite_exclude}\""
+    echo
+    log_message "INFO" "********** Composite INCLUDE: \"${composite_include}\""
+    echo
 
-    # Apply composite inclusion filtering (if any).
-    if [[ -n "$composite_include" ]]; then
-        mapfile -t files < <(printf "%s\n" "${files[@]}" | grep -E "$composite_include")
-    fi
+    mapfile -t files < <(
+        find ${follow_links:-} . -type f \
+            | grep -Ev "${composite_exclude:-}" \
+            | grep -E  "${composite_include:-}" \
+            | sort
+        )
+
     final_files_ref=("${files[@]}")
 }
 
@@ -664,8 +669,6 @@ generate_filetree() {
     local -n include_list_ref=$2
     shift; shift
     local exclude_list="$*"
-
-    #local include_list="${include_list_ref[*]}"
 
     include_string=$(sanitize_patterns "${include_list_ref[@]}")
     exclude_string=$(sanitize_patterns "${exclude_list[@]}")
@@ -752,7 +755,7 @@ process_files() {
             log_message "INFO" "Skipping unknown $file_description type: \"$file\""
             continue
         fi
-        log_message DEBUG2 "File description: $file_description Converts to: $file_type" 
+        log_message DEBUG2 "File description: $file_description Converts to: $file_type"
         generate_markdown "$file" "$file_type"
     done
 }
@@ -790,7 +793,7 @@ compress_output() {
 }
 
 # Function to generate the settings section for the document
-# 
+#
 # Args:
 #     $1 (string): The output filename to write to
 #     $2 (array): Array of modes for displaying settings
@@ -852,44 +855,44 @@ generate_settings() {
 main() {
     # After determining and loading configuration
     # Process the document with token counting
-    
+
     # If it's a dry run, we could redirect output to /dev/null
     local output_target="$output_filename"
     if [[ "$dry_run" = true ]]; then
         log_message "INFO" "Dry run: Output will be discarded"
         output_target="/dev/null"
     fi
-    
+
     # Create temporary files for the multi-step process
     local temp_header=$(mktemp)
     local temp_body=$(mktemp)
-    
+
     log_message "DEBUG" "Created temporary files: header=$temp_header, body=$temp_body"
-    
+
     # Step 1: Generate the header with initial settings (no token count yet)
     # Truncate the header file
     : > "$temp_header"
-    
+
     # Generate the settings section to the header
     if [[ ${#settings_modes[@]} -gt 0 ]]; then
         generate_settings "$temp_header" settings_modes
     fi
-    
+
     # Step 2: Process the body content
     # Truncate the body file
     : > "$temp_body"
-    
+
     # Generate file tree markdown
     # Argument mixes string and array. Use * or separate argument.
     # shellcheck disable=SC2145
     generate_filetree "$temp_body" file_includes "${dir_excludes[@]}" "${pattern_excludes[@]}" "${file_excludes[@]}"
-    
+
     # Build the file list
     build_file_list final_files dir_excludes \
                     pattern_excludes gitignore_excludes \
                     gitignore_includes file_excludes \
                     file_includes
-    
+
     # Debug: Show final files to be processed
     {
         printf "\n## Files included in final output\n"
@@ -899,10 +902,10 @@ main() {
         done
         printf "\n---\n"
     } >> "$temp_body"
-    
+
     # Process the files and generate markdown
     process_files "$temp_body" final_files
-    
+
     # Step 3: Calculate token count by combining files temporarily
     if [[ "$count_tokens" = true ]]; then
         local temp_combined=$(mktemp)
@@ -910,26 +913,26 @@ main() {
         token_count=$(tokencount -c -f "$temp_combined" 2>/dev/null)
         log_message "INFO" "Document token count: $token_count"
         rm -f "$temp_combined"
-        
+
         # Step 4: Regenerate the header with updated token count
         # Only regenerate the header if we're counting tokens
         # Truncate the header file
         : > "$temp_header"
-        
+
         # Only use "md" mode for the second pass to prevent running cfg/env operations twice
         local md_mode=("md")
         generate_settings "$temp_header" md_mode
     fi
-    
+
     # Step 5: Create the final output file
     # Truncate the output file
     : > "$output_target"
     # Combine header and body
     cat "$temp_header" "$temp_body" > "$output_target"
-    
+
     # Clean up temporary files
     rm -f "$temp_header" "$temp_body"
-    
+
     # Step 6: Compress the final output if compression is enabled
     if [[ "$compress" = true && "$dry_run" != true ]]; then
         compress_output "${output_filename}"

@@ -1,10 +1,14 @@
 # Required by venvutil
 ftfy
 mistune
-mistune
 nltk
 numpy==1.26.*
 rich
 tiktoken
 torch
 Unidecode
+
+# Additional requirements
+pydantic>=2.0.0  # Data validation and settings management
+pygments
+pymarkdownlnt

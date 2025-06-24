@@ -1,8 +1,52 @@
 # Changelog
 
+## 2025-06-24: Chat Extraction Script Overhaul and other refactoring
+
+### `genmd` Overhaul
+
+- **Description**: Completed a major overhaul of the `genmd` script, transforming it into a flexible and powerful documentation generator.
+- **Key Changes**:
+  - Implemented advanced file filtering with include/exclude rules for files, directories, and patterns.
+  - Added automatic file type detection for accurate syntax highlighting.
+  - Integrated `filetree` generation to include a project structure view in the output.
+  - Added new command-line options for debugging, dry runs, and verbose output.
+
+### `string_lib.sh` Refinements
+
+- **Description**: Made several fixes to `string_lib.sh` to improve its reliability when sourced in other scripts.
+- **Key Changes**:
+  - Corrected the declaration of the `__VENV_SOURCED` associative array to use `declare -g -A` for proper global scope handling in modern Bash versions.
+  - Adjusted sourcing logic to prevent issues with `.bashrc` and ensure dependencies are loaded correctly.
+
+### New Library: `string_lib.sh`
+
+- **Description**: Introduced `string_lib.sh`, a new shared library for common string manipulation tasks.
+- **Key Features**:
+  - `to_upper`: Converts strings to uppercase.
+  - `strip_space`: Removes leading and trailing whitespace.
+  - `sanitize`: A flexible function to clean strings based on a custom set of allowed characters.
+  - `escape_string`: Escapes special characters within a string.
+
+### `extract_chat.py` Major Refactor
+
+- **Complete Overhaul**: Replaced the existing script with a new version (`extract_chat2.py`) to handle complex rendering and citation requirements.
+- **Tool Call Rendering**:
+  - Tool calls are now rendered inline following the assistant message.
+  - Each tool call is enclosed in a collapsible `<details>` section for a "window-shaded" view.
+- **Advanced Citation System**:
+  - Implemented a global, single-pass citation numbering system for consistency.
+  - In-text citations are now robust HTML links (`<a href="...">`) pointing to anchors.
+  - Citation lists are generated with unique HTML header IDs (`<h5 id="...">`) to ensure reliable linking.
+  - The citation format now includes the source index and line numbers for precise traceability.
+- **HTML Output Fixes**:
+  - Configured the `mistune` Markdown converter to preserve raw HTML, making `<details>` sections and citation links fully interactive.
+  - Fixed a critical bug that caused a mismatch between citation link `hrefs` and anchor `ids`.
+- **Finalization**: The new script has replaced the old one, and temporary files have been removed.
+
 ## 2025-04-26: Bug Fixes and Improvements
 
 ### chunkfile.py Bug Fix
+
 - Fixed a TypeError in `chunkfile.py` when chunking files by lines:
   - Resolved issue where line-based chunking attempted to join a list of str as bytes, causing a crash.
   - Updated type hints and runtime checks to ensure line-based chunks are handled as lists of str, not bytes.
@@ -12,6 +56,7 @@
 ## 2025-04-07: genmd Enhancements
 
 ### genmd Enhancements
+
 - Enhanced `display_settings` function:
   - Added support for markdown documentation generation
   - Added support for configuration file generation
@@ -28,6 +73,7 @@
 ## 2025-04-06: Core Library Enhancements and Bug Fixes
 
 ### Core Library Improvements
+
 - Enhanced `type_lib.sh`:
   - Deprecated `handle_variable` function in favor of new `update_variable`
   - Added support for variable handling tables
@@ -44,6 +90,7 @@
   - Enhanced error message formatting
 
 ### Setup and Installation
+
 - Enhanced `setup.sh`:
   - Added new `refresh` option for updating from cloned repo:
     - Skips Python package installation
@@ -59,6 +106,7 @@
     - Added support for new update_variable function
 
 ### File Management
+
 - Fixed `filetree.py`:
   - Improved configuration file handling:
     - Better error handling for missing files
@@ -74,6 +122,7 @@
     - Enhanced logging for pattern processing
 
 ### Documentation and Logging
+
 - Removed redundant debug level documentation from `genmd`
 - Enhanced help messages and usage documentation
 - Improved error messages and logging
@@ -82,6 +131,7 @@
 ## 2025-03-19: Tool Enhancements and Bug Fixes
 
 ### Chat Tools Enhancements
+
 - Enhanced `extract_chat.py`:
   - Added code fence normalization to handle nested code blocks
   - Improved command line arguments with short form `-f` for format
@@ -93,11 +143,13 @@
   - Better argument parsing and help messages
 
 ### File Handling Improvements
+
 - Fixed bug in `chunkfile.py` when writing chunks:
   - Fixed file opening mode handling for text vs. binary data
   - Improved handling of UTF-8 encoded content
 
 ### System Utility Enhancements
+
 - Enhanced `numpy-comp.sh`:
   - Improved version number handling and validation
   - Better wildcard (*) version support
@@ -107,18 +159,21 @@
 ## 2025-02-10 - Documentation Overhaul and Process Improvements
 
 ### Documentation Structure and Organization
+
 - Established standardized documentation format across all components
 - Enhanced core library documentation with detailed API references
 - Improved cross-referencing between related documentation files
 - Added comprehensive examples and use cases for all major features
 
 ### Process Improvements
+
 - Implemented new periodic review process with clear guidelines
 - Added structured approach for tracking and documenting changes
 - Enhanced changelog management with better categorization
 - Improved worklog organization for technical details
 
 ### Tool Documentation
+
 - Enhanced documentation for all Python and shell tools:
   - `chunkfile.py`: Complete rewrite with detailed API docs
   - `warehouse.sh`: Added comprehensive usage guide
@@ -127,6 +182,7 @@
 - Updated all command-line help messages
 
 ### Technical Documentation
+
 - Added detailed architecture documentation
 - Enhanced troubleshooting guides
 - Improved installation and setup instructions
@@ -135,6 +191,7 @@
 ## 2025-02-06 - Major Release: Library Reorganization and New Tools
 
 ### Core Library Reorganization
+
 - Renamed all shell library files to use `_lib.sh` suffix for better organization
 - Added new core libraries and new functionality:
   - `config_lib.sh`: Configuration management functions
@@ -147,6 +204,7 @@
   - `wrapper_lib.sh`: Command wrapping functions
 
 ### Virtual Environment Enhancements
+
 - Enhanced `lenv` function with new capabilities:
   - Added column headers for better readability
   - Added Python version display for each environment
@@ -169,6 +227,7 @@
   - Enhanced logging for all venv operations
 
 ### New Tools and Utilities
+
 - Added performance testing tools:
   - `torch_torture.py`: PyTorch stress testing
   - `numpy_torture.py`: NumPy stress testing
@@ -179,6 +238,7 @@
   - `rename-chat` and `rename-chat.py`: Chat renaming utilities
 
 ### Core System Improvements
+
 - Enhanced `setup.sh` with improved Conda integration and error handling
 - Updated `setup.cf` with new configuration options
 - Modified core utilities for better performance:
@@ -187,6 +247,7 @@
 - Enhanced `requirements.txt` with latest dependencies
 
 ### Documentation Enhancements
+
 - Added new documentation:
   - `Metrics_Layout.md`: Performance metrics documentation
 - Updated existing documentation:
@@ -196,6 +257,7 @@
 - Comprehensive updates to function documentation in `docs/shdoc/`
 
 ### Technical Improvements
+
 - Enhanced error handling across all utilities:
   - Better POSIX errno code handling
   - Improved error message formatting

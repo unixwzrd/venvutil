@@ -113,12 +113,12 @@ strip_space() {
 #
 sanitize() {
     local dirty_string="$1"
-    local allowed_chars="$2"
+    local disallowed_chars="$2"
     local clean_string
 
     # Use sed or parameter expansion:
-    # If you have special bracket-chars in allowed_chars, you may need to escape them before sed.
-    clean_string="$(echo "$dirty_string" | sed "s/[^${allowed_chars}]//g")"
+    # If you have special bracket-chars in disallowed_chars, you may need to escape them before sed.
+    clean_string="$(echo "$dirty_string" | sed "s/[^${disallowed_chars}]//g")"
 
     log_message "DEBUG" "Dirty string:   '$dirty_string'"
     log_message "DEBUG" "Clean string:   '$clean_string'"

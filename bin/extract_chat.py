@@ -1,1061 +1,529 @@
 #!/usr/bin/env python
 """
-This script extracts conversation logs from JSON files and saves them as Markdown or HTML files.
+Refactored script to extract conversations from ChatGPT JSON exports into
+Markdown or HTML formats.
 
-The script processes JSON files containing chat conversations and converts them to either Markdown
-or HTML format while preserving the conversation structure, timestamps, and special message types.
+This script is designed to be simple, maintainable, and easily extensible.
+It uses Pydantic for robust data parsing and validation.
 
-Key features:
-- Supports both Markdown and HTML output formats
-- Handles system, user, assistant and tool messages
-- Preserves message timestamps and ordering
-- Processes code blocks and embedded markdown
-- Generates unique filenames based on conversation metadata
-- Supports batch processing of multiple files
-
-Example usage:
-    python extract_chat.py input.json --format html --output-dir ./output/
-    python extract_chat.py ./chats/*.json --format markdown
+The core logic is to:
+1. Parse the input JSON into a structured Pydantic model.
+2. Traverse the conversation tree to reconstruct the chronological order.
+3. Generate a clean Markdown representation of the conversation.
+4. Optionally, convert the generated Markdown to a styled HTML file.
 """
 
 import argparse
-import glob
-import html
+import hashlib
 import json
 import os
 import re
-import unicodedata
+import sys
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Literal, Optional, Tuple
 
-import ftfy
 import mistune
 
-# Date/time formats
-FILENAME_DATE_FORMAT = "%Y-%m-%d-%H%M%S"
-DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-VALID_MESSAGE_ROLES = {"assistant", "system", "user"}
-HTML_TEMPLATE_HEADER = """<!DOCTYPE html>
-<html>
+from pydantic import BaseModel, Field, ValidationError
+
+from pygments.formatters.html import HtmlFormatter
+
+
+# --- Pydantic Models for ChatGPT JSON Structure ---
+
+
+class ExtraMetadata(BaseModel):
+    """Extra metadata for a citation."""
+    cited_message_idx: Optional[int] = None
+    search_result_idx: Optional[int] = None
+    evidence_text: Optional[str] = None
+    start_line_num: Optional[int] = None
+    end_line_num: Optional[int] = None
+
+
+class CitationMetadata(BaseModel):
+    """Metadata for a single citation, including URL and text."""
+    type: Optional[str] = None
+    title: Optional[str] = None
+    url: Optional[str] = None
+    text: Optional[str] = None
+    pub_date: Optional[str] = None
+    extra: Optional[ExtraMetadata] = None
+
+    class Config:
+        extra = "allow"  # Allow fields like 'og_tags'
+
+
+class Citation(BaseModel):
+    """A single citation, with its position and metadata."""
+    start_ix: int
+    end_ix: int
+    citation_format_type: Optional[str] = None
+    metadata: CitationMetadata
+
+
+class MessageMetadata(BaseModel):
+    """Metadata for a message, which may include citations."""
+    citations: Optional[List[Citation]] = None
+
+    class Config:
+        # Allow other fields not explicitly defined in the model
+        extra = "allow"
+
+
+class Author(BaseModel):
+    role: Literal["system", "user", "assistant", "tool"]
+    name: Optional[str] = None
+    metadata: Dict = Field(default_factory=dict)
+
+
+class Content(BaseModel):
+    content_type: str
+    parts: Optional[List[str]] = None
+    text: Optional[str] = None  # Some tool messages have 'text' instead of 'parts'
+    user_profile: Optional[str] = None
+    user_instructions: Optional[str] = None
+    language: Optional[str] = None
+
+
+class Message(BaseModel):
+    id: str
+    author: Author
+    create_time: Optional[float] = None
+    content: Content
+    status: str
+    end_turn: Optional[bool] = None
+    weight: float
+    metadata: MessageMetadata = Field(default_factory=MessageMetadata)
+    recipient: str
+
+
+class MappingNode(BaseModel):
+    id: str
+    message: Optional[Message] = None
+    parent: Optional[str] = None
+    children: List[str] = Field(default_factory=list)
+
+class Conversation(BaseModel):
+
+    title: str
+    create_time: float
+    update_time: float
+    mapping: Dict[str, MappingNode]
+    moderation_results: List
+    current_node: str
+
+
+# --- Core Logic ---
+def format_content_for_markdown(text: str) -> str:
+    # Split by triple backticks, keeping delimiters
+    parts = re.split(r'(```)', text)
+    output = []
+    in_code = False
+    for i, part in enumerate(parts):
+        if part == '```':
+            if not in_code:
+                # Opening fence: look ahead to see if there's a language specifier
+                # We want to add 'text' ONLY IF not already present
+                code_lang = ''
+                # If the next part does NOT look like a language specifier, add 'text'
+                if i + 1 < len(parts):
+                    # Peek at the next part, which is the code content
+                    # If it starts with a word (language), keep it, otherwise add text
+                    code_content = parts[i+1]
+                    first_line = code_content.lstrip().split('\n', 1)[0]
+                    # Check if code block starts with a word (e.g., 'python')
+                    if re.match(r'^\w+$', first_line):
+                        code_lang = first_line
+                    else:
+                        # Insert 'text' as language
+                        output.append('\n\n```text\n')
+                        in_code = True
+                        continue
+                output.append('\n\n```text\n')
+            else:
+                # Closing fence
+                output.append('\n```\n')
+            in_code = not in_code
+        else:
+            output.append(part.strip('\n'))
+    result = ''.join(output)
+    # Collapse any 3+ newlines into two (for safety)
+    result = re.sub(r'\n{3,}', '\n\n', result)
+    return result.strip()
+
+
+def slugify(text: str) -> str:
+    """Converts a string to a slug for URL/anchor generation."""
+    text = str(text).lower()
+    text = re.sub(r'[^a-z0-9\s-]', '', text)
+    text = re.sub(r'[\s-]+', '-', text).strip('-')
+    return text
+
+
+def extract_system_context(conversation: Conversation) -> Dict[str, str]:
+    """Extracts the raw text for the four specific system context sections, without formatting."""
+    context = {}
+    for node in conversation.mapping.values():
+        if not (node.message and node.message.content):
+            continue
+        
+        message = node.message
+        content = message.content
+
+        if content.content_type == "user_editable_context":
+            if content.user_profile:
+                context['user_profile'] = content.user_profile
+            if content.user_instructions:
+                context['user_instructions'] = content.user_instructions
+
+        metadata = message.metadata.model_dump() if message.metadata else {}
+        user_data = metadata.get('user_context_message_data', {})
+        if isinstance(user_data, dict):
+            if user_data.get('about_user_message'):
+                context['about_user_message'] = user_data['about_user_message']
+            if user_data.get('about_model_message'):
+                context['about_model_message'] = user_data['about_model_message']
+                
+    return context
+
+def generate_markdown(conversation: Conversation) -> str:
+    """Generates a Markdown string from the conversation data based on new requirements."""
+    final_parts = []
+
+    # --- 1. Title and Timestamps ---
+    title = f"# {conversation.title}"
+    create_time = datetime.fromtimestamp(conversation.create_time).strftime('%Y-%m-%d %H:%M:%S')
+    update_time = datetime.fromtimestamp(conversation.update_time).strftime('%Y-%m-%d %H:%M:%S')
+    timestamps = f"**Created:** {create_time} | **Last Updated:** {update_time}"
+    final_parts.extend([title, timestamps, "---"])
+
+    # --- 2. System Context ---
+    system_context = extract_system_context(conversation)
+    if system_context:
+        final_parts.append("## System Context")
+        context_key_map = {
+            'user_profile': '### User Profile',
+            'user_instructions': '### User Instructions',
+            'about_user_message': '### About The User',
+            'about_model_message': '### About The Model',
+        }
+        for key, header in context_key_map.items():
+            if key in system_context:
+                formatted_content = format_content_for_markdown(system_context[key])
+                final_parts.append(f"{header}\n\n{formatted_content}")
+
+    final_parts.extend(["---", "## Conversation"])
+
+    # --- 3. Chronological Conversation Traversal ---
+    root_node_id = next((nid for nid, node in conversation.mapping.items() if not node.parent), None)
+    if not root_node_id:
+        return "\n\n".join(final_parts)
+
+    chronological_nodes = []
+    current_node_id = root_node_id
+    while current_node_id:
+        node = conversation.mapping.get(current_node_id)
+        if not node:
+            break
+        if node.message and node.message.author.role != 'system':
+            chronological_nodes.append(node)
+        current_node_id = node.children[0] if node.children else None
+
+    # --- 4. Process and Format Each Message ---
+    citation_ref_map = {}
+    global_citation_counter = 1
+    i = 0
+    while i < len(chronological_nodes):
+        node = chronological_nodes[i]
+        message = node.message
+
+        if not message or not (message.content and (message.content.parts or message.content.text or message.author.role == 'tool')):
+            i += 1
+            continue
+
+        # --- Render User/Assistant Messages and their Citations ---
+        if message.author.role in ['user', 'assistant']:
+            author_role = message.author.role.capitalize()
+            create_time = datetime.fromtimestamp(message.create_time).strftime('%H:%M:%S') if message.create_time else ''
+            msg_metadata = message.metadata.model_dump(exclude_none=True) if message.metadata else {}
+
+            author_line = f"### {author_role}"
+            metadata_parts = [p for p in [create_time, f"Model: `{msg_metadata.get('model_slug')}`" if msg_metadata.get('model_slug') else None] if p]
+            if metadata_parts:
+                author_line += f" ({' | '.join(metadata_parts)})"
+            final_parts.append(author_line)
+
+            # --- Message Content & Citation Processing ---
+            content_parts = []
+            raw_content_for_citation_search = ""
+            if message.content.content_type == 'code' and message.content.text:
+                lang = message.content.language or ""
+                content_parts.append(f"```{lang}\n{message.content.text.strip()}\n```")
+            else:
+                raw_content_for_citation_search = "\n".join(message.content.parts or [message.content.text or ""])
+                formatted_content = format_content_for_markdown(raw_content_for_citation_search)
+                content_parts.append(formatted_content)
+
+            message_content_str = "\n".join(content_parts)
+            local_citations = []
+            if 'citations' in msg_metadata:
+                def citation_replacer(match):
+                    nonlocal global_citation_counter
+                    marker = match.group(0)
+                    match_start_pos = match.start()
+
+                    # Find the corresponding citation data by its position in the raw text
+                    found_c_data = None
+                    for c_data in msg_metadata['citations']:
+                        if c_data['start_ix'] <= match_start_pos < c_data['end_ix']:
+                            found_c_data = c_data
+                            break
+                    if not found_c_data:
+                        return marker
+
+                    # Parse the marker for line info, etc.
+                    marker_match = re.match(r'【(\d+)†(L\d+-L\d+|source)】', marker)
+                    if not marker_match:
+                        return marker
+                    original_json_index = int(marker_match.group(1))
+                    line_info = marker_match.group(2)
+
+                    title = found_c_data['metadata'].get('title', 'No Title')
+                    url = found_c_data['metadata'].get('url')
+                    quote_text = found_c_data['metadata'].get('text', 'No quote available.')
+
+                    # A unique citation is most robustly defined by its source URL and the specific quote.
+                    citation_key = (url, quote_text)
+
+                    if citation_key not in citation_ref_map:
+                        header_anchor_text = f"Citation {global_citation_counter} ({original_json_index}, {line_info})"
+                        slug = slugify(header_anchor_text)
+                        citation_ref_map[citation_key] = (global_citation_counter, slug, header_anchor_text)
+                        global_citation_counter += 1
+                    
+                    citation_num, slug, header_anchor_text = citation_ref_map[citation_key]
+
+                    if not any(c[0] == citation_num for c in local_citations):
+                        local_citations.append((citation_num, found_c_data['metadata'], slug, header_anchor_text, line_info, quote_text))
+                    
+                    # Return a raw HTML link to ensure it works in both MD and HTML output
+                    return f"<a href='#{slug}'><sup>{citation_num}</sup></a>"
+
+                citation_pattern = re.compile(r'【\d+†(?:L\d+-L\d+|source)】')
+                message_content_str = citation_pattern.sub(citation_replacer, message_content_str)
+
+            final_parts.append(message_content_str)
+
+            # --- Citation List Rendering ---
+            if local_citations:
+                citation_list_str = "<details><summary>Citations</summary>\n\n"
+                for num, meta, slug, header_anchor_text, line_info, quote_text in sorted(local_citations, key=lambda x: x[0]):
+                    title = meta.get('title', 'No Title')
+                    url = meta.get('url', '#')
+                    # Use a raw HTML header with the ID for a robust anchor
+                    citation_list_str += f"<h5 id='{slug}'>{header_anchor_text}</h5>\n"
+                    # Use raw HTML for the link to ensure it's not misinterpreted by the MD converter
+                    citation_list_str += f"<strong><a href='{url}' target='_blank'>{title}</a></strong>\n"
+                    if line_info != 'source':
+                        citation_list_str += f"> {line_info}: {quote_text}\n\n"
+                    else:
+                        citation_list_str += f"> {quote_text}\n\n"
+                citation_list_str += "</details>"
+                final_parts.append(citation_list_str)
+
+        # --- Look ahead for and Render Tool Calls ---
+        if message.author.role == 'assistant':
+            tool_calls_processed = 0
+            next_index = i + 1
+            while next_index < len(chronological_nodes):
+                next_node = chronological_nodes[next_index]
+                if next_node.message and next_node.message.author.role == 'tool':
+                    tool_msg = next_node.message
+                    tool_metadata = tool_msg.metadata.model_dump(exclude_none=True) if tool_msg.metadata else {}
+                    tool_name = tool_msg.author.name or 'Unknown Tool'
+                    tool_output = tool_msg.content.text or "".join(tool_msg.content.parts or [])
+                    
+                    if not tool_output.strip() and 'async_task_prompt' in tool_metadata:
+                        tool_output = f"Kicked off async task: {tool_metadata.get('async_task_title', 'Untitled Task')}\nPrompt: {tool_metadata['async_task_prompt']}"
+
+                    tool_details = (
+                        f"<details><summary>Tool Call: <code>{tool_name}</code></summary>\n\n"
+                        f"```\n{tool_output.strip()}\n```\n"
+                        f"</details>"
+                    )
+                    final_parts.append(tool_details)
+                    tool_calls_processed += 1
+                    next_index += 1
+                else:
+                    break # Not a tool message, so stop looking ahead
+            i += tool_calls_processed
+
+        i += 1
+
+    return "\n\n".join(final_parts)
+
+
+def to_html(markdown_text: str, css_content: str, title: str) -> str:
+    """
+    Convert a Markdown string to a styled HTML document.
+
+    This function uses mistune with `escape=False` to ensure that raw HTML tags
+    (like <details>, <sup>, and <a id...>) used for citations and tool calls
+    are rendered correctly in the final HTML output.
+    """
+    # Create a mistune instance that allows raw HTML tags to pass through.
+    markdown_converter = mistune.create_markdown(escape=False)
+    html_body = markdown_converter(markdown_text)
+
+    # The HTML template includes a <style> tag for the CSS.
+    return f"""
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
     <style>
-body {{
-    color: #e8e8e8;
-    background-color: #111111;
-    font-family: Arial, sans-serif;
-    line-height: 1.2;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-    font-size: 12pt;
-}}
-
-p {{
-    margin: 5px 0;
-}}
-
-h1 {{
-    color: #f8f8f8;
-    font-size: 24pt;
-}}
-
-h2 {{
-    color: #efefef;
-    margin-top: 30px;
-    font-size: 18pt;
-}}
-
-pre {{
-    background-color: #303030;
-    padding: 5px;
-    border-radius: 5px;
-    overflow-x: auto;
-    font-size: 10pt;
-    line-height: 1;
-    margin: 0.5em 0;
-    font-family: monospace;
-    white-space-collapse: preserve;
-    text-wrap-mode: wrap;
-}}
-
-code {{
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 10pt;
-    line-height: 1.0;
-    display: block;
-    white-space-collapse: preserve;
-    text-wrap-mode: wrap;
-}}
-
-.timestamp {{
-    color: #cecece;
-    font-size: 9pt;
-}}
-
-.tool-message {{
-    background-color: #222244;
-    border: 1px solid #c8e1ff;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-}}
-
-.tool-message summary {{
-    cursor: pointer;
-    color: #92c1f7;
-}}
-
-details {{
-    margin: 10px 0;
-}}
+        {css_content}
     </style>
 </head>
 <body>
-<h1>{title}</h1>
-<p class="timestamp">Starting: {start_time}<br>Ending: {end_time}</p>
+    <div class="main-container">
+        {html_body}
+    </div>
+</body>
+</html>
 """
-HTML_TEMPLATE_FOOTER = """</body></html>"""
 
 
-def fix_timestamp(ts: Optional[float]) -> Optional[float]:
+# --- Main Application Logic ---
+def get_css_content(css_file_path: Optional[str]) -> str:
     """
-    Fix overly large timestamps by moving the decimal point to get a valid Unix timestamp.
-
-    Args:
-        ts: Input timestamp that may need fixing
-
-    Returns:
-        Fixed timestamp in Unix timestamp range (~10 digits), or None if input was None
-
-    Example:
-        >>> fix_timestamp(1234567890)  # Already valid
-        1234567890
-        >>> fix_timestamp(1234567890123)  # Too large
-        1234567.890123
+    Loads CSS content from a specified file or creates/loads a default CSS file
+    from the user's configuration directory.
     """
-    if ts is None:
-        return None
-    # Convert to string to count digits before decimal
-    ts_str = str(float(ts))
-    whole_digits = ts_str.split('.', maxsplit=1)[0]
-    # If more than 10 digits before decimal, adjust
-    if len(whole_digits) > 10:
-        power = len(whole_digits) - 10
-        return float(ts) / (10**power)
-    return float(ts)
+    config_dir = os.path.join(os.path.expanduser("~/.venvutil"))
+    default_css_filename = "extract_chat_default.css"
+    default_css_path = os.path.join(config_dir, default_css_filename)
 
+    default_css_content = "body {\n    color: #e8e8e8;\n    background-color: #111111;\n    font-family: Arial, sans-serif;\n    line-height: 1.2;\n    max-width: 900px;\n    margin: 0 auto;\n    padding: 20px;\n    font-size: 12pt;\n}\n\nh1 {\n    color: #f8f8f8;\n    font-size: 24pt;\n}\n\nh2 {\n    color: #efefef;\n    margin-top: 30px;\n    font-size: 18pt;\n}\n\npre {\n    background-color: #303030;\n    padding: 5px;\n    border-radius: 5px;\n    overflow-x: auto;\n    font-size: 10pt;\n    line-height: 1;\n    margin: 0.5em 0;\n    font-family: monospace;\n    white-space-collapse: preserve;\n    text-wrap-mode: wrap;\n}\n\ncode {\n    font-family: 'Courier New', Courier, monospace;\n    font-size: 10pt;\n    line-height: 1.0;\n    display: block;\n    white-space-collapse: preserve;\n    text-wrap-mode: wrap;\n}\n\ntable {\n    border-collapse: collapse;\n    width: 100%;\n    margin: 10px 0;\n    background-color: #222;\n}\n\nth, td {\n    border: 1px solid #444;\n    padding: 8px;\n    text-align: left;\n}\n\nth {\n    background-color: #333;\n    color: #fff;\n}\n\ntr:nth-child(even) {\n    background-color: #2a2a2a;\n}\n\ntr:nth-child(odd) {\n    background-color: #222;\n}\n\n.timestamp {\n    color: #cecece;\n    font-size: 9pt;\n    margin: 5px 0;\n}\n\ndetails {\n    margin: 10px 0;\n    padding: 10px;\n    background-color: #222244;\n    border: 1px solid #444;\n    border-radius: 5px;\n}\n\ndetails summary {\n    cursor: pointer;\n    color: #92c1f7;\n    font-weight: bold;\n    margin: -10px;\n    padding: 10px;\n    background-color: #1a1a2a;\n    border-bottom: 1px solid #444;\n}\n\ndetails[open] summary {\n    margin-bottom: 10px;\n}\n\n.tool-message {\n    background-color: #222244;\n    border: 1px solid #444;\n    padding: 10px;\n    margin: 10px 0;\n    border-radius: 5px;\n}\n\n.error-message {\n    background-color: #442222;\n    border: 1px solid #844;\n    padding: 10px;\n    margin: 10px 0;\n    border-radius: 5px;\n}"
+    # Generate Pygments CSS for a dark theme (e.g., 'monokai') and append it
+    pygments_css = HtmlFormatter(style='monokai').get_style_defs('.codehilite')
+    default_css_content += f"\n{pygments_css}"
 
-def format_timestamp(ts: Optional[float]) -> str:
-    """
-    Format a numeric timestamp into a human-readable date/time string.
+    if css_file_path:
+        # User specified a CSS file, try to load it
+        try:
+            with open(css_file_path, 'r', encoding='utf-8') as f:
+                print(f"Loading custom CSS from: {css_file_path}", file=sys.stderr)
+                return f.read()
+        except FileNotFoundError:
+            print(f"Warning: Custom CSS file not found at {css_file_path}. "
+                  f"Falling back to default CSS.", file=sys.stderr)
 
-    Args:
-        ts: Unix timestamp to format
-
-    Returns:
-        Formatted string in YYYY-MM-DD HH:MM:SS format, or empty string if invalid
-
-    Example:
-        >>> format_timestamp(1234567890)
-        '2009-02-13 23:31:30'
-        >>> format_timestamp(None)
-        ''
-    """
-    ts_fixed = fix_timestamp(ts)
-    if ts_fixed is None:
-        return ""
-    dt = datetime.fromtimestamp(ts_fixed)
-    return dt.strftime(DATETIME_FORMAT)
-
-
-def parse_datetime_string(dt_str: str) -> datetime:
-    """
-    Parse a datetime string in YYYY-MM-DD HH:MM:SS format.
-
-    Args:
-        dt_str: Datetime string to parse
-
-    Returns:
-        Parsed datetime object, or current time if parsing fails
-
-    Example:
-        >>> parse_datetime_string('2023-01-01 12:00:00')
-        datetime.datetime(2023, 1, 1, 12, 0)
-    """
-    try:
-        return datetime.strptime(dt_str, DATETIME_FORMAT)
-    except ValueError:
-        return datetime.now()
-
-
-def sanitize_title(title: str) -> str:
-    """
-    Sanitize a title string for use in filenames.
-
-    Args:
-        title: Input title string
-
-    Returns:
-        Sanitized title with problematic characters replaced by underscores
-
-    Example:
-        >>> sanitize_title('Hello, World!')
-        'Hello_World'
-        >>> sanitize_title('')
-        'untitled'
-    """
-    s = re.sub(r"[^\w\-.]", "_", title)
-    s = re.sub(r"_+", "_", s).strip("._-")
-    return s or "untitled"
-
-
-def generate_unique_filename(
-    input_file: str,
-    title: str,
-    create_time: Optional[float],
-    update_time: Optional[float],
-    extension: str = "json",
-    out_dir: Optional[str] = None
-) -> str:
-    """
-    Generate a unique filename for the output file.
-
-    Args:
-        input_file: Original input filename
-        title: Title for the output file
-        create_time: Creation timestamp
-        update_time: Last update timestamp
-        extension: File extension (default: 'json')
-        out_dir: Optional output directory
-
-    Returns:
-        Generated unique filename in format: YYYY-MM-DD-HHMMSS_YYYY-MM-DD-HHMMSS-TITLE.ext
-
-    Raises:
-        ValueError: If create_time is invalid or too many filename collisions occur
-
-    Example:
-        >>> generate_unique_filename('input.json', 'Test', 1234567890, 1234567890)
-        '2009-02-13-233130_2009-02-13-233130-Test.json'
-    """
-    # Fix both timestamps
-    ctime_fixed = fix_timestamp(create_time)
-    utime_fixed = fix_timestamp(update_time)
-
-    if ctime_fixed is None:
-        raise ValueError("Invalid or missing create_time")
-
-    # If update_time is missing, use create_time
-    if utime_fixed is None:
-        utime_fixed = ctime_fixed
-
-    # Convert each to string
-    ctime_str = datetime.fromtimestamp(ctime_fixed).strftime(FILENAME_DATE_FORMAT)
-    utime_str = datetime.fromtimestamp(utime_fixed).strftime(FILENAME_DATE_FORMAT)
-    cleaned_title = sanitize_title(title)
-
-    dir_path = out_dir if out_dir else os.path.dirname(input_file)
-    os.makedirs(dir_path, exist_ok=True)
-
-    base_name = f"{ctime_str}_{utime_str}-{cleaned_title}"
-    filename = os.path.join(dir_path, f"{base_name}.{extension}")
-
-    counter = 0
-    while os.path.exists(filename):
-        counter += 1
-        if counter > 99:
-            raise ValueError(f"Too many duplicates for {filename}")
-        filename = os.path.join(dir_path, f"{base_name}-{counter:02d}.{extension}")
-    return filename
-
-
-def load_json_file(file_path: str) -> Optional[Dict]:
-    """
-    Load and parse a JSON file.
-
-    Args:
-        file_path: Path to JSON file to load
-
-    Returns:
-        Parsed JSON data as dict, or None if loading/parsing fails
-
-    Example:
-        >>> data = load_json_file('valid.json')
-        >>> type(data)
-        <class 'dict'>
-        >>> load_json_file('invalid.json')
-        None
-    """
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        if isinstance(data, dict):
-            return data
-        print(f"Error: {file_path} did not contain a JSON object.")
-    except Exception as e:
-        print(f"Error reading JSON from {file_path}: {e}")
-    return None
-
-
-def is_tool_message(message_role: str) -> bool:
-    """
-    Check if a message role represents a tool message.
-
-    Args:
-        message_role: Message role string to check
-
-    Returns:
-        True if role is not one of the standard roles (user/system/assistant)
-
-    Example:
-        >>> is_tool_message('user')
-        False
-        >>> is_tool_message('code_interpreter')
-        True
-    """
-    return message_role not in VALID_MESSAGE_ROLES
-
-
-def normalize_newlines(input_text: str) -> str:
-    """
-    Normalize multiple consecutive newlines to single newlines.
-
-    Args:
-        input_text: Input text to normalize
-
-    Returns:
-        Text with consecutive newlines collapsed to single newlines
-
-    Example:
-        >>> normalize_newlines('line1\\n\\n\\nline2')
-        'line1\\nline2'
-    """
-    return re.sub(r"\n{2,}", "\n", input_text)
-
-
-# -----------------------------------------------------------------------------
-# Markdown Utilities
-# -----------------------------------------------------------------------------
-def detect_markdown(input_text: str) -> List[Tuple[int, int, str]]:
-    """
-    Detect markdown segments within text using Mistune parser.
-
-    Args:
-        input_text: Input text to analyze for markdown
-
-    Returns:
-        List of tuples containing:
-        - Start position in text
-        - End position in tex
-        - Raw markdown content
-
-    Example:
-        >>> detect_markdown('Normal text **bold** more text')
-        [(12, 18, '**bold**')]
-    """
-    markdown_segments: List[Tuple[int, int, str]] = []
-    current_position = 0
-
-    try:
-        markdown_parser = mistune.create_markdown()
-        abstract_syntax_tree = markdown_parser.parse(input_text)
-
-        def process_token(token):
-            nonlocal current_position
-            if not isinstance(token, dict):
-                return
-
-            # If 'raw' is present, we can attempt to locate it in the original text.
-            if token.get("type") != "text" and "raw" in token:
-                raw_markdown = token["raw"]
-                start_index = input_text.find(raw_markdown, current_position)
-                if start_index != -1:
-                    end_index = start_index + len(raw_markdown)
-                    markdown_segments.append((start_index, end_index, raw_markdown))
-                    current_position = end_index
-
-            # Recurse over children
-            for child_token in token.get("children", []):
-                process_token(child_token)
-
-        for token in abstract_syntax_tree:
-            process_token(token)
-
-        return sorted(markdown_segments, key=lambda x: x[0])
-    except Exception as error:
-        print(f"Warning: Error parsing markdown: {error}")
-        return []
-
-
-def format_text_block(text_content: str, output_format: str) -> List[str]:
-    """
-    Format a text block for output in HTML or Markdown.
-
-    Args:
-        text_content: Text content to format
-        output_format: Output format ('html' or 'markdown')
-
-    Returns:
-        List of formatted text lines
-
-    Example:
-        >>> format_text_block('Hello **world**', 'html')
-        ['<p>Hello <strong>world</strong></p>\\n', '\\n\\n']
-    """
-    formatted_lines = []
-    if output_format == "html":
-        html_content = mistune.create_markdown(
-            plugins=["strikethrough", "footnotes", "table"], escape=True
-        )(text_content)
-        formatted_lines.append(html_content)
+    # If no custom CSS is provided or if it fails to load, use the default.
+    # Check if the default CSS file exists, and create it if it doesn't.
+    if not os.path.exists(default_css_path):
+        print(f"Default CSS file not found. Creating at {default_css_path}", file=sys.stderr)
+        os.makedirs(os.path.dirname(default_css_path), exist_ok=True)
+        with open(default_css_path, 'w', encoding='utf-8') as f:
+            f.write(default_css_content)
+        return default_css_content
     else:
-        formatted_lines.append(text_content)
-    formatted_lines.append("\n\n")
-    return formatted_lines
-
-
-def format_code_block(
-    code_content: str, programming_language: str, output_format: str
-) -> List[str]:
-    """
-    Format a code block for output in HTML or Markdown.
-
-    Args:
-        code_content: Code content to format
-        programming_language: Programming language for syntax highlighting
-        output_format: Output format ('html' or 'markdown')
-
-    Returns:
-        List of formatted code block lines
-
-    Example:
-        >>> format_code_block('print("hello")', 'python', 'markdown')
-        ['```python\\nprint("hello")\\n```\\n\\n']
-    """
-    formatted_lines = []
-    
-    # Normalize any code blocks that might be inside the code content itself
-    code_content = normalize_code_fences(code_content)
-    
-    if output_format == "html":
-        escaped_code = html.escape(code_content)
-        formatted_lines.append(
-            f'<pre><code class="language-{programming_language}">{escaped_code}</code></pre>\n'
-        )
-    else:
-        formatted_lines.append(f"```{programming_language}\n{code_content}\n```\n\n")
-    return formatted_lines
-
-
-# -----------------------------------------------------------------------------
-# Heading and Tool Message Helpers
-# -----------------------------------------------------------------------------
-def generate_heading(
-    message_role: str, timestamp: str, output_format: str
-) -> List[str]:
-    """
-    Generate appropriate heading for a message based on role.
-
-    Args:
-        message_role: Message role (user/system/assistant/tool)
-        timestamp: Message timestamp string
-        output_format: Output format ('html' or 'markdown')
-
-    Returns:
-        List of formatted heading lines
-
-    Example:
-        >>> generate_heading('user', '2023-01-01 12:00:00', 'markdown')
-        ['## **USER**\\n\\n', '<sub>2023-01-01 12:00:00</sub>\\n\\n']
-    """
-    heading_lines: List[str] = []
-    if is_tool_message(message_role):
-        if output_format == "html":
-            heading_lines.append(
-                f'<details class="tool-message">\n<summary>Tool Message: {message_role}</summary>\n'
-            )
-            if timestamp:
-                heading_lines.append(f'<span class="timestamp">{timestamp}</span>\n')
-        else:
-            heading_lines.append(
-                f"## **TOOL - {message_role.replace('_', ' ').title()}**\n"
-            )
-            if timestamp:
-                heading_lines.append(f"<sub>{timestamp}</sub>\n")
-            heading_lines.append("<details>\n<summary>\nContents:\n</summary>\n\n")
-    else:
-        # Standard role headings
-        if output_format == "html":
-            heading_lines.append(f"<h2>{message_role.upper()}</h2>\n")
-            if timestamp:
-                heading_lines.append(f'<span class="timestamp">{timestamp}</span>\n')
-        else:
-            heading_lines.append(f"## **{message_role.upper()}**\n\n")
-            if timestamp:
-                heading_lines.append(f"<sub>{timestamp}</sub>\n\n")
-    return heading_lines
-
-
-def close_tool_message_block(message_role: str, output_format: str) -> str:
-    """
-    Generate closing tags for tool message blocks if needed.
-
-    Args:
-        message_role: Message role
-        output_format: Output format ('html' or 'markdown')
-
-    Returns:
-        Closing tags string if role is tool message, empty string otherwise
-
-    Example:
-        >>> close_tool_message_block('code_interpreter', 'html')
-        '</details>\\n'
-    """
-    if not is_tool_message(message_role):
-        return ""
-    return "</details>\n" if output_format == "html" else "</details>\n\n"
-
-
-# -----------------------------------------------------------------------------
-# Handling Tool Message Content
-# -----------------------------------------------------------------------------
-def process_file_listing(listing_content: str, timestamp: str) -> List[str]:
-    """
-    Process file listing content into details blocks.
-
-    Args:
-        listing_content: File listing text content
-        timestamp: Message timestamp string
-
-    Returns:
-        List of formatted lines with details blocks for each file
-
-    Example:
-        >>> process_file_listing('- **file.txt**\\ncontents', '2023-01-01')
-        ['<details>\\n', '<summary>\\n', '- **file.txt**\\n', '<sub>2023-01-01</sub>\\n',
-         '</summary>\\n\\n', 'contents\\n', '</details>\\n\\n']
-    """
-    formatted_lines: List[str] = []
-    currently_in_file_block = False
-    for line in listing_content.split("\n"):
-        line_stripped = line.strip()
-        if not line_stripped:
-            continue
-
-        if line_stripped.startswith("- **") and line_stripped.endswith("**"):
-            # Start a new details block if needed
-            if currently_in_file_block:
-                formatted_lines.append("</details>\n\n")
-            formatted_lines.append("<details>\n<summary>\n")
-            formatted_lines.append(f"{line_stripped}\n")
-            if timestamp:
-                formatted_lines.append(f"<sub>{timestamp}</sub>\n")
-            formatted_lines.append("</summary>\n\n")
-            currently_in_file_block = True
-        elif currently_in_file_block:
-            # Continue the listing
-            formatted_lines.append(f"{line_stripped}\n")
-
-    if currently_in_file_block:
-        formatted_lines.append("</details>\n\n")
-    return formatted_lines
-
-
-def process_tool_content(content_data: Dict, timestamp: str) -> List[str]:
-    """
-    Process specialized tool message content.
-
-    Args:
-        content_data: Tool message content dictionary
-        timestamp: Message timestamp string
-
-    Returns:
-        List of formatted content lines
-
-    The function handles different content types:
-    - tether_browsing_display: Search results
-    - tether_quote: Quoted content with title/URL
-    - Generic tool content in parts
-    """
-    formatted_lines: List[str] = []
-    content_type = content_data.get("content_type", "")
-
-    if content_type == "tether_browsing_display":
-        search_result = content_data.get("result", "")
-        if search_result:
-            formatted_lines.append("<details>\n<summary>Search Results</summary>\n\n")
-            formatted_lines.append(f"{normalize_newlines(search_result)}\n")
-            formatted_lines.append("</details>\n\n")
-        return formatted_lines
-
-    if content_type == "tether_quote":
-        quote_title = content_data.get("title", "")
-        quote_url = content_data.get("url", "")
-        quote_text = content_data.get("text", "")
-
-        if not any([quote_title, quote_url, quote_text]):
-            return formatted_lines
-
-        formatted_lines.append("<details>\n<summary>\n")
-        if quote_title:
-            formatted_lines.append(f"**{quote_title}**\n")
-        if timestamp:
-            formatted_lines.append(f"<sub>{timestamp}</sub>\n")
-        formatted_lines.append("</summary>\n\n")
-
-        if quote_url:
-            formatted_lines.append(f"Source: {quote_url}\n\n")
-        if quote_text:
-            formatted_lines.append(f"{normalize_newlines(quote_text)}\n")
-
-        formatted_lines.append("</details>\n\n")
-        return formatted_lines
-
-    # Default: generic tool content in 'parts'
-    for content_part in content_data.get("parts", []):
-        if not isinstance(content_part, str) or not content_part.strip():
-            continue
-        formatted_lines.extend(
-            process_file_listing(normalize_newlines(content_part), timestamp)
-        )
-
-    return formatted_lines
-
-
-# -----------------------------------------------------------------------------
-# Main Conversation Processing
-# -----------------------------------------------------------------------------
-def build_message_sequence(message_mapping: Dict[str, Dict]) -> List[str]:
-    """
-    Create ordered list of message IDs using stack-based traversal.
-
-    Args:
-        message_mapping: Dictionary of message data keyed by message ID
-
-    Returns:
-        List of message IDs in conversation order
-
-    Example:
-        >>> build_message_sequence({'msg1': {'children': ['msg2']}, 'msg2': {}})
-        ['msg1', 'msg2']
-    """
-    message_sequence: List[str] = []
-    visited_messages = set()
-
-    # Root messages have no 'parent'
-    root_messages = [
-        msg_id
-        for msg_id, msg_data in message_mapping.items()
-        if not msg_data.get("parent")
-    ]
-    message_stack = root_messages[::-1]
-
-    while message_stack:
-        current_message_id = message_stack.pop()
-        if current_message_id in visited_messages:
-            continue
-        visited_messages.add(current_message_id)
-        message_sequence.append(current_message_id)
-
-        child_messages = message_mapping[current_message_id].get("children", [])
-        # Reverse them so they appear in correct order when popped
-        for child_id in reversed(child_messages):
-            message_stack.append(child_id)
-
-    return message_sequence
-
-
-def clean_text(text: str) -> str:
-    """
-    Clean text by normalizing using NFC and removing problematic sequences
-    that optionally start with '0x', followed by 'EE88' and between 2 to 6 hexadecimal digits.
-
-    Args:
-        text: The input text to clean.
-
-    Returns:
-        The cleaned text with problematic sequences removed.
-    """
-    # Let ftfy handle known weirdness
-    text = ftfy.fix_text(text)
-
-    # Normalize to NFC
-    text = unicodedata.normalize('NFC', text)
-
-    # Optionally remove control chars, private-use chars, etc.
-    cleaned = []
-    for ch in text:
-        cat = unicodedata.category(ch)
-        # Keep standard controls like newlines, tabs, and otherwise discard control chars
-        # Keep everything else unless it's a private-use area or other undesired code point
-        if cat.startswith('C'):
-            # Keep linefeed, carriage return, and tab if you want them
-            if ch not in ('\n', '\r', '\t'):
-                continue
-        # You could add further checks if you don't want private-use areas, etc.
-        cleaned.append(ch)
-
-    return ''.join(cleaned)
-
-
-def normalize_code_fences(text: str) -> str:
-    """
-    Normalize markdown code block fences to ensure proper rendering.
-    
-    This function ensures that code blocks starting with more than three 
-    backticks are normalized to exactly three backticks to prevent 
-    rendering issues in both HTML and Markdown output.
-    
-    Args:
-        text: The input text containing markdown code blocks
-        
-    Returns:
-        Text with normalized code block fences
-    """
-    # Pattern to match code block fences with more than three backticks
-    # The regex looks for lines starting with 4 or more backticks,
-    # optionally followed by a language identifier
-    pattern = r'^(`{4,})(\w*)'
-    
-    # Replace with exactly three backticks plus the language identifier
-    normalized_text = re.sub(pattern, r'```\2', text, flags=re.MULTILINE)
-    
-    return normalized_text
-
-
-def handle_regular_message(message_content: Dict, output_format: str) -> List[str]:
-    """
-    Process standard message content (code or text).
-
-    Args:
-        message_content: Message content dictionary
-        output_format: Output format ('html' or 'markdown')
-
-    Returns:
-        List of formatted content lines
-
-    The function handles different content types:
-    - code: Programming code with language specification
-    - multimodal_text: Text content with multiple parts
-    - text: Plain text content
-    """
-    formatted_lines: List[str] = []
-    content_type = message_content.get("content_type")
-
-    if content_type == "code":
-        code_text = message_content.get("text", "")
-        programming_language = message_content.get("language", "python")
-        formatted_lines.extend(
-            format_code_block(code_text, programming_language, output_format)
-        )
-        return formatted_lines
-
-    if content_type in ("multimodal_text", "text", "model_editable_context"):
-        # Get text parts based on content type
-        text_parts = message_content.get("parts", [])
-        if not text_parts and content_type == "text":
-            text_parts = [message_content.get("text", "")]
-
-        for text_segment in text_parts:
-            # Skip empty or dictionary segments
-            if not text_segment or isinstance(text_segment, dict):
-                continue
-
-            # Clean the text segment
-            text_segment = clean_text(text_segment)
-            
-            # Normalize code block fences to prevent rendering issues
-            text_segment = normalize_code_fences(text_segment)
-
-            if output_format == "markdown":
-                formatted_lines.append(text_segment + "\n\n")
-            else:
-                # For HTML, let Mistune handle the conversion
-                markdown_parser = mistune.create_markdown(
-                    plugins=['strikethrough', 'footnotes', 'table']
-                )
-                html_content = markdown_parser(text_segment)
-                formatted_lines.append(html_content + "\n")
-
-    return formatted_lines
-
-
-def process_text_with_markdown(text_segment: str, output_format: str) -> List[str]:
-    """
-    Process text content with embedded markdown.
-
-    Args:
-        text_segment: Text content to process
-        output_format: Output format ('html' or 'markdown')
-
-    Returns:
-        List of formatted lines with markdown properly handled
-
-    Example:
-        >>> process_text_with_markdown('Text with **bold**', 'markdown')
-        ['Text with **bold**']
-    """
-    formatted_lines: List[str] = []
-    processed_text_chunks: List[str] = []
-    last_segment_end = 0
-
-    # Normalize code fences before processing
-    text_segment = normalize_code_fences(text_segment)
-
-    try:
-        markdown_segments = detect_markdown(text_segment)
-        if not markdown_segments:
-            # No embedded markdown found, just format normally
-            formatted_lines.extend(format_text_block(text_segment, output_format))
-            return formatted_lines
-
-        # Build a raw string that has the embedded segments fenced
-        for segment_start, segment_end, raw_markdown in markdown_segments:
-            if segment_start > last_segment_end:
-                processed_text_chunks.append(
-                    text_segment[last_segment_end:segment_start]
-                )
-            processed_text_chunks.append("```markdown\n")
-            processed_text_chunks.append(raw_markdown)
-            processed_text_chunks.append("\n```\n")
-            last_segment_end = segment_end
-
-        # Remainder after last segment
-        if last_segment_end < len(text_segment):
-            processed_text_chunks.append(text_segment[last_segment_end:])
-
-        # We just append the processed string as-is
-        # since we do not want to re-parse it again with Mistune.
-        formatted_lines.append("".join(processed_text_chunks))
-    except Exception as error:
-        print(f"Warning: Error processing markdown: {error}")
-        # On error, just output as standard text block
-        formatted_lines.extend(format_text_block(text_segment, output_format))
-
-    return formatted_lines
-
-
-def process_messages(message_mapping: Dict[str, Dict], output_format: str) -> List[str]:
-    """
-    Process all messages in conversation order.
-
-    Args:
-        message_mapping: Dictionary of message data keyed by message ID
-        output_format: Output format ('html' or 'markdown')
-
-    Returns:
-        List of formatted lines for complete conversation
-
-    This function:
-    1. Builds the message sequence
-    2. Processes each message in order
-    3. Handles role transitions and tool message blocks
-    4. Formats content according to message type and output format
-    """
-    message_sequence = build_message_sequence(message_mapping)
-    formatted_lines: List[str] = []
-    previous_message_role: Optional[str] = None
-
-    for message_id in message_sequence:
-        mapping_data = message_mapping.get(message_id, {})
-        message_data = mapping_data.get("message", mapping_data)
-        if not message_data:
-            continue
-
-        message_role = message_data.get("author", {}).get("role", "")
-        message_content = message_data.get("content", {})
-        message_metadata = message_data.get("metadata", {})
-        is_user_system_message = message_metadata.get("is_user_system_message")
-
-        # Skip empty messages or messages with no role
-        if not message_role:
-            continue
-
-        # Skip empty system messages
-        if (
-            message_role == "system"
-            and message_content.get("content_type") == "text"
-            and message_content.get("parts") == [""]
-            and not is_user_system_message
-        ):
-            continue
-
-        message_timestamp = format_timestamp(message_data.get("create_time", 0))
-
-        # If role changed, close the old block if it was tool => non-tool
-        if message_role != previous_message_role:
-            if (
-                previous_message_role
-                and is_tool_message(previous_message_role)
-                and not is_tool_message(message_role)
-            ):
-                formatted_lines.append("</details>\n\n")
-
-            if formatted_lines and formatted_lines[-1].strip():
-                formatted_lines.append("\n")
-            formatted_lines.extend(
-                generate_heading(message_role, message_timestamp, output_format)
-            )
-
-        # For system/user messages with context, use the context data as content
-        user_context_message_data = message_metadata.get("user_context_message_data", {})
-        if (
-            message_role in ("system", "user")
-            and is_user_system_message
-            and user_context_message_data
-        ):
-            about_user = user_context_message_data.get("about_user_message", "")
-            about_model = user_context_message_data.get("about_model_message", "")
-            message_role = "system"
-
-            message_content = {
-                    "content_type": "text",
-                    "parts": [
-                        f"### About User:\n{about_user}\n\n### About Assistant:\n{about_model}"
-                    ]
-                }
-            formatted_lines.extend(
-                generate_heading(message_role, message_timestamp, output_format)
-            )
-
-        # Handle message content based on type
-        if is_tool_message(message_role):
-            # tool messages remain open until we switch roles
-            formatted_lines.extend(
-                process_tool_content(message_content, message_timestamp)
-            )
-        else:
-            formatted_lines.extend(
-                handle_regular_message(message_content, output_format)
-            )
-
-        previous_message_role = message_role
-
-    # Close final tool message if needed
-    if previous_message_role and is_tool_message(previous_message_role):
-        formatted_lines.append("</details>\n\n")
-
-    return formatted_lines
-
-
-def extract_one_file(input_path: str, out_dir: Optional[str], out_fmt: str) -> None:
-    """
-    Extract a single JSON file into a Markdown or HTML file.
-
-    Args:
-        input_path: Path to the JSON file
-        out_dir: Optional output directory
-        out_fmt: Output format ('markdown' or 'html')
-
-    This function:
-    1. Loads the JSON file
-    2. Extracts metadata (title, timestamps)
-    3. Generates unique output filename
-    4. Processes all messages
-    5. Writes formatted output file
-    """
-    data = load_json_file(input_path)
-    if not data:
-        return
-
-    msg_map = data.get("mapping", {})
-    if not msg_map:
-        return
-
-    title = data.get("title", "Untitled")
-    ctime = data.get("create_time")
-    utime = data.get("update_time")
-
-    # Use the same logic for generating the name, but with md/html extension
-    extension = "html" if out_fmt == "html" else "md"
-    try:
-        out_path = generate_unique_filename(
-            input_path, title, ctime, utime, extension=extension, out_dir=out_dir
-        )
-    except ValueError as e:
-        print(f"Cannot generate filename for {input_path}: {e}")
-        return
-
-    print(f"Processing: {input_path}")
-    print(f"Writing to: {out_path}")
-
-    ctime_str = format_timestamp(ctime)
-    utime_str = format_timestamp(utime)
-
-    lines: List[str] = []
-
-    # Header
-    if out_fmt == "html":
-        lines.append(HTML_TEMPLATE_HEADER.format(
-            title=html.escape(title),
-            start_time=html.escape(ctime_str or "Unknown"),
-            end_time=html.escape(utime_str or "Unknown"),
-        ))
-    else:
-        lines.append(f"# {title}\nStarting: {ctime_str}\nEnding: {utime_str}\n\n")
-
-    # Body
-    lines.extend(process_messages(msg_map, out_fmt))
-
-    # Footer
-    if out_fmt == "html":
-        lines.append(HTML_TEMPLATE_FOOTER)
-
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    try:
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.writelines(lines)
-    except Exception as err:
-        print(f"Error writing {out_path}: {err}")
-
-
-def process_file_patterns(patterns: List[str], out_dir: Optional[str], out_fmt: str) -> None:
-    """
-    Process multiple file patterns and extract conversations from matching files.
-
-    Args:
-        patterns: List of file/directory patterns to process
-        out_dir: Optional output directory for extracted files
-        out_fmt: Output format ('markdown' or 'html')
-
-    For each pattern:
-    - If it's a directory, process all .json files in it
-    - If it's a file pattern, process all matching files
-    - Skip non-JSON files
-    """
-    all_files: List[str] = []
-    for pat in patterns:
-        if os.path.isdir(pat):
-            all_files.extend(glob.glob(os.path.join(pat, "*.json")))
-        else:
-            matched = glob.glob(pat)
-            if not matched:
-                print(f"No files match: {pat}")
-            all_files.extend(matched)
-
-    for f in all_files:
-        if os.path.isfile(f) and f.lower().endswith(".json"):
-            extract_one_file(f, out_dir, out_fmt)
+        # Load the existing default CSS file.
+        with open(default_css_path, 'r', encoding='utf-8') as f:
+            return f.read()
 
 
 def main():
-    """
-    Main entry point for the script.
+    """Main function to parse arguments and run the script."""
+    parser = argparse.ArgumentParser(
+        description="Extract a ChatGPT conversation from a JSON export.",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    parser.add_argument(
+        "input_file",
+        help="Path to the input JSON file."
+    )
+    parser.add_argument(
+        "-o", "--output_file",
+        help="Base path for the output file(s). Extensions will be added automatically.\nIf not provided, it will be derived from the conversation title."
+    )
+    parser.add_argument(
+        "--md",
+        action="store_true",
+        help="Generate Markdown output."
+    )
+    parser.add_argument(
+        "--html",
+        action="store_true",
+        help="Generate HTML output."
+    )
+    parser.add_argument(
+        "-c", "--css-file",
+        help="Path to a custom CSS file for HTML output."
+    )
 
-    Parses command line arguments and processes the specified files:
-    - Takes one or more file patterns as input
-    - Optional output directory
-    - Optional output format (markdown or html)
-    """
-    parser = argparse.ArgumentParser(description="Extract conversation logs to Markdown/HTML.")
-    parser.add_argument("patterns", nargs="+", help="File patterns for JSON input")
-    parser.add_argument("-o", "--output-dir", help="Output directory")
-    parser.add_argument("-f", "--format", choices=["markdown", "html"], default="markdown", help="Output format")
     args = parser.parse_args()
 
-    process_file_patterns(args.patterns, args.output_dir, args.format)
+    # If no format flags are specified, default to generating both.
+    generate_md = args.md
+    generate_html = args.html
+    if not generate_md and not generate_html:
+        print("No output format specified. Defaulting to generate both Markdown and HTML.")
+        generate_md = True
+        generate_html = True
+
+    # --- Load and Validate JSON ---
+    try:
+        with open(args.input_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        print(f"Error: Input file not found at {args.input_file}", file=sys.stderr)
+        sys.exit(1)
+    except json.JSONDecodeError:
+        print(f"Error: Could not decode JSON from {args.input_file}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        conversation = Conversation.model_validate(data)
+        print(f"Successfully parsed conversation: '{conversation.title}'")
+    except ValidationError as e:
+        print(f"Error: JSON file does not match expected schema.\n{e}", file=sys.stderr)
+        sys.exit(1)
+
+    # --- Generate Base Markdown Content ---
+    markdown_output = generate_markdown(conversation)
+
+    # --- Determine Output Base Path ---
+    output_base = args.output_file
+    if not output_base:
+        create_date = datetime.fromtimestamp(conversation.create_time).strftime('%Y-%m-%d')
+        safe_title = re.sub(r'[^\w\-]+', '_', conversation.title).strip('_')
+        output_base = f"{create_date}_{safe_title}"
+    else:
+        # Strip extension if user provided one, as we'll be adding our own.
+        output_base = os.path.splitext(output_base)[0]
+
+    # --- Write Markdown File ---
+    if generate_md:
+        md_path = f"{output_base}.md"
+        with open(md_path, 'w', encoding='utf-8') as f:
+            f.write(markdown_output)
+        print(f"Successfully wrote Markdown output to {md_path}")
+
+    # --- Write HTML File ---
+    if generate_html:
+        html_path = f"{output_base}.html"
+
+        html_content = to_html(markdown_output, get_css_content(args.css_file), conversation.title)
+        with open(html_path, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        print(f"Successfully wrote HTML output to {html_path}")
+
+
+
 
 
 if __name__ == "__main__":
