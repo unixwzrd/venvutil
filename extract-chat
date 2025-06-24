@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+"""
+Wrapper script to run extract-chat directly.
+Just copy this script and the extract_chat directory to use the tool.
+"""
+
+import sys
+from pathlib import Path
+from extract_chat.main import main
+
+if __name__ == '__main__':
+    # Add the directory containing this script to Python path
+    script_dir = Path(__file__).parent.absolute()
+    sys.path.insert(0, str(script_dir))
+    
+    # Run the main function
+    main() 
