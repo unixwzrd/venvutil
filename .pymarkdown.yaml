@@ -1,0 +1,24 @@
+# .pymarkdown.yaml
+#
+# This file configures the pymarkdownlnt tool to align its behavior with the
+# programmatic API calls made within the extract_chat2.py script.
+#
+
+# To find rule identifiers, run: `pymarkdownlnt plugins`
+
+# Use the 'default' stack as a base.
+stack:
+  - default
+
+# Configure specific plugins to override default behavior.
+plugins:
+  # Disable line-length rule (MD013).
+  # We prioritize readability over strict line length limits.
+  line-length:
+    enabled: false
+
+  # Disable inline HTML rule (MD033).
+  # We use <details> and <summary> for collapsible sections, which is a
+  # common and useful extension to Markdown.
+  no-inline-html:
+    enabled: false
