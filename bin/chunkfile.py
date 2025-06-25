@@ -169,17 +169,12 @@ def write_chunk(
     base = os.path.basename(name)
     out_file = f"{base}_{part_num:02}{ext}"
 
-<<<<<<< HEAD
-    with open(out_file, "wb", encoding="utf-8") as chunk_file:
-        if is_lines:
-=======
     mode = "w" if is_lines else "wb"
     if is_lines:
         # Ensure chunk is a list of str for line mode
         if not isinstance(chunk, list) or (chunk and not isinstance(chunk[0], str)):
             chunk = [str(line) for line in chunk]
         with open(out_file, mode, encoding="utf-8") as chunk_file:
->>>>>>> origin/dev
             # For line mode, join lines and remove trailing newline
             data = "".join(chunk)
             chunk_file.write(data.rstrip("\n"))

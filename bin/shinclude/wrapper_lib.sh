@@ -51,6 +51,8 @@ __VENV_INTERNAL_FUNCTIONS=(
     "conda"
     "get_function_hash"
     "__venv_conda_check"
+    "venv_oprtaion_log"
+    "get_venv_name_from_args"
 )
 
 # # Function: get_function_hash
@@ -70,6 +72,90 @@ __VENV_INTERNAL_FUNCTIONS=(
 #
 get_function_hash() {
     declare -f "$1" | md5sum | cut -d' ' -f1
+}
+
+
+
+# # Function: get_venv_name_from_args
+# `get_venv_name_from_args` - Extracts the virtual environment name from command-line arguments.
+#
+# ## Description
+# - **Purpose**:
+#   - Parses a string of command-line arguments to find the virtual environment name specified with either `-n` or `-p`.
+# - **Usage**:
+#   - `get_venv_name_from_args [arguments_string]`
+# - **Input Parameters**:
+#   - `arguments_string` (string) - The command-line arguments to parse.
+# - **Output**:
+#   - The extracted virtual environment name.
+# - **Exceptions**:
+#   - None
+#
+get_venv_name_from_args() {
+    local args="$1"
+    local venv_name=""
+    if [[ "$args" =~ -n[[:space:]]*([^\ ]+) ]]; then
+        venv_name="${BASH_REMATCH[1]}"
+    elif [[ "$args" =~ -p[[:space:]]*([^\ ]+) ]]; then
+        venv_name="${BASH_REMATCH[1]}"
+    fi
+    echo "$venv_name"
+}
+
+
+# # Function: venv_operation_log
+# `venv_operation_log` - Logs the details of a virtual environment operation.
+#
+# ## Description
+# - **Purpose**:
+#   - Writes detailed log entries for a virtual environment operation to both a venv-specific log file and a global venvutil log.
+# - **Usage**:
+#   - `venv_operation_log [status] [log_date] [venv_name] [freeze_state] [cmd] [command_line]`
+# - **Input Parameters**:
+#   - `status` (integer) - The exit status of the command.
+#   - `log_date` (string) - The timestamp for the log entry.
+#   - `venv_name` (string) - The name of the target virtual environment.
+#   - `freeze_state` (string) - The path to the pip freeze output file.
+#   - `cmd` (string) - The base command executed (e.g., 'pip', 'conda').
+#   - `command_line` (string) - The full command line that was run.
+# - **Output**:
+#   - None (writes to log files).
+# - **Exceptions**:
+#   - None
+#
+venv_operation_log() {
+    local status="$1"
+    local log_date="$2"
+    local venv_name="$3"
+    local freeze_state="$4"
+    local cmd="$5"
+    local command_line="$6"
+    
+    if [[ "${status}" -eq 0 ]]; then
+        log_status="Success"
+    else
+        log_status="Failure"
+    fi
+
+    local venv_log="${VENVUTIL_CONFIG}/log/${venv_name}.log"
+
+    local cmd_version=
+    cmd_version="$(${cmd} --version)"
+    local user_info
+    user_info="UID: ${UID} EUID:${EUID}) HOST: $(uname -n) CWD: ${PWD}"
+
+
+    {
+        echo "# ==> ${log_date} <=="
+        echo "# ${log_date}: ${log_status}: ${command_line}"
+        echo "# ${log_date}: Return code: $(errno "${status}")"
+        echo "# ${log_date}: ${cmd_version}"
+        echo "# ${log_date}: ${user_info}"
+        [ ${status} -eq 0 ] && echo "# ${log_date}: State: ${freeze_state}"
+    } >> "${venv_log}"
+
+    echo "# ${log_date} - ${venv_name}: ${command_line}" >> \
+        "${VENVUTIL_CONFIG}/venvutil.log"
 }
 
 # Define the location of the venvutil config directory
@@ -94,7 +180,7 @@ mkdir -p "${VENVUTIL_CONFIG}/freeze" "${VENVUTIL_CONFIG}/log"
 #   - None
 #
 do_wrapper() {
-   __rc__=0
+    __rc__=0
     local cmd="$1"; shift
     local action="$1"
     local actions_to_log=("install" "uninstall" "remove"
@@ -106,11 +192,11 @@ do_wrapper() {
     env_vars=$( env | sed -E '/^SHELL=/,$d' | sed -E 's/^([A-Za-z_]+)=(.*)$/\1="\2"/' | tr '\n' ' ' )
 
     # Put the function back to "conda" we will set it back at the end of this function.
-    local function_line
-    function_line=$(declare -f conda | sed '1d')
-    if [[ -n "${function_line}" ]]; then
-        eval "conda() ${function_line}"
-    fi
+    # local function_line
+    # function_line=$(declare -f $cmd | sed '1d')
+    # if [[ -n "${function_line}" ]]; then
+    #     eval "conda() ${function_line}"
+    # fi
 
     # Make the command be how the user invoked it rather than with the wrappers.
     local user_cmd
@@ -122,59 +208,43 @@ do_wrapper() {
         cmd="command ${cmd}"
     fi
 
-    # local cmd_line="${env_vars} ${cmd} ${cmd_args}"
     local user_line="${env_vars} ${user_cmd}"
 
     # Check if the action is potentially destructive and should be logged. Don't log
     # --help, -h, or --dry-run.
     if [[ " ${actions_to_log[*]} " =~ ${action} ]] \
                 && ! [[ "$*" =~ $(IFS="|"; echo "${actions_to_exclude[*]}") ]]; then
-        local log_date
         local freeze_date
-        log_date=$(date '+%Y-%m-%d %H:%M:%S')
         freeze_date=$(date "+%Y%m%d%H%M%S")
-        local venv_log_dir="${VENVUTIL_CONFIG}/log"
-        local venvutil_log="${VENVUTIL_CONFIG}/venvutil.log"
-        local venv_history_log="${venv_log_dir}/${CONDA_DEFAULT_ENV}.log"
         local freeze_dir="${VENVUTIL_CONFIG}/freeze"
-        local freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${freeze_date}.txt"
+        local log_date
+        log_date=$(date '+%Y-%m-%d %H:%M:%S')
+        local venv_name="${CONDA_DEFAULT_ENV}"
 
-        # Freeze the state of the environment before a potentially destructive command is executed.
-        command pip freeze > "${freeze_state}"
+        cmd_args=$(echo "${cmd_args}" | sed -E "s#-e[[:space:]]+\.[[:space:]]*#-e \"${PWD}\" #g")
+
+        local freeze_state
+        freeze_state="${freeze_dir}/${venv_name}.${freeze_date}.txt"
         if eval " ${env_vars} ${cmd} ${cmd_args} "; then
-            # Logging the command invocation if it completed successfully.
-            {
-                echo "# ${log_date}: Success - preference state: ${freeze_state}"
-                echo "# ${log_date}: ${user_line}"
-                echo "# ${log_date}: Current working directory: ${PWD}"
-                echo "# ${log_date}: $(${cmd} --version)"
-            } >> "${venv_history_log}"
-            echo "# ${log_date} - ${CONDA_DEFAULT_ENV}: ${user_line}" >> "${venvutil_log}"
-            # Freeze it again to get the current state, after any potentially destructive command
-            # is executed. Sleep 2 second to ensure the filename is unique.
-            sleep 2
-            freeze_date=$(date "+%Y%m%d%H%M%S")
-            freeze_state="${freeze_dir}/${CONDA_DEFAULT_ENV}.${freeze_date}.txt"
-            command pip freeze > "${freeze_state}"
-            echo "# ${log_date}: Success - post-freeze state: ${freeze_state}" >> \
-                    "${venv_history_log}"
-            # Make a symlink so the current state is always up-to-date.
-            ln -sf "${freeze_state}" "${freeze_dir}/${CONDA_DEFAULT_ENV}.current.txt"
-        else
-            # Cleanup and log the failure and preserve the return code
             __rc__="$?"
-            {
-                echo "# ${log_date}: Command failure: $(errno ${__rc__})"
-                echo "# ${log_date}: ${user_line}"
-                echo "# ${log_date}: Current working directory: ${PWD}"
-                echo "# ${log_date}: $(${cmd} --version)"
-            } >> "${venv_history_log}"
-            echo "# ${log_date} - ${CONDA_DEFAULT_ENV}: ${user_line}" >> "${venvutil_log}"
-            echo "# ${log_date}: Command failed with return code $(errno ${__rc__})" >> \
-                    "${venv_history_log}"
-            rm "${freeze_state}"
+            command pip freeze > "${freeze_state}"
+            ln -sf "${freeze_state}" "${freeze_dir}/${venv_name}.current.txt"
 
+            if [[ "${action}" == "create" && "${cmd_args}" =~ "--clone" ]]; then
+                # Prefer -n, fallback to -p
+                clone_name=$(get_venv_name_from_args "${cmd_args}")
+                freeze_state="${freeze_dir}/${clone_name}.${freeze_date}.txt"
+                command pip freeze > "${freeze_state}"
+                ln -sf "${freeze_state}" "${freeze_dir}/${clone_name}.current.txt"
+                venv_operation_log "${__rc__}" "${log_date}" "${clone_name}" "${freeze_state}" "${cmd}" "${user_line}"
+            elif [[ "${action}" == "remove" ]]; then
+                clone_name=$(get_venv_name_from_args "${cmd_args}")
+            fi
+        else
+            __rc__="$?"
         fi
+        # Log the primary command and venv_name (which is either the Conda default or the one created)
+        venv_operation_log "${__rc__}" "${log_date}" "${venv_name}" "${freeze_state}" "${cmd}" "${user_line}"
     else
         # Execute the command without logging.
         # shellcheck disable=SC2086
@@ -182,8 +252,8 @@ do_wrapper() {
         __rc__="$?"
     fi
 
-    # In case we are running in a script and not on the command line
-    __venv_conda_check
+    # In case we are running in a script and not on the command line replace conda with our function
+    # __venv_conda_check
 
     return "${__rc__}"
 }
@@ -249,7 +319,6 @@ __venv_conda_check
 
 # Initial hash of the Conda function. Must always update with new hash after defining.
 __venv_conda_hash=$(get_function_hash conda)
-
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('${HOME}/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"

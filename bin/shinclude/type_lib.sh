@@ -157,7 +157,7 @@ set_variable() {
             declare -g -a "${var_name}"
             local new_array=()
             new_array=( "${var_ref1[@]}" "${var_ref2[@]}" )
-            readarray -t "${var_name}" < <(for element in "${new_array[@]}"; do echo "$element"; done)
+            IFS=' ' readarray -t "${var_name}" < <(for element in "${new_array[@]}"; do echo "$element"; done)
             ;;
         "associative")
             declare -g -A "${var_name}"
