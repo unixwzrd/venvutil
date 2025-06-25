@@ -372,7 +372,7 @@ write_pkg_config() {
 install_python_packages() {
     log_message "INFO" "Installing Python packages..."
     log_message "INFO" "Creating virtual environment..."
-    benv venvutil
+    benv venvutil python=3.12
     log_message "INFO" "Installing Python packages..."
     pip install -r "$__SETUP_BASE/requirements.txt" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
     log_message "INFO" "Installing the NLTK models locally in VENV: ${CONDA_DEFAULT_ENV}"
@@ -451,25 +451,43 @@ install_python() {
 
 # Update .bashrc
 update_bashrc() {
-    log_message "INFO" "Updating .bashrc for package $PKG_NAME in PATH..."
+    log_message "INFO" "Updating .bashrc for package $PKG_NAME..."
     local bashrc="$HOME/.bashrc"
-    # Expressions don't expand in single quotes, use double quotes for that.
-    # shellcheck disable=SC2016
-    local path_line="if [[ ! \"\$PATH\" =~ \"$INSTALL_BASE/bin:\" ]]; then export PATH=\"$INSTALL_BASE/bin:\$PATH\"; fi"
-    local source_line="if [[ -f "${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh" ]]; then source \"${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh\"; fi"
+    local start_marker="# VENVUTIL START"
+    local end_marker="# VENVUTIL END"
 
-    for line in "${path_line}" "${source_line}"; do
-        if ! grep -Fxq "$line" "$bashrc"; then
-            echo "$line" >> "$bashrc"
-            log_message "INFO" "Updated .bashrc added \"${line}\""
-        fi
-    done
+    # Create a backup before modifying
+    if [ -f "$bashrc" ]; then
+        local backup_file="$bashrc.$(date +%Y%m%d%H%M%S).bak"
+        cp "$bashrc" "$backup_file"
+        log_message "INFO" "Created backup of .bashrc at ${backup_file}"
+    else
+        touch "$bashrc"
+        log_message "INFO" "Created .bashrc file as it did not exist."
+    fi
+
+    # Remove existing venvutil block to prevent duplicates. Using a temp file for portability (sed -i varies).
+    if grep -Fxq "$start_marker" "$bashrc"; then
+        sed "/^${start_marker}$/,/^${end_marker}$/d" "$bashrc" > "$bashrc.tmp" && mv "$bashrc.tmp" "$bashrc"
+        log_message "INFO" "Removed existing venvutil configuration from .bashrc to apply updates."
+    fi
+
+    # Add the new venvutil block to the end of the file
+    {
+        echo ""
+        echo "$start_marker"
+        echo "if [[ ! \"\$PATH\" =~ \"$INSTALL_BASE/bin:\" ]]; then export PATH=\"$INSTALL_BASE/bin:\$PATH\"; fi"
+        echo "if [[ -f \"${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh\" ]]; then source \"${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh\" ; fi"
+        echo "cact venvutil"
+        echo "$end_marker"
+    } >> "$bashrc"
+    log_message "INFO" "Updated .bashrc with venvutil configuration."
+
     return 0
 }
 
 post_install() {
     log_message "INFO" "Post-installation tasks..."
-    update_bashrc
     write_pkg_config
     post_install_user_message
     return 0
@@ -480,6 +498,7 @@ install() {
     log_message "INFO" "Installing package: $PKG_NAME..."
     pre_install
     install_assets
+    update_bashrc
     install_python
     post_install
     log_message "INFO" "Installation for $PKG_NAME complete."

@@ -1,5 +1,31 @@
 # Changelog
 
+## 2025-06-25: Wrapper Library Refactoring and Documentation Updates
+
+### `wrapper_lib.sh` Refinements
+
+- **Description**: Refactored the `wrapper_lib.sh` script to improve logging and modularity.
+- **Key Changes**:
+  - Introduced `venv_operation_log` to centralize logging for all virtual environment operations, providing more consistent and detailed logs.
+  - Added `get_venv_name_from_args` to reliably extract the virtual environment name from command arguments, especially for `clone` and `remove` actions.
+  - Simplified the `do_wrapper` function by offloading logging responsibilities to the new `venv_operation_log` function.
+
+### `setup.sh` Critical Bug Fix
+
+- **Description**: Overhauled the `.bashrc` update logic to prevent file corruption and duplicate entries.
+- **Key Changes**:
+  - Implemented a robust, idempotent `update_bashrc` function that uses block markers (`# VENVUTIL START`/`# VENVUTIL END`) to manage its configuration section.
+  - The script now automatically creates a timestamped backup of `.bashrc` before making any modifications, ensuring user configurations are safe.
+  - Corrected an issue where the `venvutil` environment was not created with a specific Python version, now set to 3.12 for consistency.
+  - Adjusted the installation order to ensure `.bashrc` is updated at the correct stage.
+
+### Documentation Updates
+
+- **`docs/extract_chat.md`**:
+  - Corrected the script name to `extract-chat` for consistency.
+  - Added the `--md` flag to the usage instructions.
+
+
 ## 2025-06-24: Chat Extraction Script Overhaul and other refactoring
 
 ### `genmd` Overhaul

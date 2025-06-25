@@ -1,15 +1,15 @@
-# extract_chat
+# extract-chat
 
 A utility for extracting conversations from JSON chat files to Markdown or fully interactive HTML format, with advanced support for tool calls and citations.
 
 ## Overview
 
-`extract_chat` is a Python script that processes JSON files containing chat conversations and converts them to either Markdown or HTML. It is designed to preserve the conversation structure, message roles, timestamps, and special message types, with a focus on producing traceable and readable output for legal and analytical purposes.
+`extract-chat` is a Python script that processes JSON files containing chat conversations and converts them to either Markdown or HTML. It is designed to preserve the conversation structure, message roles, timestamps, and special message types, with a focus on producing traceable and readable output for legal and analytical purposes.
 
 ## Usage
 
 ```bash
-extract_chat patterns [-o OUTPUT_DIR] [--html]
+extract-chat patterns [-o OUTPUT_DIR] [--html] [--md]
 ```
 
 ### Arguments
@@ -20,6 +20,7 @@ extract_chat patterns [-o OUTPUT_DIR] [--html]
 
 - `-o, --output-dir`: Output directory for the generated files.
 - `--html`: Generate HTML output instead of the default Markdown.
+- `--md`: Generate markdown output with HTML if HTML specified. Markdown is default.
 
 ## Output
 
