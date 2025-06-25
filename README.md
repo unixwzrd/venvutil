@@ -1,6 +1,6 @@
 # venvutil - Manage Conda and Pip VENV's with some simple functions and scripts
 
-This is release 20250411_00-update.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
+This is release v1.0.2.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
 
 ## Table of Contents
 

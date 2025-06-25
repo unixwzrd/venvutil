@@ -1,5 +1,7 @@
 # Changelog
 
+## Version 1.0.2 (2025-06-25)
+
 ## 2025-06-25: Wrapper Library Refactoring and Documentation Updates
 
 ### `wrapper_lib.sh` Refinements
