@@ -20,7 +20,7 @@ import os
 import re
 import sys
 from datetime import datetime
-from typing import Dict, List, Literal, Optional, Tuple
+from typing import Dict, List, Literal, Optional, Tuple, Union
 
 import mistune
 
@@ -77,9 +77,22 @@ class Author(BaseModel):
     metadata: Dict = Field(default_factory=dict)
 
 
+class ContentPart(BaseModel):
+    """A single part of content, which can be a string or a complex object."""
+    content_type: Optional[str] = None
+    asset_pointer: Optional[str] = None
+    size_bytes: Optional[int] = None
+    width: Optional[int] = None
+    height: Optional[int] = None
+    fovea: Optional[dict] = None
+    metadata: Optional[dict] = None
+    
+    class Config:
+        extra = "allow"  # Allow additional fields we haven't explicitly defined
+
 class Content(BaseModel):
     content_type: str
-    parts: Optional[List[str]] = None
+    parts: Optional[List[Union[str, ContentPart]]] = None  # Can be strings or complex objects
     text: Optional[str] = None  # Some tool messages have 'text' instead of 'parts'
     user_profile: Optional[str] = None
     user_instructions: Optional[str] = None
@@ -171,12 +184,27 @@ def extract_system_context(conversation: Conversation) -> Dict[str, str]:
         message = node.message
         content = message.content
 
+        # Handle user_editable_context content type
         if content.content_type == "user_editable_context":
             if content.user_profile:
                 context['user_profile'] = content.user_profile
             if content.user_instructions:
                 context['user_instructions'] = content.user_instructions
 
+        # Handle text content type that might contain system context
+        elif content.content_type == "text":
+            # Check if this is a system message with context
+            if message.author.role == "system":
+                # Look for user profile and instructions in the text
+                text_content = "\n".join(content.parts or [content.text or ""])
+                if "user profile" in text_content.lower() or "user instructions" in text_content.lower():
+                    # This might be a system context message
+                    if "user profile" in text_content.lower():
+                        context['user_profile'] = text_content
+                    if "user instructions" in text_content.lower():
+                        context['user_instructions'] = text_content
+
+        # Check metadata for user context data
         metadata = message.metadata.model_dump() if message.metadata else {}
         user_data = metadata.get('user_context_message_data', {})
         if isinstance(user_data, dict):
@@ -200,18 +228,29 @@ def generate_markdown(conversation: Conversation) -> str:
 
     # --- 2. System Context ---
     system_context = extract_system_context(conversation)
-    if system_context:
-        final_parts.append("## System Context")
-        context_key_map = {
-            'user_profile': '### User Profile',
-            'user_instructions': '### User Instructions',
-            'about_user_message': '### About The User',
-            'about_model_message': '### About The Model',
-        }
-        for key, header in context_key_map.items():
-            if key in system_context:
-                formatted_content = format_content_for_markdown(system_context[key])
-                final_parts.append(f"{header}\n\n{formatted_content}")
+    final_parts.append("## System Context")
+    
+    # Always include System Context section structure, even if data is minimal
+    context_key_map = {
+        'user_profile': '### User Profile',
+        'user_instructions': '### User Instructions',
+        'about_user_message': '### About The User',
+        'about_model_message': '### About The Model',
+    }
+    
+    context_found = False
+    for key, header in context_key_map.items():
+        if key in system_context and system_context[key].strip():
+            formatted_content = format_content_for_markdown(system_context[key])
+            final_parts.append(f"{header}\n\n{formatted_content}")
+            context_found = True
+    
+    # If no system context was found, add a placeholder
+    if not context_found:
+        final_parts.append("### User Profile\n\n*No user profile information available.*")
+        final_parts.append("### User Instructions\n\n*No user instructions available.*")
+        final_parts.append("### About The User\n\n*No user information available.*")
+        final_parts.append("### About The Model\n\n*No model information available.*")
 
     final_parts.extend(["---", "## Conversation"])
 
@@ -226,7 +265,7 @@ def generate_markdown(conversation: Conversation) -> str:
         node = conversation.mapping.get(current_node_id)
         if not node:
             break
-        if node.message and node.message.author.role != 'system':
+        if node.message and node.message.author.role not in ['system']:
             chronological_nodes.append(node)
         current_node_id = node.children[0] if node.children else None
 
@@ -261,7 +300,24 @@ def generate_markdown(conversation: Conversation) -> str:
                 lang = message.content.language or ""
                 content_parts.append(f"```{lang}\n{message.content.text.strip()}\n```")
             else:
-                raw_content_for_citation_search = "\n".join(message.content.parts or [message.content.text or ""])
+                # Handle both string parts and ContentPart objects
+                if message.content.parts:
+                    part_strings = []
+                    for part in message.content.parts:
+                        if isinstance(part, str):
+                            part_strings.append(part)
+                        elif hasattr(part, 'content_type'):
+                            # Handle ContentPart objects
+                            if part.content_type == 'image_asset_pointer':
+                                part_strings.append(f"[Image: {part.asset_pointer or 'Unknown'}]")
+                            else:
+                                part_strings.append(f"[{part.content_type or 'Unknown content type'}]")
+                        else:
+                            part_strings.append(str(part))
+                    raw_content_for_citation_search = "\n".join(part_strings)
+                else:
+                    raw_content_for_citation_search = message.content.text or ""
+                
                 formatted_content = format_content_for_markdown(raw_content_for_citation_search)
                 content_parts.append(formatted_content)
 
@@ -332,6 +388,41 @@ def generate_markdown(conversation: Conversation) -> str:
                 citation_list_str += "</details>"
                 final_parts.append(citation_list_str)
 
+        # --- Handle Tool Messages ---
+        if message.author.role == 'tool':
+            tool_metadata = message.metadata.model_dump(exclude_none=True) if message.metadata else {}
+            tool_name = message.author.name or 'Unknown Tool'
+            
+            # Handle both string parts and ContentPart objects for tool messages
+            if message.content.text:
+                tool_output = message.content.text
+            elif message.content.parts:
+                part_strings = []
+                for part in message.content.parts:
+                    if isinstance(part, str):
+                        part_strings.append(part)
+                    elif hasattr(part, 'content_type'):
+                        # Handle ContentPart objects
+                        if part.content_type == 'image_asset_pointer':
+                            part_strings.append(f"[Image: {part.asset_pointer or 'Unknown'}]")
+                        else:
+                            part_strings.append(f"[{part.content_type or 'Unknown content type'}]")
+                    else:
+                        part_strings.append(str(part))
+                tool_output = "".join(part_strings)
+            else:
+                tool_output = ""
+            
+            if not tool_output.strip() and 'async_task_prompt' in tool_metadata:
+                tool_output = f"Kicked off async task: {tool_metadata.get('async_task_title', 'Untitled Task')}\nPrompt: {tool_metadata['async_task_prompt']}"
+
+            tool_details = (
+                f"<details><summary>Tool Call: <code>{tool_name}</code></summary>\n\n"
+                f"```\n{tool_output.strip()}\n```\n"
+                f"</details>"
+            )
+            final_parts.append(tool_details)
+
         # --- Look ahead for and Render Tool Calls ---
         if message.author.role == 'assistant':
             tool_calls_processed = 0
@@ -342,7 +433,25 @@ def generate_markdown(conversation: Conversation) -> str:
                     tool_msg = next_node.message
                     tool_metadata = tool_msg.metadata.model_dump(exclude_none=True) if tool_msg.metadata else {}
                     tool_name = tool_msg.author.name or 'Unknown Tool'
-                    tool_output = tool_msg.content.text or "".join(tool_msg.content.parts or [])
+                    # Handle both string parts and ContentPart objects for tool messages
+                    if tool_msg.content.text:
+                        tool_output = tool_msg.content.text
+                    elif tool_msg.content.parts:
+                        part_strings = []
+                        for part in tool_msg.content.parts:
+                            if isinstance(part, str):
+                                part_strings.append(part)
+                            elif hasattr(part, 'content_type'):
+                                # Handle ContentPart objects
+                                if part.content_type == 'image_asset_pointer':
+                                    part_strings.append(f"[Image: {part.asset_pointer or 'Unknown'}]")
+                                else:
+                                    part_strings.append(f"[{part.content_type or 'Unknown content type'}]")
+                            else:
+                                part_strings.append(str(part))
+                        tool_output = "".join(part_strings)
+                    else:
+                        tool_output = ""
                     
                     if not tool_output.strip() and 'async_task_prompt' in tool_metadata:
                         tool_output = f"Kicked off async task: {tool_metadata.get('async_task_title', 'Untitled Task')}\nPrompt: {tool_metadata['async_task_prompt']}"
