@@ -54,9 +54,9 @@ Examples:
         ```
 
 Author:
-    Michael Sullivan  
-    Email: [unixwzrd@unixwzrd.ai](mailto:unixwzrd@unixwzrd.ai)  
-    Website: [https://unixwzrd.ai/](https://unixwzrd.ai/)  
+    Michael Sullivan
+    Email: [unixwzrd@unixwzrd.ai](mailto:unixwzrd@unixwzrd.ai)
+    Website: [https://unixwzrd.ai/](https://unixwzrd.ai/)
     GitHub: [https://github.com/unixwzrd](https://github.com/unixwzrd)
 
 License:
@@ -107,7 +107,7 @@ def is_ignored(item_relative_path, exclude_patterns, show_all=False):
         for part in path_parts:
             if pattern in part:
                 logging.debug(
-                    "Ignoring item because pattern '%s' is in path part '%s': %s", 
+                    "Ignoring item because pattern '%s' is in path part '%s': %s",
                     pattern, part, item_relative_path
                 )
                 return True
@@ -115,14 +115,14 @@ def is_ignored(item_relative_path, exclude_patterns, show_all=False):
         for part in path_parts:
             if fnmatch.fnmatch(part, pattern):
                 logging.debug(
-                    "Ignoring item based on pattern '%s' matching part '%s': %s", 
+                    "Ignoring item based on pattern '%s' matching part '%s': %s",
                     pattern, part, item_relative_path
                 )
                 return True
         # Also check if the full path matches the pattern
         if fnmatch.fnmatch(item_relative_path, pattern):
             logging.debug(
-                "Ignoring item based on pattern '%s' matching full path: %s", 
+                "Ignoring item based on pattern '%s' matching full path: %s",
                 pattern, item_relative_path
             )
             return True
@@ -147,14 +147,14 @@ def is_included(item_relative_path, include_patterns, show_all=False):
         for part in path_parts:
             if fnmatch.fnmatch(part, pattern):
                 logging.debug(
-                    "Including item based on pattern '%s' matching part '%s': %s", 
+                    "Including item based on pattern '%s' matching part '%s': %s",
                     pattern, part, item_relative_path
                 )
                 return True
         # Also check if the full path matches the pattern
         if fnmatch.fnmatch(item_relative_path, pattern):
             logging.debug(
-                "Including item based on pattern '%s' matching full path: %s", 
+                "Including item based on pattern '%s' matching full path: %s",
                 pattern, item_relative_path
             )
             return True
@@ -190,12 +190,12 @@ def add_items(
             item_relative_path = (
                 os.path.join(relative_path, item_name) if relative_path else item_name
             )
-            
+
             # Skip if the item is in the exclude list
             if is_ignored(item_relative_path, exclude_patterns, show_all):
                 logging.debug("Skipping excluded item: %s", item_relative_path)
                 continue
-                
+
             if os.path.isfile(item_path):
                 # For files, check if they match the include patterns
                 if is_included(item_relative_path, include_patterns, show_all):
@@ -221,7 +221,7 @@ def add_items(
                     parent_tree.add(dir_branch)
                     has_included_items = True
                     logging.debug("Added directory with items: %s", item_relative_path)
-                    
+
     except PermissionError:
         parent_tree.add("[red]Permission Denied[/red]")
         has_included_items = True

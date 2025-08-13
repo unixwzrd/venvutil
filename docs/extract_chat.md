@@ -4,7 +4,7 @@ A utility for extracting conversations from JSON chat files to Markdown or fully
 
 ## Overview
 
-`extract-chat` is a Python script that processes JSON files containing chat conversations and converts them to either Markdown or HTML. It is designed to preserve the conversation structure, message roles, timestamps, and special message types, with a focus on producing traceable and readable output for legal and analytical purposes.
+[`extract-chat`](../bin/extract_chat.py) is a Python script that processes JSON files containing chat conversations and converts them to either Markdown or HTML. It is designed to preserve the conversation structure, message roles, timestamps, and special message types, with a focus on producing traceable and readable output for legal and analytical purposes.
 
 ## Usage
 
@@ -62,5 +62,5 @@ The script features a sophisticated, single-pass citation system designed for ac
 
 ## See Also
 
-- `rename-chat`: Rename chat JSON files based on content.
-- `chunkfile`: Split files into manageable chunks.
+- [`rename-chat`](rename-chat.md): Rename chat JSON files based on content.
+- [`chunkfile`](chunkfile.md): Split files into manageable chunks.

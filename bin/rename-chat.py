@@ -144,18 +144,18 @@ def confirm_and_rename(old_path: str, new_path: str, auto_yes: bool) -> None:
 def process_files(patterns: List[str], auto_yes: bool, destination_dir: Optional[str] = None) -> None:
     """
     Process files matching the given patterns and rename them.
-    
+
     Args:
         patterns: List of file patterns to process
         auto_yes: Whether to automatically confirm renames
         destination_dir: Optional directory to move renamed files to
     """
     files_to_rename = []
-    
+
     # Default to current directory's JSON files if no patterns provided
     if not patterns:
         patterns = [os.path.join(os.getcwd(), "*.json")]
-    
+
     for pattern in patterns:
         if os.path.isdir(pattern):
             files_to_rename.extend(glob.glob(os.path.join(pattern, "*.json")))
@@ -179,7 +179,7 @@ def process_files(patterns: List[str], auto_yes: bool, destination_dir: Optional
 def rename_one_json(file_path: str, auto_yes: bool, destination_dir: Optional[str] = None) -> None:
     """
     Rename a single JSON file based on its metadata.
-    
+
     Args:
         file_path: Path to the JSON file
         auto_yes: Whether to automatically confirm renames
@@ -223,14 +223,14 @@ def rename_one_json(file_path: str, auto_yes: bool, destination_dir: Optional[st
 
 def main():
     parser = argparse.ArgumentParser(description="Rename JSON files based on title and timestamps.")
-    parser.add_argument("patterns", nargs="*", 
+    parser.add_argument("patterns", nargs="*",
                         help="File patterns (wildcards, directories, etc.). Defaults to *.json in current directory.")
-    parser.add_argument("-y", "--yes", action="store_true", 
+    parser.add_argument("-y", "--yes", action="store_true",
                         help="Auto-confirm all renames.")
-    parser.add_argument("-d", "--destination", 
+    parser.add_argument("-d", "--destination",
                         help="Destination directory for renamed files.")
     args = parser.parse_args()
-    
+
     process_files(args.patterns, args.yes, args.destination)
 
 

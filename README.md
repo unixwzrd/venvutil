@@ -233,7 +233,7 @@ This will build and install NumPy 1.26 into your Python virtual environment. Wit
 
 ## Project Status
 
-The project is actively maintained and continuously evolving with new features and improvements. Check out the CHANGELOG.md and teh project TODO.md list for more details.
+The project is actively maintained and continuously evolving with new features and improvements. Check out the CHANGELOG.md for recent changes and the docs/ directory for detailed tool documentation.
 
 ## Support My Work
 
@@ -281,7 +281,7 @@ This project is licensed under the Apache License
 - **User Interface**: Interactive modes and improved progress reporting
 - **Integration**: Enhanced container support and remote environment management
 
-For a complete list of planned improvements, see our [TODO.md](TODO.md).
+For a complete list of planned improvements and current status, see the CHANGELOG.md and individual tool documentation in the docs/ directory.
 
 ## Recent Improvements
 

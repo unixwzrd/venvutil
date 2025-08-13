@@ -1,5 +1,10 @@
 # Changelog
 
+## 2025-08-13
+### Extract Chat is its own project now.
+No more work will be done on extract_chat.py in this project, and it's now its own standalone project.
+Extract Chat can be found at https://github.com/unixwzrd/extract-chat
+
 ## Version 1.0.2 (2025-06-25)
 
 ## 2025-06-25: Wrapper Library Refactoring and Documentation Updates

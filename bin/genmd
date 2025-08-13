@@ -289,6 +289,49 @@ set_option_value() {
 }
 
 
+# Validate and repair paths if the project was renamed or moved
+validate_paths() {
+    local original_base="$GENMD_BASE"
+    if [[ ! -d "$GENMD_BASE" ]]; then
+        log_message "WARNING" "GENMD_BASE '$GENMD_BASE' not found; attempting fallback resolution"
+        # Prefer current working directory if it exists
+        if [[ -d "$(pwd)" ]]; then
+            GENMD_BASE="$(pwd)"
+            log_message "INFO" "Using current directory as GENMD_BASE: $GENMD_BASE"
+        fi
+        # Try deriving from the config file location: ../../ from utils/etc/config.grc
+        if [[ ! -d "$GENMD_BASE" && -n "${config_filename_in:-}" ]]; then
+            local maybe_base
+            maybe_base="$(dirname "$(dirname "$config_filename_in")")"
+            if [[ -d "$maybe_base" ]]; then
+                GENMD_BASE="$maybe_base"
+                log_message "INFO" "Using config-derived base as GENMD_BASE: $GENMD_BASE"
+            fi
+        fi
+        # If still missing, warn but continue with current directory
+        if [[ ! -d "$GENMD_BASE" ]]; then
+            GENMD_BASE="$(pwd)"
+            log_message "WARNING" "Falling back to current directory as GENMD_BASE: $GENMD_BASE"
+        fi
+    fi
+
+    # Recompute standard dirs from (possibly) updated GENMD_BASE
+    config_dir="$GENMD_BASE/utils/etc"
+    output_dir="$GENMD_BASE/utils/output"
+
+    # If the configured output directory doesn't exist, relocate output to default output_dir
+    local outdir
+    outdir="$(dirname "$output_filename")"
+    if [[ ! -d "$outdir" ]]; then
+        local name
+        name="$(basename "$output_filename")"
+        [[ -z "$name" || "$name" == "." || "$name" == "/" ]] && name="${default_filename}.md"
+        output_filename="$output_dir/$name"
+        log_message "INFO" "Adjusted output path to $output_filename"
+    fi
+}
+
+
 # sanitize_patterns - Sanitizes a string by retaining only alphanumerics, underscores, dots, dashes,
 # and spaces.
 #
@@ -1097,6 +1140,9 @@ shift $((OPTIND -1))
 
 # Determine and load configuration based on output and config file specifications
 load_config_file
+
+
+validate_paths
 
 # Ensure necessary directories exist
 check_directory "$output_dir"
