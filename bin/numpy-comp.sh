@@ -21,19 +21,61 @@ else
     VERSION=$1
 fi
 
-# Handle wildcard versions by using the minimum version number
-VERSION_NUM=$(echo "$VERSION" | sed 's/\*//g' | tr -d '.')
-MIN_VERSION_NUM=1260
+# Function to compare semantic versions
+compare_versions() {
+    local version1=$1
+    local version2=$2
+    
+    # Remove any wildcards and split into components
+    local v1_clean=$(echo "$version1" | sed 's/\*//g')
+    local v2_clean=$(echo "$version2" | sed 's/\*//g')
+    
+    # Split versions into arrays
+    IFS='.' read -ra V1_PARTS <<< "$v1_clean"
+    IFS='.' read -ra V2_PARTS <<< "$v2_clean"
+    
+    # Pad shorter array with zeros
+    local max_len=${#V1_PARTS[@]}
+    if [ ${#V2_PARTS[@]} -gt $max_len ]; then
+        max_len=${#V2_PARTS[@]}
+    fi
+    
+    # Compare each component
+    for ((i=0; i<max_len; i++)); do
+        local v1_part=${V1_PARTS[i]:-0}
+        local v2_part=${V2_PARTS[i]:-0}
+        
+        if [ "$v1_part" -lt "$v2_part" ]; then
+            return 1  # version1 < version2
+        elif [ "$v1_part" -gt "$v2_part" ]; then
+            return 0  # version1 > version2
+        fi
+    done
+    
+    return 2  # versions are equal
+}
+
+# Check if version is greater than or equal to 1.26.0
+MIN_VERSION="1.26.0"
 
 # If version contains wildcard, treat it as equal to minimum version
 if [[ "$VERSION" == *"*"* ]]; then
-    VERSION_NUM=$MIN_VERSION_NUM
-fi
-
-if [ "$VERSION_NUM" -lt "$MIN_VERSION_NUM" ]; then
-    echo "Error: Version must be greater than or equal to 1.26.0"
-    echo "Specified version: $VERSION"
-    exit 1
+    VERSION_CLEAN=$(echo "$VERSION" | sed 's/\*//g')
+    compare_versions "$VERSION_CLEAN" "$MIN_VERSION"
+    result=$?
+    if [ $result -eq 1 ]; then
+        echo "Error: Version must be greater than or equal to 1.26.0"
+        echo "Specified version: $VERSION"
+        exit 1
+    fi
+else
+    compare_versions "$VERSION" "$MIN_VERSION"
+    result=$?
+    if [ $result -eq 1 ]; then
+        echo "Error: Version must be greater than or equal to 1.26.0"
+        echo "Specified version: $VERSION"
+        exit 1
+    fi
 fi
 
 echo "Installing NumPy version $VERSION..."
