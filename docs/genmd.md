@@ -106,16 +106,16 @@ You may want to find a location and just make symlinks to the utilities in the b
   - **Description:** Excludes directories matching the given patterns.
   - **Separator:** Multiple patterns can be separated by `|`.
 
-- `-f [patterns]`: **Exclude Files**
-  - **Description:** Excludes files matching the given patterns.
+- `-f [patterns]`: **Include Files**
+  - **Description:** Includes files matching the given patterns. Use this to filter the final selection down to specific file types (e.g., `*.py`).
   - **Separators:** Multiple patterns can be separated by `|` or spaces.
 
 - `-p [patterns]`: **Exclude Additional Patterns**
   - **Description:** Excludes additional patterns matching the given strings.
   - **Separators:** Multiple patterns can be separated by `|` or spaces.
 
-- `-i [patterns]`: **Include Files**
-  - **Description:** Includes only files matching the given patterns.
+- `-i [patterns]`: **Include Directories**
+  - **Description:** Includes only directories matching the given patterns. Directory includes are applied before file includes.
   - **Separators:** Multiple patterns can be separated by `|` or spaces.
 
 - `-o [filename]`: **Output File**
@@ -160,7 +160,7 @@ All short options have corresponding long options with double dashes (`--`):
 - `--debug [level]`
 - `--help`
 - `--exclude [patterns]`
-- `--file [patterns]`
+- `--file [patterns]` (alias: `--files=[patterns]`)
 - `--pattern [patterns]`
 - `--include [patterns]`
 - `--output [filename]`
@@ -178,16 +178,16 @@ All short options have corresponding long options with double dashes (`--`):
 
 ## Examples
 
-1. **Basic Usage with Exclusions and Inclusions:**
+1. **Basic Usage with Exclusions, Directory Includes, and File Includes:**
 
     ```bash
-    genmd -e "node_modules|dist" -f "*.log *.tmp" -i "*css *.js" -s "info,md" -o project_overview.md
+    genmd -e "node_modules|dist" -i "src|bin" -f "*.css *.js" -s "info,md" -o project_overview.md
     ```
 
 2. **Using Long Options and Dry Run:**
 
     ```bash
-    genmd --exclude "node_modules|dist" --file "*.log *.tmp" --include "info" --dry-run
+    genmd --exclude "node_modules|dist" --files="*.py *.sh" --include "src|bin" --dry-run
     ```
 
 3. **Setting Multiple Modes and Debug Level:**
@@ -200,8 +200,8 @@ All short options have corresponding long options with double dashes (`--`):
 
     ```bash
     genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
-          -f "*impression* professional.md *.png" \
-          -i "css liquid" \
+          -i "src|bin|lib" \
+          -f "*.html *.css" \
           -s all \
           -o my_test_file
     ```
@@ -210,8 +210,8 @@ All short options have corresponding long options with double dashes (`--`):
 
     ```bash
     genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
-          -f "*impression* professional.md *.png" \
-          -i "css liquid" \
+          -i "src|scripts" \
+          -f "*.md *.py" \
           -s all \
           -o my_test_file \
           --no-config
@@ -221,8 +221,8 @@ All short options have corresponding long options with double dashes (`--`):
 
     ```bash
     genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
-          -f "*impression* professional.md *.png" \
-          -i "css liquid" \
+          -i "app|src" \
+          -f "*.ts *.tsx" \
           -s all \
           -o my_test_file \
           --no-gitignore
@@ -232,8 +232,8 @@ All short options have corresponding long options with double dashes (`--`):
 
     ```bash
     genmd -d 4 -e "utils _includes _data _posts js collaborates projects" \
-          -f "*impression* professional.md *.png" \
-          -i "css liquid" \
+          -i "src|bin" \
+          -f "*.sh *.md" \
           -s all \
           -o my_test_file \
           --no-config \
@@ -254,16 +254,16 @@ All short options have corresponding long options with double dashes (`--`):
   - **Description:** A default list of directory patterns to exclude from the generated Markdown.
   - **Default Value:** `tmp .git log __pycache__ .vscode`
 
-- `GENMD_FILE_EXCLUDES`: **Default File Exclusions**
-  - **Description:** A default list of file patterns to exclude from the generated Markdown.
-  - **Default Value:** `*.ico *.svg *.png *.pdf *.jpg *.htaccess *.webp *.jekyll .DS_Store *.JPG`
+- `GENMD_DIRECTORY_INCLUDES`: **Default Directory Inclusions**
+  - **Description:** A default list of directory patterns to include.
+  - **Default Value:** *(Empty)*
 
-- `GENMD_PATTERN_EXCLUDES`: **Default Additional Pattern Exclusions**
-  - **Description:** A default list of additional patterns to exclude from the generated Markdown.
+- `GENMD_PATTERN_EXCLUDES`: **Default Pattern Exclusions**
+  - **Description:** A default list of patterns to exclude from the generated Markdown.
   - **Default Value:** *(Empty)*
 
 - `GENMD_FILE_INCLUDES`: **Default File Inclusions**
-  - **Description:** A default list of file patterns to include in the generated Markdown.
+  - **Description:** A default list of file patterns to include in the final output. Applied after directory includes and composite include/exclude processing.
   - **Default Value:** *(Empty)*
 
 - `PAGER`: **Pager for Output**
@@ -293,6 +293,7 @@ All short options have corresponding long options with double dashes (`--`):
     ```bash
     genmd -o htmlfiles -i "*.html" 
     ```
+
     This will create a file `htmlfiles.grc` with the configuration settings and the report file `htmlfiles.md`.
 
 ### Configuration Variables
@@ -308,7 +309,7 @@ To integrate your project's `.gitignore` patterns into the markdown generation p
 - **Example Command:**
 
   ```bash
-  genmd -d 4 -e "utils _includes _data _posts js collaborates projects" -f "*impression* professional.md *.png" -i "css liquid" -s all -o my_test_file --no-gitignore
+  genmd -d 4 -e "utils _includes _data _posts js collaborates projects" -i "src|bin" -f "*.py *.md" -s all -o my_test_file --no-gitignore
   ```
 
 ## Settings Modes
@@ -343,7 +344,7 @@ The `-n` or `--dry-run` option allows you to simulate the actions of the script 
 - **Example:**
 
   ```bash
-  genmd --dry-run -e "node_modules|dist" --file "*.log *.tmp" --include "info"
+  genmd --dry-run -e "node_modules|dist" --files="*.py" --include "src|bin"
   ```
 
 ---
@@ -406,9 +407,9 @@ This will preserve the existing settings and merged settings from the command li
 
 ```bash
 export GENMD_DIR_EXCLUDES=".git utils _includes _site conf docs _data _posts js collaborates projects"
-export GENMD_FILE_EXCLUDES="*impression* professional.md *.png"
-export GENMD_FILE_INCLUDES=".sh genmd filettree"
-export GENMD_PATTERN_EXCLUDES=""
+export GENMD_DIRECTORY_INCLUDES="src bin"
+export GENMD_FILE_INCLUDES="*.sh genmd filetree"
+export GENMD_PATTERN_EXCLUDES="*.png *.jpg *.jpeg *.webp"
 export GENMD_BASE="."
 output_filename="./utils/output/yet-another-test.md"
 settings_modes="info md cfg env"

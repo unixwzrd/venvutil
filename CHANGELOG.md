@@ -1,9 +1,22 @@
 # Changelog
 
+## 2025-10-29: genmd include behavior update
+
+- Changed `-f`/`--file` (alias: `--files`) semantics to **include** only matching files in the final output after composite excludes and includes are applied.
+- `-i` now targets **directory includes** (applied before file includes) to scope which directories are scanned.
+- Updated `docs/genmd.md` to reflect the new behavior, adjust examples, and clarify environment variables (`GENMD_DIRECTORY_INCLUDES`, `GENMD_FILE_INCLUDES`, `GENMD_PATTERN_EXCLUDES`).
+
+Migration notes:
+
+- If you previously used `-f/--file` to exclude files (e.g., images), move those patterns to `-p/--pattern` or `GENMD_PATTERN_EXCLUDES`.
+- Use `-i/--include` for directories (e.g., `-i "src|bin"`) and `-f/--file`/`--files` for file types (e.g., `-f "*.py *.sh"`).
+
 ## 2025-08-13
-### Extract Chat is its own project now.
+
+### Extract Chat is its own project now
+
 No more work will be done on extract_chat.py in this project, and it's now its own standalone project.
-Extract Chat can be found at https://github.com/unixwzrd/extract-chat
+Extract Chat can be found at [github.com/unixwzrd/extract-chat](https://github.com/unixwzrd/extract-chat)
 
 ## Version 1.0.2 (2025-06-25)
 
@@ -31,7 +44,6 @@ Extract Chat can be found at https://github.com/unixwzrd/extract-chat
 - **`docs/extract_chat.md`**:
   - Corrected the script name to `extract-chat` for consistency.
   - Added the `--md` flag to the usage instructions.
-
 
 ## 2025-06-24: Chat Extraction Script Overhaul and other refactoring
 
