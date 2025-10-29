@@ -15,7 +15,7 @@
 #     -e, --exclude [patterns]  Exclude directories matching the given patterns.
 #                               Multiple patterns can be separated by '|' or spaces.
 #
-#     -f, --file [patterns]     Exclude files matching the given patterns.
+#     -f, --file [patterns]     Include files matching the given patterns.
 #                               Multiple patterns can be separated by '|' or spaces.
 #
 #     -p, --pattern [patterns]  Exclude additional patterns matching the given strings.
@@ -107,10 +107,10 @@
 #     GENMD_BASE: The base directory to search for files in.
 #     GENMD_DIR_EXCLUDES: A default list of directory patterns to exclude from the generated
 #                        markdown.
-#     GENMD_FILE_EXCLUDES: A default list of file patterns to exclude from the generated markdown.
+#     GENMD_FILE_INCLUDES: A default list of file patterns to exclude from the generated markdown.
 #     GENMD_PATTERN_EXCLUDES: A default list of additional patterns to exclude from the generated
 #                            markdown.
-#     GENMD_FILE_INCLUDES: A default list of file patterns to include in the generated markdown.
+#     GENMD_DIRECTORY_INCLUDES: A default list of file patterns to include in the generated markdown.
 #     PAGER: The pager to use for output, defaults to `less -R`
 #
 # Files and directories:
@@ -168,11 +168,11 @@ PAGER="${PAGER:-less -R}"
 # shellcheck disable=SC2206
 declare -g -a dir_excludes=${GENMD_DIR_EXCLUDES:-( ".git" "tmp" "log" "__pycache__" ".vscode" )}
 # shellcheck disable=SC2206,SC2034
-declare -g -a file_excludes=${GENMD_FILE_EXCLUDES:-( "*.ico" "*.svg" "*.png" "*.pdf" "*.jpg" "*.htaccess" "*.webp" "*.jekyll" ".DS_Store" "*.JPG" "*.pdf" )}
-# shellcheck disable=SC2206
-declare -g -a pattern_excludes=${GENMD_PATTERN_EXCLUDES:-()}
-# shellcheck disable=SC2206,SC2034
 declare -g -a file_includes=${GENMD_FILE_INCLUDES:-()}
+# shellcheck disable=SC2206
+declare -g -a pattern_excludes=${GENMD_PATTERN_EXCLUDES:-( "*.ico" "*.svg" "*.png" "*.pdf" "*.jpg" "*.htaccess" "*.webp" "*.jekyll" ".DS_Store" "*.JPG" "*.pdf" )}
+# shellcheck disable=SC2206,SC2034
+declare -g -a directory_includes=${GENMD_DIRECTORY_INCLUDES:-()}
 declare -g -a gitignore_excludes=()
 declare -g -a gitignore_includes=()
 
@@ -180,8 +180,8 @@ declare -g -a gitignore_includes=()
 # Mapping of short options to their respective target arrays
 declare -g -A option_variable=(
     ["e"]="dir_excludes"
-    ["f"]="file_excludes"
-    ["i"]="file_includes"
+    ["f"]="file_includes"
+    ["i"]="directory_includes"
     ["p"]="pattern_excludes"
     ["s"]="settings_modes"
 )
@@ -192,9 +192,9 @@ declare -g -A option_variable=(
 declare -g -a config_variables=(
     "create_date"
     "dir_excludes"
-    "file_excludes"
-    "pattern_excludes"
     "file_includes"
+    "pattern_excludes"
+    "directory_includes"
     "GENMD_BASE"
     "output_filename"
     "settings_modes"
@@ -226,8 +226,8 @@ declare -g -A config_variable_action=(
     ["debug_level"]="set"         # Command line overrides all settings and preserved
     ["dir_excludes"]="merge"      # Merge all sources.
     ["dry_run"]="set"         # Command not preserved, but set from command line
-    ["file_excludes"]="merge"     # Merge all sources.
     ["file_includes"]="merge"     # Merge all sources.
+    ["directory_includes"]="merge"     # Merge all sources.
     ["follow_links"]="set"        # Command line overrides all settings and preserved
     ["output_filename"]="set"     # Command line overrides all settings
     ["pattern_excludes"]="merge"  # Merge all sources.
@@ -264,7 +264,7 @@ declare -g use_gitignore=true
 # Set the values of an array variable from a command line option.
 #
 #   Args:
-#       $1: The name of the option (e.g. "file_excludes")
+#       $1: The name of the option (e.g. "file_includes")
 #       $2: The value of the option from the command line. This can be a string or a
 #           pattern with the | character.
 #       $3: The name of the target variable to be set.
@@ -711,10 +711,11 @@ generate_markdown() {
 generate_filetree() {
     local output_filename=$1
     local -n include_list_ref=$2
+    local -n include_files_ref=$3
     shift; shift
     local exclude_list="$*"
 
-    include_string=$(sanitize_patterns "${include_list_ref[@]}")
+    include_string=$(sanitize_patterns "${include_list_ref[@]} ${include_files_ref[@]}")
     exclude_string=$(sanitize_patterns "${exclude_list[@]}")
 
     if ! command -v filetree >/dev/null 2>&1; then
@@ -929,13 +930,13 @@ main() {
     # Generate file tree markdown
     # Argument mixes string and array. Use * or separate argument.
     # shellcheck disable=SC2145
-    generate_filetree "$temp_body" file_includes "${dir_excludes[@]}" "${pattern_excludes[@]}" "${file_excludes[@]}"
+    generate_filetree "$temp_body" directory_includes file_includes "${dir_excludes[@]}" "${pattern_excludes[@]}"
 
     # Build the file list
     build_file_list final_files dir_excludes \
                     pattern_excludes gitignore_excludes \
-                    gitignore_includes file_excludes \
-                    file_includes
+                    gitignore_includes \
+                    directory_includes file_includes
 
     # Debug: Show final files to be processed
     {
@@ -1069,10 +1070,10 @@ while getopts ":d:he:f:i:p:o:c:s:nvgCbLltz:-:" opt; do
                     set_option_value "exclude" dir_excludes "${OPTARG#*=}"
                     ;;
                 file=*)
-                    set_option_value "file" file_excludes "${OPTARG#*=}"
+                    set_option_value "file" file_includes "${OPTARG#*=}"
                     ;;
                 include=*)
-                    set_option_value "include" file_includes "${OPTARG#*=}"
+                    set_option_value "include" directory_includes "${OPTARG#*=}"
                     ;;
                 pattern=*)
                     set_option_value "pattern" pattern_excludes "${OPTARG#*=}"
@@ -1155,11 +1156,11 @@ fi
 
 # Remove duplicates from exclusion and inclusion lists
 remove_duplicates dir_excludes
-remove_duplicates file_excludes
+remove_duplicates file_includes
 remove_duplicates pattern_excludes
 remove_duplicates gitignore_excludes
 remove_duplicates gitignore_include
-remove_duplicates file_includes
+remove_duplicates directory_includes
 remove_duplicates settings_modes
 
 # Debug: Show final directory exclusions
