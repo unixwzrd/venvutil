@@ -348,7 +348,7 @@ validate_paths() {
 sanitize_patterns() {
     local input="$*"
     # Retain only alphanumerics, underscores, dots, dashes, and spaces
-    cleanstring=${input//[^a-zA-Z0-9-_.*? ]/}
+    cleanstring=${input//[^a-zA-Z0-9-_.*?/ ]/}
     log_message "DEBUG" "Dirty pattern: $input"
     log_message "DEBUG" "Clean pattern: $cleanstring"
     echo "$cleanstring"
@@ -599,6 +599,7 @@ build_file_list() {
 
     local composite_exclude=""
     local composite_include=""
+    local files_to_include=""
     local regex pattern_list
 
     # Change to the base directory.
@@ -620,6 +621,13 @@ build_file_list() {
                         composite_exclude="${composite_exclude}|${composite_list}"
                     fi
                     ;;
+                file_includes)
+                    if [[ -z "${files_to_include}" ]]; then
+                        files_to_include="${composite_list}"
+                    else
+                        files_to_include="${files_to_include}|${composite_list}"
+                    fi
+                    ;;
                 *includes)
                     if [[ -z "$composite_include" ]]; then
                         composite_include="${composite_list}"
@@ -639,11 +647,14 @@ build_file_list() {
     echo
     log_message "INFO" "********** Composite INCLUDE: \"${composite_include}\""
     echo
+    log_message "INFO" "**********  Files to INCLUDE: \"${files_to_include}\""
+    echo
 
     mapfile -t files < <(
         find ${follow_links:-} . -type f \
             | grep -Ev "${composite_exclude:-}" \
             | grep -E  "${composite_include:-}" \
+            | grep -E  "${files_to_include:-}" \
             | sort
         )
 
@@ -712,10 +723,10 @@ generate_filetree() {
     local output_filename=$1
     local -n include_list_ref=$2
     local -n include_files_ref=$3
-    shift; shift
+    shift; shift; shift
     local exclude_list="$*"
 
-    include_string=$(sanitize_patterns "${include_list_ref[@]} ${include_files_ref[@]}")
+    include_string=$(sanitize_patterns "${include_list_ref[@]}" "${include_files_ref[@]}")
     exclude_string=$(sanitize_patterns "${exclude_list[@]}")
 
     if ! command -v filetree >/dev/null 2>&1; then
