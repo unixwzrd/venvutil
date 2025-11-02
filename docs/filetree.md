@@ -11,6 +11,7 @@
     - [Long Options](#long-options)
   - [Environment Variables](#environment-variables)
   - [Examples](#examples)
+    - [Pattern normalization](#pattern-normalization)
   - [Author](#author)
   - [License](#license)
 
@@ -134,6 +135,13 @@ All short options have corresponding long options with double dashes (`--`):
 
 ## Examples
 
+### Pattern normalization
+
+`filetree` automatically normalizes several convenient pattern styles to shell globs before evaluating matches. Regex-like tokens such as `.*.py` are treated as `*.py`, and directory names with trailing slashes (e.g., `src/`) are normalized to `src`. This logic lives in [`bin/filetree.py`](../bin/filetree.py) so CLI inputs, environment variables, and config-file entries all benefit from the same behavior.
+
+> **Tip:** When mixing include and exclude lists, provide regex-style patterns if that is more natural—`filetree` will convert them to the equivalent glob patterns. When an include token resolves to a specific directory (e.g., `src`), traversal is constrained to that subtree, so additional extensions such as `.*.py` only surface files under the allowed directories. Escaped regex tokens (for example `.*\.py`) are normalized automatically, which keeps the CLI compatible with tooling that quotes metacharacters.
+-> **Symlinks:** Pass `-L`/`--follow-links` when you need the traversal to descend into symbolic links. Tools such as `genmd` forward this switch automatically when their `follow_links` option is enabled.
+
 1. **Find all the `.sh` files in the current directory, excluding `tmp conf functions`**
 
     ```bash
@@ -167,6 +175,14 @@ All short options have corresponding long options with double dashes (`--`):
     ```bash
     filetree -i "*.py *.js"
     ```
+
+1. **Include directories with regex-style patterns:**
+
+    ```bash
+    filetree -i "src/|.*.py|.*.json" -e ".git|tmp|__pycache__"
+    ```
+
+    This normalizes `src/` → `src` and `.*.py` → `*.py`, so the resulting tree includes Python and JSON files within `src` without having to rewrite the patterns manually.
 
 1. **Combine Exclusions and Inclusions:**
 

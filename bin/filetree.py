@@ -63,12 +63,14 @@ License:
     This project is licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 """
 
-import os
-import sys
-import re
 import argparse
 import fnmatch
 import logging
+import os
+import re
+import sys
+from typing import List, Sequence
+
 from rich.console import Console
 from rich.tree import Tree
 
@@ -86,6 +88,193 @@ def configure_logging():
 
 # Call the logging configuration function
 configure_logging()
+
+
+def _split_pattern_tokens(raw_pattern: str) -> List[str]:
+    """Split a raw pattern string on pipe characters and whitespace."""
+
+    return [
+        token.strip()
+        for token in re.split(r"[| ]+", raw_pattern.strip())
+        if token.strip()
+    ]
+
+
+def collect_pattern_tokens(patterns: Sequence[str]) -> List[str]:
+    """Expand user-supplied pattern arguments into individual pattern tokens."""
+
+    collected: List[str] = []
+    for raw_pattern in patterns:
+        if not raw_pattern:
+            continue
+        normalized_input = raw_pattern.strip()
+        if not normalized_input:
+            continue
+
+        if os.path.exists(normalized_input):
+            if os.path.isfile(normalized_input):
+                _, extension = os.path.splitext(normalized_input)
+                if extension:
+                    collected.append(f"*{extension}")
+            else:
+                collected.append(os.path.basename(normalized_input))
+            continue
+
+        split_tokens = _split_pattern_tokens(normalized_input)
+        if split_tokens:
+            collected.extend(split_tokens)
+        else:
+            collected.append(normalized_input)
+    return collected
+
+
+def extract_directory_allowlist(pattern_tokens: Sequence[str]) -> List[str]:
+    """Identify directory-only patterns that should constrain traversal."""
+
+    directories: List[str] = []
+    for token in pattern_tokens:
+        candidate = token.strip()
+        if not candidate:
+            continue
+
+        normalized = candidate
+
+        escape_replacements = {
+            r"\.": ".",
+            r"\*": "*",
+            r"\?": "?",
+        }
+        for escape_pattern, replacement in escape_replacements.items():
+            normalized = normalized.replace(escape_pattern, replacement)
+
+        normalized = normalized.replace("\\", "/")
+        while "//" in normalized:
+            normalized = normalized.replace("//", "/")
+
+        if normalized.startswith("./"):
+            normalized = normalized[2:]
+
+        if normalized.startswith("/"):
+            normalized = normalized[1:]
+
+        if normalized.endswith("/"):
+            normalized = normalized[:-1]
+
+        if not normalized or normalized in {".", "/"}:
+            continue
+
+        if any(char in normalized for char in "*?[]"):
+            continue
+
+        if os.path.splitext(normalized)[1]:
+            continue
+
+        if normalized not in directories:
+            directories.append(normalized)
+
+    return directories
+
+
+def _expand_pattern_variants(pattern: str, treat_as_include: bool) -> List[str]:
+    """Normalize a pattern and add variants that cover nested paths."""
+
+    if not pattern:
+        return []
+
+    original = pattern.strip()
+    if not original:
+        return []
+
+    canonical = original
+
+    # Normalize escaped tokens before handling path separators
+    escape_replacements = {
+        r"\.": ".",
+        r"\*": "*",
+        r"\?": "?",
+    }
+    for escape_pattern, replacement in escape_replacements.items():
+        canonical = canonical.replace(escape_pattern, replacement)
+
+    canonical = canonical.replace("\\", "/")
+    while "//" in canonical:
+        canonical = canonical.replace("//", "/")
+
+    if canonical.startswith("./"):
+        canonical = canonical[2:]
+
+    if canonical not in {"", "/"}:
+        canonical = canonical.rstrip("/")
+
+    canonical = canonical.replace(r"\.", ".")
+    canonical = re.sub(
+        r"(^|/)\.\*(?=[^/])",
+        lambda match: f"{match.group(1)}*",
+        canonical,
+    )
+
+    if not canonical:
+        canonical = original
+
+    variants: List[str] = []
+
+    def add_variant(value: str) -> None:
+        if value and value not in variants:
+            variants.append(value)
+
+    add_variant(canonical)
+
+    add_extension_variant = treat_as_include or ".*" in original
+
+    if canonical.startswith(".") and not canonical.startswith("..") and "/" not in canonical:
+        if add_extension_variant:
+            add_variant(f"*{canonical}")
+            add_variant(f"**/*{canonical}")
+    elif canonical.startswith("*") and not canonical.startswith("**/") and "/" not in canonical:
+        add_variant(f"**/{canonical}")
+    elif "/" not in canonical and not canonical.startswith("**"):
+        add_variant(f"**/{canonical}")
+
+    return variants
+
+
+def normalize_patterns(patterns: Sequence[str], treat_as_include: bool = False) -> List[str]:
+    """Normalize patterns and remove duplicates while preserving order."""
+
+    normalized: List[str] = []
+    for pattern in patterns:
+        for variant in _expand_pattern_variants(pattern=pattern, treat_as_include=treat_as_include):
+            if variant and variant not in normalized:
+                normalized.append(variant)
+    return normalized
+
+
+def is_path_within_allowlist(
+    relative_path: str,
+    directory_allowlist: Sequence[str],
+) -> bool:
+    """Check whether a path belongs to a directory allowlist."""
+
+    normalized_path = relative_path.replace("\\", "/")
+
+    for allowed in directory_allowlist:
+        if normalized_path == allowed or normalized_path.startswith(f"{allowed}/"):
+            return True
+
+    return False
+
+
+def should_descend_directory(
+    relative_path: str,
+    directory_allowlist: Sequence[str],
+    show_all: bool,
+) -> bool:
+    """Determine whether a directory is eligible for traversal."""
+
+    if show_all or not directory_allowlist:
+        return True
+
+    return is_path_within_allowlist(relative_path, directory_allowlist)
 
 
 def is_ignored(item_relative_path, exclude_patterns, show_all=False):
@@ -169,6 +358,7 @@ def add_items(
     show_all=False,
     relative_path="",
     follow_links=False,
+    directory_allowlist=None,
 ):
     """
     Recursively add items in the file system to the tree structure.
@@ -183,6 +373,9 @@ def add_items(
     :return: True if any items were added to the tree, False otherwise.
     """
     has_included_items = False
+    if directory_allowlist is None:
+        directory_allowlist = []
+
     try:
         # Process all items in the current directory
         for item_name in sorted(os.listdir(root_dir)):
@@ -198,6 +391,16 @@ def add_items(
 
             if os.path.isfile(item_path):
                 # For files, check if they match the include patterns
+                if directory_allowlist and not is_path_within_allowlist(
+                    item_relative_path,
+                    directory_allowlist,
+                ):
+                    logging.debug(
+                        "Skipping file outside allowlist: %s",
+                        item_relative_path,
+                    )
+                    continue
+
                 if is_included(item_relative_path, include_patterns, show_all):
                     parent_tree.add(item_name)
                     has_included_items = True
@@ -205,6 +408,17 @@ def add_items(
             elif os.path.isdir(item_path) and (
                 follow_links or not os.path.islink(item_path)
             ):
+                if not should_descend_directory(
+                    item_relative_path,
+                    directory_allowlist,
+                    show_all,
+                ):
+                    logging.debug(
+                        "Skipping directory outside allowlist: %s",
+                        item_relative_path,
+                    )
+                    continue
+
                 # For directories, always traverse them unless explicitly excluded
                 logging.debug("Entering directory: %s", item_relative_path)
                 dir_branch = Tree(f"{item_name}/")
@@ -216,6 +430,7 @@ def add_items(
                     show_all,
                     item_relative_path,
                     follow_links,
+                    directory_allowlist,
                 )
                 if dir_has_items:
                     parent_tree.add(dir_branch)
@@ -229,7 +444,11 @@ def add_items(
 
 
 def generate_tree(
-    exclude_patterns, include_patterns, show_all=False, follow_links=False
+    exclude_patterns,
+    include_patterns,
+    show_all=False,
+    follow_links=False,
+    directory_allowlist=None,
 ):
     """
     Generate a tree structure of the current directory excluding and including specific directories/files.
@@ -248,6 +467,7 @@ def generate_tree(
         include_patterns,
         show_all,
         follow_links=follow_links,
+        directory_allowlist=directory_allowlist,
     )
     console.print(tree)
 
@@ -329,103 +549,55 @@ def main():
     logging_level = (args.log_level // 10) * 10
     logging.basicConfig(level=logging_level, format=f"{program_name} %(message)s")
 
-    # Process exclude patterns
-    exclude_patterns = []
-    for pattern in args.exclude:
-        # If the pattern exists as a file or directory, it was probably shell-expanded
-        if os.path.exists(pattern):
-            # Convert back to a glob pattern
-            if os.path.isfile(pattern):
-                # For files, use the extension as a pattern
-                ext = os.path.splitext(pattern)[1]
-                if ext:
-                    exclude_patterns.append(f"*{ext}")
-            else:
-                # For directories, use the basename as a pattern
-                exclude_patterns.append(os.path.basename(pattern))
-        else:
-            # If the pattern contains a space or pipe, it was probably quoted
-            if ' ' in pattern or '|' in pattern:
-                # Split on spaces and pipes, preserving quoted strings
-                patterns = [p.strip() for p in re.split(r"[| ]+", pattern.strip()) if p.strip()]
-                exclude_patterns.extend(patterns)
-            else:
-                # Single pattern, add it directly
-                exclude_patterns.append(pattern)
-
-    # Load exclude patterns from environment variables
-    env_dir_excludes = load_patterns_from_env("GENMD_DIR_EXCLUDES")
-    env_file_excludes = load_patterns_from_env("GENMD_FILE_EXCLUDES")
-    exclude_patterns += env_dir_excludes + env_file_excludes
-
     # Built-in default exclusion patterns
     DEFAULT_EXCLUDES = [".git", ".git/", ".jekyll-cache", ".DS_Store"]
 
-    # Load exclusion patterns from a configuration file
-    config_excludes = load_exclusions_from_file(".exclusions.cfg")
-    exclude_patterns.extend(DEFAULT_EXCLUDES + config_excludes)
+    cli_exclude_tokens = collect_pattern_tokens(args.exclude)
+    env_dir_exclude_tokens = collect_pattern_tokens(
+        load_patterns_from_env("GENMD_DIR_EXCLUDES")
+    )
+    env_file_exclude_tokens = collect_pattern_tokens(
+        load_patterns_from_env("GENMD_FILE_EXCLUDES")
+    )
+    config_exclude_tokens = collect_pattern_tokens(
+        load_exclusions_from_file(".exclusions.cfg")
+    )
+    default_exclude_tokens = collect_pattern_tokens(DEFAULT_EXCLUDES)
 
-    # Ensure no duplicates or empty patterns in the exclusion patterns
-    exclude_patterns = list(set(p for p in exclude_patterns if p))
-    logging.debug("Exclusion patterns before adjustment: %s", exclude_patterns)
+    combined_exclude_tokens = (
+        cli_exclude_tokens
+        + env_dir_exclude_tokens
+        + env_file_exclude_tokens
+        + default_exclude_tokens
+        + config_exclude_tokens
+    )
+    exclude_patterns = normalize_patterns(
+        combined_exclude_tokens,
+        treat_as_include=False,
+    )
+    logging.debug("Final exclusion patterns: %s", exclude_patterns)
 
-    # Adjust patterns to include both the pattern and '**/' + pattern
-    adjusted_exclude_patterns = []
-    for pattern in exclude_patterns:
-        if not pattern:  # Skip empty patterns
-            continue
-        adjusted_exclude_patterns.append(pattern)
-        if not pattern.startswith("**/"):
-            adjusted_exclude_patterns.append("**/%s" % pattern)
-    exclude_patterns = list(set(p for p in adjusted_exclude_patterns if p))
-    logging.debug("Adjusted exclusion patterns: %s", exclude_patterns)
+    cli_include_tokens = collect_pattern_tokens(args.include)
+    env_include_tokens = collect_pattern_tokens(
+        load_patterns_from_env("GENMD_FILE_INCLUDES")
+    )
+    include_pattern_tokens = cli_include_tokens + env_include_tokens
+    include_patterns = normalize_patterns(
+        include_pattern_tokens,
+        treat_as_include=True,
+    )
+    include_directory_allowlist = extract_directory_allowlist(include_pattern_tokens)
 
-    # Process include patterns
-    include_patterns = []
-    for pattern in args.include:
-        # If the pattern exists as a file or directory, it was probably shell-expanded
-        if os.path.exists(pattern):
-            # Convert back to a glob pattern
-            if os.path.isfile(pattern):
-                # For files, use the extension as a pattern
-                ext = os.path.splitext(pattern)[1]
-                if ext:
-                    include_patterns.append(f"*{ext}")
-                    include_patterns.append(f"**/*{ext}")
-            else:
-                # For directories, use the basename as a pattern
-                include_patterns.append(os.path.basename(pattern))
-                include_patterns.append(f"**/{os.path.basename(pattern)}")
-        else:
-            # If the pattern contains a space or pipe, it was probably quoted
-            if ' ' in pattern or '|' in pattern:
-                # Split on spaces and pipes, preserving quoted strings
-                patterns = [p.strip() for p in re.split(r"[| ]+", pattern.strip()) if p.strip()]
-                for pat in patterns:
-                    if pat.startswith("."):
-                        # Assume it's a file extension
-                        include_patterns.append("*%s" % pat)
-                        include_patterns.append("**/*%s" % pat)
-                    else:
-                        include_patterns.append(pat)
-                        if not pat.startswith("**/"):
-                            include_patterns.append("**/%s" % pat)
-            else:
-                # Single pattern, add it directly
-                if pattern.startswith("."):
-                    # Assume it's a file extension
-                    include_patterns.append("*%s" % pattern)
-                    include_patterns.append("**/*%s" % pattern)
-                else:
-                    include_patterns.append(pattern)
-                    if not pattern.startswith("**/"):
-                        include_patterns.append("**/%s" % pattern)
-    include_patterns = list(set(p for p in include_patterns if p))
-    logging.debug("Adjusted include patterns: %s", include_patterns)
+    if include_directory_allowlist:
+        directory_patterns = set(include_directory_allowlist)
+        directory_patterns.update(f"**/{directory}" for directory in include_directory_allowlist)
+        include_patterns = [
+            pattern
+            for pattern in include_patterns
+            if pattern not in directory_patterns
+        ]
 
-    # Load include patterns from environment variables
-    env_file_includes = load_patterns_from_env("GENMD_FILE_INCLUDES")
-    include_patterns += env_file_includes
+    logging.debug("Final inclusion patterns: %s", include_patterns)
 
     # Process follow_links argument
     follow_links = args.follow_links
@@ -435,7 +607,11 @@ def main():
         exclude_patterns = []
         include_patterns = []
         generate_tree(
-            exclude_patterns, include_patterns, show_all=True, follow_links=follow_links
+            exclude_patterns,
+            include_patterns,
+            show_all=True,
+            follow_links=follow_links,
+            directory_allowlist=[],
         )
     else:
         generate_tree(
@@ -443,6 +619,7 @@ def main():
             include_patterns,
             show_all=args.all,
             follow_links=follow_links,
+            directory_allowlist=include_directory_allowlist,
         )
 
 

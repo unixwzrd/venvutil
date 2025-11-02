@@ -34,9 +34,24 @@ License:
     Apache License, Version 2.0
 """
 
-import sys
 import argparse
-import nltk
+import sys
+
+try:
+    import nltk
+except ImportError:
+    sys.stderr.write(
+        "\nERROR: The 'nltk' Python package is required for tokencount to function.\n"
+        "Please install nltk with:\n\n"
+        "    pip install nltk\n\n"
+        "After installing, run the following commands in your shell to download required models:\n\n"
+        "python <<_EOF_\n"
+        "import nltk\n"
+        "nltk.download('punkt')\n"
+        "nltk.download('stopwords')\n"
+        "_EOF_\n\n"
+    )
+    sys.exit(1)
 
 # nltk.download('punkt')  # Download the Punkt tokenizer models
 

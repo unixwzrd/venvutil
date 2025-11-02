@@ -1,6 +1,6 @@
 # venvutil - Manage Conda and Pip VENV's with some simple functions and scripts
 
-This is release v1.0.2.This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
+This is release v1.0.3. This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
 
 ## Table of Contents
 
@@ -223,13 +223,25 @@ This will build and install NumPy 1.26 into your Python virtual environment. Wit
 
 ## NLTK and Token Count
 
-- **NLTK Installation**: The `venvutil` installation process includes the NLTK packages and `nltk_data`, which are necessary for the `tokencount` program.
-- **Token Count**: The `tokencount` program can be invoked by `genmd` using the `-t` option to provide a token count of the markdown bundle.
+- **NLTK Installation**: The `venvutil` installer bootstraps `nltk`, but if you are running `tokencount` from another virtual environment you may need to add it manually.
+- **Missing Tokenizers**: When `tokencount` cannot import `nltk`, it now prints explicit setup instructions. Follow them (or run the commands below) to install the package and download the required corpora:
+
+  ```bash
+  pip install nltk
+  python <<'PY'
+  import nltk
+  nltk.download('punkt')
+  nltk.download('stopwords')
+  PY
+  ```
+
+- **Token Count Integration**: `genmd` can invoke `tokencount` with the `-t` flag to append a token count summary to the generated bundle.
 
 ## Recent Changes
 
-- **Logging Enhancements**: (more) Improved logging with dynamic program names and lazy formatting.
-- **Configuration Management**: Introduced global variable declarations and robust configuration handling in `genmd`.
+- **File Tree Improvements**: `filetree` now normalizes regex-style include patterns, respects directory allowlists, and supports `-L/--follow-links` so generated docs can traverse symlinks.
+- **Shared Config Loader**: `genmd`, `setup`, and `generate_manifest` all call the same `load_config`/`dump_config` helpers from `config_lib.sh`, reducing drift between workflows.
+- **Tokencount Guidance**: Clear runtime instructions for installing `nltk` and fetching the required tokenizers when they are missing.
 
 ## Project Status
 

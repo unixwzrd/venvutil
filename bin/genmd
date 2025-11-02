@@ -211,30 +211,31 @@ declare -g -a config_variables=(
 )
 
 # Define a list of actions for each config variable based on whether to
-# merge or set from the config file or the command line.
+# merge or set from the config file or the command line. The "discard" will
+# ignore the values in the config file in favor of the command line.
 # the precedent will be from the command line for some or from the
 # config file for others, some may come from the environment variables
 # and some may come from the config file or the command line.
 # shellcheck disable=SC2034
 declare -g -A config_variable_action=(
-    ["GENMD_BASE"]="config"       # Set config file will override the environment variable
-    ["add_line_numbers"]="set"    # Command line overrides all settings and preserved
-    ["compress"]="set"            # Command line overrides all settings and preserved
-    ["compression_tool"]="set"    # Command line overrides all settings and preserved
-    ["count_tokens"]="set"        # Command line overrides all settings and preserved
-    ["create_date"]="set"         # Command line overrides all settings and preserved
-    ["debug_level"]="set"         # Command line overrides all settings and preserved
-    ["dir_excludes"]="merge"      # Merge all sources.
-    ["dry_run"]="set"         # Command not preserved, but set from command line
-    ["file_includes"]="merge"     # Merge all sources.
-    ["directory_includes"]="merge"     # Merge all sources.
-    ["follow_links"]="set"        # Command line overrides all settings and preserved
-    ["output_filename"]="set"     # Command line overrides all settings
-    ["pattern_excludes"]="merge"  # Merge all sources.
-    ["remove_blanks"]="set"       # Command line overrides all settings and preserved
-    ["settings_modes"]="set"      # Command line overrides all settings
-    ["token_count"]="discard"     # Read-only, cannot be set from command line
-    ["use_gitignore"]="set"       # Command line overrides all settings and preserved
+    ["GENMD_BASE"]="config"        # Set config file will override the environment variable
+    ["add_line_numbers"]="discard" # Command line overrides all settings and preserved
+    ["compress"]="discard"         # Command line overrides all settings and preserved
+    ["compression_tool"]="discard" # Command line overrides all settings and preserved
+    ["count_tokens"]="discard"     # Command line overrides all settings and preserved
+    ["create_date"]="discard"      # Command line overrides all settings and preserved
+    ["debug_level"]="discard"      # Command line overrides all settings and preserved
+    ["dir_excludes"]="merge"       # Merge all sources.
+    ["dry_run"]="discard"          # Command not preserved, but set from command line
+    ["file_includes"]="merge"      # Merge all sources.
+    ["directory_includes"]="merge" # Merge all sources.
+    ["follow_links"]="discard"     # Command line overrides all settings and preserved
+    ["output_filename"]="discard"  # Command line overrides all settings
+    ["pattern_excludes"]="merge"   # Merge all sources.
+    ["remove_blanks"]="discard"    # Command line overrides all settings and preserved
+    ["settings_modes"]="discard"   # Command line overrides all settings
+    ["token_count"]="discard"      # Read-only, cannot be set from command line
+    ["use_gitignore"]="discard"    # Command line overrides all settings and preserved
 )
 
 # Set default values for command line options.
@@ -252,11 +253,11 @@ declare -g dry_run=false
 declare -g follow_links=""
 declare -g output_dir="$GENMD_BASE/utils/output"
 declare -g remove_blanks=false
-declare -g settings_modes=( "md" "cfg" )
+declare -g settings_modes=( "md" "cfg" "info")
 declare -g skip_config=false                        # Set to true to skip loading config file
 declare -g specified_config=""
 declare -g specified_output=""
-declare -g token_count=0
+declare -g token_count=""
 declare -g use_gitignore=true
 
 
@@ -413,39 +414,6 @@ parse_gitignore() {
 }
 
 
-# load_config - Function to load configuration from a .grc file
-#
-# Description:
-#   Loads a configuration file and assigns the variables using the config_variable_action array.
-#
-#   The config_variable_action array is used to determine how to assign the values from the config file:
-#   - merge: the value will be added to the variable
-#   - set: set the variable from the command line or defaults
-#   - config: set the variable from the config file
-#   - discard: the value not be preserved in the config file
-#
-# Parameters:
-#   $1: The path to the configuration file to load.
-#   $2: The name of the config variable to load.
-#
-#  TODO move this function to the config_lib.sh
-#
-load_config() {
-    local config_file="$1"
-
-    if [ "$skip_config" = true ]; then
-        log_message "INFO" "Skipping config file loading."
-        return 0
-    fi
-
-    if [[ -e "$config_file" ]]; then
-        local tmp_debug_level=$debug_level
-        # shellcheck source=/dev/null
-        source "$config_file"
-        debug_level=${tmp_debug_level}
-    fi
-}
-
 # load_config_file - Function to determine and load configuration based on output and config file specifications
 #
 # Description:
@@ -466,7 +434,7 @@ load_config_file() {
         output_filename="${output_dir}/${specified_config}.md"
 
         if [[ -e "$config_filename_in" ]]; then
-            load_config "$config_filename_in"
+            load_config "$config_filename_in" config_variable_action
         else
             log_message "WARNING" "Specified configuration file \"$config_filename_in\" creating new config file."
             check_directory "$(dirname "$config_filename_in")"
@@ -479,7 +447,7 @@ load_config_file() {
         output_filename="${output_dir}/${specified_output}.md"
 
         if [[ -e "$config_filename_in" ]]; then
-            load_config "$config_filename_in"
+            load_config "$config_filename_in" config_variable_action
         else
             log_message "INFO" "No configuration file found for output \"$specified_output\", a new one will be created."
         fi
@@ -503,7 +471,7 @@ load_config_file() {
         output_filename="${output_dir}/${default_filename}.md"
 
         if [[ -e "$config_filename_in" ]]; then
-            load_config "$config_filename_in"
+            load_config "$config_filename_in" config_variable_action
         else
             log_message "WARNING" "Specified configuration file \"$config_filename_in\" creating new config file."
             check_directory "$(dirname "$config_filename_in")"
@@ -642,14 +610,6 @@ build_file_list() {
         fi
     done
 
-    echo
-    log_message "INFO" "********** Composite EXCLUDE: \"${composite_exclude}\""
-    echo
-    log_message "INFO" "********** Composite INCLUDE: \"${composite_include}\""
-    echo
-    log_message "INFO" "**********  Files to INCLUDE: \"${files_to_include}\""
-    echo
-
     mapfile -t files < <(
         find ${follow_links:-} . -type f \
             | grep -Ev "${composite_exclude:-}" \
@@ -721,13 +681,21 @@ generate_markdown() {
 #
 generate_filetree() {
     local output_filename=$1
-    local -n include_list_ref=$2
+    local -n include_dirs_ref=$2
     local -n include_files_ref=$3
-    shift; shift; shift
-    local exclude_list="$*"
+    local -n exclude_dirs_ref=$4
+    local -n exclude_patterns_ref=$5
 
-    include_string=$(sanitize_patterns "${include_list_ref[@]}" "${include_files_ref[@]}")
-    exclude_string=$(sanitize_patterns "${exclude_list[@]}")
+    # Combine includes and excludes into single arrays
+    local includes=( "${include_dirs_ref[@]}" "${include_files_ref[@]}" )
+    local excludes=( "${exclude_dirs_ref[@]}" "${exclude_patterns_ref[@]}" )
+
+    # Build and sanitize combined patterns
+    local include_string
+    include_string="$(build_regex includes)"
+
+    local exclude_string
+    exclude_string="$(build_regex excludes)"
 
     if ! command -v filetree >/dev/null 2>&1; then
         log_message "ERROR" "'filetree' command not found. Please install it or use an alternative."
@@ -738,19 +706,20 @@ generate_filetree() {
     if [[ "$dry_run" = true ]]; then
         log_message "INFO" "Dry run: Generating directory and file structure."
         # shellcheck disable=SC2086
-        filetree -l $debug_level  -i "${include_string}" -e tmp .git "${exclude_string[@]}"
+        filetree ${follow_links:-} -l $debug_level  -i \"${include_string}\" -e \"${exclude_string}\"
         return
     fi
 
     log_message "INFO" "Generating directory and file structure, including: ${include_string}, excluding: ${exclude_string}"
+    log_message "INFO" "The generated filetree will be put in the output file: ${output_filename}"
 
     {
         printf "\n\n## Project filesystem directory structure\n\`\`\`text\n"
         # Double quote to prevent globbing and word splitting.shellcheckSC2086
         # shellcheck disable=SC2086
-        echo filetree -l $debug_level -i "${include_string}" -e tmp .git "${exclude_string}"
+        echo filetree ${follow_links:-} -l $debug_level -i \"${include_string}\" -e \"${exclude_string}\"
         # shellcheck disable=SC2086
-        filetree -l $debug_level -i "${include_string}" -e tmp .git "${exclude_string}"
+        filetree ${follow_links:-} -l $debug_level -i "${include_string}" -e "${exclude_string}"
         printf "\n\`\`\`\n"
     } >> "$output_filename"
 }
@@ -843,7 +812,7 @@ compress_output() {
                 return 1;;
         esac
 
-        $compression_tool - < "$output_filename" > "${output_filename}.${extension}"
+        ${compression_tool} - < "${output_filename}" > "${output_filename}.${extension}"
         log_message "INFO" "Final compressed output is ${output_filename}.${extension}"
     fi
 }
@@ -886,9 +855,13 @@ generate_settings() {
                     } >> "$output_file"
                     ;;
                 cfg)
-                    check_directory "$(dirname "$config_filename_out")"
-                    dump_config -s -o "$config_filename_out" config_variables
-                    log_message "INFO" "Configuration saved to $config_filename_out"
+                    if [[ "$skip_config" = true ]]; then
+                        log_message "INFO" "Skipping configuration save to: ${config_filename_out}"
+                    else
+                        check_directory "$(dirname "$config_filename_out")"
+                        dump_config -s -o "$config_filename_out" config_variables
+                        log_message "INFO" "Configuration saved to: ${config_filename_out}"
+                    fi
                     ;;
                 env)
                     {
@@ -920,8 +893,10 @@ main() {
     fi
 
     # Create temporary files for the multi-step process
-    local temp_header=$(mktemp)
-    local temp_body=$(mktemp)
+    local temp_header
+    temp_header=$(mktemp)
+    local temp_body
+    temp_body=$(mktemp)
 
     log_message "DEBUG" "Created temporary files: header=$temp_header, body=$temp_body"
 
@@ -941,7 +916,7 @@ main() {
     # Generate file tree markdown
     # Argument mixes string and array. Use * or separate argument.
     # shellcheck disable=SC2145
-    generate_filetree "$temp_body" directory_includes file_includes "${dir_excludes[@]}" "${pattern_excludes[@]}"
+    generate_filetree "$temp_body" directory_includes file_includes dir_excludes pattern_excludes
 
     # Build the file list
     build_file_list final_files dir_excludes \
@@ -964,10 +939,10 @@ main() {
 
     # Step 3: Calculate token count by combining files temporarily
     if [[ "$count_tokens" = true ]]; then
-        local temp_combined=$(mktemp)
+        local temp_combined
+        temp_combined=$(mktemp)
         cat "$temp_header" "$temp_body" > "$temp_combined"
-        token_count=$(tokencount -c -f "$temp_combined" 2>/dev/null)
-        log_message "INFO" "Document token count: $token_count"
+        token_count=$(tokencount -c -f "$temp_combined")
         rm -f "$temp_combined"
 
         # Step 4: Regenerate the header with updated token count
@@ -1151,7 +1126,9 @@ done
 shift $((OPTIND -1))
 
 # Determine and load configuration based on output and config file specifications
-load_config_file
+if [[ "$skip_config" = false ]]; then
+    load_config_file
+fi
 
 
 validate_paths
@@ -1179,7 +1156,6 @@ log_message "DEBUG1" "Final directory exclusions: ${dir_excludes[*]}"
 
 # Execute the main process
 main
-
 # Display final information
 log_message "INFO" "       Output file: $output_filename"
 log_message "INFO" "Configuration file: $config_filename_out"

@@ -1,13 +1,14 @@
-## load_pkg_config
-# Function: load_pkg_config
-`load_pkg_config` - Loads package configuration from setup.cf file.
+## load_config
+# Function: load_config
+`load_config` - Loads package configuration from setup.cf file.
 ## Description
 - **Purpose**:
   - This function reads the setup.cf file and sets variables for package installation.
 - **Usage**:
-  - `load_pkg_config`
+  - `load_config <config_file> <var_actions>`
 - **Input Parameters**:
-  - None.
+  - `config_file`: The path to the configuration file.
+  - `var_actions`: The associative array of variable actions.
 - **Output**:
   - Sets variables from the setup.cf file for package installation.
 - **Exceptions**:
@@ -57,4 +58,4 @@ Apache License, Version 2.0
 ---
 
 Generated Markdown Documentation
-Generated on: 2025-10-29 at 04:13:00
+Generated on: 2025-11-02 at 01:01:17

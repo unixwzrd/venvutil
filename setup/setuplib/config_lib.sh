@@ -94,7 +94,7 @@ if ! declare -p __VENV_INTERNAL_FUNCTIONS >/dev/null 2>&1; then declare -ga __VE
 __VENV_INTERNAL_FUNCTIONS=(
     ${__VENV_INTERNAL_FUNCTIONS[@]}
     "expand_variables"
-    "load_pkg_config"
+    "load_config"
 )
 
 # # Function: `pkg_config_vars`
@@ -178,15 +178,16 @@ expand_variable() {
     eval echo "$sanitized_input"
 }
 
-# # Function: load_pkg_config
-# `load_pkg_config` - Loads package configuration from setup.cf file.
+# # Function: load_config
+# `load_config` - Loads package configuration from setup.cf file.
 # ## Description
 # - **Purpose**:
 #   - This function reads the setup.cf file and sets variables for package installation.
 # - **Usage**:
-#   - `load_pkg_config`
+#   - `load_config <config_file> <var_actions>`
 # - **Input Parameters**:
-#   - None.
+#   - `config_file`: The path to the configuration file.
+#   - `var_actions`: The associative array of variable actions.
 # - **Output**:
 #   - Sets variables from the setup.cf file for package installation.
 # - **Exceptions**:
@@ -227,7 +228,7 @@ expand_variable() {
 #     # Cflags: -I${includedir}
 #     # Libs: -L${libdir} -lvenvutil
 #     ```
-load_pkg_config() {
+load_config() {
     local config_file="$1"
     local -n var_actions="$2"
     if [[ ! -f "$config_file" ]]; then
