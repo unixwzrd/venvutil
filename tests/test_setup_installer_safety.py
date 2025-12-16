@@ -90,6 +90,20 @@ printf '%s' "$INSTALL_BASE"
 
             # Basic artifact check: a known file from the manifest should exist in the install base.
             self.assertTrue((Path(tmp_install) / "bin" / "filetree.py").exists())
+            # Regression check for stale manifest source paths (must be copied successfully).
+            self.assertTrue((Path(tmp_install) / "manifest.lst").exists())
+            self.assertTrue((Path(tmp_install) / "setup.cf").exists())
+            self.assertTrue(
+                (
+                    Path(tmp_install)
+                    / "docs"
+                    / "shdoc"
+                    / "bin"
+                    / "shinclude"
+                    / "functions"
+                    / "load_config.md"
+                ).exists()
+            )
 
             # Regression check: refresh should only execute once (no accidental second main()).
             install_log = Path(tmp_home) / ".venvutil" / "install.log"
@@ -100,5 +114,3 @@ printf '%s' "$INSTALL_BASE"
 
 if __name__ == "__main__":
     unittest.main()
-
-

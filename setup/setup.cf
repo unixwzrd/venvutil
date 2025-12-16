@@ -9,12 +9,14 @@ bindir=${exec_prefix}/bin
 datadir=${prefix}/share
 sysconfdir=${prefix}/etc
 include_files=("README.md" "LICENSE" "setup.sh" "setup.cf" "manifest.lst" "requirements.txt" "requirements-build.txt")
+# Directories to include in the *installed payload* when generating the manifest.
+# The installer implementation under `setup/` is intentionally excluded; it lives in the git clone.
 include_dirs=("bin" "docs" "conf" "modules")
 
 # Package metadata
 Name: venvutil
 Description: "${TERM} Virtual Environment Utilities"
-Version: 20250206-00_R1
+Version: 1.0.42
 Repository: https://github.com/unixwzrd/venvutil
 License: Apache License, Version 2.0
 Support: https://github.com/unixwzrd/venvutil/issues

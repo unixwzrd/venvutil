@@ -34,6 +34,11 @@ process_and_generate_manifest() {
     target_location=${target_location/#.\//}
     target_location=${target_location/#./}
 
+    # Repo layout: setup metadata lives under setup/, but should install to INSTALL_BASE root.
+    if [[ "${source_location}" == "setup" && ( "${asset_name}" == "manifest.lst" || "${asset_name}" == "setup.cf" ) ]]; then
+        target_location=""
+    fi
+
         # Determine the type of the entry
     if [ -L "$asset" ]; then
         type="l"
@@ -60,7 +65,10 @@ process_and_generate_manifest() {
 
     # Get checksum for files
     if [ "$type" == "f" ]; then
-        if command -v shasum >/dev/null 2>&1; then
+        # The manifest file is self-referential; leave its checksum blank to avoid churn.
+        if [[ "${source_location}" == "setup" && "${asset_name}" == "manifest.lst" ]]; then
+            checksum=""
+        elif command -v shasum >/dev/null 2>&1; then
             # Use shasum if available
             checksum=$(shasum "$asset" | awk '{ print $1 }')
         elif command -v sha1sum >/dev/null 2>&1; then
@@ -133,7 +141,12 @@ source "${SHINCLUDE}/config_lib.sh"
 
 pkg_config_vars
 # Specify the files and directories to include
-load_config "${__SETUP_BASE}/setup.cf" pkg_config_actions
+CONFIG_FILE="${CONFIG_FILE:-"${__SETUP_BASE}/setup/setup.cf"}"
+if [[ ! -f "${CONFIG_FILE}" && -f "${__SETUP_BASE}/setup.cf" ]]; then
+    # Backward-compat fallback (older repos kept setup.cf in the project root).
+    CONFIG_FILE="${__SETUP_BASE}/setup.cf"
+fi
+load_config "${CONFIG_FILE}" pkg_config_actions
 # shellcheck disable=SC2206
 include_files=(${include_files[@]:-("README.md" "LICENSE" "setup.sh" "setup.cf" "manifest.lst")})
 # shellcheck disable=SC2206
@@ -141,7 +154,8 @@ include_dirs=(${include_dirs[@]:-("bin" "docs" "conf")})
 # shellcheck disable=SC2206
 exclude_dirs=(".vscode" "tmp" )
 # Output file
-OUTPUT_FILE="manifest.lst"
+OUTPUT_FILE="${OUTPUT_FILE:-"setup/manifest.lst"}"
+mkdir -p "$(dirname "${OUTPUT_FILE}")"
 
 # Check which 'stat' command is available and set commands accordingly
 if stat --version >/dev/null 2>&1; then

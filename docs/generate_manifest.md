@@ -26,7 +26,7 @@ The `generate_manifest` script is a utility that generates a manifest file for t
 ./generate_manifest
 ```
 
-The script should be run from the root directory of the project. It will create or update the `manifest.lst` file.
+The script should be run from the root directory of the project. It will create or update [`setup/manifest.lst`](../setup/manifest.lst).
 
 ## Manifest Format
 
@@ -64,7 +64,7 @@ The script performs the following operations:
 2. Determines the appropriate `stat` command for the system
 3. Checks git status for deleted files and adds them as cancel entries
 4. Processes specified files and directories:
-    - `README.md`, `LICENSE`, `setup.sh`, `setup.cf`, `manifest.lst`
+    - `README.md`, `LICENSE`, `setup.sh`, `setup/setup.cf`, `setup/manifest.lst`
     - `bin`, `docs`, `conf` directories
 5. Generates entries for each file/directory:
     - Determines file type

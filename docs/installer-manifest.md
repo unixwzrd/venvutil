@@ -93,15 +93,17 @@ To add a library to the set of packages pkg-config knows about, simply install a
 # Package Configuration File for venvutil
 
 # Define variables
-prefix=$HOME/local/venvutil
+    # Note: in this repo the installer config lives at `setup/setup.cf`, and the installer
+    # manifest is generated to `setup/manifest.lst` (not the project root).
+    prefix=$HOME/local/venvutil
 exec_prefix=${prefix}
 libdir="${exec_prefix}/lib"
 includedir=${prefix}/include
 bindir=${exec_prefix}/bin
 datadir=${prefix}/share
 sysconfdir=${prefix}/etc
-include_files=("README.md" "LICENSE" "setup.sh" "setup.cf" "manifest.lst")
-include_dirs=("bin" "docs" "conf" "modules" "${TMPDIR}")
+    include_files=("README.md" "LICENSE" "setup.sh" "setup.cf" "manifest.lst")
+    include_dirs=("bin" "docs" "conf" "modules")
 
 # Package metadata
 Name: venvutil
