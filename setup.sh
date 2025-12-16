@@ -74,8 +74,11 @@ done
 
 main() {
     # Set default values
+    # shellcheck disable=SC2034
     VERBOSE=false
+    # shellcheck disable=SC2034
     INSTALL_BASE=""
+    # shellcheck disable=SC2034
     ACTION=""
 
     # Parse command-line arguments
@@ -93,6 +96,7 @@ main() {
             install_conda
             install_python_packages
             write_pkg_config
+            update_bashrc
             post_install_user_message
             log_message "INFO" "venvutil installation completed successfully."
             ;;

@@ -9,6 +9,7 @@
 - Made hard-link asset creation idempotent in [`setup/assets.sh`](setup/assets.sh) by removing an existing target before linking.
 - Converted [`setup/setuplib`](setup/setuplib) into a real directory whose `.sh` files are **hard links** to the canonical [`bin/shinclude`](bin/shinclude) libraries so setup and runtime never drift.
 - Fixed stale entries in [`setup/manifest.lst`](setup/manifest.lst) so it copies `setup/manifest.lst`, `setup/setup.cf`, and `load_config.md` from their correct source paths (previously referenced missing root/legacy filenames).
+- Restored `update_bashrc` behavior so `install` actually updates `$HOME/.bashrc` with a `# VENVUTIL START/END` block.
 - Added unit coverage in [`tests/test_setup_installer_safety.py`](tests/test_setup_installer_safety.py) to lock in safe defaults and prevent double-execution regressions.
 
 ## 2025-11-02: filetree pattern normalization improvements
