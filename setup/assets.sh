@@ -41,6 +41,7 @@ install_assets() {
             h) # Create hard link
                 # shellcheck disable=SC2164
                 cd "$destination"
+                rm -f "$name"
                 ln "$source" "$name"
                 # shellcheck disable=SC2164
                 cd - > /dev/null

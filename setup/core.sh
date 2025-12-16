@@ -15,14 +15,29 @@ log_message() {
 #            ["CRITICAL"]=60
 #    )
 
-    # Print message to STDERR and log file
-    if [ "$VERBOSE" = true ]; then
-        echo "($__SETUP_NAME) [$message_level] $message_out" 2>&1 | tee -a "$INSTALL_CONFIG/install.log" >&2
+    local log_file=""
+    if [[ -n "${INSTALL_CONFIG:-}" ]]; then
+        log_file="${INSTALL_CONFIG}/install.log"
+        # Avoid early failures when logging happens before initialization creates the config dirs.
+        mkdir -p "${INSTALL_CONFIG}" "${INSTALL_CONFIG}/log" "${INSTALL_CONFIG}/freeze" 2>/dev/null || true
+    fi
+
+    # Print message to STDERR (and optionally to log file).
+    if [[ "${VERBOSE:-false}" == true ]]; then
+        if [[ -n "${log_file}" ]]; then
+            echo "($__SETUP_NAME) [$message_level] $message_out" 2>&1 | tee -a "$log_file" >&2
+        else
+            echo "($__SETUP_NAME) [$message_level] $message_out" >&2
+        fi
         return 0
     fi
 
-    # Write message to log file
-    echo "($__SETUP_NAME) [$message_level] $message_out" >> "$INSTALL_CONFIG/install.log" 2>&1
+    # Non-verbose: log to file when available; otherwise emit to STDERR (pre-init safety).
+    if [[ -n "${log_file}" ]]; then
+        echo "($__SETUP_NAME) [$message_level] $message_out" >> "$log_file" 2>&1
+    else
+        echo "($__SETUP_NAME) [$message_level] $message_out" >&2
+    fi
 }
 
 # Function to display help extracted from the script
@@ -59,7 +74,7 @@ parse_arguments() {
     while getopts ":d:vh" opt; do
         case $opt in
             d) INSTALL_BASE="$OPTARG" ;;
-            v) VERBOSE=true, set -x ;;
+            v) VERBOSE=true; set -x ;;
             h) display_help_and_exit "Usage: $__SETUP_NAME [options] {install|refresh|update|remove|rollback|verify}" ;;
             \?) echo "Invalid option -$OPTARG" >&2; exit 1 ;;
             :) echo "Option -$OPTARG requires an argument." >&2; exit 1 ;;
@@ -97,13 +112,24 @@ initialization() {
         log_message "ERROR" "pkg_config_vars function not found configuration not loaded."
         exit 2
     fi
+    if ! declare -f load_config &>/dev/null; then
+        log_message "ERROR" "load_config function not found; shared libraries not loaded."
+        exit 2
+    fi
 
     pkg_config_vars
-    load_pkg_config "${__SETUP_DIR}/setup.cf" pkg_config_actions
+    load_config "${__SETUP_DIR}/setup.cf" pkg_config_actions
 
     PKG_NAME=${Name:-${PKG_NAME:-DEFAULT}}
     PKG_VERSION=${PKG_VERSION:-$Version}
     INSTALL_BASE=${INSTALL_BASE:-$prefix}
+    if declare -f expand_variable &>/dev/null; then
+        INSTALL_BASE="$(expand_variable "${INSTALL_BASE}")"
+    fi
+    if [[ -z "${INSTALL_BASE}" || "${INSTALL_BASE}" == "/" ]]; then
+        log_message "ERROR" "INSTALL_BASE resolved to '${INSTALL_BASE:-<empty>}' (unsafe). Use -d <dir> or fix prefix in setup/setup.cf."
+        exit 64
+    fi
     INSTALL_CONFIG="$HOME/.${PKG_NAME}"
 
     create_pkg_config_dir
@@ -167,8 +193,27 @@ restart_shell() {
     export BASHSOURCED=Y
     # So we don't recurse.
     export CONDA_INSTALL_COMPLETE=Y
-    SHELL=$(which "$(basename "$SHELL")")
-    # Wheeeeee!!!!!!
-    exec "$SHELL" -l -c "${__SETUP_BASE}/${__SETUP_NAME}  ${ACTION}"
-    return 0
+    # Preserve xtrace across the exec/re-entry when enabled.
+    case "$-" in
+        *x*) export __SETUP_EXEC_XTRACE=1 ;;
+        *) unset __SETUP_EXEC_XTRACE ;;
+    esac
+
+    local shell_bin=""
+    shell_bin="$(command -v "$(basename "${SHELL:-bash}")" 2>/dev/null || true)"
+    if [[ -z "${shell_bin}" ]]; then
+        shell_bin="$(command -v bash 2>/dev/null || true)"
+    fi
+    if [[ -z "${shell_bin}" ]]; then
+        shell_bin="/bin/bash"
+    fi
+
+    # Re-run setup in a login shell, preserving the original argv where possible.
+    if declare -p __SETUP_ORIG_ARGS >/dev/null 2>&1; then
+        exec "$shell_bin" -l -c 'if [ -n "$__SETUP_EXEC_XTRACE" ]; then set -x; fi; exec "$@"' \
+            "$shell_bin" "${__SETUP_BASE}/${__SETUP_NAME}" "${__SETUP_ORIG_ARGS[@]}"
+    fi
+
+    exec "$shell_bin" -l -c 'if [ -n "$__SETUP_EXEC_XTRACE" ]; then set -x; fi; exec "$@"' \
+        "$shell_bin" "${__SETUP_BASE}/${__SETUP_NAME}" "${ACTION}"
 }

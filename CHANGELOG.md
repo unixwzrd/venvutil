@@ -1,5 +1,15 @@
 # Changelog
 
+## 2025-12-16: installer INSTALL_BASE + re-entry fixes
+
+- Fixed [`setup/core.sh`](setup/core.sh) to use the actual config loader (`load_config`) so the default `INSTALL_BASE` comes from [`setup/setup.cf`](setup/setup.cf) instead of resolving to empty (which previously could cause installs into `/`).
+- Added a safety guard refusing an empty or `/` `INSTALL_BASE`.
+- Fixed `restart_shell` re-entry to preserve the original CLI argv (`-d`, `-v`, etc) and to preserve xtrace (`set -x`) across `exec` when enabled.
+- Removed an accidental second `main "$@"` invocation in [`setup.sh`](setup.sh) that could cause the installer to run twice per invocation.
+- Made hard-link asset creation idempotent in [`setup/assets.sh`](setup/assets.sh) by removing an existing target before linking.
+- Converted [`setup/setuplib`](setup/setuplib) into a real directory whose `.sh` files are **hard links** to the canonical [`bin/shinclude`](bin/shinclude) libraries so setup and runtime never drift.
+- Added unit coverage in [`tests/test_setup_installer_safety.py`](tests/test_setup_installer_safety.py) to lock in safe defaults and prevent double-execution regressions.
+
 ## 2025-11-02: filetree pattern normalization improvements
 
 - Added normalized handling for regex-like include/exclude inputs in [`bin/filetree.py`](bin/filetree.py), covering `.*` tokens and trailing directory slashes regardless of whether the values come from CLI flags, environment variables, or config files.
@@ -31,7 +41,7 @@ Migration notes:
 No more work will be done on extract_chat.py in this project, and it's now its own standalone project.
 Extract Chat can be found at [github.com/unixwzrd/extract-chat](https://github.com/unixwzrd/extract-chat)
 
-## Version 1.0.2 (2025-06-25)
+## Version 1.0.4 (2025-06-25)
 
 ## 2025-06-25: Wrapper Library Refactoring and Documentation Updates
 

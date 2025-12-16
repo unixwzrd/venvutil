@@ -1,6 +1,6 @@
 # venvutil - Manage Conda and Pip VENV's with some simple functions and scripts
 
-This is release v1.0.3. This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
+This is release v1.0.4. This project is continuously evolving, becoming a catch-all for useful tools and shell functions that facilitate working with Python VENV's and LLM's.
 
 ## Table of Contents
 
@@ -90,19 +90,17 @@ bash ./setup.sh install
 
 ```bash
 # For updates from cloned repo (without Python packages)
-./setup.sh --refresh
+./setup.sh refresh
 ```
 
-By default this installs in $HOME/local/venvutil. You can override this with the -d flag. To any location you wish. The installer will download and update Conda if necessary, along with the python packages listed above. NLTK needs data and that will be downloaded into your home directory into the nltk_data directory.
+By default this installs into `$HOME/local/venvutil` (configured via [`setup/setup.cf`](setup/setup.cf)). You can override this with `-d <directory>` to install anywhere you wish. The installer will download and update Conda if necessary, along with the python packages listed above. NLTK needs data and that will be downloaded into your home directory into the `nltk_data` directory.
 
 Thanks for using Venvutil!
 
 ## Setup Script Enhancements
 
-- **Hard Link Creation**: Updated `setup.sh` to include functionality for creating hard links. This change addresses issues with C++/G++/ld symlink handling, ensuring that the correct executable is called.
-- **Manifest Update**: The installer manifest now supports a hard link type (`h`) in addition to symbolic links (`l`). This allows for the specification of hard links directly in the manifest file.
-- **Compatibility**: The hard link creation functionality has been tested on macOS and RedHat Linux, ensuring cross-platform compatibility.
-- **Usage**: Use the `-h` flag in `setup.sh` to create hard links. This feature is currently untested, so proceed with caution.
+- **Manifest hard links (`h`)**: The installer manifest supports a hard link type (`h`) in addition to symbolic links (`l`). This allows you to specify hard links directly in the manifest file processed by [`setup/assets.sh`](setup/assets.sh).
+- **Shared shell libraries**: [`setup/setuplib`](setup/setuplib) is now a real directory whose `.sh` files are **hard links** to the canonical [`bin/shinclude`](bin/shinclude) libraries so setup and runtime never drift.
 
 ## Usage
 

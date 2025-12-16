@@ -20,7 +20,7 @@
 #
 # Options:
 #     -d directory  Specify the directory path where venvutil will be installed.
-#                     The default is $HOME/local
+#                     The default is read from setup/setup.cf (prefix=$HOME/local/venvutil)
 #     -r            Remove venvutil tools and utilities from the system.
 #                     The location will be taken from the config.sh file in your $HOME/.venvutil
 #                     directory.
@@ -52,13 +52,15 @@ __SETUP_DIR="${__SETUP_BASE}/setup"
 
 # --- Source Modules ---
 
-# Source all shared libraries from the setuplib directory
-for lib in "${__SETUP_DIR}"/setuplib/*.sh; do
-    if [ -f "$lib" ]; then
-        # shellcheck disable=SC1090
-        source "$lib"
-    fi
-done
+# Source shared libraries from the canonical shinclude directory.
+# This avoids drift between setup libs and runtime libs.
+__SETUP_SHINCLUDE="${__SETUP_BASE}/bin/shinclude"
+if [[ ! -f "${__SETUP_SHINCLUDE}/venvutil_lib.sh" ]]; then
+    echo "ERROR ($__SETUP_NAME): Missing shared library: ${__SETUP_SHINCLUDE}/venvutil_lib.sh" >&2
+    exit 2
+fi
+# shellcheck disable=SC1090
+source "${__SETUP_SHINCLUDE}/venvutil_lib.sh"
 
 # Source all modules from the setup directory
 for module in "${__SETUP_DIR}"/*.sh; do
@@ -116,30 +118,5 @@ main() {
 
 # --- Script Execution ---
 
-# Execute the main function with all script arguments
-main "$@"
-
-
-SH_LIB="${SH_LIB:-""}"
-for try in "${SH_LIB}" "$(dirname "${THIS_SCRIPT}")/shinclude" "${__SETUP_INCLUDE}" "${HOME}/bin/shinclude"; do
-    [ -f "${try}/init_lib.sh" ] && { SH_LIB="${try}"; break; }
-done
-[ -z "${SH_LIB}" ] && {
-    cat<<_EOT_ >&2
-ERROR ($__SETUP_NAME): Could not locate \`init_lib.sh\` file.
-ERROR ($__SETUP_NAME): Please set install init_lib.sh which came with this repository in one of
-    the following locations:
-        - $(dirname "${THIS_SCRIPT}")/bin/shinclude
-        - $HOME/shinclude
-        - $HOME/bin/shinclude
-    or set the environment variable SH_LIB to the directory containing init_lib.sh
-
-_EOT_
-    exit 2     # (ENOENT: 2): No such file or directory
-}
-
-echo "INFO ($__SETUP_NAME): Using SH_LIB directory - ${SH_LIB}" >&2
-# shellcheck source=/dev/null
-source "${SH_LIB}/venvutil_lib.sh"
-
+declare -ga __SETUP_ORIG_ARGS=("$@")
 main "$@"
