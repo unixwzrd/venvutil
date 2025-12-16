@@ -27,9 +27,8 @@ class SetupManifestSourceTests(unittest.TestCase):
             if len(parts) < 4:
                 continue
 
-            asset_type, _destination, source, name = (
+            asset_type, source, name = (
                 parts[0],
-                parts[1],
                 parts[2],
                 parts[3],
             )
@@ -43,8 +42,12 @@ class SetupManifestSourceTests(unittest.TestCase):
         if missing:
             self.fail("Missing manifest file sources:\n" + "\n".join(missing))
 
+    def test_manifest_excludes_runtime_and_ignored_paths(self) -> None:
+        text = MANIFEST.read_text(encoding="utf-8", errors="replace")
+        self.assertNotIn("__pycache__", text)
+        self.assertNotIn("/__pycache__", text)
+        self.assertNotIn("utils/analysis", text)
+
 
 if __name__ == "__main__":
     unittest.main()
-
-

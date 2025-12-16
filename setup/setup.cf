@@ -8,7 +8,7 @@ includedir=${prefix}/include
 bindir=${exec_prefix}/bin
 datadir=${prefix}/share
 sysconfdir=${prefix}/etc
-include_files=("README.md" "LICENSE" "setup.sh" "setup.cf" "manifest.lst" "requirements.txt" "requirements-build.txt")
+include_files=("README.md" "LICENSE" "setup.sh" "setup/setup.cf" "setup/manifest.lst" "requirements.txt" "requirements-build.txt")
 # Directories to include in the *installed payload* when generating the manifest.
 # The installer implementation under `setup/` is intentionally excluded; it lives in the git clone.
 include_dirs=("bin" "docs" "conf" "modules")

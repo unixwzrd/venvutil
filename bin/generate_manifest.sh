@@ -152,7 +152,7 @@ include_files=(${include_files[@]:-("README.md" "LICENSE" "setup.sh" "setup.cf" 
 # shellcheck disable=SC2206
 include_dirs=(${include_dirs[@]:-("bin" "docs" "conf")})
 # shellcheck disable=SC2206
-exclude_dirs=(".vscode" "tmp" )
+exclude_dirs=(".vscode" "tmp" "__pycache__" ".pytest_cache" "utils" "data")
 # Output file
 OUTPUT_FILE="${OUTPUT_FILE:-"setup/manifest.lst"}"
 mkdir -p "$(dirname "${OUTPUT_FILE}")"
@@ -187,7 +187,8 @@ if [[ ${#exclude_dirs[@]} -gt 0 ]]; then
     prune_conditions+=( "(" )
     prune_conditions+=( "-path" "*/.*" "-o" )
     for dir in "${exclude_dirs[@]}"; do
-        prune_conditions+=( "-path" "./$dir" "-o" "-path" "./$dir/*" "-o" )
+        # Prune these directories anywhere in the tree (not just at repo root).
+        prune_conditions+=( "-path" "*/$dir" "-o" "-path" "*/$dir/*" "-o" )
     done
     unset 'prune_conditions[-1]'  # Remove the last "-o"
     prune_conditions+=( ")" )
@@ -208,7 +209,9 @@ find_args+=( "-o" "(" )
 
 # Add files to the find arguments
 for file in "${include_files[@]}"; do
-    find_args+=( "-name" "$file" "-o" )
+    # Treat include_files as repo-root-relative paths so names like README.md don't pull in every nested README.md.
+    file="${file#./}"
+    find_args+=( "-path" "./$file" "-o" )
 done
 
 # Add visible directories and their contents to the find arguments

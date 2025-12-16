@@ -102,7 +102,7 @@ includedir=${prefix}/include
 bindir=${exec_prefix}/bin
 datadir=${prefix}/share
 sysconfdir=${prefix}/etc
-    include_files=("README.md" "LICENSE" "setup.sh" "setup.cf" "manifest.lst")
+    include_files=("README.md" "LICENSE" "setup.sh" "setup/setup.cf" "setup/manifest.lst")
     include_dirs=("bin" "docs" "conf" "modules")
 
 # Package metadata
