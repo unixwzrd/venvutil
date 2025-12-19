@@ -97,6 +97,7 @@ main() {
             install_python_packages
             write_pkg_config
             update_bashrc
+            update_bash_login_file
             post_install_user_message
             log_message "INFO" "venvutil installation completed successfully."
             ;;

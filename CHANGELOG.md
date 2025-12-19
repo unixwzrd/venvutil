@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 1.0.5 (2025-12-19)
+
+## 2025-12-19: bash login shell initialization fix
+
+- Updated the installer to also patch the user’s bash *login* startup file (`~/.bash_profile` / `~/.bash_login` / `~/.profile`) so interactive login shells source `~/.bashrc` (bash does not do this by default).
+- This resolves cases where Conda initializes in `.bash_profile` while venvutil installs its block into `.bashrc`, leaving fresh installs “half initialized” after `exec bash -l`.
+
+## Version 1.0.4 (2025-12-16)
+
 ## 2025-12-16: installer INSTALL_BASE + re-entry fixes
 
 - Fixed [`setup/core.sh`](setup/core.sh) to use the actual config loader (`load_config`) so the default `INSTALL_BASE` comes from [`setup/setup.cf`](setup/setup.cf) instead of resolving to empty (which previously could cause installs into `/`).
@@ -43,7 +52,7 @@ Migration notes:
 No more work will be done on extract_chat.py in this project, and it's now its own standalone project.
 Extract Chat can be found at [github.com/unixwzrd/extract-chat](https://github.com/unixwzrd/extract-chat)
 
-## Version 1.0.4 (2025-06-25)
+## Version 1.0.3 (2025-06-25)
 
 ## 2025-06-25: Wrapper Library Refactoring and Documentation Updates
 
@@ -724,7 +733,7 @@ The script scans a project directory and creates a markdown document with specif
 
 - [filetree](docs/filetree.md): Generates a file hierarchy tree from the current directory based on specified patterns.
 - [genmd](docs/genmd.md): Groups related files wrapped in markdown for easy uploading to ChatGPT. Configurations may be saved for later use.
-- [chunkfile](docs/chunktext.md): Splits a file into chunks of text for ingestion by a new GPT instance while maintaining context.
+- [chunkfile](docs/chunkfile.md): Splits a file into chunks of text for ingestion by a new GPT instance while maintaining context.
 
 ## 2024-07-09 - Fixed recursion bug in pip wrapper
 

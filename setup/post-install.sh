@@ -40,6 +40,62 @@ update_bashrc() {
     return 0
 }
 
+update_bash_login_file() {
+    log_message "INFO" "Ensuring login shells source .bashrc (Conda + Venvutil compatibility)..."
+
+    local start_marker="# VENVUTIL LOGIN START"
+    local end_marker="# VENVUTIL LOGIN END"
+
+    local login_file=""
+    if [[ -f "$HOME/.bash_profile" ]]; then
+        login_file="$HOME/.bash_profile"
+    elif [[ -f "$HOME/.bash_login" ]]; then
+        login_file="$HOME/.bash_login"
+    elif [[ -f "$HOME/.profile" ]]; then
+        # If only .profile exists, modify it safely (guarded by BASH_VERSION) so we don't affect other shells.
+        login_file="$HOME/.profile"
+    else
+        # Avoid overriding an existing .profile by creating a new .bash_profile only when none exist.
+        login_file="$HOME/.bash_profile"
+    fi
+
+    # Backup/create
+    if [[ -f "${login_file}" ]]; then
+        local backup_file
+        backup_file="${login_file}.$(date +%Y%m%d%H%M%S).bak"
+        cp "${login_file}" "${backup_file}"
+        log_message "INFO" "Created backup of login file at ${backup_file}"
+    else
+        : >"${login_file}" || { log_message "ERROR" "Failed to create ${login_file}"; return 1; }
+        log_message "INFO" "Created login file ${login_file} as it did not exist."
+    fi
+
+    # Remove existing block
+    if grep -Fxq "${start_marker}" "${login_file}"; then
+        sed "/^${start_marker}$/,/^${end_marker}$/d" "${login_file}" > "${login_file}.tmp" && mv "${login_file}.tmp" "${login_file}"
+        log_message "INFO" "Removed existing Venvutil login configuration to apply updates."
+    fi
+
+    # Append block: only for bash, and only interactive shells.
+    {
+        echo ""
+        echo "${start_marker}"
+        echo "# Bash login shells do NOT source ~/.bashrc by default."
+        echo "# This ensures interactive login shells load ~/.bashrc (where Venvutil installs its block)."
+        echo "if [ -n \"\${BASH_VERSION:-}\" ]; then"
+        echo "  case \"\$-\" in"
+        echo "    *i*) [ -f \"\$HOME/.bashrc\" ] && . \"\$HOME/.bashrc\" ;;"
+        echo "  esac"
+        echo "fi"
+        echo "${end_marker}"
+    } >> "${login_file}"
+
+    # Export the file we touched so post-install messaging can refer to it.
+    export VENVUTIL_LOGIN_FILE_UPDATED="${login_file}"
+    log_message "INFO" "Updated login file ${login_file} to source .bashrc for interactive login shells."
+    return 0
+}
+
 post_install_user_message() {
     log_message "INFO" "Provide user instructions..."
     # Custom post-install message can be added here
@@ -53,6 +109,11 @@ post_install_user_message() {
     if [[ -f "${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh" ]]; then source \"${INSTALL_BASE}/bin/shinclude/venvutil_lib.sh\"; fi
     cact venvutil
     # VENVUTIL END
+
+    Note: Bash login shells do not run .bashrc by default. To make login shells behave consistently
+    (and to ensure Conda + Venvutil initialize correctly), the installer also updated:
+
+    ${VENVUTIL_LOGIN_FILE_UPDATED:-$HOME/.bash_profile}
 
     If you wish to use it in the current shell, run the following command:
 

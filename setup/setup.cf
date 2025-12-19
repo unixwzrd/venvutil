@@ -16,7 +16,7 @@ include_dirs=("bin" "docs" "conf" "modules")
 # Package metadata
 Name: venvutil
 Description: "${TERM} Virtual Environment Utilities"
-Version: 1.0.42
+Version: 1.0.5
 Repository: https://github.com/unixwzrd/venvutil
 License: Apache License, Version 2.0
 Support: https://github.com/unixwzrd/venvutil/issues
