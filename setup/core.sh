@@ -22,6 +22,20 @@ log_message() {
         mkdir -p "${INSTALL_CONFIG}" "${INSTALL_CONFIG}/log" "${INSTALL_CONFIG}/freeze" 2>/dev/null || true
     fi
 
+    # By default, keep setup output quiet. Only surface DEBUG/TRACE when VERBOSE is enabled.
+    # (During early init, INSTALL_CONFIG may not be set yet, so without this we'd spam STDERR.)
+    if [[ "${VERBOSE:-false}" != true ]]; then
+        case "${message_level}" in
+            TRACE|DEBUG|DEBUG[0-9]*)
+                # Still write to log file if available; otherwise drop.
+                if [[ -n "${log_file}" ]]; then
+                    echo "($__SETUP_NAME) [$message_level] $message_out" >> "$log_file" 2>&1
+                fi
+                return 0
+                ;;
+        esac
+    fi
+
     # Print message to STDERR (and optionally to log file).
     if [[ "${VERBOSE:-false}" == true ]]; then
         if [[ -n "${log_file}" ]]; then
@@ -36,7 +50,11 @@ log_message() {
     if [[ -n "${log_file}" ]]; then
         echo "($__SETUP_NAME) [$message_level] $message_out" >> "$log_file" 2>&1
     else
-        echo "($__SETUP_NAME) [$message_level] $message_out" >&2
+        case "${message_level}" in
+            ERROR|CRITICAL|WARNING|WARN)
+                echo "($__SETUP_NAME) [$message_level] $message_out" >&2
+                ;;
+        esac
     fi
 }
 
@@ -92,13 +110,14 @@ parse_arguments() {
 }
 
 get_os_config() {
-    # Find host OS and architecture
-    declare -g OS ARCH
-    OS=$(uname -s)
-    [ "$OS" == "Darwin" ] && OS="MacOSX"
-    [ "$OS" == "Linux" ] && OS="Linux"
-    ARCH=$(uname -m)
-    ARCH=${ARCH//aarch64/arm64}
+    # Preserve raw uname outputs for portability/debugging.
+    # shellcheck disable=SC2034
+    declare -g UNAME_OS UNAME_ARCH
+
+    # shellcheck disable=SC2034
+    UNAME_OS="$(uname -s)"
+    # shellcheck disable=SC2034
+    UNAME_ARCH="$(uname -m)"
     return 0
 }
 

@@ -95,7 +95,7 @@ To add a library to the set of packages pkg-config knows about, simply install a
 # Define variables
     # Note: in this repo the installer config lives at `setup/setup.cf`, and the installer
     # manifest is generated to `setup/manifest.lst` (not the project root).
-    prefix=$HOME/local/venvutil
+prefix=$HOME/local/venvutil
 exec_prefix=${prefix}
 libdir="${exec_prefix}/lib"
 includedir=${prefix}/include

@@ -3,18 +3,60 @@
 # conda.sh - Conda related functions
 #
 
+miniconda_installer_name() {
+    # Compute the Miniconda installer filename from *raw* uname values.
+    # Keep all mapping local to this function (avoid polluting global namespace).
+    local uname_os uname_arch os arch
+
+    if [[ -z "${UNAME_OS:-}" || -z "${UNAME_ARCH:-}" ]]; then
+        if declare -f get_os_config &>/dev/null; then
+            get_os_config
+        fi
+    fi
+
+    uname_os="${UNAME_OS:-$(uname -s)}"
+    uname_arch="${UNAME_ARCH:-$(uname -m)}"
+
+    # Miniconda naming uses MacOSX (not Darwin). Linux stays Linux.
+    case "${uname_os}" in
+        Darwin) os="MacOSX" ;;
+        Linux) os="Linux" ;;
+        *) os="${uname_os}" ;;
+    esac
+
+    arch="${uname_arch}"
+    # Linux aarch64 installer sometimes needs mapping from "arm64".
+    if [[ "${os}" == "Linux" && "${arch}" == "arm64" ]]; then
+        arch="aarch64"
+    fi
+    # Rare: some macOS environments report aarch64; Miniconda uses arm64 on Mac.
+    if [[ "${os}" == "MacOSX" && "${arch}" == "aarch64" ]]; then
+        arch="arm64"
+    fi
+
+    printf 'Miniconda3-latest-%s-%s.sh' "${os}" "${arch}"
+}
+
 get_conda_installer() {
     log_message "INFO" "Getting conda installer..."
-    # Find host OS and architecture
-    local INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-${OS}-${ARCH}.sh"
-    curl -k -O "$INSTALLER_URL"
-    return 0
+    local installer_name
+    installer_name="$(miniconda_installer_name)"
+    local INSTALLER_URL="https://repo.anaconda.com/miniconda/${installer_name}"
+    log_message "INFO" "Miniconda installer: ${installer_name} (uname: ${UNAME_OS:-?}/${UNAME_ARCH:-?})"
+    # -f: fail on HTTP errors (e.g. 404); -L: follow redirects.
+    curl -fL -o "${installer_name}" "${INSTALLER_URL}"
+    printf '%s' "${installer_name}"
 }
 
 run_conda_installer() {
     log_message "INFO" "Running conda installer..."
-    bash "Miniconda3-latest-${OS}-${ARCH}.sh" -b -u
-    rm "Miniconda3-latest-${OS}-${ARCH}.sh"
+    local installer_name="${1:-}"
+    if [[ -z "${installer_name}" ]]; then
+        installer_name="$(miniconda_installer_name)"
+    fi
+
+    bash "${installer_name}" -b -u
+    rm "${installer_name}"
     # Activate the Conda installation
     # shellcheck disable=SC1091
     source "${HOME}/miniconda3/bin/activate"
@@ -34,8 +76,9 @@ install_conda() {
         return 0
     fi
     log_message "INFO" "Installing conda..."
-    get_conda_installer
-    run_conda_installer
+    local installer_name
+    installer_name="$(get_conda_installer)"
+    run_conda_installer "${installer_name}"
     restart_shell
     return 0
 }

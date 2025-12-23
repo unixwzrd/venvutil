@@ -59,7 +59,7 @@ if [[ ! -f "${__SETUP_SHINCLUDE}/venvutil_lib.sh" ]]; then
     echo "ERROR ($__SETUP_NAME): Missing shared library: ${__SETUP_SHINCLUDE}/venvutil_lib.sh" >&2
     exit 2
 fi
-# shellcheck disable=SC1090
+        # shellcheck disable=SC1090
 source "${__SETUP_SHINCLUDE}/venvutil_lib.sh"
 
 # Source all modules from the setup directory
