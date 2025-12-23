@@ -289,7 +289,7 @@ load_config() {
         if [[ "$line" =~ ^([A-Za-z_][A-Za-z0-9_]*):([[:space:]]*([^[:space:]].*[^[:space:]])?)?$ ]]; then
             key="${BASH_REMATCH[1]}"
             value="${BASH_REMATCH[3]:-}"  # Use empty string if no value captured
-            log_message "DEBUG" "Found key-value pair: $key : $value"
+            # log_message "DEBUG" "Found key-value pair: $key : $value"
             if ! var_type ${key} > /dev/null 2>&1 ; then
                 declare -g -a "${key}"
             fi

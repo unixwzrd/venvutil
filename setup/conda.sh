@@ -44,7 +44,10 @@ get_conda_installer() {
     local INSTALLER_URL="https://repo.anaconda.com/miniconda/${installer_name}"
     log_message "INFO" "Miniconda installer: ${installer_name} (uname: ${UNAME_OS:-?}/${UNAME_ARCH:-?})"
     # -f: fail on HTTP errors (e.g. 404); -L: follow redirects.
-    curl -fL -o "${installer_name}" "${INSTALLER_URL}"
+    if ! curl -fL -o "${installer_name}" "${INSTALLER_URL}"; then
+        log_message "ERROR" "Failed to download Miniconda installer (check OS/ARCH mapping): ${INSTALLER_URL}"
+        return 5  # EIO: Input/output error
+    fi
     printf '%s' "${installer_name}"
 }
 
@@ -55,8 +58,17 @@ run_conda_installer() {
         installer_name="$(miniconda_installer_name)"
     fi
 
-    bash "${installer_name}" -b -u
-    rm "${installer_name}"
+    if [[ ! -f "${installer_name}" ]]; then
+        log_message "ERROR" "Conda installer not found: ${installer_name}"
+        return 2  # ENOENT: No such file or directory
+    fi
+
+    if ! bash "${installer_name}" -b -u; then
+        log_message "ERROR" "Conda installer failed: ${installer_name}"
+        rm -f "${installer_name}"
+        return 8  # ENOEXEC: Exec format error
+    fi
+    rm -f "${installer_name}"
     # Activate the Conda installation
     # shellcheck disable=SC1091
     source "${HOME}/miniconda3/bin/activate"
@@ -76,9 +88,15 @@ install_conda() {
         return 0
     fi
     log_message "INFO" "Installing conda..."
-    local installer_name
-    installer_name="$(get_conda_installer)"
-    run_conda_installer "${installer_name}"
+    local installer_name __rc__
+    if ! installer_name="$(get_conda_installer)"; then
+        __rc__=$?
+        return "${__rc__}"
+    fi
+    if ! run_conda_installer "${installer_name}"; then
+        __rc__=$?
+        return "${__rc__}"
+    fi
     restart_shell
     return 0
 }

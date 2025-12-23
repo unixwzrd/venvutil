@@ -22,20 +22,6 @@ log_message() {
         mkdir -p "${INSTALL_CONFIG}" "${INSTALL_CONFIG}/log" "${INSTALL_CONFIG}/freeze" 2>/dev/null || true
     fi
 
-    # By default, keep setup output quiet. Only surface DEBUG/TRACE when VERBOSE is enabled.
-    # (During early init, INSTALL_CONFIG may not be set yet, so without this we'd spam STDERR.)
-    if [[ "${VERBOSE:-false}" != true ]]; then
-        case "${message_level}" in
-            TRACE|DEBUG|DEBUG[0-9]*)
-                # Still write to log file if available; otherwise drop.
-                if [[ -n "${log_file}" ]]; then
-                    echo "($__SETUP_NAME) [$message_level] $message_out" >> "$log_file" 2>&1
-                fi
-                return 0
-                ;;
-        esac
-    fi
-
     # Print message to STDERR (and optionally to log file).
     if [[ "${VERBOSE:-false}" == true ]]; then
         if [[ -n "${log_file}" ]]; then
@@ -50,11 +36,7 @@ log_message() {
     if [[ -n "${log_file}" ]]; then
         echo "($__SETUP_NAME) [$message_level] $message_out" >> "$log_file" 2>&1
     else
-        case "${message_level}" in
-            ERROR|CRITICAL|WARNING|WARN)
-                echo "($__SETUP_NAME) [$message_level] $message_out" >&2
-                ;;
-        esac
+        echo "($__SETUP_NAME) [$message_level] $message_out" >&2
     fi
 }
 

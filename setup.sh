@@ -91,14 +91,15 @@ main() {
     case "$ACTION" in
         install)
             log_message "INFO" "Starting venvutil installation..."
-            pre_install
-            install_assets
-            install_conda
-            install_python_packages
-            write_pkg_config
-            update_bashrc
-            update_bash_login_file
-            post_install_user_message
+            local err_code
+            pre_install || { err_code=$?; errno_exit "${err_code}" "Pre-installation checks failed"; }
+            install_assets || { err_code=$?; errno_exit "${err_code}" "Asset installation failed"; }
+            install_conda || { err_code=$?; errno_exit "${err_code}" "Conda installation failed"; }
+            install_python_packages || { err_code=$?; errno_exit "${err_code}" "Python package installation failed"; }
+            write_pkg_config || { err_code=$?; errno_exit "${err_code}" "Package configuration write failed"; }
+            update_bashrc || { err_code=$?; errno_exit "${err_code}" "Bashrc update failed"; }
+            update_bash_login_file || { err_code=$?; errno_exit "${err_code}" "Bash login file update failed"; }
+            post_install_user_message || { err_code=$?; errno_exit "${err_code}" "Post-installation message failed"; }
             log_message "INFO" "venvutil installation completed successfully."
             ;;
         refresh)
