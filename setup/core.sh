@@ -36,8 +36,8 @@ display_help_and_exit() {
 parse_arguments() {
     while getopts ":d:vh" opt; do
         case $opt in
-            d) INSTALL_BASE="$OPTARG" ;;
-            v) VERBOSE=true; set -x ;;
+            d) export INSTALL_BASE="$OPTARG" ;;
+            v) export VERBOSE=true; set -x ;;
             h) display_help_and_exit "Usage: $__SETUP_NAME [options] {install|refresh|update|remove|rollback|verify}" ;;
             \?) echo "Invalid option -$OPTARG" >&2; exit 1 ;;
             :) echo "Option -$OPTARG requires an argument." >&2; exit 1 ;;
@@ -173,11 +173,17 @@ restart_shell() {
     # Because Red Hat Enterprise Linux defines, sets it, but doesn't export it BASHSOURCED...
     # Prevents /etc/bashrc from being sourced again on Red Hat Enterprise Linux.
     export BASHSOURCED=Y
+    # Export options that were set from command-line arguments so they're available after exec
+    [[ -n "${VERBOSE:-}" ]] && export VERBOSE="${VERBOSE}"
+    [[ -n "${INSTALL_BASE:-}" ]] && export INSTALL_BASE="${INSTALL_BASE}"
+
     # Preserve xtrace across the exec/re-entry when enabled.
-    case "$-" in
-        *x*) export __SETUP_EXEC_XTRACE=1 ;;
-        *) unset __SETUP_EXEC_XTRACE ;;
-    esac
+    # Check both $- (current shell options) and VERBOSE (set by -v flag)
+    if [[ "$-" =~ x ]] || [[ "${VERBOSE:-false}" == "true" ]]; then
+        export __SETUP_EXEC_XTRACE=1
+    else
+        unset __SETUP_EXEC_XTRACE
+    fi
 
     local shell_bin=""
     shell_bin="$(command -v "$(basename "${SHELL:-bash}")" 2>/dev/null || true)"
@@ -195,7 +201,9 @@ restart_shell() {
     fi
 
     # Re-run setup in a login shell, preserving the original argv where possible.
-    if declare -p __SETUP_ORIG_ARGS >/dev/null 2>&1; then
+    # Note: bash arrays can't be exported, but __SETUP_ORIG_ARGS is set at script top level
+    # so it should be available. If not, fall back to ACTION.
+    if declare -p __SETUP_ORIG_ARGS >/dev/null 2>&1 && [[ ${#__SETUP_ORIG_ARGS[@]} -gt 0 ]]; then
         exec "$shell_bin" $shell_opts "${__SETUP_BASE}/${__SETUP_NAME}" "${__SETUP_ORIG_ARGS[@]}"
     else
         exec "$shell_bin" $shell_opts "${__SETUP_BASE}/${__SETUP_NAME}" "${ACTION}"

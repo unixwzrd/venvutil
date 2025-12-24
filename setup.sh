@@ -79,15 +79,13 @@ debug_level=10
 # --- Main Logic ---
 
 main() {
-    # Set default values
-    # shellcheck disable=SC2034
-    VERBOSE=false
-    # shellcheck disable=SC2034
-    INSTALL_BASE=""
+    # Set default values and export so they're available after exec
+    export VERBOSE="${VERBOSE:-false}"
+    export INSTALL_BASE="${INSTALL_BASE:-}"
     # shellcheck disable=SC2034
     ACTION=""
 
-    # Parse command-line arguments
+    # Parse command-line arguments (will export VERBOSE and INSTALL_BASE if set)
     parse_arguments "$@"
 
     # Initialize configuration
@@ -130,5 +128,7 @@ main() {
 
 # --- Script Execution ---
 
+# Capture original arguments and export so they're available after exec
 declare -ga __SETUP_ORIG_ARGS=("$@")
+export __SETUP_ORIG_ARGS
 main "$@"
