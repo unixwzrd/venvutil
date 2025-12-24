@@ -77,6 +77,7 @@ run_conda_installer() {
     conda init "$(basename "${SHELL}")"
     log_message "INFO" "Conda installed successfully, checking for updates..."
     conda update -n base -c defaults conda -y
+    # Stop recursion before it starts, this function is re-entrant.
     export CONDA_INSTALL_COMPLETE="Y"
 
     return 0
