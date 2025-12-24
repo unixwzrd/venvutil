@@ -70,6 +70,12 @@ for module in "${__SETUP_DIR}"/*.sh; do
     fi
 done
 
+# Set message level after the errno_lib.sh has loaded. It's a global set in errno_lib.sh.
+# shellcheck disable=SC2034
+debug_level=10
+
+
+
 # --- Main Logic ---
 
 main() {
