@@ -77,6 +77,7 @@ run_conda_installer() {
     conda init "$(basename "${SHELL}")"
     log_message "INFO" "Conda installed successfully, checking for updates..."
     conda update -n base -c defaults conda -y
+    export CONDA_INSTALL_COMPLETE="Y"
 
     return 0
 }
