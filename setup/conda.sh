@@ -84,7 +84,7 @@ run_conda_installer() {
 install_conda() {
     # Stop recursion before it starts, this is re-entrant.
     if [ "${CONDA_INSTALL_COMPLETE:-''}" == "Y" ]; then
-        unset CONDA_INSTALL_COMPLETE
+        # unset CONDA_INSTALL_COMPLETE
         return 0
     fi
     log_message "INFO" "Installing conda..."

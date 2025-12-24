@@ -415,33 +415,62 @@ errval() {
 #
 #  TODO Add option to specify a -l parameter for an optional log file
 #
+# Optional configuration (set these from the caller)
+#   LOG_FILE=/path/to/file.log
+#   LOG_PREFIX="setup"          # overrides script_name prefix if set
+#   VERBOSE=true|false          # if true, tee to stderr and file
+#   LOG_MKDIR=true|false        # auto mkdir -p dirname(LOG_FILE)
+
 log_message() {
     local OPTIND=1
-    # Parse options
     while getopts "h" opt; do
         case $opt in
             h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; echo "$*"; return 1 ;;
+            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
         esac
     done
     shift $((OPTIND - 1))
 
-    local script_name
-    script_name=$(basename "${BASH_SOURCE[-1]}")
     local message_level="$1"; shift
-    local message_class
-    message_class=$(errval "$message_level")
     local message_out="$*"
 
+    local message_class
+    message_class=$(errval "$message_level")
+
+    local script_name
+    script_name=$(basename "${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}")
+
+    local prefix="${LOG_PREFIX:-$script_name}"
+    local line="(${prefix}) ${message_level}(${message_class}): ${message_out}"
+
+    local log_file="${LOG_FILE:-}"
+
     if [[ -z "${message_class+_}" ]]; then
-        echo "($script_name) WARNING: Unknown log level '$message_level'. Message: $message_out" >&2
+        echo "(log_message) WARNING: Unknown log level '$message_level'. Message: $message_out" >&2
         errno_exit 9
     fi
 
-    # echo " LOG_MESSAGE CALLED: ${message_level} ${debug_level} ($MY_NAME): ${message_out}" >&2
-    # Compare the current debug_level with the message's severity level
-    if [ "$debug_level" -le "${message_class}" ]; then
-        echo "$script_name ${message_level}($message_class): ${message_out}" >&2
+    # severity gate (your existing behavior)
+    if [[ "${debug_level:-999}" -gt "${message_class}" ]]; then
+        return 0
+    fi
+
+    if [[ -n "$log_file" && "${LOG_MKDIR:-true}" == true ]]; then
+        mkdir -p "$(dirname "$log_file")" 2>/dev/null || true
+    fi
+
+    if [[ "${VERBOSE:-false}" == true ]]; then
+        if [[ -n "$log_file" ]]; then
+            printf '%s\n' "$line" | tee -a "$log_file" >&2
+        else
+            printf '%s\n' "$line" >&2
+        fi
+    else
+        if [[ -n "$log_file" ]]; then
+            printf '%s\n' "$line" >>"$log_file"
+        else
+            printf '%s\n' "$line" >&2
+        fi
     fi
 }
 

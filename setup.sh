@@ -42,9 +42,9 @@
 # Using a robust method to find the script's directory
 __SETUP_SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$__SETUP_SOURCE" ]; do # resolve $__SETUP_SOURCE until the file is no longer a symlink
-  __SETUP_BASE="$( cd -P "$( dirname "$__SETUP_SOURCE" )" >/dev/null 2>&1 && pwd )"
-  __SETUP_SOURCE="$(readlink "$__SETUP_SOURCE")"
-  [[ $__SETUP_SOURCE != /* ]] && __SETUP_SOURCE="$__SETUP_BASE/$__SETUP_SOURCE" # if $__SETUP_SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+    __SETUP_BASE="$( cd -P "$( dirname "$__SETUP_SOURCE" )" >/dev/null 2>&1 && pwd )"
+    __SETUP_SOURCE="$(readlink "$__SETUP_SOURCE")"
+    [[ $__SETUP_SOURCE != /* ]] && __SETUP_SOURCE="$__SETUP_BASE/$__SETUP_SOURCE" # if $__SETUP_SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
 done
 __SETUP_BASE="$( cd -P "$( dirname "$__SETUP_SOURCE" )" >/dev/null 2>&1 && pwd )"
 __SETUP_NAME=$(basename "${__SETUP_SOURCE}")
@@ -93,8 +93,8 @@ main() {
             log_message "INFO" "Starting venvutil installation..."
             local err_code
             pre_install || { err_code=$?; errno_exit "${err_code}" "Pre-installation checks failed"; }
-            install_assets || { err_code=$?; errno_exit "${err_code}" "Asset installation failed"; }
             install_conda || { err_code=$?; errno_exit "${err_code}" "Conda installation failed"; }
+            install_assets || { err_code=$?; errno_exit "${err_code}" "Asset installation failed"; }
             install_python_packages || { err_code=$?; errno_exit "${err_code}" "Python package installation failed"; }
             write_pkg_config || { err_code=$?; errno_exit "${err_code}" "Package configuration write failed"; }
             update_bashrc || { err_code=$?; errno_exit "${err_code}" "Bashrc update failed"; }

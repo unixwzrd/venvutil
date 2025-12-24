@@ -12,7 +12,7 @@
 | [errno_warn](functions/errno_warn.md) | Prints a warning message to STDERR and returns the error number. |
 | [errno_exit](functions/errno_exit.md) | Prints an error message to STDERR and exits with the error number. |
 | [errval](functions/errval.md) | Returns the numeric value associated with a log level. |
-| [log_message](functions/log_message.md) | Prints a message to STDERR based on the provided log level. |
+| [log_message](functions/log_message.md) | ## Defined in Script |
 | [_deprecated](functions/_deprecated.md) | Prints a deprecation warning message to STDERR. |
 
 ---
@@ -31,4 +31,4 @@ Apache License, Version 2.0
 ---
 
 Generated Markdown Documentation
-Generated on: 2025-12-23 at 17:57:07
+Generated on: 2025-12-24 at 02:21:50

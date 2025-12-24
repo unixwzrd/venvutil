@@ -3,43 +3,6 @@
 # core.sh - Core functions for setup
 #
 
-# Logging function
-log_message() {
-    local message_level="$1"; shift
-    local message_out="$*"
-
-#    declare -A message_class=(
-#            ["INFO"]=30
-#            ["WARNING"]=40
-#            ["ERROR"]=50
-#            ["CRITICAL"]=60
-#    )
-
-    local log_file=""
-    if [[ -n "${INSTALL_CONFIG:-}" ]]; then
-        log_file="${INSTALL_CONFIG}/install.log"
-        # Avoid early failures when logging happens before initialization creates the config dirs.
-        mkdir -p "${INSTALL_CONFIG}" "${INSTALL_CONFIG}/log" "${INSTALL_CONFIG}/freeze" 2>/dev/null || true
-    fi
-
-    # Print message to STDERR (and optionally to log file).
-    if [[ "${VERBOSE:-false}" == true ]]; then
-        if [[ -n "${log_file}" ]]; then
-            echo "($__SETUP_NAME) [$message_level] $message_out" 2>&1 | tee -a "$log_file" >&2
-        else
-            echo "($__SETUP_NAME) [$message_level] $message_out" >&2
-        fi
-        return 0
-    fi
-
-    # Non-verbose: log to file when available; otherwise emit to STDERR (pre-init safety).
-    if [[ -n "${log_file}" ]]; then
-        echo "($__SETUP_NAME) [$message_level] $message_out" >> "$log_file" 2>&1
-    else
-        echo "($__SETUP_NAME) [$message_level] $message_out" >&2
-    fi
-}
-
 # Function to display help extracted from the script
 display_help_and_exit() {
     # Initialize a variable to hold the help text
@@ -106,6 +69,12 @@ get_os_config() {
 # Installation Initialization
 initialization() {
 
+    # Phase 0: bootstrap logging (always available)
+    export LOG_PREFIX="${__SETUP_NAME:-setup}"
+    export LOG_FILE="${TMPDIR:-/tmp}/${__SETUP_NAME:-setup}.$$.install.log"
+    export VERBOSE="${VERBOSE:-false}"
+    export LOG_MKDIR=true
+
     get_os_config
 
     # check to see if function exists for pkg_config_vars
@@ -131,7 +100,19 @@ initialization() {
         log_message "ERROR" "INSTALL_BASE resolved to '${INSTALL_BASE:-<empty>}' (unsafe). Use -d <dir> or fix prefix in setup/setup.cf."
         exit 64
     fi
+
     INSTALL_CONFIG="$HOME/.${PKG_NAME}"
+
+    # Phase 1: switch to final log
+    local _bootstrap_log="$LOG_FILE"
+    export LOG_FILE="${INSTALL_CONFIG}/install.log"
+    export LOG_MKDIR=true
+
+    # pull bootstrap log forward (optional but very useful)
+    mkdir -p "$INSTALL_CONFIG" 2>/dev/null || true
+    if [[ -f "$_bootstrap_log" ]]; then
+        cat "$_bootstrap_log" >>"$LOG_FILE" 2>/dev/null || true
+    fi
 
     create_pkg_config_dir
 
@@ -192,8 +173,6 @@ restart_shell() {
     # Because Red Hat Enterprise Linux defines, sets it, but doesn't export it BASHSOURCED...
     # Prevents /etc/bashrc from being sourced again on Red Hat Enterprise Linux.
     export BASHSOURCED=Y
-    # So we don't recurse.
-    export CONDA_INSTALL_COMPLETE=Y
     # Preserve xtrace across the exec/re-entry when enabled.
     case "$-" in
         *x*) export __SETUP_EXEC_XTRACE=1 ;;
