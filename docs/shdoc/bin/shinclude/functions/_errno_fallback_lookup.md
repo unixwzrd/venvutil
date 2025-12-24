@@ -1,13 +1,10 @@
-## check_directory
-Function to ensure a directory exists. If it does not, it creates it.
-Args:
-  $1 (string): The path of the directory to be checked.
-Returns:
-  None
+## _errno_fallback_lookup
+Internal helper function to lookup error codes in the fallback table
+Returns 0 and outputs formatted error string if found, non-zero otherwise
 
 ## Defined in Script
 
-* [config_lib.sh](../config_lib_sh.md)
+* [errno_lib.sh](../errno_lib_sh.md)
 Website: [unixwzrd.ai](https://unixwzrd.ai)
 Github Repo: [venvutil](https://github.com/unixwzrd/venvutil)
 Copyright (c) 2025 Michael Sullivan

@@ -188,12 +188,16 @@ restart_shell() {
         shell_bin="/bin/bash"
     fi
 
-    # Re-run setup in a login shell, preserving the original argv where possible.
-    if declare -p __SETUP_ORIG_ARGS >/dev/null 2>&1; then
-        exec "$shell_bin" -l -c 'if [ -n "$__SETUP_EXEC_XTRACE" ]; then set -x; fi; exec "$@"' \
-            "$shell_bin" "${__SETUP_BASE}/${__SETUP_NAME}" "${__SETUP_ORIG_ARGS[@]}"
+    # Build shell options: always use login shell (-l), add -x if xtrace was enabled
+    local shell_opts="-l"
+    if [[ -n "${__SETUP_EXEC_XTRACE:-}" ]]; then
+        shell_opts="-lx"
     fi
 
-    exec "$shell_bin" -l -c 'if [ -n "$__SETUP_EXEC_XTRACE" ]; then set -x; fi; exec "$@"' \
-        "$shell_bin" "${__SETUP_BASE}/${__SETUP_NAME}" "${ACTION}"
+    # Re-run setup in a login shell, preserving the original argv where possible.
+    if declare -p __SETUP_ORIG_ARGS >/dev/null 2>&1; then
+        exec "$shell_bin" $shell_opts "${__SETUP_BASE}/${__SETUP_NAME}" "${__SETUP_ORIG_ARGS[@]}"
+    else
+        exec "$shell_bin" $shell_opts "${__SETUP_BASE}/${__SETUP_NAME}" "${ACTION}"
+    fi
 }

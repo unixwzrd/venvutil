@@ -46,6 +46,47 @@ source_lib string_lib
 # Get the helpsys_lib.sh script
 # source_lib helpsys_lib
 
+# Built-in fallback table of common POSIX error codes
+# Used when system errno.h is missing or incomplete (e.g., Rocky Linux)
+# Format: errno_name:errno_num:description
+declare -g -A __ERRNO_FALLBACK_TABLE
+__ERRNO_FALLBACK_TABLE=(
+    ["EPERM"]="1:Operation not permitted"
+    ["ENOENT"]="2:No such file or directory"
+    ["ESRCH"]="3:No such process"
+    ["EINTR"]="4:Interrupted system call"
+    ["EIO"]="5:Input/output error"
+    ["ENXIO"]="6:No such device or address"
+    ["E2BIG"]="7:Argument list too long"
+    ["ENOEXEC"]="8:Exec format error"
+    ["EBADF"]="9:Bad file descriptor"
+    ["ECHILD"]="10:No child processes"
+    ["EAGAIN"]="11:Resource temporarily unavailable"
+    ["ENOMEM"]="12:Cannot allocate memory"
+    ["EACCES"]="13:Permission denied"
+    ["EFAULT"]="14:Bad address"
+    ["ENOTBLK"]="15:Block device required"
+    ["EBUSY"]="16:Device or resource busy"
+    ["EEXIST"]="17:File exists"
+    ["EXDEV"]="18:Invalid cross-device link"
+    ["ENODEV"]="19:No such device"
+    ["ENOTDIR"]="20:Not a directory"
+    ["EISDIR"]="21:Is a directory"
+    ["EINVAL"]="22:Invalid argument"
+    ["ENFILE"]="23:Too many open files in system"
+    ["EMFILE"]="24:Too many open files"
+    ["ENOTTY"]="25:Inappropriate ioctl for device"
+    ["ETXTBSY"]="26:Text file busy"
+    ["EFBIG"]="27:File too large"
+    ["ENOSPC"]="28:No space left on device"
+    ["ESPIPE"]="29:Illegal seek"
+    ["EROFS"]="30:Read-only file system"
+    ["EMLINK"]="31:Too many links"
+    ["EPIPE"]="32:Broken pipe"
+    ["EDOM"]="33:Numerical argument out of domain"
+    ["ERANGE"]="34:Numerical result out of range"
+)
+
 # Add internal functions to the __VENV_INTERNAL_FUNCTIONS array.
 if ! declare -p __VENV_INTERNAL_FUNCTIONS >/dev/null 2>&1; then declare -ga __VENV_INTERNAL_FUNCTIONS; fi
 # Quote to prevent word splitting/globbing, or split robustly with mapfile or read -a.
@@ -135,6 +176,37 @@ set_debug() {
 #   - 2: Could not find system errno.h
 #   - 22: Invalid errno name
 #
+
+# Internal helper function to lookup error codes in the fallback table
+# Returns 0 and outputs formatted error string if found, non-zero otherwise
+_errno_fallback_lookup() {
+    local code="$1"
+    local name num desc entry
+    
+    if [[ "$code" =~ ^[0-9]+$ ]]; then
+        # Look up by numeric code
+        for name in "${!__ERRNO_FALLBACK_TABLE[@]}"; do
+            entry="${__ERRNO_FALLBACK_TABLE[$name]}"
+            num="${entry%%:*}"
+            if [[ "$num" == "$code" ]]; then
+                desc="${entry#*:}"
+                echo "($name: $code): $desc"
+                return 0
+            fi
+        done
+    else
+        # Look up by name
+        if [[ -n "${__ERRNO_FALLBACK_TABLE[$code]:-}" ]]; then
+            entry="${__ERRNO_FALLBACK_TABLE[$code]}"
+            num="${entry%%:*}"
+            desc="${entry#*:}"
+            echo "($code: $num): $desc"
+            return 0
+        fi
+    fi
+    return 1
+}
+
 errno() {
     local OPTIND=1
 
@@ -162,48 +234,82 @@ errno() {
     local errno_code
     errno_code="$(to_upper "$1")"
     local errno_file
+    local line errno_num errno_text
+    local found_in_system=false
+    
+    # Try common errno.h locations (Linux, macOS, BSD)
     if [ -f "/usr/include/sys/errno.h" ]; then
         errno_file="/usr/include/sys/errno.h"
+    elif [ -f "/usr/include/errno.h" ]; then
+        errno_file="/usr/include/errno.h"
     elif [ -f "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h" ]; then
         errno_file="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/errno.h"
-    else
-        echo "Error: Could not lookup error code '${errno_code}' system errno.h not found." >&2
-        __rc__=2
-        return ${__rc__}
+    elif [ -f "/usr/include/linux/errno.h" ]; then
+        errno_file="/usr/include/linux/errno.h"
     fi
 
-    local line errno_num errno_text
+    # Try system header lookup if file exists
+    if [[ -n "${errno_file:-}" ]]; then
+        if [[ "$errno_code" =~ ^[0-9]+$ ]]; then
+            # shellcheck disable=SC1087
+            line=$(grep -wE "#define [A-Z0-9_]+[[:space:]]+$errno_code[[:space:]]" "$errno_file" 2>/dev/null | head -n 1)
+            if [[ -n "$line" ]]; then
+                errno_code=$(echo "$line" | awk '{print $2}')
+                found_in_system=true
+            fi
+        else
+            # Not using braces for that, it's a regular expression here.
+            # shellcheck disable=SC1087
+            line=$(grep -wE "#define $errno_code[ \t]*" "$errno_file" 2>/dev/null | head -n 1)
+            if [[ -n "$line" ]]; then
+                found_in_system=true
+            fi
+        fi
 
-    if [[ "$errno_code" =~ ^[0-9]+$ ]]; then
-        # shellcheck disable=SC1087
-        line=$(grep -wE "#define [A-Z0-9_]+[[:space:]]+$errno_code[[:space:]]" "$errno_file" | head -n 1)
-        errno_code=$(echo "$line" | awk '{print $2}')
-    else
-        # Not using braces for that, it's a regular expression here.
-        # Use braces when expanding arrays, e.g. ${array[idx]} (or ${var}[.. to quiet).
-        # shellcheck disable=SC1087
-        line=$(grep -wE "#define $errno_code[ \t]*" "$errno_file" | head -n 1)
+        if [[ "$found_in_system" == true ]]; then
+            errno_num=$(echo "$line" | awk '{print $3}')
+            errno_text=$(echo "$line" | sed -e 's/#define[ \t]*[A-Z0-9_]*[ \t]*[A-Z0-9_]*[ \t]*\/\* \(.*\) \*\//\1/')
+
+            # If errno_num is not numeric, it's likely a macro reference
+            if [[ "$errno_num" =~ ^[a-zA-Z]+$ ]]; then
+                # Call errno with the macro name to get numeric value
+                errno "$errno_num" >/dev/null 2>&1
+                errno_num=$?
+            fi
+
+            if [[ -n "$errno_num" && "$errno_num" =~ ^[0-9]+$ ]]; then
+                echo "($errno_code: $errno_num): $errno_text"
+                __rc__="$errno_num"
+                return "${__rc__}"
+            fi
+        fi
     fi
 
-    errno_num=$(echo "$line" | awk '{print $3}')
-    errno_text=$(echo "$line" | sed -e 's/#define[ \t]*[A-Z0-9_]*[ \t]*[A-Z0-9_]*[ \t]*\/\* \(.*\) \*\//\1/')
-
-    # If errno_num is not numeric, it's likely a macro reference
-    if [[ "$errno_num" =~ ^[a-zA-Z]+$ ]]; then
-        # Call errno with the macro name to get numeric value
-        errno "$errno_num" >/dev/null 2>&1
-        errno_num=$?
-    fi
-
-    if [ -z "$errno_num" ]; then
-        echo "Error: Invalid errno code $errno_code" >&2
-        __rc__=22
-        return ${__rc__}
-    else
-        echo "($errno_code: $errno_num): $errno_text"
-        __rc__="$errno_num"
+    # Fallback to built-in table if system lookup failed or incomplete
+    local fallback_result
+    if fallback_result=$(_errno_fallback_lookup "$errno_code"); then
+        echo "$fallback_result"
+        # Extract numeric code from output (format: "(NAME: NUM): desc")
+        if [[ "$errno_code" =~ ^[0-9]+$ ]]; then
+            __rc__="$errno_code"
+        else
+            __rc__=$(echo "$fallback_result" | sed -n 's/.*: \([0-9]*\)):.*/\1/p')
+        fi
         return "${__rc__}"
     fi
+
+    # If we get here, error code not found in system headers or fallback table
+    # If it's a numeric code, just use it directly
+    if [[ "$errno_code" =~ ^[0-9]+$ ]]; then
+        echo "($errno_code: $errno_code): Unknown error code (using numeric value)"
+        __rc__="$errno_code"
+        return "${__rc__}"
+    fi
+
+    # Unknown error code name
+    echo "Error: Invalid errno code $errno_code" >&2
+    __rc__=22
+    return ${__rc__}
 }
 
 # # Function: errfind
@@ -333,14 +439,39 @@ errno_warn() {
 #   - Exits with the numeric error code
 #
 errno_exit() {
-    __rc__=$1
+    local exit_code=$1
     shift
     local message="$*"
-    error_text=$(errno "${__rc__}"); __rc__=$?
+    local error_text
+    local errno_lookup_rc
+    local numeric_code
+    
+    # Try to get error text, but don't fail if lookup fails
+    error_text=$(errno "${exit_code}" 2>/dev/null)
+    errno_lookup_rc=$?
+    
     [ -n "${message}" ] && log_message "ERROR" "${message}"
     log_message "ERROR" "FUNCTION: ${FUNCNAME[1]} LINE: ${BASH_LINENO[1]} FILE: ${BASH_SOURCE[-1]}"
-    log_message "ERROR" "${error_text}"
-    exit "${__rc__}"
+    
+    if [ ${errno_lookup_rc} -eq 0 ] && [ -n "${error_text}" ]; then
+        log_message "ERROR" "${error_text}"
+        # Extract numeric code from error text (format: "(NAME: NUM): description")
+        numeric_code=$(echo "${error_text}" | sed -n 's/.*: \([0-9]*\)):.*/\1/p')
+        if [[ -n "${numeric_code}" && "${numeric_code}" =~ ^[0-9]+$ ]]; then
+            exit_code="${numeric_code}"
+        fi
+    else
+        # Fallback: if errno lookup failed, just use the numeric code directly
+        # If exit_code is already numeric, use it; otherwise default to 1
+        if [[ ! "${exit_code}" =~ ^[0-9]+$ ]]; then
+            log_message "ERROR" "Error code: ${exit_code} (errno lookup unavailable, using code 1)"
+            exit_code=1
+        else
+            log_message "ERROR" "Error code: ${exit_code} (errno lookup unavailable)"
+        fi
+    fi
+    
+    exit "${exit_code}"
 }
 
 # # Function: errval
@@ -413,8 +544,6 @@ errval() {
 # - **Output**: 
 #   - Prints a message to STDERR if the provided log level is greater than or equal to the current debug level.
 #
-#  TODO Add option to specify a -l parameter for an optional log file
-#
 # Optional configuration (set these from the caller)
 #   LOG_FILE=/path/to/file.log
 #   LOG_PREFIX="setup"          # overrides script_name prefix if set
@@ -447,7 +576,8 @@ log_message() {
 
     if [[ -z "${message_class+_}" ]]; then
         echo "(log_message) WARNING: Unknown log level '$message_level'. Message: $message_out" >&2
-        errno_exit 9
+        # Don't exit on unknown log level - just warn and continue
+        return 0
     fi
 
     # severity gate (your existing behavior)

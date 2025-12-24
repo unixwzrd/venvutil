@@ -1,5 +1,47 @@
 # Changelog
 
+## Version 1.0.6 (2025-12-23)
+
+## 2025-12-23: Error handling improvements, OS/ARCH portability, and installer robustness
+
+### Error Handling and POSIX Error Codes
+- **Enhanced `errno_exit` function** in [`setup/setuplib/errno_lib.sh`](setup/setuplib/errno_lib.sh) to gracefully handle lookup failures:
+  - No longer forces exit when errno.h is missing or error codes are invalid
+  - Falls back to numeric codes with descriptive messages when lookup fails
+  - Works reliably across Linux distributions, including Rocky Linux with incomplete headers
+- **Added built-in fallback table** of 34 common POSIX error codes (EPERM through ERANGE) for systems with incomplete or missing errno.h headers
+- **Refactored fallback lookup** into `_errno_fallback_lookup()` helper function to eliminate code duplication
+- **Fixed `log_message`** to warn instead of exit on unknown log levels
+- **Added Linux errno.h paths** (`/usr/include/errno.h`, `/usr/include/linux/errno.h`) for better cross-distribution support
+
+### OS/ARCH Portability Improvements
+- **Simplified `get_os_config()`** in [`setup/core.sh`](setup/core.sh) to only set raw `UNAME_OS`/`UNAME_ARCH` globals (removed OS/ARCH mapping to avoid namespace pollution)
+- **Refactored Miniconda installer resolution** in [`setup/conda.sh`](setup/conda.sh):
+  - Moved OS/ARCH mapping logic into `miniconda_installer_name()` function (local scope only)
+  - Fixed Linux ARM64 mapping: `arm64` → `aarch64` for Miniconda installer names
+  - Removed unnecessary `amd64` mapping (Intel Macs report `x86_64`, not `amd64`)
+  - Minimal, correct mappings: `Darwin→MacOSX`, `Linux arm64→aarch64`, `MacOSX aarch64→arm64`
+- **Added error propagation** in conda installation functions:
+  - `get_conda_installer()` returns `5` (EIO) on curl/download failures
+  - `run_conda_installer()` returns `2` (ENOENT) if file missing, `8` (ENOEXEC) on execution failure
+  - `install_conda()` propagates error codes from sub-functions
+  - `setup.sh` captures return codes and passes them to `errno_exit` with descriptive messages
+
+### Installer Robustness
+- **Fixed `restart_shell()` function** in [`setup/core.sh`](setup/core.sh):
+  - Simplified exec logic: removed redundant nested `exec "$@"` inside `-c` command
+  - Pass `-x` directly to shell (`-lx` instead of `-l`) when xtrace is enabled
+  - Single exec path with proper argument preservation
+- **Added performance optimization**: Environment variable prevents re-installing Conda after shell restart
+- **Improved error checking**: All install steps in `setup.sh` now check return codes and call `errno_exit` with appropriate POSIX error codes
+- **Consolidated `log_message` function**: Unified logging implementation in `errno_lib.sh` with setup-specific extensions
+
+### Testing
+- Added unit tests for Miniconda installer name mapping (`tests/test_setup_conda_installer_spec.py`)
+- Added unit tests for OS/ARCH raw capture (`tests/test_setup_os_config.py`)
+- Added optional network URL validation test (`tests/test_setup_conda_installer_urls_network.py`)
+- Added curl failure regression test (`tests/test_setup_conda_curl_failure.py`)
+
 ## Version 1.0.5 (2025-12-19)
 
 ## 2025-12-19: bash login shell initialization fix

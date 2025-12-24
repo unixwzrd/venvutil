@@ -7,7 +7,8 @@
 | Function | Description |
 |:--|:--|
 | [set_debug](functions/set_debug.md) | Sets the debug level for the script. |
-| [errno](functions/errno.md) | Provides POSIX errno codes and values for use in scripts or lookup of error codes on the command line. |
+| [_errno_fallback_lookup](functions/_errno_fallback_lookup.md) | Returns 0 and outputs formatted error string if found, non-zero otherwise |
+| [errno](functions/errno.md) | ## Defined in Script |
 | [errfind](functions/errfind.md) | Find the error code for a given string. |
 | [errno_warn](functions/errno_warn.md) | Prints a warning message to STDERR and returns the error number. |
 | [errno_exit](functions/errno_exit.md) | Prints an error message to STDERR and exits with the error number. |
@@ -31,4 +32,4 @@ Apache License, Version 2.0
 ---
 
 Generated Markdown Documentation
-Generated on: 2025-12-24 at 02:37:03
+Generated on: 2025-12-24 at 06:14:02
