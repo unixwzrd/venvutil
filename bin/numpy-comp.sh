@@ -78,5 +78,13 @@ else
     fi
 fi
 
+SDKROOT="$(xcrun --sdk macosx --show-sdk-path)"
+
+INCLUDE="$SDKROOT/usr/include"
+LIB="$SDKROOT/usr/lib"
+
+CFLADS="-I ${INCLUDE} -I/System/Library/Frameworks/vecLib.framework/Headers"
+LD_FLAGS="${LIB} -L$LIB -framework Accelerate"
+
 echo "Installing NumPy version $VERSION..."
-CFLAGS="-I/System/Library/Frameworks/vecLib.framework/Headers -Wl,-framework -Wl,Accelerate -framework Accelerate" pip install numpy=="$VERSION" --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true
+CFLAGS="${CFLADS} ${LD_FLAGS}" pip install numpy=="$VERSION" --force-reinstall --no-deps --no-cache --no-binary :all: --no-build-isolation --compile -Csetup-args=-Dblas=accelerate -Csetup-args=-Dlapack=accelerate -Csetup-args=-Duse-ilp64=true

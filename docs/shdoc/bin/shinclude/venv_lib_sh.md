@@ -6,6 +6,8 @@
 
 | Function | Description |
 |:--|:--|
+| [__lenv_parse_option](functions/__lenv_parse_option.md) | ## Defined in Script |
+| [__vpmg_parse_option](functions/__vpmg_parse_option.md) | ## Defined in Script |
 | [push_venv](functions/push_venv.md) | Specialized push the default VENV onto the stack. |
 | [pop_venv](functions/pop_venv.md) | Specialized pop the VENV off the stack and decrement. |
 | [__set_venv_vars](functions/__set_venv_vars.md) | Sets internal VENV variables. |
@@ -24,6 +26,7 @@
 | [renv](functions/renv.md) | Revert to Previous Virtual Environment. |
 | [ccln](functions/ccln.md) | Clone current Virtual Environment |
 | [vren](functions/vren.md) | Rename a Virtual Environment. |
+| [vpmg](functions/vpmg.md) | Migrate the active virtual environment to a different Python version. |
 | [vdiff](functions/vdiff.md) | Compare Two Virtual Environments. |
 
 ---
@@ -42,4 +45,4 @@ Apache License, Version 2.0
 ---
 
 Generated Markdown Documentation
-Generated on: 2025-12-24 at 07:50:33
+Generated on: 2026-04-25 at 12:54:17

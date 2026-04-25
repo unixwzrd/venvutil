@@ -27,6 +27,7 @@
 | [specific_script_help](functions/specific_script_help.md) | Provide detailed documentation for a given script. |
 | [specific_function_help](functions/specific_function_help.md) | Provide detailed documentation for a given function. |
 | [help_functions](functions/help_functions.md) | List available functions and how to get their documentation. |
+| [__helpsys_parse_options](functions/__helpsys_parse_options.md) | Parse common help/debug options. |
 | [vhelp](functions/vhelp.md) | Main entry point for the help system. |
 
 ---
@@ -45,4 +46,4 @@ Apache License, Version 2.0
 ---
 
 Generated Markdown Documentation
-Generated on: 2025-12-24 at 07:50:32
+Generated on: 2026-04-25 at 12:54:16

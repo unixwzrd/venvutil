@@ -101,10 +101,29 @@ __VENV_INTERNAL_FUNCTIONS=(
     "push_venv"
     "pop_venv"
     "__set_venv_vars"
+    "__lenv_parse_option"
+    "__vpmg_parse_option"
 )
 
 # Initialize the stack
 declare -ga __VENV_STACK=()
+
+__lenv_parse_option() {
+    case "$1" in
+        t) sort_by_time=true ;;
+        r) sort_opts="-r" ;;
+        l) time_opts="."; sort_key="3"; date_spacing="20" ;;
+        *) return 1 ;;
+    esac
+}
+
+__vpmg_parse_option() {
+    case "$1" in
+        v) version="$2" ;;
+        p) preserve=1 ;;
+        *) return 1 ;;
+    esac
+}
 
 
 # # Function: push_venv
@@ -294,16 +313,10 @@ vdsc() {
 #   - Errors if the environment does not exist.
 #
 cact() {
-    local OPTIND=1
-    # Parse options
-    while getopts "hx" opt; do
-        case $opt in
-            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            x) set -x; local set_here="y" ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
+    local set_here="" __helpsys_help_requested=false __helpsys_optind=1
+    __helpsys_parse_options "hx" "" "$@" || return $?
+    "${__helpsys_help_requested}" && return 0
+    shift "$((__helpsys_optind - 1))"
 
     local new_env="$1"
 
@@ -359,16 +372,10 @@ cact() {
 #   - None
 #
 dact() {
-    local OPTIND=1
-    # Parse options
-    while getopts "hx" opt; do
-        case $opt in
-            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            x) set -x; local set_here="y" ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
+    local set_here="" __helpsys_help_requested=false __helpsys_optind=1
+    __helpsys_parse_options "hx" "" "$@" || return $?
+    "${__helpsys_help_requested}" && return 0
+    shift "$((__helpsys_optind - 1))"
 
     local stack_value
 
@@ -418,17 +425,10 @@ dact() {
 #   - Errors if no previous environment exists.
 #
 pact() {
-    local OPTIND=1
-
-    # Parse options
-    while getopts "hx" opt; do
-        case $opt in
-            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            x) set -x; local set_here="y" ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
+    local set_here="" __helpsys_help_requested=false __helpsys_optind=1
+    __helpsys_parse_options "hx" "" "$@" || return $?
+    "${__helpsys_help_requested}" && return 0
+    shift "$((__helpsys_optind - 1))"
 
     pop_venv
     local previous_env="${__sv__}"
@@ -480,20 +480,10 @@ lenv() {
     local time_opts=" "
     local sort_key="3"
     local date_spacing="11"
-    local OPTIND=1
-
-    # Parse options
-    while getopts "ltrhx" opt; do
-        case $opt in
-            t) sort_by_time=true ;;
-            r) sort_opts="-r" ;;
-            l) time_opts="."; sort_key="3"; date_spacing="20";;
-            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            x) set -x; local set_here="y" ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
+    local set_here="" __helpsys_help_requested=false __helpsys_optind=1
+    __helpsys_parse_options "ltrhx" "__lenv_parse_option" "$@" || return $?
+    "${__helpsys_help_requested}" && return 0
+    shift "$((__helpsys_optind - 1))"
 
     # Get environment info excluding comments
     local envs_info
@@ -618,16 +608,10 @@ lastenv() {
 #   - Errors during environment creation are handled by conda.
 #
 benv() {
-    local OPTIND=1
-    # Parse options
-    while getopts "hx" opt; do
-        case $opt in
-            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            x) set -x; local set_here="y" ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
+    local set_here="" __helpsys_help_requested=false __helpsys_optind=1
+    __helpsys_parse_options "hx" "" "$@" || return $?
+    "${__helpsys_help_requested}" && return 0
+    shift "$((__helpsys_optind - 1))"
 
     # Check for environment name
     if [ -z "$1" ]; then
@@ -679,19 +663,12 @@ benv() {
 #   - Errors during environment creation are handled by conda.
 #
 nenv() {
-    local OPTIND=1
-    # Parse options
-    while getopts "hx" opt; do
-        case $opt in
-            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            x) set -x; local set_here="y" ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
+    local set_here="" __helpsys_help_requested=false __helpsys_optind=1
+    __helpsys_parse_options "hx" "" "$@" || return $?
+    "${__helpsys_help_requested}" && return 0
+    shift "$((__helpsys_optind - 1))"
 
     local prefix="$1"; shift
-    local extra_options="$*"
 
     [ -z "${prefix}" ] && {
         echo "Error: Prefix is required." >&2
@@ -729,16 +706,10 @@ nenv() {
 #   - Errors if the environment does not exist.
 #
 denv() {
-    local OPTIND=1
-    # Parse options
-    while getopts "hx" opt; do
-        case $opt in
-            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            x) set -x; local set_here="y" ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
+    local set_here="" __helpsys_help_requested=false __helpsys_optind=1
+    __helpsys_parse_options "hx" "" "$@" || return $?
+    "${__helpsys_help_requested}" && return 0
+    shift "$((__helpsys_optind - 1))"
 
     local env_to_delete="$1"
 
@@ -774,16 +745,10 @@ denv() {
 #   - Errors during deactivation or deletion are handled by conda.
 #
 renv() {
-    local OPTIND=1
-    # Parse options
-    while getopts "hx" opt; do
-        case $opt in
-            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            x) set -x; local set_here="y" ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
+    local set_here="" __helpsys_help_requested=false __helpsys_optind=1
+    __helpsys_parse_options "hx" "" "$@" || return $?
+    "${__helpsys_help_requested}" && return 0
+    shift "$((__helpsys_optind - 1))"
 
     local env_to_delete=${CONDA_DEFAULT_ENV}
     local previous_env=${__VENV_PREV}
@@ -829,16 +794,10 @@ renv() {
 #   - Errors if the source environment does not exist.
 #
 ccln() {
-    local OPTIND=1
-    # Parse options
-    while getopts "hx" opt; do
-        case $opt in
-            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            x) set -x; local set_here="y" ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
+    local set_here="" __helpsys_help_requested=false __helpsys_optind=1
+    __helpsys_parse_options "hx" "" "$@" || return $?
+    "${__helpsys_help_requested}" && return 0
+    shift "$((__helpsys_optind - 1))"
 
     # Check if current environment exists
     if [ -z "${CONDA_DEFAULT_ENV}" ]; then
@@ -900,16 +859,10 @@ ccln() {
 #   - Errors if the environment does not exist.
 #
 vren() {
-    local OPTIND=1
-    # Parse options
-    while getopts "hx" opt; do
-        case $opt in
-            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            x) set -x; local set_here="y" ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
+    local set_here="" __helpsys_help_requested=false __helpsys_optind=1
+    __helpsys_parse_options "hx" "" "$@" || return $?
+    "${__helpsys_help_requested}" && return 0
+    shift "$((__helpsys_optind - 1))"
 
     local old_name new_name
 
@@ -973,6 +926,90 @@ vren() {
     return ${__rc__}
 }
 
+# # Function: vpmg
+# `vpmg` - Migrate the active virtual environment to a different Python version.
+#
+# ## Description
+# - **Purpose**:
+#   - Rebuilds the currently active conda virtual environment with a requested Python version.
+#   - Captures the installed pip package names, renames the current environment to a backup name,
+#     recreates the original environment with the requested Python version, and reinstalls the
+#     captured packages into the rebuilt environment.
+#   - By default, removes the backup environment after the migration succeeds.
+# - **Usage**:
+#   - `vpmg -v VERSION [-p]`
+# - **Options**:
+#   - `-v VERSION`  Python version to install in the rebuilt environment, such as `3.12`.
+#   - `-p`          Preserve the backup environment after a successful migration.
+#   - `-h`          Show this help message.
+#   - `-x`          Enable debug mode.
+# - **Input Parameters**:
+#   - None. The command operates on the currently active conda environment.
+# - **Output**:
+#   - Recreates the active environment with the requested Python version and reinstalls pip packages.
+#   - Creates a temporary backup environment named `<current_env>_bak` during the migration.
+# - **Exceptions**:
+#   - Returns `EINVAL` if no conda environment is active or no Python version is supplied.
+#   - Restores the backup environment name if environment creation or package installation fails.
+#
+vpmg() {
+    local version=""
+    local preserve=0
+    local set_here="" __helpsys_help_requested=false __helpsys_optind=1
+    __helpsys_parse_options "hv:px" "__vpmg_parse_option" "$@" || return "$(errno_warn $?)"
+    "${__helpsys_help_requested}" && return 0
+    shift "$((__helpsys_optind - 1))"
+
+    [[ -n "${CONDA_DEFAULT_ENV:-}" ]] || return "$(errno_warn 22)"
+    [[ -n "$version" ]] || return "$(errno_warn 22)"
+
+    local orig_env="${CONDA_DEFAULT_ENV}"
+    local backup_env="${orig_env}_bak"
+    local freeze_file pkgs
+
+    # Capture package names BEFORE we switch envs.
+    # - Drop first 2 header lines, take col 1
+    # mapfile -t pkgs < <(pip list | sed -n '3,${s/[[:space:]].*//;p;}')
+    freeze_file="${VENVUTIL_CONFIG}/freeze/${CONDA_DEFAULT_ENV}.current.txt"
+
+
+freeze_file="${VENVUTIL_CONFIG}/freeze/${CONDA_DEFAULT_ENV}.current.txt"
+
+    mapfile -t pkgs < <(
+        sed -E '
+            s/^([^ ]+) @ (git\+[^ ]+)/\2/;   # pkg @ git+... → git+...
+            s/@[a-f0-9]{40}//;              # strip commit hashes
+            s/==.*$//;                      # remove version pins
+        ' "$freeze_file"
+    )
+
+    # Rename current env out of the way (vren activates backup env)
+    vren "$backup_env" || return "$(errno_warn $?)"
+
+    # Create the new env with requested Python (benv activates orig_env)
+    benv "$orig_env" "python=${version}" || {
+        __rc__=$?
+        vren "$orig_env" >/dev/null 2>&1
+        return "$(errno_warn ${__rc__})"
+    }
+
+    # Install prior packages into the new env
+    # (single command, logged by your wrapper)
+    echo "pip install ${pkgs[@]}"
+    pip install ${pkgs[@]} || {
+        __rc__=$?
+        cact "${backup_env}"
+        denv "${orig_env}"
+        vren "$orig_env" >/dev/null 2>&1
+        return "$(errno_warn ${__rc__})"
+    }
+
+    (( preserve )) && return 0
+    denv "$backup_env" || return "$(errno_warn $?)"
+
+    return "${__rc__}"
+}
+
 # # Function: venvdiff
 # `venvdiff` - Compare Two Virtual Environments.
 #
@@ -993,16 +1030,10 @@ vren() {
 #   - Errors if either environment does not exist.
 #
 vdiff() {
-    local OPTIND=1
-    # Parse options
-    while getopts "hx" opt; do
-        case $opt in
-            h) vhelp "${FUNCNAME[0]}"; return 0 ;;
-            x) set -x; local set_here="y" ;;
-            \?) echo "Invalid option: -$OPTARG" >&2; vhelp "${FUNCNAME[0]}"; return 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
+    local set_here="" __helpsys_help_requested=false __helpsys_optind=1
+    __helpsys_parse_options "hx" "" "$@" || return $?
+    "${__helpsys_help_requested}" && return 0
+    shift "$((__helpsys_optind - 1))"
 
     # Check that two arguments are provided
     if [ "$#" -ne 2 ]; then
