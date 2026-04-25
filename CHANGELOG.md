@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-04-25: shared shell help option parsing
+
+## Version 1.0.7 (2026-04-25)
+
+- Added a shared `__helpsys_parse_options` helper in [`bin/shinclude/helpsys_lib.sh`](bin/shinclude/helpsys_lib.sh) for consistent `-h`, `--help`, and `-x` handling across sourced shell functions.
+- Refactored [`bin/shinclude/venv_lib.sh`](bin/shinclude/venv_lib.sh) option parsing to use the shared helper, with internal callbacks for function-specific options such as `lenv` sorting flags and `vpmg` version/preserve flags.
+- Fixed a bug where `vhelp  would complain about
+  ```
+  bash: __VENV_SCRIPTS: bad array subscript
+  ```
+- Even though it's not "ofically " part of this, made an enhancement to `mympy-comp` so it woudl pick up the correct Xcode `/usr/include` and `/usr/lib` when recompiling numpy.
+- Added a new function `vpmg` to `venv_lib.sh` to migrate a virtual environment to a new Python version and preserve the packages.
+
 ## Version 1.0.6 (2025-12-23)
 
 ## 2025-12-23: Error handling improvements, OS/ARCH portability, and installer robustness

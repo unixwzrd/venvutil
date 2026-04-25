@@ -72,18 +72,15 @@ declare -g -a __VENV_INTERNAL_FUNCTIONS=(
     "docs_base_path"
     "function_description"
     "general_help"
-    "general_help"
     "generate_markdown"
     "get_script_readme_file"
     "get_system_readme_file"
     "help_functions"
-    "init_help_system"
+    "__helpsys_parse_options"
     "init_help_system"
     "process_scripts"
     "script_description"
     "specific_function_help"
-    "specific_function_help"
-    "specific_script_help"
     "specific_script_help"
     "write_function_doc"
     "write_page_footer"
@@ -929,6 +926,92 @@ help_functions() {
 
 }
 
+# # Function: __helpsys_parse_options
+#  `__helpsys_parse_options` - Parse common help/debug options.
+# ## Description
+# - **Purpose**:
+#   - Handles common function options consistently across sourced shell libraries.
+#   - Supports `-h`, `--help`, and `-x`, while allowing callers to process additional
+#     options through an optional callback.
+# - **Usage**:
+#   - `__helpsys_parse_options <optstring> [option_handler] "$@"`
+# - **Scope**:
+#   - Internal
+# - **Input Parameters**:
+#   - `optstring`: The `getopts` option string for the caller.
+#   - `option_handler`: Optional callback for caller-specific options.
+#   - `"$@"`: The caller's original argument list.
+# - **Output**:
+#   - Sets `__helpsys_optind` to the parsed `OPTIND` value.
+#   - Sets `__helpsys_help_requested=true` when help was displayed.
+#   - Sets caller-scoped `set_here=y` when `-x` is used.
+# - **Exceptions**:
+#   - Returns non-zero for invalid options or option-handler failures.
+#
+__helpsys_parse_options() {
+    local optstring="$1"; shift
+    local option_handler="${1:-}"; shift
+    local parse_optstring="${optstring#:}"
+    local opt
+    local OPTIND=1
+    local OPTERR=0
+    local func_name="${FUNCNAME[1]}"
+
+    __helpsys_help_requested=false
+    __helpsys_optind=1
+
+    while getopts ":${parse_optstring}-:" opt "$@"; do
+        case "${opt}" in
+            h)
+                vhelp "${func_name}"
+                __helpsys_help_requested=true
+                __helpsys_optind="${OPTIND}"
+                return 0
+                ;;
+            x)
+                set -x
+                # shellcheck disable=SC2034
+                set_here="y"
+                ;;
+            -)
+                case "${OPTARG}" in
+                    help)
+                        vhelp "${func_name}"
+                        __helpsys_help_requested=true
+                        __helpsys_optind="${OPTIND}"
+                        return 0
+                        ;;
+                    *)
+                        echo "Invalid option: --${OPTARG}" >&2
+                        vhelp "${func_name}"
+                        return 1
+                        ;;
+                esac
+                ;;
+            \?)
+                echo "Invalid option: -${OPTARG}" >&2
+                vhelp "${func_name}"
+                return 1
+                ;;
+            :)
+                echo "Option -${OPTARG} requires an argument." >&2
+                vhelp "${func_name}"
+                return 1
+                ;;
+            *)
+                if [[ -z "${option_handler}" ]] || ! "${option_handler}" "${opt}" "${OPTARG:-}"; then
+                    echo "Invalid option: -${opt}" >&2
+                    vhelp "${func_name}"
+                    return 1
+                fi
+                ;;
+        esac
+    done
+
+    __helpsys_optind="${OPTIND}"
+    return 0
+}
+
 # # Function: vhelp
 #  `vhelp` - Main entry point for the help system.
 # ## Description
@@ -959,7 +1042,7 @@ vhelp() {
     command -v "${MD_PROCESSOR}" > /dev/null 2>&1 && md_command="${MD_PROCESSOR}" || md_command="cat"
 
     # Check if the subcommand is a known script name
-    if [[ -n "${__VENV_SCRIPTS["${subcommand}"]:-""}" ]]; then
+    if [[ -n "${subcommand}" && -n "${__VENV_SCRIPTS["${subcommand}"]:-""}" ]]; then
         is_script=1
     fi
 
