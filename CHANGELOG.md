@@ -1,17 +1,29 @@
 # Changelog
 
-## 2026-04-25: shared shell help option parsing
+## Version 1.0.8 (2026-04-25)
+
+## 2026-05-24: vdiff overhaul and library maintenance
+
+### Virtual environment tools ([`bin/shinclude/venv_lib.sh`](bin/shinclude/venv_lib.sh))
+- Reworked **`vdiff`** to compare normalized, sorted package lists so side-by-side `diff -y` output lines up matching packages by name.
+- **`vdiff`** now accepts one environment name (compare against the active conda env) or two names (compare both explicitly), restores the originally active environment when finished, and uses `vhelp` for usage errors.
+- Added internal helpers **`__vdiff_capture_packages`** and **`__vdiff_capture_from_env`** to capture package lists without leaving the caller stuck in the wrong environment.
+- Improved **`vpmg`** package reinstall: reads from the freeze manifest under `VENVUTIL_CONFIG`, normalizes git/editable entries, and quotes `pip install` arguments safely.
+- **`cact`** now returns exit code `93` when `conda activate` fails (was `1`).
+
+### Utilities ([`bin/shinclude/util_lib.sh`](bin/shinclude/util_lib.sh))
+- Optimized **`sort_2d_array`** using a `nameref` instead of `eval`, with a tighter inner sort loop.
+
+### Documentation
+- Regenerated shell library docs and updated [`setup/manifest.lst`](setup/manifest.lst) for new/changed `venv_lib.sh` helpers.
 
 ## Version 1.0.7 (2026-04-25)
 
-- Added a shared `__helpsys_parse_options` helper in [`bin/shinclude/helpsys_lib.sh`](bin/shinclude/helpsys_lib.sh) for consistent `-h`, `--help`, and `-x` handling across sourced shell functions.
+- Added a shared **`__helpsys_parse_options`** helper in [`bin/shinclude/helpsys_lib.sh`](bin/shinclude/helpsys_lib.sh) for consistent `-h`, `--help`, and `-x` handling across sourced shell functions.
 - Refactored [`bin/shinclude/venv_lib.sh`](bin/shinclude/venv_lib.sh) option parsing to use the shared helper, with internal callbacks for function-specific options such as `lenv` sorting flags and `vpmg` version/preserve flags.
-- Fixed a bug where `vhelp  would complain about
-  ```
-  bash: __VENV_SCRIPTS: bad array subscript
-  ```
-- Even though it's not "ofically " part of this, made an enhancement to `mympy-comp` so it woudl pick up the correct Xcode `/usr/include` and `/usr/lib` when recompiling numpy.
-- Added a new function `vpmg` to `venv_lib.sh` to migrate a virtual environment to a new Python version and preserve the packages.
+- Fixed a bug where **`vhelp`** with no subcommand could fail with `__VENV_SCRIPTS: bad array subscript`.
+- Enhanced **`numpy-comp`** ([`bin/numpy-comp.sh`](bin/numpy-comp.sh), symlinked as [`bin/numpy-comp`](bin/numpy-comp)) to pick up the correct Xcode `/usr/include` and `/usr/lib` paths when recompiling NumPy on macOS.
+- Added **`vpmg`**: migrate the active virtual environment to a new Python version and reinstall captured packages.
 
 ## Version 1.0.6 (2025-12-23)
 

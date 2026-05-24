@@ -1102,10 +1102,11 @@ vdiff() {
     env1_packages=$(__vdiff_capture_from_env "${env1}" "${original_env}") || return $?
     env2_packages=$(__vdiff_capture_from_env "${env2}" "${original_env}") || return $?
 
-    local term_width
-    term_width=$(tput cols)
+    local env1_count env2_count term_width
+    env1_count=$(printf '%s\n' "$env1_packages" | grep -c . || true)
+    env2_count=$(printf '%s\n' "$env2_packages" | grep -c . || true)
+    term_width=$(tput cols 2>/dev/null || echo 160)
 
-    COLUMNS=80
     echo "Comparing packages in ${env1} (left, ${env1_count}) and ${env2} (right, ${env2_count}):"
     diff -y --width="${COLUMNS:-${term_width}}" <(printf '%s\n' "$env1_packages") <(printf '%s\n' "$env2_packages")
     __rc__=$?
