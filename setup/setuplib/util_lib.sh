@@ -146,38 +146,25 @@ sort_2d_array() {
     done
     shift $((OPTIND - 1))
 
-    local array_name="$1"
-    local i j temp1 temp2 len temp_array
+    local -n temp_array="$1"
+    local i j temp1 temp2 len
 
-    # Assign named array to local array
-    eval "temp_array=(\"\${${array_name}[@]}\")"
     len=${#temp_array[@]}
 
     for ((i=2; i<len; i+=2)); do
         temp1=${temp_array[i]}
         temp2=${temp_array[i+1]}
+        j=$i
 
-        # Find the correct position for temp1, temp2 by comparing with all preceding pairs
-        j=i
-        while [[ j -ge 2 ]]; do
-            if [[ ${temp_array[j-2]} > "$temp1" ]]; then
-                # Shift the pair at j-2 forward to make room for temp1, temp2
-                temp_array[j]=${temp_array[j-2]}
-                temp_array[j+1]=${temp_array[j-1]}
-                j=$((j-2))
-            else
-                # Correct position found, break the loop
-                break
-            fi
+        while (( j >= 2 )) && [[ ${temp_array[j-2]} > "$temp1" ]]; do
+            temp_array[j]=${temp_array[j-2]}
+            temp_array[j+1]=${temp_array[j-1]}
+            ((j-=2))
         done
 
-        # Place temp1, temp2 in their correct position
         temp_array[j]=$temp1
         temp_array[j+1]=$temp2
     done
-
-    # Assign sorted local array back to original named array
-    eval "${array_name}=(\"\${temp_array[@]}\")"
 }
 
 # # Function: push_stack
