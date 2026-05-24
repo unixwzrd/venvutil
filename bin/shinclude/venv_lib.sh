@@ -103,6 +103,8 @@ __VENV_INTERNAL_FUNCTIONS=(
     "__set_venv_vars"
     "__lenv_parse_option"
     "__vpmg_parse_option"
+    "__vdiff_capture_packages"
+    "__vdiff_capture_from_env"
 )
 
 # Initialize the stack
@@ -347,7 +349,7 @@ cact() {
     # dact
     # Activate new environment
     echo "Activating new environment: ${__VENV_NAME}..."
-    conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." 1>&2; return 1; }
+    conda activate "${__VENV_NAME}" || { echo "Error: Failed to activate new environment." 1>&2; return 93; }
     if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi
@@ -972,9 +974,6 @@ vpmg() {
     # mapfile -t pkgs < <(pip list | sed -n '3,${s/[[:space:]].*//;p;}')
     freeze_file="${VENVUTIL_CONFIG}/freeze/${CONDA_DEFAULT_ENV}.current.txt"
 
-
-freeze_file="${VENVUTIL_CONFIG}/freeze/${CONDA_DEFAULT_ENV}.current.txt"
-
     mapfile -t pkgs < <(
         sed -E '
             s/^([^ ]+) @ (git\+[^ ]+)/\2/;   # pkg @ git+... → git+...
@@ -995,8 +994,9 @@ freeze_file="${VENVUTIL_CONFIG}/freeze/${CONDA_DEFAULT_ENV}.current.txt"
 
     # Install prior packages into the new env
     # (single command, logged by your wrapper)
-    echo "pip install ${pkgs[@]}"
-    pip install ${pkgs[@]} || {
+    printf 'pip install %q ' "${pkgs[@]}"
+    printf '\n'
+    pip install "${pkgs[@]}" || {
         __rc__=$?
         cact "${backup_env}"
         denv "${orig_env}"
@@ -1010,23 +1010,66 @@ freeze_file="${VENVUTIL_CONFIG}/freeze/${CONDA_DEFAULT_ENV}.current.txt"
     return "${__rc__}"
 }
 
-# # Function: venvdiff
-# `venvdiff` - Compare Two Virtual Environments.
+
+# Capture a normalized, sorted package list from the active environment.
+# Output format is one `name==version` line per package (no paths or -e URLs).
+__vdiff_capture_packages() {
+    LC_ALL=C pip list 2>/dev/null | awk '
+        NR > 2 && $1 != "" {
+            printf "%s\t%s\n", tolower($1), $2
+        }
+    ' | LC_ALL=C sort -f -u
+}
+
+__vdiff_capture_from_env() {
+    local env="$1"
+    local original_env="$2"
+
+    if [[ "${env}" != "${original_env}" ]]; then
+        cact "${env}" > /dev/null || return $?
+    fi
+
+    local packages
+    packages=$(__vdiff_capture_packages)
+    local rc=$?
+
+    if [[ "${env}" != "${original_env}" ]]; then
+        if [[ -n "${original_env}" ]]; then
+            cact "${original_env}" > /dev/null
+        else
+            dact > /dev/null
+        fi
+    fi
+
+    printf '%s\n' "${packages}"
+
+    return "${rc}"
+}
+
+
+# # Function: vdiff
+# `vdiff` - Compare virtual environment package lists.
 #
 # ## Description
 # - **Purpose**: 
-#   - Compares two virtual environments and lists differences.
+#   - Compares package lists between conda virtual environments.
+#   - With one argument, compares the currently active environment to the named environment.
+#   - With two arguments, compares the first environment to the second.
 # - **Usage**: 
-#   - `venvdiff [-h] [env1] [env2]`
+#   - `vdiff [-h] [other_env]`
+#   - `vdiff [-h] env1 env2`
 # - **Options**: 
 #   - `-h`   Show this help message
 #   - `-x`   Enable debug mode
 # - **Input Parameters**: 
-#   - `env1` (string) - The first environment to compare.
-#   - `env2` (string) - The second environment to compare.
+#   - `other_env` (string, optional) - Environment to compare against the active one.
+#   - `env1` (string, optional) - First environment when comparing two named environments.
+#   - `env2` (string, optional) - Second environment when comparing two named environments.
 # - **Output**: 
-#   - Lists the differences between the two environments.
+#   - Side-by-side diff of normalized, sorted `name==version` lines from each environment.
+#   - Matching package names align on the same row; version differences appear together.
 # - **Exceptions**: 
+#   - Errors if no active environment is set when only one name is supplied.
 #   - Errors if either environment does not exist.
 #
 vdiff() {
@@ -1035,33 +1078,47 @@ vdiff() {
     "${__helpsys_help_requested}" && return 0
     shift "$((__helpsys_optind - 1))"
 
-    # Check that two arguments are provided
-    if [ "$#" -ne 2 ]; then
-        echo "Usage: venvdiff [-h] env1 env2" >&2
-        __rc__=1
-        return ${__rc__}
+    if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+        vhelp "${FUNCNAME[0]}"
+        return 22
     fi
 
-    local env1=$1
-    local env2=$2
+    local env1 env2
+    local original_env="${CONDA_DEFAULT_ENV:-}"
+    local env1_packages env2_packages
 
-    # Activate the first environment and get the list of packages
-    cact "${env1}" > /dev/null
-    local env1_packages
-    env1_packages=$(pip list | tail -n +1)
-    dact > /dev/null
+    if [ "$#" -eq 1 ]; then
+        [[ -n "${CONDA_DEFAULT_ENV:-}" ]] || {
+            echo "Error: No active conda environment. Activate one or pass two environment names." >&2
+            return 22
+        }
+        env1="${CONDA_DEFAULT_ENV}"
+        env2="$1"
+    else
+        env1="$1"
+        env2="$2"
+    fi
 
-    cact "${env2}" > /dev/null
-    local env2_packages
-    env2_packages=$(pip list | tail -n +1)
-    dact > /dev/null
+    env1_packages=$(__vdiff_capture_from_env "${env1}" "${original_env}") || return $?
+    env2_packages=$(__vdiff_capture_from_env "${env2}" "${original_env}") || return $?
 
-    echo "Comparing packages in $env1 and $env2:"
-    diff -y <(echo "$env1_packages") <(echo "$env2_packages")
+    local env1_count env2_count term_width
+    env1_count=$(printf '%s\n' "$env1_packages" | grep -c . || true)
+    env2_count=$(printf '%s\n' "$env2_packages" | grep -c . || true)
+    term_width=$(tput cols 2>/dev/null || echo 160)
+
+    echo "Comparing packages in ${env1} (left, ${env1_count}) and ${env2} (right, ${env2_count}):"
+    diff -y --width="${COLUMNS:-${term_width}}" <(printf '%s\n' "$env1_packages") <(printf '%s\n' "$env2_packages")
+    __rc__=$?
+
+    if [ -n "${original_env}" ]; then
+        cact "${original_env}" > /dev/null
+    fi
 
     if [ "${set_here:-}" == 'y' ]; then
         set +x
     fi
+    return "${__rc__}"
 }
 
 

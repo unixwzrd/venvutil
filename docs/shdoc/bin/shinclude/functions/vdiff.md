@@ -1,20 +1,26 @@
 ## vdiff
-# Function: venvdiff
-`venvdiff` - Compare Two Virtual Environments.
+# Function: vdiff
+`vdiff` - Compare virtual environment package lists.
 ## Description
 - **Purpose**: 
-  - Compares two virtual environments and lists differences.
+  - Compares package lists between conda virtual environments.
+  - With one argument, compares the currently active environment to the named environment.
+  - With two arguments, compares the first environment to the second.
 - **Usage**: 
-  - `venvdiff [-h] [env1] [env2]`
+  - `vdiff [-h] [other_env]`
+  - `vdiff [-h] env1 env2`
 - **Options**: 
   - `-h`   Show this help message
   - `-x`   Enable debug mode
 - **Input Parameters**: 
-  - `env1` (string) - The first environment to compare.
-  - `env2` (string) - The second environment to compare.
+  - `other_env` (string, optional) - Environment to compare against the active one.
+  - `env1` (string, optional) - First environment when comparing two named environments.
+  - `env2` (string, optional) - Second environment when comparing two named environments.
 - **Output**: 
-  - Lists the differences between the two environments.
+  - Side-by-side diff of normalized, sorted `name==version` lines from each environment.
+  - Matching package names align on the same row; version differences appear together.
 - **Exceptions**: 
+  - Errors if no active environment is set when only one name is supplied.
   - Errors if either environment does not exist.
 
 ## Defined in Script
@@ -28,4 +34,4 @@ Apache License, Version 2.0
 ---
 
 Generated Markdown Documentation
-Generated on: 2026-04-25 at 12:54:17
+Generated on: 2026-05-24 at 06:45:07

@@ -27,7 +27,9 @@
 | [ccln](functions/ccln.md) | Clone current Virtual Environment |
 | [vren](functions/vren.md) | Rename a Virtual Environment. |
 | [vpmg](functions/vpmg.md) | Migrate the active virtual environment to a different Python version. |
-| [vdiff](functions/vdiff.md) | Compare Two Virtual Environments. |
+| [__vdiff_capture_packages](functions/__vdiff_capture_packages.md) | Output format is one `name==version` line per package (no paths or -e URLs). |
+| [__vdiff_capture_from_env](functions/__vdiff_capture_from_env.md) | ## Defined in Script |
+| [vdiff](functions/vdiff.md) | Compare virtual environment package lists. |
 
 ---
 
@@ -45,4 +47,4 @@ Apache License, Version 2.0
 ---
 
 Generated Markdown Documentation
-Generated on: 2026-04-25 at 12:54:17
+Generated on: 2026-05-24 at 06:45:07
