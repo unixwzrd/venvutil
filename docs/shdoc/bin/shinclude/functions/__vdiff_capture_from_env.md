@@ -1,4 +1,4 @@
-## __vpmg_parse_option
+## __vdiff_capture_from_env
 
 ## Defined in Script
 

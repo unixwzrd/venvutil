@@ -1,4 +1,6 @@
-## __vpmg_parse_option
+## __vdiff_capture_packages
+Capture a normalized, sorted package list from the active environment.
+Output format is one `name==version` line per package (no paths or -e URLs).
 
 ## Defined in Script
 
