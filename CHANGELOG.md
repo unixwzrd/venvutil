@@ -1,10 +1,11 @@
 # Changelog
 
-## Version 1.0.8 (2026-04-25)
+## Version 1.0.9 (2026-05-24)
 
-## 2026-05-24: vdiff overhaul and library maintenance
+## 2026-05-24: vdiff overhaul, filetree root path, and release docs
 
 ### Virtual environment tools ([`bin/shinclude/venv_lib.sh`](bin/shinclude/venv_lib.sh))
+
 - Reworked **`vdiff`** to compare normalized, sorted package lists so side-by-side `diff -y` output lines up matching packages by name.
 - **`vdiff`** now accepts one environment name (compare against the active conda env) or two names (compare both explicitly), restores the originally active environment when finished, and uses `vhelp` for usage errors.
 - Added internal helpers **`__vdiff_capture_packages`** and **`__vdiff_capture_from_env`** to capture package lists without leaving the caller stuck in the wrong environment.
@@ -12,12 +13,20 @@
 - **`cact`** now returns exit code `93` when `conda activate` fails (was `1`).
 
 ### Utilities ([`bin/shinclude/util_lib.sh`](bin/shinclude/util_lib.sh))
+
 - Optimized **`sort_2d_array`** using a `nameref` instead of `eval`, with a tighter inner sort loop.
 
-### Documentation
-- Regenerated shell library docs and updated [`setup/manifest.lst`](setup/manifest.lst) for new/changed `venv_lib.sh` helpers.
+### filetree ([`bin/filetree.py`](bin/filetree.py))
 
-## Version 1.0.7 (2026-04-25)
+- Kept the existing GenMD-compatible pattern normalization, directory allowlists, `-l/--log-level`, and `GENMD_*` environment variables (a slim experimental rewrite that dropped those helpers was reverted).
+- Added an optional **positional root directory** so you can run `filetree bin/shinclude` without a dash flag; trailing paths after `-e/-i` are recovered when they name an existing directory.
+
+### Documentation
+
+- Regenerated shell library docs and updated [`setup/manifest.lst`](setup/manifest.lst) for new/changed `venv_lib.sh` helpers.
+- Refreshed the project [`README.md`](README.md) for the 1.0.9 release line, with stronger product examples and **`vpmg`** highlighted as the headline upgrade path.
+
+## Version 1.0.8 (2026-04-25)
 
 - Added a shared **`__helpsys_parse_options`** helper in [`bin/shinclude/helpsys_lib.sh`](bin/shinclude/helpsys_lib.sh) for consistent `-h`, `--help`, and `-x` handling across sourced shell functions.
 - Refactored [`bin/shinclude/venv_lib.sh`](bin/shinclude/venv_lib.sh) option parsing to use the shared helper, with internal callbacks for function-specific options such as `lenv` sorting flags and `vpmg` version/preserve flags.
@@ -30,6 +39,7 @@
 ## 2025-12-23: Error handling improvements, OS/ARCH portability, and installer robustness
 
 ### Error Handling and POSIX Error Codes
+
 - **Enhanced `errno_exit` function** in [`setup/setuplib/errno_lib.sh`](setup/setuplib/errno_lib.sh) to gracefully handle lookup failures:
   - No longer forces exit when errno.h is missing or error codes are invalid
   - Falls back to numeric codes with descriptive messages when lookup fails
@@ -40,6 +50,7 @@
 - **Added Linux errno.h paths** (`/usr/include/errno.h`, `/usr/include/linux/errno.h`) for better cross-distribution support
 
 ### OS/ARCH Portability Improvements
+
 - **Simplified `get_os_config()`** in [`setup/core.sh`](setup/core.sh) to only set raw `UNAME_OS`/`UNAME_ARCH` globals (removed OS/ARCH mapping to avoid namespace pollution)
 - **Refactored Miniconda installer resolution** in [`setup/conda.sh`](setup/conda.sh):
   - Moved OS/ARCH mapping logic into `miniconda_installer_name()` function (local scope only)
@@ -53,6 +64,7 @@
   - `setup.sh` captures return codes and passes them to `errno_exit` with descriptive messages
 
 ### Installer Robustness
+
 - **Fixed `restart_shell()` function** in [`setup/core.sh`](setup/core.sh):
   - Simplified exec logic: removed redundant nested `exec "$@"` inside `-c` command
   - Pass `-x` directly to shell (`-lx` instead of `-l`) when xtrace is enabled
@@ -62,6 +74,7 @@
 - **Consolidated `log_message` function**: Unified logging implementation in `errno_lib.sh` with setup-specific extensions
 
 ### Testing
+
 - Added unit tests for Miniconda installer name mapping (`tests/test_setup_conda_installer_spec.py`)
 - Added unit tests for OS/ARCH raw capture (`tests/test_setup_os_config.py`)
 - Added optional network URL validation test (`tests/test_setup_conda_installer_urls_network.py`)

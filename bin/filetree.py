@@ -7,7 +7,7 @@ excluding and including files based on specified patterns. It supports command-l
 arguments and environment variables for configuration.
 
 Usage:
-    filetree [options]
+    filetree [options] [root_directory]
 
 Options:
     -e, --exclude [patterns]    Exclude directories/files matching the given patterns.
@@ -18,6 +18,7 @@ Options:
     -L, --follow-links          Follow symlinks when scanning directories.
     -l, --log-level             Set the logging level (10=DEBUG, 20=INFO, 30=WARNING, 40=ERROR, 50=CRITICAL)
     -a, --all                   Display the entire file tree without any filters
+    root_directory              Optional path to scan (defaults to the current directory)
 
 Environment Variables:
     GENMD_DIR_EXCLUDES          Default list of directory patterns to exclude.
@@ -35,20 +36,26 @@ Examples:
         filetree -i "*.py *.js"
         ```
 
-    3. Combine Exclusions and Inclusions:
+    3. Scan a Specific Directory (positional root):
+        ```bash
+        filetree bin/shinclude
+        filetree -i "*.sh" bin/shinclude
+        ```
+
+    4. Combine Exclusions and Inclusions:
         ```bash
         filetree -e "node_modules|dist" "*.log *.tmp" -i "*.py *.js"
         ```
 
-    4. Using Environment Variables for Defaults:
+    5. Using Environment Variables for Defaults:
         ```bash
         export GENMD_DIR_EXCLUDES="node_modules dist"
         export GENMD_FILE_EXCLUDES="*.log *.tmp"
-       export GENMD_FILE_INCLUDES="*.py *.js"
+        export GENMD_FILE_INCLUDES="*.py *.js"
         filetree
         ```
 
-    5. Display Help Message:
+    6. Display Help Message:
         ```bash
         filetree -h
         ```
@@ -449,6 +456,7 @@ def generate_tree(
     show_all=False,
     follow_links=False,
     directory_allowlist=None,
+    root_dir=".",
 ):
     """
     Generate a tree structure of the current directory excluding and including specific directories/files.
@@ -457,11 +465,13 @@ def generate_tree(
     :param include_patterns: List of patterns to include.
     :param show_all: If True, display the entire file tree without any filters.
     :param follow_links: If True, follow symbolic links.
+    :param root_dir: Directory to scan (defaults to the current directory).
     """
     console = Console()
-    tree = Tree("Root Directory")
+    display_root = root_dir if root_dir not in {".", ""} else os.path.basename(os.getcwd()) or "."
+    tree = Tree(display_root)
     add_items(
-        ".",
+        root_dir,
         tree,
         exclude_patterns,
         include_patterns,
@@ -501,12 +511,44 @@ def load_exclusions_from_file(config_file):
         return []
 
 
+def _peel_trailing_root(args):
+    """
+    Recover a trailing directory path that argparse attached to -e/-i.
+
+    With ``nargs='*'``, commands like ``filetree -e .git bin/shinclude`` can
+    leave ``root='.'`` and put the directory into the exclude list. If the last
+    token is an existing directory and not a glob pattern, treat it as root.
+    """
+
+    if args.root not in {".", ""}:
+        return args
+
+    for attr in ("exclude", "include"):
+        values = list(getattr(args, attr) or [])
+        if not values:
+            continue
+        candidate = values[-1].strip()
+        if not candidate or any(char in candidate for char in "*?[]|"):
+            continue
+        if os.path.isdir(candidate):
+            args.root = candidate
+            setattr(args, attr, values[:-1])
+            break
+    return args
+
+
 def main():
     """
     Main function to parse arguments and generate the directory tree.
     """
     parser = argparse.ArgumentParser(
-        description="Generate a tree structure of the current directory excluding and including specific directories/files."
+        description="Generate a tree structure of a directory excluding and including specific directories/files."
+    )
+    parser.add_argument(
+        "root",
+        nargs="?",
+        default=".",
+        help="Root directory to scan (defaults to the current directory).",
     )
     parser.add_argument(
         "-e",
@@ -542,12 +584,18 @@ def main():
         help="Display the entire file tree without any filters",
     )
 
-    # Parse arguments
-    args = parser.parse_args()
+    # Parse arguments. Intermixed parsing keeps option order flexible; the
+    # peel helper below recovers a trailing root swallowed by -e/-i.
+    args = _peel_trailing_root(parser.parse_intermixed_args())
 
     # Calculate the logging level
     logging_level = (args.log_level // 10) * 10
     logging.basicConfig(level=logging_level, format=f"{program_name} %(message)s")
+
+    root_dir = args.root
+    if not os.path.isdir(root_dir):
+        logging.error("Root directory does not exist: %s", root_dir)
+        sys.exit(2)
 
     # Built-in default exclusion patterns
     DEFAULT_EXCLUDES = [".git", ".git/", ".jekyll-cache", ".DS_Store"]
@@ -612,6 +660,7 @@ def main():
             show_all=True,
             follow_links=follow_links,
             directory_allowlist=[],
+            root_dir=root_dir,
         )
     else:
         generate_tree(
@@ -620,6 +669,7 @@ def main():
             show_all=args.all,
             follow_links=follow_links,
             directory_allowlist=include_directory_allowlist,
+            root_dir=root_dir,
         )
 
 
